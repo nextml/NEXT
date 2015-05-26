@@ -25,6 +25,11 @@ $ cd NEXT/ec2
 $ python next_ec2.py --key-pair=<keypair> --identity-file=<key-file> launch <cluster-name>
 ```
 
+where:
+- `<keypair>` is the name of your EC2 key pair
+- `<key-file>` is the private key file for your key pair
+- `<cluster-name>` is the custom name you assign to your cluster
+
 For example, if you would like to fire up a c3.8xlarge instance type, after filling in your credentials, your launch command will look something like this:
 
 ```
@@ -43,10 +48,10 @@ $ python run_examples.py
 Once initialized, this script will return a link that you can distribute yourself or post as a HIT on Mechanical Turk. Visit:
 
 - `http://your_public_ec2_DNS:8001/query/cartoon_dueling` for Pure Exploration for Dueling Bandits
-- `http://your_public_ec2_DNS:8001/query/cartoon_triplet` for Active Non-Metric Multidimensional Scaling
+- `http://your_public_ec2_DNS:8001/query/cartoon_triplet` for Active Non-Metric Multidimensional Scaling (MDS)
 - `http://your_public_ec2_DNS:8001/query/cartoon_tuple` for Pure Exploration for Tuple Bandits
 
-## Experiment results, dashboards, and data visualizations
+## Accessing experiment results, dashboards, and data visualizations
 
 You can access interactive experiment dashboards and data visualizations at:
 - `http://your_public_ec2_DNS:8000/dashboard/experiment_list`
