@@ -40,4 +40,8 @@ Because NEXT aims to make it easy to reproduce empirical active learning results
 $ cd NEXT/examples
 $ python run_examples.py
 ```
-Once initialized, this script will return a link that you can distribute yourself or post as a HIT on Mechanical Turk.
+Once initialized, this script will return a link that you can distribute yourself or post as a HIT on Mechanical Turk. Visit:
+`http://your_public_ec2_DNS:8001/query/cartoon_dueling` for Pure Exploration for Dueling Bandits
+`http://your_public_ec2_DNS:8001/query/cartoon_triplet` for Active Non-Metric Multidimensional Scaling
+`http://your_public_ec2_DNS:8001/query/cartoon_tuple` for Pure Exploration for Tuple Bandits
+
