@@ -35,3 +35,9 @@ Once your terminal shows a stream of many multi-colored docker appliances, *wall
 
 ## Replicating NEXT adaptive learning experiments
 
+Because NEXT aims to make it easy to reproduce empirical active learning results, we provide a one-line command to initialize the experiments performed in [this  study](). 
+```
+$ cd NEXT/examples
+$ python run_examples.py
+```
+Once initialized, this script will return a link that you can distribute yourself or post as a HIT on Mechanical Turk.
