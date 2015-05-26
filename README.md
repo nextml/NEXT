@@ -2,8 +2,32 @@
 
 ## Getting the code
 
-You can download the latest version of *NEXT* from github with the following clone command:
+You can download the latest version of NEXT from github with the following clone command:
 
 ```
 $ git clone https://github.com/kgjamieson/NEXT.git
 ```
+
+## Launching NEXT on EC2
+
+First, you must set your Amazon Web Services (AWS) account credentials as enviornment variables. If you don't already have AWS account, you can follow the AWS account set-up guide [here](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/get-set-up-for-amazon-ec2.html).
+
+Export your AWS credentials as environment variables using:
+```
+$ export AWS_SECRET_ACCESS_KEY = your_secret_aws_access_key_here
+$ export AWS_ACCESS_KEY_ID = your_aws_access_key_id_here
+```
+
+Now you are ready to fire up the NEXT system using our launch command. This command will create a new EC2 instance, pull the NEXT repository to that instance, install all of the relevant Docker images, and finally run all Docker containers.
+
+```
+$ cd NEXT/ec2
+$ python next_ec2.py --key-pair=<keypair> --identity-file=<key-file> launch <cluster-name>
+```
+
+For example, if you would like to fire up a c3.8xlarge instance type, after filling in your credentials, your launch command will look something like this:
+
+```
+$ python next_ec2.py --key-pair=my_aws_key --identity-file=~/Downloads/my_aws_key.pem --instance-type=c3.8xlarge launch next_test_instance
+```
+Once your terminal shows a stream of many multi-colored docker appliances, wallah, you are now running the NEXT system!
