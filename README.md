@@ -46,10 +46,10 @@ Once initialized, this script will return a link that you can distribute yoursel
 - `http://your_public_ec2_DNS:8001/query/cartoon_triplet` for Active Non-Metric Multidimensional Scaling
 - `http://your_public_ec2_DNS:8001/query/cartoon_tuple` for Pure Exploration for Tuple Bandits
 
-## View experiment results, dashboards, and data visualizations
+## Experiment results, dashboards, and data visualizations
 
 You can access interactive experiment dashboards and data visualizations at:
-`http://your_public_ec2_DNS:8000/dashboard/experiment_list`
+- `http://your_public_ec2_DNS:8000/dashboard/experiment_list`
 
 And obtain all participant logs for an experiment through our RESTful API via cURL using:
 ```
