@@ -35,11 +35,11 @@ where:
 - `<key-file>` is the private key file for your key pair
 - `<cluster-name>` is the custom name you assign to your cluster
 
-Once your terminal shows a stream of many multi-colored docker appliances, you are now running the NEXT system!
+Once your terminal shows a stream of many multi-colored docker appliances, you are successfully running the NEXT system!
 
 ## Replicating NEXT adaptive learning experiments
 
-Because NEXT aims to make it easy to reproduce empirical active learning results, we provide a one-line command to initialize the experiments performed in [this  study](). 
+Because NEXT aims to make it easy to reproduce empirical active learning results, we provide a simple command to initialize the experiments performed in [this  study](). 
 
 First, in a new terminal, export your AWS credentials and use `get-master` to obtain your public EC2 DNS.
 ```
