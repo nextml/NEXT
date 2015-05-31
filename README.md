@@ -2,6 +2,8 @@
 
 NEXT is a system that makes it *easy* to develop, evaluate, and apply active learning.
 
+This readme contains the necessary steps to launch the NEXT system on EC2, and to replicate and launch the experiments from the NEXT paper. For new users, we recommend starting with the launch tutorial on our GitHub wiki [here](https://github.com/kgjamieson/NEXT/wiki/NEXT-EC2-Launch-Tutorial).
+
 ## Getting the code
 
 You can download the latest version of NEXT from github with the following clone command:
@@ -39,7 +41,7 @@ Once your terminal shows a stream of many multi-colored docker appliances, you a
 
 Because NEXT aims to make it easy to reproduce empirical active learning results, we provide a one-line command to initialize the experiments performed in [this  study](). 
 
-First, export your public EC2 DNS and install the python requests library.
+First, in a new terminal, export your public EC2 DNS and install the python requests library.
 ```
 $ export NEXT_FRONTEND_BASE_GLOBAL_HOST=your_public_ec2_DNS_here
 $ export NEXT_FRONTEND_BASE_GLOBAL_PORT=8001
