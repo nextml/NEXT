@@ -18,8 +18,8 @@ First, you must set your Amazon Web Services (AWS) account credentials as envior
 
 Export your AWS credentials as environment variables using:
 ```
-$ export AWS_SECRET_ACCESS_KEY = your_secret_aws_access_key_here
-$ export AWS_ACCESS_KEY_ID = your_aws_access_key_id_here
+$ export AWS_SECRET_ACCESS_KEY=your_secret_aws_access_key_here
+$ export AWS_ACCESS_KEY_ID=your_aws_access_key_id_here
 ```
 
 Now you are ready to fire up the NEXT system using our launch command. This command will create a new EC2 instance, pull the NEXT repository to that instance, install all of the relevant Docker images, and finally run all Docker containers.
@@ -41,7 +41,14 @@ Once your terminal shows a stream of many multi-colored docker appliances, you a
 
 Because NEXT aims to make it easy to reproduce empirical active learning results, we provide a one-line command to initialize the experiments performed in [this  study](). 
 
-First, in a new terminal, export your public EC2 DNS and install the python requests library.
+First, in a new terminal, export your AWS credentials and use `get-master` to obtain your public EC2 DNS.
+```
+$ export AWS_SECRET_ACCESS_KEY=your_secret_aws_access_key_here
+$ export AWS_ACCESS_KEY_ID=your_aws_access_key_id_here
+$ python next_ec2.py --key-pair=<keypair> --identity-file=<key-file> get-master <cluster-name>
+```
+
+Then export this public EC2 DNS and install the python requests library.
 ```
 $ export NEXT_FRONTEND_BASE_GLOBAL_HOST=your_public_ec2_DNS_here
 $ export NEXT_FRONTEND_BASE_GLOBAL_PORT=8001
