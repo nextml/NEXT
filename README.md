@@ -24,7 +24,7 @@ $ export AWS_SECRET_ACCESS_KEY=your_secret_aws_access_key_here
 $ export AWS_ACCESS_KEY_ID=your_aws_access_key_id_here
 ```
 
-Install the local python packages needed for NEXT.
+Install the local python packages needed for NEXT:
 ```
 $ cd NEXT
 $ sudo pip install -r local_requirements.txt
