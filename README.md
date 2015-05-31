@@ -2,7 +2,9 @@
 
 NEXT is a system that makes it *easy* to develop, evaluate, and apply active learning.
 
-This readme contains the necessary steps to launch the NEXT system on EC2, and to replicate and launch the experiments from the NEXT paper. For new users, we recommend starting with the launch tutorial on our GitHub wiki [here](https://github.com/kgjamieson/NEXT/wiki/NEXT-EC2-Launch-Tutorial).
+This readme contains the necessary steps to launch the NEXT system on EC2, and to replicate and launch the experiments from the [NEXT paper](). 
+
+For new users, we recommend starting with the launch tutorial on our GitHub wiki [here](https://github.com/kgjamieson/NEXT/wiki/NEXT-EC2-Launch-Tutorial).
 
 ## Getting the code
 
@@ -66,7 +68,7 @@ Once initialized, this script will return a link that you can distribute yoursel
 - `http://your_public_ec2_DNS_here:8000/query/query_page/PoolBasedTripletMDS/<exp_uid>/<exp_key>` for Active Non-Metric Multidimensional Scaling (MDS)
 - `http://your_public_ec2_DNS_here:8000/query/query_page/TupleBanditsPureExploration/<exp_uid>/<exp_key>` for Pure Exploration for Tuple Bandits
 
-Navigate to the strange fruit query link and answer some questions. Doing so will allow you provide the system with data you van view and interact with in the next step.
+Navigate to the strange fruit query link and answer some questions! Doing so will provide the system with data you can view and interact with in the next step.
 
 ## Accessing NEXT experiment results, dashboards, and data visualizations
 
