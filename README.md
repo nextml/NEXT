@@ -33,13 +33,8 @@ where:
 - `<key-file>` is the private key file for your key pair
 - `<cluster-name>` is the custom name you assign to your cluster
 
-For example, if you would like to fire up a c3.8xlarge instance type, after filling in your credentials, your launch command will look something like this:
-
 ```
-$ python next_ec2.py --key-pair=my_aws_key --identity-file=~/Downloads/my_aws_key.pem \
---instance-type=c3.8xlarge launch next_test_instance
-```
-Once your terminal shows a stream of many multi-colored docker appliances, *wallah*, you are now running the NEXT system!
+Once your terminal shows a stream of many multi-colored docker appliances, you are now running the NEXT system!
 
 ## Replicating NEXT adaptive learning experiments
 
