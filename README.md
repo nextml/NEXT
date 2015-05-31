@@ -1,6 +1,6 @@
 # NEXT
 
-*NEXT is a system that makes it easy to develop, evaluate, and apply active learning.*
+NEXT is a system that makes it *easy* to develop, evaluate, and apply active learning.
 
 ## Getting the code
 
