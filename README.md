@@ -24,11 +24,15 @@ $ export AWS_SECRET_ACCESS_KEY=your_secret_aws_access_key_here
 $ export AWS_ACCESS_KEY_ID=your_aws_access_key_id_here
 ```
 
-Now you are ready to fire up the NEXT system using our launch command. This command will create a new EC2 instance, pull the NEXT repository to that instance, install all of the relevant Docker images, and finally run all Docker containers.
-
+Install the local python packages needed for NEXT.
 ```
-$ cd NEXT/ec2
-$ sudo pip install boto
+$ cd NEXT
+$ sudo pip install -r local_requirements.txt
+```
+
+Now you are ready to fire up the NEXT system using our launch command. This command will create a new EC2 instance, pull the NEXT repository to that instance, install all of the relevant Docker images, and finally run all Docker containers.
+```
+$ cd ec2
 $ python next_ec2.py --key-pair=<keypair> --identity-file=<key-file> launch <cluster-name>
 ```
 
@@ -50,11 +54,10 @@ $ export AWS_ACCESS_KEY_ID=your_aws_access_key_id_here
 $ python next_ec2.py --key-pair=<keypair> --identity-file=<key-file> get-master <cluster-name>
 ```
 
-Then export this public EC2 DNS and install the python requests library.
+Then export this public EC2 DNS.
 ```
 $ export NEXT_FRONTEND_BASE_GLOBAL_HOST=your_public_ec2_DNS_here
 $ export NEXT_FRONTEND_BASE_GLOBAL_PORT=8001
-$ sudo pip install requests
 ```
 
 Now you can execute `run_examples.py` to initialize and launch the NEXT experiments.
