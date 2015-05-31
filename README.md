@@ -66,6 +66,8 @@ Once initialized, this script will return a link that you can distribute yoursel
 - `http://your_public_ec2_DNS_here:8000/query/query_page/PoolBasedTripletMDS/<exp_uid>/<exp_key>` for Active Non-Metric Multidimensional Scaling (MDS)
 - `http://your_public_ec2_DNS_here:8000/query/query_page/TupleBanditsPureExploration/<exp_uid>/<exp_key>` for Pure Exploration for Tuple Bandits
 
+Navigate to the strange fruit query link and answer some questions. Doing so will allow you provide the system with data you van view and interact with in the next step.
+
 ## Accessing NEXT experiment results, dashboards, and data visualizations
 
 You can access interactive experiment dashboards and data visualizations at:
@@ -75,3 +77,8 @@ And obtain all logs for an experiment through our RESTful API, visit:
 - `http://your_public_ec2_DNS:8000/experiment/<exp_uid>/logs`
 
 where `<exp_uid>` corresponds to the unique Experiment ID shown on the experiment dashboard pages.
+
+Finally, you can terminate your EC2 instance and shutdown NEXT using:
+```
+$ python next_ec2.py --key-pair=<keypair> --identity-file=<key-file> destroy <cluster-name>
+```
