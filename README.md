@@ -49,9 +49,9 @@ $ python run_examples.py
 ```
 Once initialized, this script will return a link that you can distribute yourself or post as a HIT on Mechanical Turk. Visit:
 
-- `http://your_public_ec2_DNS:8001/query/cartoon_dueling` for Pure Exploration for Dueling Bandits
-- `http://your_public_ec2_DNS:8001/query/cartoon_triplet` for Active Non-Metric Multidimensional Scaling (MDS)
-- `http://your_public_ec2_DNS:8001/query/cartoon_tuple` for Pure Exploration for Tuple Bandits
+- `http://your_public_ec2_DNS_here:8000/query/query_page/StochasticDuelingBordaBanditsPureExploration/<exp_uid>/<exp_key>` for Pure Exploration for Dueling Bandits
+- `http://your_public_ec2_DNS_here:8000/query/query_page/PoolBasedTripletMDS/<exp_uid>/<exp_key>` for Active Non-Metric Multidimensional Scaling (MDS)
+- `http://your_public_ec2_DNS_here:8000/query/query_page/TupleBanditsPureExploration/<exp_uid>/<exp_key>` for Pure Exploration for Tuple Bandits
 
 ## Accessing NEXT experiment results, dashboards, and data visualizations
 
