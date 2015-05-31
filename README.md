@@ -60,7 +60,7 @@ Now you can execute `run_examples.py` to initialize and launch the NEXT experime
 $ cd ../examples
 $ python run_examples.py
 ```
-Once initialized, this script will return a link that you can distribute yourself or post as a HIT on Mechanical Turk. Visit:
+Once initialized, this script will return a link that you can distribute yourself or post as a HIT on [Mechanical Turk](https://www.mturk.com/mturk/welcome). Visit:
 
 - `http://your_public_ec2_DNS_here:8000/query/query_page/StochasticDuelingBordaBanditsPureExploration/<exp_uid>/<exp_key>` for Pure Exploration for Dueling Bandits
 - `http://your_public_ec2_DNS_here:8000/query/query_page/PoolBasedTripletMDS/<exp_uid>/<exp_key>` for Active Non-Metric Multidimensional Scaling (MDS)
