@@ -24,6 +24,7 @@ Now you are ready to fire up the NEXT system using our launch command. This comm
 
 ```
 $ cd NEXT/ec2
+$ sudo pip install boto
 $ python next_ec2.py --key-pair=<keypair> --identity-file=<key-file> launch <cluster-name>
 ```
 
