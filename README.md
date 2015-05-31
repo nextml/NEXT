@@ -71,8 +71,7 @@ Once initialized, this script will return a link that you can distribute yoursel
 You can access interactive experiment dashboards and data visualizations at:
 - `http://your_public_ec2_DNS:8000/dashboard/experiment_list`
 
-And obtain all participant logs for an experiment through our RESTful API via cURL using:
-```
-$ curl -X GET http://your_public_ec2_DNS:8000/experiment/<exp_uid>/logs
-```
+And obtain all logs for an experiment through our RESTful API, visit:
+- `http://your_public_ec2_DNS:8000/experiment/<exp_uid>/logs`
+
 where `<exp_uid>` corresponds to the unique Experiment ID shown on the experiment dashboard pages.
