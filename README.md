@@ -38,6 +38,15 @@ Once your terminal shows a stream of many multi-colored docker appliances, you a
 ## Replicating NEXT adaptive learning experiments
 
 Because NEXT aims to make it easy to reproduce empirical active learning results, we provide a one-line command to initialize the experiments performed in [this  study](). 
+
+First, export your public EC2 DNS and install the python requests library.
+```
+$ export NEXT_FRONTEND_BASE_GLOBAL_HOST=your_public_ec2_DNS_here
+$ export NEXT_FRONTEND_BASE_GLOBAL_PORT=8001
+$ sudo pip install requests
+```
+
+Now you can execute `run_examples.py` to initialize and launch the NEXT experiments.
 ```
 $ cd NEXT/examples
 $ python run_examples.py
