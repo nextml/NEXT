@@ -1,5 +1,7 @@
 # NEXT
 
+*NEXT is a system that makes it easy to develop, evaluate, and apply active learning.*
+
 ## Getting the code
 
 You can download the latest version of NEXT from github with the following clone command:
