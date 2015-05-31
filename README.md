@@ -33,7 +33,6 @@ where:
 - `<key-file>` is the private key file for your key pair
 - `<cluster-name>` is the custom name you assign to your cluster
 
-```
 Once your terminal shows a stream of many multi-colored docker appliances, you are now running the NEXT system!
 
 ## Replicating NEXT adaptive learning experiments
