@@ -45,7 +45,7 @@ where:
 - `[key-file]` is the private key file for your key pair
 - `[cluster-name]` is the custom name you create and assign to your cluster
 
-This will print out another enviornment variariable command `export AWS_BUCKET_NAME=[bucket_uid]`. Copy and paste this command into your terminal. 
+This will print out another environment variable command `export AWS_BUCKET_NAME=[bucket_uid]`. Copy and paste this command into your terminal. 
 
 Now you are ready to fire up the NEXT system using our `launch` command. This command will create a new EC2 instance, pull the NEXT repository to that instance, install all of the relevant Docker images, and finally run all Docker containers. 
 
