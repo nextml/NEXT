@@ -34,6 +34,19 @@ $ cd NEXT
 $ sudo pip install -r local_requirements.txt
 ```
 
+For persistent data storage, we first need to create a bucket in AWS S3 using:
+```
+$ cd ec2
+$ python next_ec2.py --key-pair=[keypair] --identity-file=[key-file] createbucket [cluster-name]
+```
+
+where:
+- `[keypair]` is the name of your EC2 key pair
+- `[key-file]` is the private key file for your key pair
+- `[cluster-name]` is the custom name you create and assign to your cluster
+
+This will print out another enviornment variariable command `export AWS_BUCKET_NAME=[bucket_uid]`. Copy and paste this command into your terminal. 
+
 Now you are ready to fire up the NEXT system using our `launch` command. This command will create a new EC2 instance, pull the NEXT repository to that instance, install all of the relevant Docker images, and finally run all Docker containers. 
 
 Users should note that this script launches a single `m3.large` machine, the current default NEXT EC2 instance type. This instance type costs $0.14 per hour to run. For more detailed EC2 pricing information, refer to this AWS [page](http://aws.amazon.com/ec2/pricing/).
@@ -41,11 +54,6 @@ Users should note that this script launches a single `m3.large` machine, the cur
 $ cd ec2
 $ python next_ec2.py --key-pair=[keypair] --identity-file=[key-file] launch [cluster-name]
 ```
-
-where:
-- `[keypair]` is the name of your EC2 key pair
-- `[key-file]` is the private key file for your key pair
-- `[cluster-name]` is the custom name you assign to your cluster
 
 Once your terminal shows a stream of many multi-colored docker appliances, you are successfully running the NEXT system!
 
