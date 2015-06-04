@@ -51,7 +51,6 @@ Now you are ready to fire up the NEXT system using our `launch` command. This co
 
 Users should note that this script launches a single `m3.large` machine, the current default NEXT EC2 instance type. This instance type costs $0.14 per hour to run. For more detailed EC2 pricing information, refer to this AWS [page](http://aws.amazon.com/ec2/pricing/).
 ```
-$ cd ec2
 $ python next_ec2.py --key-pair=[keypair] --identity-file=[key-file] launch [cluster-name]
 ```
 
