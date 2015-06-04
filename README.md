@@ -85,11 +85,11 @@ Once initialized, this script will return a link that you can distribute yoursel
 
 where `[exp_uid]` and `[exp_key]` are unique identifiers for each of the respective Dueling Bandits Pure Exploration, Active Non-Metric Multidimensional Scaling (MDS), and Tuple Bandits Pure Exploration experiments respectively.
 
-Navigate to the `strange_fruit_triplet` query link (the last one that prints to you terminal) and answer some questions! Doing so will provide the system with data you can view and interact with in the next step.
+Navigate to the `strange_fruit_triplet` query link (the last one that printed out to your terminal) and answer some questions! Doing so will provide the system with data you can view and interact with in the next step.
 
 ## Accessing NEXT experiment results, dashboards, and data visualizations
 
-You can access interactive experiment dashboards and data visualizations at:
+You can access interactive experiment dashboards and data visualizations at by clicking experiments at:
 - `http://your_public_ec2_DNS:8000/dashboard/experiment_list`
 
 And obtain all logs for an experiment through our RESTful API, visit:
