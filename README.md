@@ -98,6 +98,8 @@ And obtain all logs for an experiment through our RESTful API, visit:
 
 Where, again, `[exp_uid]` corresponds to the unique Experiment ID shown on the experiment dashboard pages.
 
+If you'd like to backup your database to access your data later, refer to this [wiki](https://github.com/kgjamieson/NEXT/wiki/NEXT-EC2-Launch-Tutorial#simulating-experiments-on-next) for detailed steps.
+
 Finally, you can terminate your EC2 instance and shutdown NEXT using:
 ```
 $ python next_ec2.py --key-pair=[keypair] --identity-file=[key-file] destroy [cluster-name]
