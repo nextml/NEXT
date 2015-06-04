@@ -70,8 +70,8 @@ $ python next_ec2.py --key-pair=[keypair] --identity-file=[key-file] get-master 
 
 Then export this public EC2 DNS.
 ```
-$ export NEXT_FRONTEND_BASE_GLOBAL_HOST=your_public_ec2_DNS_here
-$ export NEXT_FRONTEND_BASE_GLOBAL_PORT=8001
+$ export NEXT_BACKEND_GLOBAL_HOST=your_public_ec2_DNS_here
+$ export NEXT_BACKEND_GLOBAL_PORT=8000
 ```
 
 Now you can execute `run_examples.py` to initialize and launch the NEXT experiments.
@@ -81,9 +81,9 @@ $ python run_examples.py
 ```
 Once initialized, this script will return a link that you can distribute yourself or post as a HIT on [Mechanical Turk](https://www.mturk.com/mturk/welcome). Visit:
 
-- `http://your_public_ec2_DNS_here:8000/query/query_page/StochasticDuelingBordaBanditsPureExploration/[exp_uid]/[exp_key]` for Pure Exploration for Dueling Bandits
-- `http://your_public_ec2_DNS_here:8000/query/query_page/PoolBasedTripletMDS/[exp_uid]/[exp_key]` for Active Non-Metric Multidimensional Scaling (MDS)
-- `http://your_public_ec2_DNS_here:8000/query/query_page/TupleBanditsPureExploration/[exp_uid]/[exp_key]` for Pure Exploration for Tuple Bandits
+`http://your_public_ec2_DNS_here:8000/query/query_page/query_page/[exp_uid]/[exp_key]` 
+
+where `[exp_uid]` and `[exp_key]` are unique identifiers for each of the respective Dueling Bandits Pure Exploration, Active Non-Metric Multidimensional Scaling (MDS), and Tuple Bandits Pure Exploration experiments respectively.
 
 Navigate to the strange fruit query link and answer some questions! Doing so will provide the system with data you can view and interact with in the next step.
 
@@ -93,9 +93,9 @@ You can access interactive experiment dashboards and data visualizations at:
 - `http://your_public_ec2_DNS:8000/dashboard/experiment_list`
 
 And obtain all logs for an experiment through our RESTful API, visit:
-- `http://your_public_ec2_DNS:8000/experiment/[exp_uid]/logs`
+- `http://your_public_ec2_DNS:8000/api/experiment/[exp_uid]/[exp_key]/logs`
 
-where `[exp_uid]` corresponds to the unique Experiment ID shown on the experiment dashboard pages.
+Where, again, `[exp_uid]` corresponds to the unique Experiment ID shown on the experiment dashboard pages.
 
 Finally, you can terminate your EC2 instance and shutdown NEXT using:
 ```
