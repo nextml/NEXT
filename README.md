@@ -84,7 +84,7 @@ Once initialized, this script will return a link that you can distribute yoursel
 
 `http://your_public_ec2_DNS_here:8000/query/query_page/query_page/[exp_uid]/[exp_key]` 
 
-where `[exp_uid]` and `[exp_key]` are unique identifiers for each of the respective Dueling Bandits Pure Exploration, Active Non-Metric Multidimensional Scaling (MDS), and Tuple Bandits Pure Exploration experiments respectively.
+where `[exp_uid]` and `[exp_key]` are unique identifiers for each of the respective Dueling Bandits Pure Exploration, Active Non-Metric Multidimensional Scaling (MDS), and Tuple Bandits Pure Exploration experiments respectively. See this [wiki page](https://github.com/kgjamieson/NEXT/wiki/Replicating-NEXT-Experiments#some-experiment-information) for a little more information.
 
 Navigate to the `strange_fruit_triplet` query link (the last one that printed out to your terminal) and answer some questions! Doing so will provide the system with data you can view and interact with in the next step.
 
