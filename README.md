@@ -6,7 +6,7 @@ This readme contains the necessary steps to launch the NEXT system on EC2, and t
 
 For more information, in-depth tutorials, and API docs, we recommend visiting our GitHub wiki [here](https://github.com/kgjamieson/NEXT/wiki).
 
-## Getting the code
+### Getting the code
 
 You can download the latest version of NEXT from github with the following clone command:
 
@@ -18,7 +18,7 @@ We are actively working to develop and improve NEXT, but users should be aware o
 - NEXT currently supports only UNIX based OS (e.g. Windows compatibility is not yet available).
 - An Amazon Web Services account is needed to launch NEXT on EC2; we have worked hard to make this process as simple as possible, at cost of ease of running the full NEXT stack on a local machine.
 
-## Launching NEXT on EC2
+### Launching NEXT on EC2
 
 First, you must set your Amazon Web Services (AWS) account credentials as enviornment variables. If you don't already have AWS account, you can follow our AWS account quickstart [here](https://github.com/kgjamieson/NEXT/wiki/AWS-Account-Quickstart) or the official AWS account set-up guide [here](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/get-set-up-for-amazon-ec2.html) for an in-depth introduction.
 
@@ -56,7 +56,7 @@ $ python next_ec2.py --key-pair=[keypair] --identity-file=[key-file] launch [clu
 
 Once your terminal shows a stream of many multi-colored docker appliances, you are successfully running the NEXT system!
 
-## Replicating NEXT adaptive learning experiments
+### Replicating NEXT adaptive learning experiments
 
 Because NEXT aims to make it easy to reproduce empirical active learning results, we provide a simple command to initialize the experiments performed in [this  study](). 
 
@@ -88,7 +88,7 @@ where `[exp_uid]` and `[exp_key]` are unique identifiers for each of the respect
 
 Navigate to the `strange_fruit_triplet` query link (the last one that printed out to your terminal) and answer some questions! Doing so will provide the system with data you can view and interact with in the next step.
 
-## Accessing NEXT experiment results, dashboards, and data visualizations
+### Accessing NEXT experiment results, dashboards, and data visualizations
 
 You can access interactive experiment dashboards and data visualizations at by clicking experiments at:
 - `http://your_public_ec2_DNS:8000/dashboard/experiment_list`
