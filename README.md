@@ -24,8 +24,8 @@ First, you must set your Amazon Web Services (AWS) account credentials as envior
 
 Export your AWS credentials as environment variables using:
 ```
-$ export AWS_SECRET_ACCESS_KEY=your_secret_aws_access_key_here
-$ export AWS_ACCESS_KEY_ID=your_aws_access_key_id_here
+$ export AWS_SECRET_ACCESS_KEY=[your_secret_aws_access_key_here]
+$ export AWS_ACCESS_KEY_ID=[your_aws_access_key_id_here]
 ```
 
 Install the local python packages needed for NEXT:
@@ -62,14 +62,16 @@ Because NEXT aims to make it easy to reproduce empirical active learning results
 
 First, in a new terminal, export your AWS credentials and use `get-master` to obtain your public EC2 DNS.
 ```
-$ export AWS_SECRET_ACCESS_KEY=your_secret_aws_access_key_here
-$ export AWS_ACCESS_KEY_ID=your_aws_access_key_id_here
+$ export AWS_SECRET_ACCESS_KEY=[your_secret_aws_access_key_here]
+$ export AWS_ACCESS_KEY_ID=[your_aws_access_key_id_here]
+$ export AWS_BUCKET_NAME=[your_aws_bucket_name_here]
+$ cd NEXT/ec2
 $ python next_ec2.py --key-pair=[keypair] --identity-file=[key-file] get-master [cluster-name]
 ```
 
 Then export this public EC2 DNS.
 ```
-$ export NEXT_BACKEND_GLOBAL_HOST=your_public_ec2_DNS_here
+$ export NEXT_BACKEND_GLOBAL_HOST=[your_public_ec2_DNS_here]
 $ export NEXT_BACKEND_GLOBAL_PORT=8000
 ```
 
