@@ -4,7 +4,7 @@ NEXT is a system that makes it *easy* to develop, evaluate, and apply active lea
 
 This readme contains the necessary steps to launch the NEXT system on EC2, and to replicate and launch the experiments from the [NEXT paper](). 
 
-For new users, we recommend starting with the launch tutorial on our GitHub wiki [here](https://github.com/kgjamieson/NEXT/wiki/NEXT-EC2-Launch-Tutorial).
+For more information, in-depth tutorials, and API docs, we recommend visiting our GitHub wiki [here](https://github.com/kgjamieson/NEXT/wiki).
 
 ## Getting the code
 
@@ -20,7 +20,7 @@ We are actively working to develop and improve NEXT, but users should be aware o
 
 ## Launching NEXT on EC2
 
-First, you must set your Amazon Web Services (AWS) account credentials as enviornment variables. If you don't already have AWS account, you can follow the AWS account set-up guide [here](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/get-set-up-for-amazon-ec2.html).
+First, you must set your Amazon Web Services (AWS) account credentials as enviornment variables. If you don't already have AWS account, you can follow our AWS account quickstart [here](https://github.com/kgjamieson/NEXT/wiki/AWS-Account-Quickstart) or the official AWS account set-up guide [here](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/get-set-up-for-amazon-ec2.html) for an in-depth introduction.
 
 Export your AWS credentials as environment variables using:
 ```
