@@ -27,6 +27,7 @@ Export your AWS credentials as environment variables using:
 $ export AWS_SECRET_ACCESS_KEY=[your_secret_aws_access_key_here]
 $ export AWS_ACCESS_KEY_ID=[your_aws_access_key_id_here]
 ```
+Note that you'll need to use your `AWS_SECRET_ACCESS_KEY` and `AWS_ACCESS_KEY_ID` again later, so feel free to save them in a secure file for convenient reference later.
 
 Install the local python packages needed for NEXT:
 ```
@@ -46,6 +47,8 @@ where:
 - `[cluster-name]` is the custom name you create and assign to your cluster
 
 This will print out another environment variable command `export AWS_BUCKET_NAME=[bucket_uid]`. Copy and paste this command into your terminal. 
+
+You will also need to use your `bucket_uid` later, so feel free to save it in a file along side your `AWS_SECRET_ACCESS_KEY` and `AWS_ACCESS_KEY_ID` for later reference.
 
 Now you are ready to fire up the NEXT system using our `launch` command. This command will create a new EC2 instance, pull the NEXT repository to that instance, install all of the relevant Docker images, and finally run all Docker containers. 
 
@@ -102,5 +105,6 @@ If you'd like to backup your database to access your data later, refer to this [
 
 Finally, you can terminate your EC2 instance and shutdown NEXT using:
 ```
+$ cd ../ec2
 $ python next_ec2.py --key-pair=[keypair] --identity-file=[key-file] destroy [cluster-name]
 ```
