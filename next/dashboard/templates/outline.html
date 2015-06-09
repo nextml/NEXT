@@ -1,0 +1,103 @@
+<html lang="en">
+
+<head>
+    <meta http-equiv=’cache-control’ content=’no-cache’>
+    <meta http-equiv=’expires’ content=’0′>
+    <meta http-equiv=’pragma’ content=’no-cache’>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>NEXT.Discovery {% block title %}  {% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
+
+    <!-- css -->
+    <link href="/dashboard/static/css/content.css" rel="stylesheet">
+    <link href="/dashboard/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/dashboard/static/css/sb-admin-2.css" rel="stylesheet">
+    <link href="/dashboard/static/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- javascript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js" defer></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.6.3/d3-tip.min.js"></script>
+    <script type="text/javascript" src="/dashboard/static/plotting_library/charts2.js"></script>
+    <script type="text/javascript" src="/dashboard/static/js/next_widget.js"></script>
+    <script type="text/javascript" src="/dashboard/static/js/metisMenu.min.js" defer></script>
+    <script type="text/javascript" src="/dashboard/static/js/sb-admin-2.js" defer></script>
+
+      <style type="text/css">
+            .embedding {
+                background-color: white;
+                border-style                :   solid;
+                border-width                :   3px;
+                border-color                :   #C0C0C0;
+                border-radius               :   3px;
+                /*width                       :   800px;
+                height                      :   500px;*/
+            }
+            .overlay {
+                fill: none;
+                pointer-events: all;
+            }
+            .tooltip {
+                position: absolute;
+                pointer-events: none;
+                background-color: navy;
+            }
+      </style>
+      
+      <script>
+	       next_widget.setUrl("{{ host_url }}");
+      </script>
+  
+    
+</head>
+
+<body>
+    <div id="wrapper">
+
+        <!-- Navigation -->
+        <nav class="navbar navbar-custom navbar-static-top top-nav-collapse" role="navigation" style="margin-bottom: 0">
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-main-collapse">
+                    <i class="fa fa-bars"></i>
+                </button>
+                <a class="navbar-brand" href="#">
+                    <!-- <img class="next-square-logo" src="../static/images/next-logo-white.png" alt="" height="42" width="42"/> -->
+                    <span class="next-logo-front">NEXT</span>
+                    <span class="discovery-logo">.discovery</span>
+                </a>
+            </div>
+            <!-- /.navbar-header -->
+
+            <div class="collapse navbar-collapse navbar-right navbar-main-collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="{{ url_for('dashboard.experiment_list') }}"><i class="fa fa-dashboard fa-fw"></i>Experiment</a></li>
+                    <li><a href="{{ url_for('dashboard.system_monitor') }}"><i class="fa fa-plus fa-fw"></i>System</a></li>
+                </ul>
+            </div>
+            <!-- /.navbar-top-links -->
+        </nav>
+        <!-- body  -->
+        <div class="row">
+            <div class="col-lg-12">
+                {% block body %} {% endblock %}
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+
+    </div>
+    <!-- /#wrapper -->
+
+    <!-- trying to get metisMenu working... to no avail -->
+    <script>
+        $(function () {
+            $('#side-menu').metisMenu({ 
+            });
+        });
+    </script>
+
+</body>
+
+</html>

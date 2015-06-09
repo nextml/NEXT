@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Nicholas Glattard, n.glattard@gmail.com">
+
+    <title>NEXT - {{exp_uid}}</title>
+    
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+    <script src="{{ url_for('query_page.static', filename='js/next_widget.js' )}}"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    <style type="text/css">
+        html, body {
+          height: 100%;
+        }
+        body {
+          padding: 5px;
+          display: flex;
+          flex-direction: column;
+          align-items: stretch;
+          display: -webkit-flex;
+          -webkit-flex-direction: column;
+          -webkit-align-items: stretch;
+        }
+        #instructions {
+          z-index: 1;
+          padding: 5px;
+          width: 100%;
+          height: 44px;
+        }
+        #wrapper {
+          flex-grow: 1;
+          display: flex;
+          flex-wrap: wrap;
+          -webkit-flex-grow: 1;
+          display: -webkit-flex;
+          -webkit-flex-wrap: wrap;
+        }
+        .target {
+          border:2px solid;
+          margin: 5px;
+          min-height: 100px;
+          display: flex;
+          align-items: center;
+          flex-grow: 1;
+          display: -webkit-flex;
+          -webkit-align-items: center;
+          -webkit-flex-grow: 1;
+        }
+        .table-box {
+          display: table;
+          height:90%;
+          width:90%;
+          margin-left: auto;
+          margin-right: auto;
+        }        
+        .text {
+          display: table-cell;
+          text-align: center;
+          vertical-align: middle;
+          word-wrap: break-word;
+          font-size: 2vw;
+        }
+        #center{
+          width:100%;
+        }
+        #left, #right {
+          width: 50%;
+        }
+        .image {
+        max-height:100%;
+        max-width: 100%;
+        display:block;
+        margin-left:auto;
+        margin-right:auto;
+        }
+        /*tablets and computer screens*/
+        @media only screen and (min-device-width: 740px) {
+
+        }
+        /*mobile phones*/
+        @media only screen and (max-device-width: 570px) and (orientation: landscape){
+          .image {
+            max-height: 115px;
+          }
+        }
+        @media only screen and (min-device-width: 570px) and (max-device-width: 670px) and (orientation: landscape){
+          .image {
+            max-height: 145px;
+          }
+        }
+        @media only screen and (min-device-width: 670px) and (max-device-width: 740px) and (orientation: landscape){
+          .image {
+            max-height: 165px;
+          }
+        }
+    </style>
+  </head>
+  
+
+  <body>
+    <!-- show instructions modal on load of page -->
+    <script>
+      $(window).load(function() { 
+        // Set a timeout...
+        setTimeout(function(){
+          // Hide the address bar!
+          window.scrollTo(0, 1);
+        }, 0);
+        $('#directions').modal({backdrop:'static'}); 
+      });
+    </script>
+
+    <!-- debrief Modal -->
+    <div class="modal fade" id="debrief" tabindex="-1" role="dialog" 
+          aria-labelledby="debrief" aria-hidden="true" data-backdrop="static" data-keyboard="false" href="#">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title" id="modal-title">Debrief</h1>
+          </div>
+          <div class="modal-body">
+            <h4 id="debrief_text"></h4>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- instructions at top -->
+    <div id="top_instructions">
+      <center><h4 id="directions_text"></h4></center>
+    </div>
+
+    <!-- widget wrapper -->
+    <div id="wrapper">
+      <center><h1>Loading...</h1></center>
+    </div>
+
+    <script>
+      next_widget.setUrl("{{host_url}}");
+      var tries =  100;
+      var div_id = "wrapper";
+      var exp_uid = "{{exp_uid}}";
+      var widget_key = "{{widget_key}}";
+      var participant_uid = next_widget.makeRandomString(30);
+      
+      // get info widget
+      var info_args = {
+          name: "getInfo",
+          exp_uid: exp_uid,
+          widget_key: widget_key,
+          args: {}
+      };
+
+      // args for getQuery 
+      var args = {
+          name: "getQuery",
+          exp_uid: exp_uid,
+          widget_key: widget_key,
+          args: { participant_uid: participant_uid }
+      };
+
+      var callbacks = {
+        reportAnswer_success: function() {
+      	if(tries > 1){
+                  tries -=1;
+                  next_widget.getQuery(div_id, args, callbacks);
+              } else{         
+                $('#instructions').hide()
+                $('#wrapper').hide()
+                $('#debrief').show()
+                $('#debrief').modal('show');
+              }
+          },
+
+      	getQuery_success: function(){
+      				console.log("success")
+         },
+
+        getInfo_success: function(response){
+          instructions = response.response["instructions"];
+      		$('#directions_text').html(instructions);
+      debrief = response.response["debrief"]+" "+participant_uid;
+          $('#debrief_text').html(debrief);
+          tries = response.response["num_tries"];
+          },
+      
+         widget_failure: function(){
+            $('#instructions').hide()
+            $('#query').hide()
+            $('#debrief').show()
+            $('#debrief').modal('show');
+          }
+      }      
+
+      next_widget.getInfo(info_args, callbacks);
+      next_widget.getQuery(div_id, args, callbacks);
+
+    </script>
+  </body>
+</html>

@@ -2,7 +2,7 @@
 
 NEXT is a system that makes it *easy* to develop, evaluate, and apply active learning.
 
-This readme contains the necessary steps to launch the NEXT system on EC2, and to replicate and launch the experiments from the [NEXT paper](). 
+This readme contains the necessary steps to launch the NEXT system on EC2, and to replicate and launch the experiments from the [NEXT paper](http://homepages.cae.wisc.edu/~jamieson/resources/next.pdf). 
 
 For more information, in-depth tutorials, and API docs, we recommend visiting our GitHub wiki [here](https://github.com/kgjamieson/NEXT/wiki).
 

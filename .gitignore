@@ -1,0 +1,21 @@
+# Mac
+.DS_Store
+
+# Maven
+log/
+target/
+
+# Emacs
+*~
+
+# Python
+*.pyc
+
+# nohup
+nohup.out
+
+# Log files
+*.log
+
+# EC2 key files
+*.pem

@@ -1,0 +1,126 @@
+# Each piece within the #'s could theoretically be its own machine. But it could also operate just on one big machine. 
+# Right now things are linked through docker. If we dploy with something else that doesn't respect links, thing will have to be refactored. 
+# Things could be factored as Minions being indivdiual machines and everything else goes on a master machine.
+
+######## CADVISOR #########
+cadvisor:
+  image: google/cadvisor:latest
+  volumes:
+    - /:/rootfs:ro
+    - /var/run:/var/run:rw
+    - /sys:/sys:ro
+    - /var/lib/docker/:/var/lib/docker:ro
+  ports:
+    - "0.0.0.0:8888:8080"
+####################################
+
+
+######## MINION MACHINE #########
+# minionredis:
+#   image: redis
+#   command: redis-server /database/next/database/CacheStore/redis.conf
+#   volumes:
+#    - next_backend:/database 
+
+minionworker:
+  build: next/base_docker_image
+  command: ./next/broker/next_worker_startup.sh
+  volumes:
+   - .:/next_backend 
+  working_dir: /next_backend
+  links:
+    - mongodb:MONGODB  
+    - rabbitmq:RABBIT
+    - rabbitmqredis:RABBITREDIS
+  environment:
+   - PYTHONUNBUFFERED=TRUE
+   - CELERY_SYNC_WORKER_COUNT={{CELERY_SYNC_WORKER_COUNT}}
+   - CELERY_ASYNC_WORKER_COUNT={{CELERY_ASYNC_WORKER_COUNT}}
+   - CELERY_THREADS_PER_ASYNC_WORKER={{CELERY_THREADS_PER_ASYNC_WORKER}}
+   - PYTHONPATH=:/next_backend
+####################################
+
+
+######### API #########
+nextbackenddocker:
+  build: next/base_docker_image
+  command: gunicorn  --worker-class=gevent -R --log-level=debug --logger-class=simple --reload -b 0.0.0.0:8000 -w {{NEXT_BACKEND_NUM_GUNICORN_WORKERS}} next.api.api:app
+  volumes:
+   - .:/next_backend
+  working_dir: /next_backend
+  ports:
+    - "0.0.0.0:{{NEXT_BACKEND_GLOBAL_PORT}}:8000" # gunicorn
+  links:
+    # - miniondatabasedocker:MINIONDATABASESERVER  # right now the API makes database calls within the container to retrieve logs. This is bad! This work should be thrown on a queue and given to workers to do
+    - rabbitmq:RABBIT
+    - rabbitmqredis:RABBITREDIS
+    - mongodb:MONGODB
+  environment:
+   - PYTHONUNBUFFERED=TRUE
+   - PYTHONPATH=:/next_backend 
+   # global url for dashboards on backend
+   - NEXT_BACKEND_GLOBAL_HOST
+   - NEXT_BACKEND_GLOBAL_PORT
+   - TERM=xterm
+####################################
+
+
+
+######### PERSISTENT STORE #########
+mongodb:
+  build: next/base_docker_image
+  command: /usr/bin/mongod --smallfiles --rest
+  volumes:
+   - .:/next_backend 
+   - /dump
+   - /data/db
+  working_dir: /next_backend
+  expose:
+   - "27017" 
+  ports:
+   - "0.0.0.0:28017:28017" # mongo http monitor
+
+mongodbbackup:
+  build: next/base_docker_image
+  command: python ./next/database/daemon_database_backup.py
+  volumes:
+   - .:/next_backend 
+  volumes_from:
+   - mongodb
+  working_dir: /next_backend
+  links:
+   - mongodb:MONGODB  
+  environment:
+   - NEXT_BACKEND_GLOBAL_HOST
+   - PYTHONPATH=:/next_backend
+   - PYTHONUNBUFFERED=TRUE
+   - AWS_ACCESS_ID
+   - AWS_SECRET_ACCESS_KEY
+   - AWS_BUCKET_NAME
+####################################
+
+
+######### RABBITMQ #########
+rabbitmq:
+  image: rabbitmq:3-management
+  ports:
+   - "0.0.0.0:15672:15672"
+
+rabbitmqredis:
+  image: redis
+
+rabbitmqmonitor:
+  build: next/base_docker_image
+  command: python ./next/broker/cluster_monitor.py
+  volumes:
+   - .:/next_backend 
+  working_dir: /next_backend
+  links:
+    - rabbitmq:RABBIT
+    - rabbitmqredis:RABBITREDIS
+  environment:
+   - PYTHONPATH=:/next_backend
+   - PYTHONUNBUFFERED=TRUE
+###########################
+
+
