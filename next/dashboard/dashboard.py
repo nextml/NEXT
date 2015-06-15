@@ -31,9 +31,13 @@ def experiment_list():
             start_date = rm.get_app_exp_uid_start_date(exp_uid)
             docs,didSucceed,message = db.getDocsByPattern("next_frontend_base", "keys", {'object_id':exp_uid, 'type':'exp'})
             print docs, didSucceed, message
-            exp_key = docs[0]["_id"]
+            
+            try:
+                exp_key = docs[0]["_id"]
+                experiments.append({'exp_uid': exp_uid, 'app_id':app_id, 'start_date':start_date, 'exp_key':exp_key})
+            except IndexError as e:
+                pass
 
-            experiments.append({'exp_uid': exp_uid, 'app_id':app_id, 'start_date':start_date, 'exp_key':exp_key})
     return render_template('experiment_list.html', experiments = reversed(experiments))
 
 @dashboard.route('/system_monitor')
