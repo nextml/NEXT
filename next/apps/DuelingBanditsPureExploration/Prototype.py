@@ -1,18 +1,18 @@
 """
-StochasticDuelingBordaBanditsPureExploration app of the Online Learning Library for Next.Discovery
+DuelingBanditsPureExploration app of the Online Learning Library for Next.Discovery
 author: Kevin Jamieson, kevin.g.jamieson@gmail.com
 last updated: 1/11/2015
 
-StochasticDuelingBordaBanditsPureExplorationPrototype
+DuelingBanditsPureExplorationPrototype
 
 This interface must be implemented by an app that solves the multi-armed dueling bandit, pure 
 exploration problem for the Borda rule. 
 """
 
 
-class StochasticDuelingBordaBanditsPureExplorationPrototype(object):
+class DuelingBanditsPureExplorationPrototype(object):
   def __init__(self): 
-    self.app_id = 'StochasticDuelingBordaBanditsPureExploration'
+    self.app_id = 'DuelingBanditsPureExploration'
 
   def initExp(self,db,n=0,failure_probability=0.05):
     """

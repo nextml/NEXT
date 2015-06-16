@@ -4,7 +4,7 @@ author: Kevin Jamieson, kevin.g.jamieson@gmail.com
 last updated: 1/4/2015
 
 ######################################
-StochasticDuelingBordaBanditsPureExplorationDashboard
+DuelingBanditsPureExplorationDashboard
 
 """
 
@@ -21,7 +21,7 @@ from next.utils import utils
 # import next.logging_client.LoggerHTTP as ell
 from next.apps.AppDashboard import AppDashboard
 
-class StochasticDuelingBordaBanditsPureExplorationDashboard(AppDashboard):
+class DuelingBanditsPureExplorationDashboard(AppDashboard):
 
     def __init__(self,db,ell):
         AppDashboard.__init__(self,db,ell)

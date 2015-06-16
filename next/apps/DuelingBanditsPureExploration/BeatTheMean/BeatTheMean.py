@@ -1,5 +1,5 @@
 """
-BeatTheMean app implements StochasticDuelingBordaBanditsPureExplorationPrototype
+BeatTheMean app implements DuelingBanditsPureExplorationPrototype
 author: Kevin Jamieson, kevin.g.jamieson@gmail.com
 last updated: 1/11/2015
 
@@ -13,9 +13,9 @@ remove the leading constant factor of '3' outfront equation (7) for their confid
 
 import numpy
 import numpy.random
-from next.apps.StochasticDuelingBordaBanditsPureExploration.Prototype import StochasticDuelingBordaBanditsPureExplorationPrototype
+from next.apps.DuelingBanditsPureExploration.Prototype import DuelingBanditsPureExplorationPrototype
 
-class BeatTheMean(StochasticDuelingBordaBanditsPureExplorationPrototype):
+class BeatTheMean(DuelingBanditsPureExplorationPrototype):
 
   def daemonProcess(self,resource,daemon_args_dict):
 

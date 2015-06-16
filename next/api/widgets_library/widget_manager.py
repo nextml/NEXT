@@ -1,5 +1,5 @@
 import TupleBanditsPureExploration
-import StochasticDuelingBordaBanditsPureExploration
+import DuelingBanditsPureExploration
 import PoolBasedTripletMDS
 
 

@@ -1,17 +1,19 @@
 """
-BR_LilUCB app implements StochasticDuelingBordaBanditsPureExplorationPrototype
+BR_Thompson implements DuelingBanditsPureExplorationPrototype
 author: Kevin Jamieson, kevin.g.jamieson@gmail.com
-last updated: 1/11/2015
+last updated: 5/20/2015
 
-BR_Random implements random sampling  using the Borda reduction described in detail in
+BR_Thompson implements the Thompson Sampling algorithm described in 
+Chapelle and Li "An Empirical Evaluation of Thompson Sampling," NIPS 2012
+using the Borda reduction described in detail in
 Jamieson et al "Sparse Borda Bandits," AISTATS 2015. 
 """
 
 import numpy
 import numpy.random
-from next.apps.StochasticDuelingBordaBanditsPureExploration.Prototype import StochasticDuelingBordaBanditsPureExplorationPrototype
+from next.apps.DuelingBanditsPureExploration.Prototype import DuelingBanditsPureExplorationPrototype
 
-class BR_Random(StochasticDuelingBordaBanditsPureExplorationPrototype):
+class BR_Thompson(DuelingBanditsPureExplorationPrototype):
 
   def daemonProcess(self,resource,daemon_args_dict):
 
@@ -25,6 +27,7 @@ class BR_Random(StochasticDuelingBordaBanditsPureExplorationPrototype):
 
     return True
   
+
   def initExp(self,resource,n=0,failure_probability=0.05):
     """
     initialize the experiment 
@@ -40,7 +43,6 @@ class BR_Random(StochasticDuelingBordaBanditsPureExplorationPrototype):
     running_sum_vec = numpy.zeros(n).tolist()
     num_pulls_vec = numpy.zeros(n).tolist()
     resource.set('n',n)
-    resource.set('failure_probability',failure_probability)
     resource.set('running_sum_vec',running_sum_vec)
     resource.set('num_pulls_vec',num_pulls_vec)
     resource.set('total_pulls',0)
@@ -60,9 +62,18 @@ class BR_Random(StochasticDuelingBordaBanditsPureExplorationPrototype):
       (int) index_right : index of arm must be in {0,1,2,...,n-1} - index_left
       (int) index_painted : index of arm must be in {0,1,2,...,n-1}
     """
+    alpha = 2
 
-    n = resource.get('n')
-    index = numpy.random.choice(n)
+    hits = resource.get('running_sum_vec')
+    trials = resource.get('num_pulls_vec')
+    n = len(trials)
+
+    theta = numpy.zeros(n)
+    for i in range(n):
+      theta[i] = numpy.random.beta(max(1,(1+hits[i])/alpha),max(1,(1+trials[i]-hits[i])/alpha))
+
+    index = numpy.argmax(theta)
+
     alt_index = numpy.random.choice(n)
     while alt_index==index:
       alt_index = numpy.random.choice(n)
@@ -150,7 +161,7 @@ class BR_Random(StochasticDuelingBordaBanditsPureExplorationPrototype):
 
     total_pulls = len(S)
 
-    resource.set('running_sum_vec',running_sum_vec)
     resource.set('num_pulls_vec',num_pulls_vec)
+    resource.set('running_sum_vec',running_sum_vec)
     resource.set('total_pulls',total_pulls)
 

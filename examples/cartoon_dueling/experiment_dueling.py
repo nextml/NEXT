@@ -53,7 +53,7 @@ initExp['args']['alg_list'] = alg_list
 # initExp['args']['instructions'] = ''
 # initExp['args']['debrief'] = ''
 initExp['args']['num_tries'] = 50
-initExp['app_id'] = 'StochasticDuelingBordaBanditsPureExploration'
+initExp['app_id'] = 'DuelingBanditsPureExploration'
 initExp['site_id'] = 'replace this with working site id'
 initExp['site_key'] = 'replace this with working site key'
 

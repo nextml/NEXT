@@ -19,7 +19,7 @@ regret framework, we consider here an exploration problem like what is considere
 "Generic exploration and k-armed voting bandits" by Urvoy et al in 2013. Note the difference
 between a Condorcet versus Borda rule, the latter of which we consider here. This kind of problem
 has been implemented in practice on allourideas.org. Algorithms solving this problem are managed 
-by StochasticDuelingBordaBanditsPureExploration.py
+by DuelingBanditsPureExploration.py
 
 Description:
 Consider n alternatives from which we can choose any two and observe a random outcome decribing

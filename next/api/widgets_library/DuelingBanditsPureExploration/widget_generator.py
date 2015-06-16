@@ -22,7 +22,7 @@ class WidgetGenerator(Widget):
     def getQuery(self, args):
         """
         Generates a getQuery widget. Uses the args format as specified in::\n
-    		/next_backend/next/learningLibs/apps/StochasticDuelingBordaBanditsPureExploration
+    		/next_backend/next/learningLibs/apps/DuelingBanditsPureExploration
         
         Input: ::\n
         	(dict) args 
@@ -59,7 +59,7 @@ class WidgetGenerator(Widget):
     def reportAnswer(self,args):
         """
         Generates a reportAnswer widget. Uses the args format as specified in::\n
-    		/next_backend/next/learningLibs/apps/StochasticDuelingBordaBanditsPureExploration
+    		/next_backend/next/learningLibs/apps/DuelingBanditsPureExploration
         
         Input: ::\n
         	(dict) args 
@@ -88,7 +88,7 @@ class WidgetGenerator(Widget):
     def getStats(self,args):
         """
         Generates a getStats widget. Uses the args format as specified in::\n
-        /next_backend/next/learningLibs/apps/StochasticDuelingBordaBanditsPureExploration
+        /next_backend/next/learningLibs/apps/DuelingBanditsPureExploration
 
         Returns a JSON object with the appropriate stats. Eventually modify to push the whole plot forward.
         Input: ::\n
@@ -122,7 +122,7 @@ class WidgetGenerator(Widget):
     def getInfo(self,args):
         """
         Generates a getInfo widget. Uses the args format as specified in::\n
-        /next_backend/next/learningLibs/apps/StochasticDuelingBordaBanditsPureExploration
+        /next_backend/next/learningLibs/apps/DuelingBanditsPureExploration
         
         Input: ::\n
         (dict) args 

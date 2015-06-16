@@ -1,13 +1,13 @@
 """
-StochasticDuelingBordaBanditsPureExploration app of the Online Learning Library for Next.Discovery
+DuelingBanditsPureExploration app of the Online Learning Library for Next.Discovery
 author: Kevin Jamieson, kevin.g.jamieson@gmail.com
 last updated: 1/11/2015
 
 ######################################
-StochasticDuelingBordaBanditsPureExploration
+DuelingBanditsPureExploration
 
 This module manages the execution of different algorithms implemented to solve the 
-problem described in StochasticDuelingBordaBanditsPureExplorationPrototype.py. See this file for
+problem described in DuelingBanditsPureExplorationPrototype.py. See this file for
 more info.
 """
 
@@ -22,12 +22,12 @@ from next.resource_client.ResourceClient import ResourceClient
 # import next.logging_client.LoggerHTTP as ell
 import next.utils as utils
 from next.apps.AppPrototype import AppPrototype
-from next.apps.StochasticDuelingBordaBanditsPureExploration.Dashboard import StochasticDuelingBordaBanditsPureExplorationDashboard
+from next.apps.DuelingBanditsPureExploration.Dashboard import DuelingBanditsPureExplorationDashboard
 
-class StochasticDuelingBordaBanditsPureExploration(AppPrototype):
+class DuelingBanditsPureExploration(AppPrototype):
 
   def __init__(self): 
-    self.app_id = 'StochasticDuelingBordaBanditsPureExploration'
+    self.app_id = 'DuelingBanditsPureExploration'
 
   def daemonProcess(self,exp_uid,args_json,db,ell):
     try:
@@ -755,7 +755,7 @@ class StochasticDuelingBordaBanditsPureExploration(AppPrototype):
       stat_id = args_dict['stat_id']
       params = args_dict['params']
 
-      dashboard = StochasticDuelingBordaBanditsPureExplorationDashboard(db,ell)
+      dashboard = DuelingBanditsPureExplorationDashboard(db,ell)
 
       # input task
       if stat_id == "api_activity_histogram":

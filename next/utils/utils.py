@@ -26,7 +26,7 @@ which outputs: ::\n
     -> LilUCB
     -> LUCB
     -> SuccElim
-  StochasticDuelingBordaBanditsPureExploration
+  DuelingBanditsPureExploration
     -> BR_LilUCB
   StochasticLinearBanditsExploreExploit
     -> OFUL
@@ -47,7 +47,7 @@ def get_supported_apps():
   Usage: ::\n
     app_id_list = utils.get_supported_apps()
     print app_id_list
-    >>> ['StochasticBanditsPureExploration', 'StochasticDuelingBordaBanditsPureExploration', 'StochasticLinearBanditsExploreExploit', 'PoolBasedTripletMDS']
+    >>> ['StochasticBanditsPureExploration', 'DuelingBanditsPureExploration', 'StochasticLinearBanditsExploreExploit', 'PoolBasedTripletMDS']
   """
   next_path = 'next.apps'
   app_module = __import__(next_path,fromlist=[''])

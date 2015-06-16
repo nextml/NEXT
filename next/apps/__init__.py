@@ -1,3 +1,3 @@
 implemented_apps = ['TupleBanditsPureExploration', \
-                    'StochasticDuelingBordaBanditsPureExploration', \
+                    'DuelingBanditsPureExploration', \
                     'PoolBasedTripletMDS']

@@ -19,7 +19,7 @@ class ResourceManager:
 
         rm.get_app_ids()
 
-        rm.get_app_about('StochasticDuelingBordaBanditsPureExploration')
+        rm.get_app_about('DuelingBanditsPureExploration')
 
         rm.get_app_alg_ids('PoolBasedTripletMDS')
 
@@ -58,7 +58,7 @@ class ResourceManager:
             (string) description : desciption of the app for readability by humans
         
         Usage: ::\n
-            rm.get_app_about('StochasticDuelingBordaBanditsPureExploration')
+            rm.get_app_about('DuelingBanditsPureExploration')
         """
         return utils.get_app_about(app_id)
 

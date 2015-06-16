@@ -1,5 +1,5 @@
 """
-BR_LilUCB app implements StochasticDuelingBordaBanditsPureExplorationPrototype
+BR_LilUCB app implements DuelingBanditsPureExplorationPrototype
 author: Kevin Jamieson, kevin.g.jamieson@gmail.com
 last updated: 1/11/2015
 
@@ -11,9 +11,9 @@ Jamieson et al "Sparse Borda Bandits," AISTATS 2015.
 
 import numpy
 import numpy.random
-from next.apps.StochasticDuelingBordaBanditsPureExploration.Prototype import StochasticDuelingBordaBanditsPureExplorationPrototype
+from next.apps.DuelingBanditsPureExploration.Prototype import DuelingBanditsPureExplorationPrototype
 
-class BR_LilUCB(StochasticDuelingBordaBanditsPureExplorationPrototype):
+class BR_LilUCB(DuelingBanditsPureExplorationPrototype):
 
   def daemonProcess(self,resource,daemon_args_dict):
 

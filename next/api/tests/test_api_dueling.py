@@ -36,7 +36,7 @@ def run_all(assert_200):
         return result,(te-ts)
     return timed
 
-  app_id = 'StochasticDuelingBordaBanditsPureExploration'
+  app_id = 'DuelingBanditsPureExploration'
   # assert_200 = False
   num_arms = 10
   true_means = numpy.array(range(num_arms))/float(num_arms)

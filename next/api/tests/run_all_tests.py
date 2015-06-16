@@ -34,6 +34,6 @@ if __name__ == '__main__':
 	# test_conn.run_all()
 	# test_api_bad_inputs.run_all(assert_200, num_clients)
 	test_api_dueling.run_all(assert_200)
-	test_api_triplet.run_all(assert_200, num_clients)
-	test_api_tuple.run_all(assert_200)
+	#test_api_triplet.run_all(assert_200, num_clients)
+	#test_api_tuple.run_all(assert_200)
 	# add subsequent tests here
