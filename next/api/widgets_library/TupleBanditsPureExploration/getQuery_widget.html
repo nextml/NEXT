@@ -29,7 +29,7 @@
                         padding-bottom: 5px">
   {% for t in query.targets %}
     <div class="target" id="{{loop.index}}" 
-        onclick="next_widget.reportAnswer(&quot;{{ t.target_id }}&quot;);
+        onclick="next_widget.processAnswer(&quot;{{ t.target_id }}&quot;);
                   console.log('reporting answer!')
                   $('#'+{{loop.index}}).css({'border': '2px solid #FF0000'});">
       {% if t.primary_type == "image" or t.primary_type == "img"%}

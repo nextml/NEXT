@@ -16,7 +16,7 @@
         <div id = "api_activity_histogram_getQuery" class="plot"></div>
       </div>
       <div class="col-sm-3">
-        <div id = "api_activity_histogram_reportAnswer"  class="plot"></div>
+        <div id = "api_activity_histogram_processAnswer"  class="plot"></div>
       </div>
       <div class="col-sm-3">
         <div id = "api_activity_histogram_predict" class="plot"></div>
@@ -48,7 +48,7 @@
       );
 
       plot_response = function(data) {
-      charts.plot(data.json,"api_activity_histogram_reportAnswer","Activity reportAnswer");
+      charts.plot(data.json,"api_activity_histogram_processAnswer","Activity processAnswer");
       }
       
       
@@ -60,7 +60,7 @@
       'widget_key': "{{ perm_key }}",
       'args':{
       'stat_id' : 'api_activity_histogram',
-      'params'  : {'task':'reportAnswer'}
+      'params'  : {'task':'processAnswer'}
       }
       },
       plot_response
@@ -114,7 +114,7 @@
         <div id = "compute_duration_multiline_plot_getQuery" class="plot"></div>
       </div>
       <div class="col-sm-3">
-        <div id = "compute_duration_multiline_plot_reportAnswer" class="plot"></div>
+        <div id = "compute_duration_multiline_plot_processAnswer" class="plot"></div>
       </div>
       <div class="col-sm-3">
         <div id = "compute_duration_multiline_plot_predict" class="plot"></div>
@@ -145,7 +145,7 @@
    )
    
    plot_response = function(data) {
-   charts.plot(data.json,"compute_duration_multiline_plot"+"_"+"reportAnswer", "Duration reportAnswer" ,1000,800);
+   charts.plot(data.json,"compute_duration_multiline_plot"+"_"+"processAnswer", "Duration processAnswer" ,1000,800);
    }
    
    data = next_widget.getWidget(
@@ -156,7 +156,7 @@
    'widget_key': "{{ perm_key }}",
    "args":{
    "stat_id" : "compute_duration_multiline_plot",
-   "params"  : {"task": "reportAnswer" }
+   "params"  : {"task": "processAnswer" }
    } },
    plot_response
    )
@@ -208,7 +208,7 @@
     <div id= "compute_duration_detailed_stacked_area_plot_getQuery_{{ alg.alg_label_clean }}" class="plot"></div>
   </div>
   <div class="col-sm-3">
-    <div id= "compute_duration_detailed_stacked_area_plot_reportAnswer_{{ alg.alg_label_clean }}" class="plot"></div>
+    <div id= "compute_duration_detailed_stacked_area_plot_processAnswer_{{ alg.alg_label_clean }}" class="plot"></div>
   </div>
   <div class="col-sm-3">
     <div id= "compute_duration_detailed_stacked_area_plot_predict_{{ alg.alg_label_clean }}" class="plot"></div>
@@ -241,7 +241,7 @@
   );
 
   plot_response = function(data) {
-  charts.plot(data.json,"compute_duration_detailed_stacked_area_plot_reportAnswer_{{ alg.alg_label_clean }}","Duration reportAnswer {{ alg.alg_label }}");
+  charts.plot(data.json,"compute_duration_detailed_stacked_area_plot_processAnswer_{{ alg.alg_label_clean }}","Duration processAnswer {{ alg.alg_label }}");
   }
   
   
@@ -253,7 +253,7 @@
   'widget_key': "{{ perm_key }}",
   'args':{
   'stat_id' : 'compute_duration_detailed_stacked_area_plot',
-  'params'  : {'task':'reportAnswer', 'alg_label':'{{ alg.alg_label }}' }
+  'params'  : {'task':'processAnswer', 'alg_label':'{{ alg.alg_label }}' }
   }
   },
   plot_response

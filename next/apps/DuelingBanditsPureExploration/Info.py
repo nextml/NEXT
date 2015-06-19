@@ -39,7 +39,7 @@ We could ask users to rate a selected bunch of designs on some scale (e.g. 1-5 s
 have very different calibrations and its not clear what a score-4 design means. Thus, we will show 
 a user two different designs and ask a user to choose which one they prefer, and repeat. The algorithm
 decides which two to show at any given time and how to decide a winner. A getQuery request sends two indices
-to choose from, the reportAnswer reports which answer was selected.""")
+to choose from, the processAnswer reports which answer was selected.""")
     return about_str
 
 def get_default_instructions():

@@ -59,9 +59,9 @@ class WidgetGenerator(Widget):
 
 
     
-    def reportAnswer(self,args):
+    def processAnswer(self,args):
         """
-        Generates a reportAnswer widget. Uses the args format as specified in::\n
+        Generates a processAnswer widget. Uses the args format as specified in::\n
     		/next_backend/next/learningLibs/apps/TupleBanditsPureExploration
         
         Input: ::\n
@@ -82,8 +82,8 @@ class WidgetGenerator(Widget):
 
         # Args from dict to json type
         args_json = json.dumps(args["args"]) 
-        # Execute reportAnswer 
-        response_json,didSucceed,message = broker.applyAsync(app_id,exp_uid,"reportAnswer",args_json)
+        # Execute processAnswer 
+        response_json,didSucceed,message = broker.applyAsync(app_id,exp_uid,"processAnswer",args_json)
 
         return { 'html':"success"}
 

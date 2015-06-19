@@ -24,7 +24,7 @@ Verification that individual algorithms and applications actually work well is m
 This run_all_tests.py file executes the test_api_*.py file for each application type.
 Each application type should have an associated test that:
 	- Implements and executes all API calls, creating and running multiple experiments from 'start-to-finish'
-	- Simulates user input data in the form of getQuery and reportAnswer API calls
+	- Simulates user input data in the form of getQuery and processAnswer API calls
 	- Verifies that that all API requests and responses are proccessed correctly (e.g. status codes or other means)
 '''
 
@@ -34,6 +34,6 @@ if __name__ == '__main__':
 	# test_conn.run_all()
 	# test_api_bad_inputs.run_all(assert_200, num_clients)
 	test_api_dueling.run_all(assert_200)
-	#test_api_triplet.run_all(assert_200, num_clients)
-	#test_api_tuple.run_all(assert_200)
+	test_api_triplet.run_all(assert_200, num_clients)
+	test_api_tuple.run_all(assert_200)
 	# add subsequent tests here

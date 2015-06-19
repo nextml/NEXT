@@ -19,7 +19,7 @@ class AppPrototype(object):
   def getQuery(self,db_api,exp_uid,args):
     return NotImplementedError
 
-  def reportAnswer(self,db_api,exp_uid,args):
+  def processAnswer(self,db_api,exp_uid,args):
     return NotImplementedError
 
   def predict(self,db_api,exp_uid,args):

@@ -50,7 +50,7 @@ meta_success = {
     }
 
 # Answer resource class
-class reportAnswer(Resource):
+class processAnswer(Resource):
     def post(self):
     	# This doc needs to be updated
         """.. http:post:: /experiment/answer
@@ -126,8 +126,8 @@ class reportAnswer(Resource):
 
         # Args from dict to json type
         args_json = json.dumps(args_data["args"]) 
-        # Execute reportAnswer 
-        response_json,didSucceed,message = broker.applyAsync(app_id,exp_uid,"reportAnswer",args_json)
+        # Execute processAnswer 
+        response_json,didSucceed,message = broker.applyAsync(app_id,exp_uid,"processAnswer",args_json)
 
         if didSucceed:
             return attach_meta(eval(response_json), meta_success), 200

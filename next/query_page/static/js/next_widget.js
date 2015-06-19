@@ -50,7 +50,7 @@ var next_widget = (function($){
 				$('#'+div_id).html(data.html);
 				_queryTime = new Date().getTime();
 				
-				// Build args dictionary for the reportAnswer call
+				// Build args dictionary for the processAnswer call
 				_args = {};
 				_args["exp_uid"] = args["exp_uid"];
 				_args["widget_key"] = args["widget_key"];
@@ -97,13 +97,13 @@ var next_widget = (function($){
 		    });
 		},
 
-		reportAnswer: function(target_id) {
+		processAnswer: function(target_id) {
 		    /**
 		     * Function for reporting an answer coming from a getQuery call.
 		     * Is routed through the widget system.
 		     * Input: target_id of the winner
 		     */
-		    _args["name"] = "reportAnswer";
+		    _args["name"] = "processAnswer";
 		    _args["args"]["target_winner"] = target_id;
 		    currTime = new Date().getTime();
 		    _args["args"]["response_time"] = (currTime -  _queryTime)/1000.;
@@ -114,7 +114,7 @@ var next_widget = (function($){
 			contentType: "application/json",
 			data: JSON.stringify(_args)
 		    }).done( function(data, textStatus,XHR){
-				_callbacks.reportAnswer_success();
+				_callbacks.processAnswer_success();
 		    } ).fail(function(error){
 		    	console.log("Error in communicating with next_backend",jqXHR, textStatus, errorThrown);
 				_callbacks.widget_failure();

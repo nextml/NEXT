@@ -15,7 +15,7 @@ class Widget:
     def getQuery(self, args):
         raise NotImplementedError
 
-    def reportAnswer(self, args):
+    def processAnswer(self, args):
         raise NotImplementedError
     
     def getStats(self,args):

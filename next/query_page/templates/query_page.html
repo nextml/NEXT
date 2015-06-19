@@ -166,7 +166,7 @@
       };
 
       var callbacks = {
-        reportAnswer_success: function() {
+        processAnswer_success: function() {
       	if(tries > 1){
                   tries -=1;
                   next_widget.getQuery(div_id, args, callbacks);

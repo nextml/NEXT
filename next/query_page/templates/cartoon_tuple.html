@@ -195,7 +195,7 @@
       $('#debrief_text').html(debrief);
       
       var callbacks = {
-      	reportAnswer_success: function() {
+      	processAnswer_success: function() {
       		tries -=1;
       		if(tries > 0){    
       			var index = 3-tries; 

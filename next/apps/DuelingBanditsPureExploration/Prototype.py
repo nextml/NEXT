@@ -44,7 +44,7 @@ class DuelingBanditsPureExplorationPrototype(object):
     return NotImplementedError
 
   
-  def reportAnswer(self,db,index_left=0,index_right=0,index_winner=0):
+  def processAnswer(self,db,index_left=0,index_right=0,index_winner=0):
     """
     reporting back the reward of pulling the arm suggested by getQuery
 

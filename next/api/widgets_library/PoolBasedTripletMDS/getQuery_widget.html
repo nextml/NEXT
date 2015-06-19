@@ -23,7 +23,7 @@
                         -webkit-flex-wrap: nowrap;
                         -webkit-flex-grow: 1;">
     <!-- Left Target -->
-    <div class="target" id="left" onclick="next_widget.reportAnswer(&quot;{{ query.left.target_id }}&quot;); $('#left').css({'border': '2px solid #FF0000'});">
+    <div class="target" id="left" onclick="next_widget.processAnswer(&quot;{{ query.left.target_id }}&quot;); $('#left').css({'border': '2px solid #FF0000'});">
       {% if query.left.primary_type == "image" or query.left.primary_type == "img"%}
       	<img class="image" src={{ query.left.primary_description }}> </img>
       {% elif query.left.primary_type == "text"%}  	
@@ -34,7 +34,7 @@
     </div>
 
     <!-- Right Target -->
-    <div class="target" id="right" onclick="next_widget.reportAnswer(&quot;{{ query.right.target_id }}&quot;); $('#right').css({'border': '2px solid #FF0000'});">
+    <div class="target" id="right" onclick="next_widget.processAnswer(&quot;{{ query.right.target_id }}&quot;); $('#right').css({'border': '2px solid #FF0000'});">
       {% if query.right.primary_type == "image" or query.left.primary_type == "img" %}
     		<img class="image" src={{ query.right.primary_description }}> </img>
     	{% elif query.left.primary_type == "text" %}		
@@ -56,12 +56,12 @@
       if (e.keyCode == '37') {
          // left arrow
          $('#left').css({'border': '4px solid #FF0000'})
-         next_widget.reportAnswer("{{ query.left.target_id }}")
+         next_widget.processAnswer("{{ query.left.target_id }}")
       }
       else if (e.keyCode == '39') {
          // right arrow
         $('#right').css({'border': '4px solid #FF0000'})
-        next_widget.reportAnswer("{{ query.right.target_id }}")
+        next_widget.processAnswer("{{ query.right.target_id }}")
       }
 
   }

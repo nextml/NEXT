@@ -79,7 +79,7 @@ class BR_SuccElim(DuelingBanditsPureExplorationPrototype):
       return alt_index,index,index
 
 
-  def reportAnswer(self,resource,index_left=0,index_right=0,index_painted=0,index_winner=0):
+  def processAnswer(self,resource,index_left=0,index_right=0,index_painted=0,index_winner=0):
     """
     reporting back the reward of pulling the arm suggested by getQuery
 

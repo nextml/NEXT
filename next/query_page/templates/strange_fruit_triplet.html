@@ -194,7 +194,7 @@
       var participant_uid = next_widget.makeRandomString(30);
       
       var callbacks = {
-      	reportAnswer_success: function() {
+      	processAnswer_success: function() {
       		tries -=1;
       		if(tries > 0){    
           		var args = {

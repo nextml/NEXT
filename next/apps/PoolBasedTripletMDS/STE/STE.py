@@ -125,7 +125,7 @@ class STE(PoolBasedTripletMDSPrototype):
     return index_center,index_left,index_right
 
   
-  def reportAnswer(self,resource,index_center,index_left,index_right,index_winner):
+  def processAnswer(self,resource,index_center,index_left,index_right,index_winner):
     """
     reporting back the reward of pulling the arm suggested by getQuery
 
