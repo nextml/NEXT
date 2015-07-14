@@ -632,7 +632,7 @@ def setup_next_cluster(master, opts):
     shutil.rmtree(tmp_dir)
 
     ssh(master, opts, "sudo chmod 777 " + EC2_NEXT_PATH + '/' + 'setup.sh')
-    ssh(master, opts, 'sudo su -c ' + EC2_NEXT_PATH + '/' + 'setup.sh')
+    ssh(master, opts, 'sudo ' + EC2_NEXT_PATH + '/' + 'setup.sh')
 
 
 def docker_up(opts, master_nodes, slave_nodes):
@@ -640,7 +640,21 @@ def docker_up(opts, master_nodes, slave_nodes):
     master = master_nodes[0].public_dns_name
 
     ssh(master, opts, "sudo chmod 777 " + EC2_NEXT_PATH + '/' + 'docker_up.sh')
-    ssh(master, opts, 'sudo su -c ' + EC2_NEXT_PATH + '/' + 'docker_up.sh')
+    ssh(master, opts, 'sudo ' + EC2_NEXT_PATH + '/' + 'docker_up.sh')
+
+
+def docker_login(opts, master_nodes, slave_nodes):
+    rsync_docker_config(opts, master_nodes, slave_nodes)
+    master = master_nodes[0].public_dns_name
+
+    import signal
+    def preexec_function():
+        # Ignore the SIGINT signal by setting the handler to the standard
+        # signal handler SIG_IGN.
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
+
+    ssh(master, opts, "sudo chmod 777 " + EC2_NEXT_PATH + '/' + 'docker_login.sh')
+    ssh(master, opts, 'sudo ' + EC2_NEXT_PATH + '/' + 'docker_login.sh')
 
 
 def list_bucket(opts):
@@ -762,33 +776,6 @@ def rsync_docker_config(opts, master_nodes, slave_nodes):
     # Remove the temp directory we created above
     shutil.rmtree(tmp_dir)
 
-
-def docker_login(opts, master_nodes, slave_nodes):
-    rsync_docker_config(opts, master_nodes, slave_nodes)
-
-    master = master_nodes[0].public_dns_name
-
-    import signal
-    def preexec_function():
-        # Ignore the SIGINT signal by setting the handler to the standard
-        # signal handler SIG_IGN.
-        signal.signal(signal.SIGINT, signal.SIG_IGN)
-
-    ssh(master, opts, "sudo chmod 777 " + EC2_NEXT_PATH + '/' + 'docker_login.sh')
-    # ssh(master, opts, 'sudo su -c' + EC2_NEXT_PATH + '/' + 'docker_login.sh')
-    command = ' sudo su -c' + EC2_NEXT_PATH + '/' + 'docker_login.sh'
-
-    print 60*'#'
-    print 60*'#'
-    print 
-    print 'Run these commands to setup docker variables'
-    print 
-    print 'sudo su'
-    print EC2_NEXT_PATH + '/' + 'docker_login.sh'
-    print
-    print 60*'#'
-    print 60*'#'
-    subprocess.check_call( ssh_command(opts) + ['-t', '-t', "%s@%s" % (opts.user, master)] )
 
 def is_ssh_available(host, opts, print_ssh_output=True):
     """
