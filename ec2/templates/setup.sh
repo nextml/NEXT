@@ -9,6 +9,7 @@ apt-get install -y \
     python-distribute \
     python-pip \
     python-numpy \
+    python-scipy \
     git
 
 # python libraries (for convenience and test scripts)

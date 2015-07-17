@@ -82,7 +82,7 @@ python  next_ec2.py --key-pair=next_key_1 --identity-file=/Users/kevinjamieson/a
 """
 
 NEXT_BACKEND_GLOBAL_PORT = 8000
-NEXT_FRONTEND_GLOBAL_PORT = 8002
+NEXT_FRONTEND_GLOBAL_PORT = 80
 EC2_SRC_PATH = '/usr/local'
 EC2_NEXT_PATH = EC2_SRC_PATH + '/next-discovery'
 LOCAL_NEXT_PATH = './../'
@@ -711,8 +711,6 @@ def rsync_docker_config(opts, master_nodes, slave_nodes):
         "SLAVE_LIST": ','.join([i.public_dns_name for i in slave_nodes]),
         "NEXT_BACKEND_GLOBAL_HOST": master,
         "NEXT_BACKEND_GLOBAL_PORT": NEXT_BACKEND_GLOBAL_PORT,
-        #"NEXT_FRONTEND_BASE_GLOBAL_HOST": master,
-        #"NEXT_FRONTEND_BASE_GLOBAL_PORT": NEXT_FRONTEND_BASE_GLOBAL_PORT,
         "NEXT_FRONTEND_GLOBAL_HOST":master,
         "NEXT_FRONTEND_GLOBAL_PORT":NEXT_FRONTEND_GLOBAL_PORT,
         "AWS_ACCESS_ID":os.getenv('AWS_ACCESS_KEY_ID'),
@@ -749,8 +747,6 @@ def rsync_docker_config(opts, master_nodes, slave_nodes):
         "CELERY_THREADS_PER_ASYNC_WORKER":max(1,int(.35*master_num_cpus)),
         "NEXT_BACKEND_NUM_GUNICORN_WORKERS":int(unicorn_multiplier*master_num_cpus+1),
         "NEXT_BACKEND_GLOBAL_PORT":NEXT_BACKEND_GLOBAL_PORT,
-        #"NEXT_FRONTEND_BASE_NUM_GUNICORN_WORKERS":int(unicorn_multiplier*master_num_cpus+1),
-        #"NEXT_FRONTEND_BASE_GLOBAL_PORT":NEXT_FRONTEND_BASE_GLOBAL_PORT,
         "NEXT_FRONTEND_NUM_GUNICORN_WORKERS":int(unicorn_multiplier*master_num_cpus+1),
         "NEXT_FRONTEND_GLOBAL_PORT":NEXT_FRONTEND_GLOBAL_PORT
     }
