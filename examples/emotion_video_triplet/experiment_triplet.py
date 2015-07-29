@@ -33,7 +33,6 @@ algorithm_management_settings = {}
 algorithm_management_settings['mode'] = 'fixed_proportions'
 algorithm_management_settings['params'] = params
 
-
 # Create experiment dictionary
 initExp = {}
 initExp['args'] = {}
