@@ -30,7 +30,6 @@ class widgetManager:
         """
         # sometimes input is unicode formatted which causes error
         app_id = str(app_id) 
-        print "app_id:", app_id, 
         path = 'next.api.widgets_library'
         app_module = __import__(path+"."+app_id,fromlist=[app_id])
   

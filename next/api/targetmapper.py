@@ -199,6 +199,7 @@ class TargetMapper:
         if not didSucceed:
             raise DatabaseException("Failed to get_target_data: %s"%(message))
         # Pop target_dict out of list and return
+        print "target_Data",target_data
         target_data_dict = target_data.pop(0)
         return target_data_dict
 

@@ -1,14 +1,21 @@
 
-    <!-- Center Target -->
-    <div class="target" id="center">
-      {% if query.center.primary_type == "image" or query.left.primary_type == "img" %}
-        <img class="image" src={{ query.center.primary_description }}> </img>
-      {% elif query.left.primary_type == "text" %}    
-        <div class="table-box">
-          <div class="text">{{ query.center.primary_description }}</div>    
-        </div>
-      {% endif %}
-    </div>
+<!-- Center Target -->
+<div class="target" id="center">
+  {% if query.center.primary_type == "image" or query.center.primary_type == "img" %}
+  <img class="image" src={{ query.center.primary_description }}> </img>
+
+  {% elif query.center.primary_type == "text" %}    
+  <div class="table-box">
+    <div class="text">{{ query.center.primary_description }}</div>    
+  </div>
+
+  {% elif query.center.primary_type == "video" %}
+  <video class="image" width="320" height="240"  poster="http://jimpunk.net/Loading/wp-content/uploads/loading1.gif" controls autoplay loop>
+    <source src={{ query.center.primary_description }} type="video/mp4"> 
+      Your browser does not support the video tag.
+  </video>
+  {% endif %}
+</div>
 
   <div class="query" style="align-self: center;
                         display: flex;
@@ -29,8 +36,13 @@
       {% elif query.left.primary_type == "text"%}  	
     	  <div class="table-box">
           <div class="text">{{ query.left.primary_description }}</div>
-        </div>
-      {% endif %}
+          </div>
+	  {% elif query.center.primary_type == "video" %}
+	  <video class="image" width="320" height="240" poster="http://jimpunk.net/Loading/wp-content/uploads/loading1.gif" controls autoplay loop>
+	    <source src={{ query.left.primary_description }} type="video/mp4"> 
+	      Your browser does not support the video tag.
+	  </video>
+	  {% endif %}
     </div>
 
     <!-- Right Target -->
@@ -41,6 +53,11 @@
         <div class="table-box">
     		  <div class="text">{{ query.right.primary_description }}</div>
         </div>
+	{% elif query.center.primary_type == "video" %}
+	  <video class="image" width="320" height="240" poster="http://jimpunk.net/Loading/wp-content/uploads/loading1.gif" controls autoplay loop>
+	    <source src={{ query.left.primary_description }} type="video/mp4"> 
+	      Your browser does not support the video tag.
+	  </video>
     	{% endif %}
     </div>
   </div>

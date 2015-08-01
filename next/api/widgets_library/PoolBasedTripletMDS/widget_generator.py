@@ -30,14 +30,19 @@ class WidgetGenerator(Widget):
         Output: ::\n
 		(str) getQuery widget.
         """
+        
+
         # Use the backend_api to query for a getQuery widget
         exp_uid = args["exp_uid"]
         app_id = args["app_id"]
         if 'participant_uid' in args['args'].keys():
             args['args']['participant_uid'] = exp_uid+"_"+args['args']['participant_uid']
+
         args_json = json.dumps(args["args"])
         response_json,didSucceed,message = broker.applyAsync(app_id,exp_uid,"getQuery",args_json)        
         response_dict = json.loads(response_json)
+
+
         for target_index in response_dict["target_indices"]:
             target_index['target'] = targetmapper.get_target_data(exp_uid, target_index["index"])
 

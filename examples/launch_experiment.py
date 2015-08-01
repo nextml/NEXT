@@ -37,7 +37,6 @@ def generate_target_blob(file, prefix, AWS_BUCKET_NAME, AWS_ID, AWS_KEY):
         AWS_KEY: Aws key
     """
     targets = []
-
     if file.endswith('.zip'):
         target_file_dict = zipfile_to_dictionary(file)
         bucket = get_AWS_bucket(AWS_BUCKET_NAME, AWS_ID, AWS_KEY)        
@@ -46,11 +45,18 @@ def generate_target_blob(file, prefix, AWS_BUCKET_NAME, AWS_ID, AWS_KEY):
             target_file = target_file_dict[target_name]
             target_url = upload_to_S3(bucket, prefix+"_"+target_name, StringIO(target_file))
             print "success", target_url
-            target = {  'target_id':prefix+"_"+target_name,
-                        'primary_type': 'image',
-                        'primary_description':target_url,
+            if target_name.endswith(('jpg','png')):
+                primary_type = 'image'
+            elif target_name.endswith('mp4'):
+                primary_type = 'video'
+            else:
+                primary_type = 'other'
+            print "primary_type", primary_type
+            target = {  'target_id': prefix+"_"+target_name,
+                        'primary_type': primary_type,
+                        'primary_description': target_url,
                         'alt_type': 'text',
-                        'alt_description':target_name
+                        'alt_description': target_name
                      }
             targets.append(target)
 
@@ -118,7 +124,7 @@ def zipfile_to_dictionary(filename):
     zf = zipfile.ZipFile(filename,'r')
     listOfFiles = zf.namelist() 
     for i in listOfFiles:
-        if not i.startswith('__MACOSX') and i.endswith(('jpg','jpeg','png','gif','bmp')):
+        if not i.startswith('__MACOSX') and i.endswith(('jpg','jpeg','png','gif','bmp', 'mp4')):
             f= zf.read(i)
             dictionary[i] = f
         

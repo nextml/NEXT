@@ -1,12 +1,15 @@
 {% if query.context_type != "none" %}
 <div class="target" id="center">
+
   {% if query.context_type == "text" %}
   <div class="table-box">
     <div class="text"> {{ query.context }} </div>
   </div>
+  
   {% elif query.context_type == "image" or query.context_type == "img" %}
   <img class="image" src='{{ query.context }}'> </img>
   {% endif %}
+
 </div>
 
 <script>

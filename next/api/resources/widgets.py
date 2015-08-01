@@ -61,7 +61,7 @@ class Widgets(Resource):
         args["app_id"] = app_id
 
         # Comment this back in, having some issues with it right now.
-        #if not keychain.verify_widget_key(args['exp_uid'], args['widget_key']):
+        # if not keychain.verify_widget_key(args['exp_uid'], args['widget_key']):
         #    return api_util.attach_meta({}, verification_error), 401
         
         widget = widget_manager.get_widget(args)
