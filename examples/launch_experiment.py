@@ -163,7 +163,7 @@ def launch_experiment(host, experiment_list, AWS_ID, AWS_KEY, AWS_BUCKET_NAME):
       context_url = upload_to_S3(bucket, experiment['context'].split("/")[-1], open(experiment['context']))
       experiment['initExp']['args']['context'] = context_url
       experiment['initExp']['args']['context_type'] = "image"
-    if 'context' in experiment.keys() and experiment['context_type']=='video':
+    elif 'context' in experiment.keys() and experiment['context_type']=='video':
       print experiment['context'].split("/")[-1], experiment['context'] 
       context_url = upload_to_S3(bucket, experiment['context'].split("/")[-1], open(experiment['context']))
       experiment['initExp']['args']['context'] = context_url

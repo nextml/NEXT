@@ -1,6 +1,6 @@
-import TupleBanditsPureExploration
-import DuelingBanditsPureExploration
-import PoolBasedTripletMDS
+import next.apps.TupleBanditsPureExploration.widgets
+import next.apps.DuelingBanditsPureExploration
+import next.apps.PoolBasedTripletMDS
 
 
 class widgetManager:
@@ -30,8 +30,8 @@ class widgetManager:
         """
         # sometimes input is unicode formatted which causes error
         app_id = str(app_id) 
-        path = 'next.api.widgets_library'
-        app_module = __import__(path+"."+app_id,fromlist=[app_id])
+        app_module = __import__('next.apps.{}.widgets'.format(app_id),
+                                fromlist=[app_id])
   
         app_class = getattr(app_module, "WidgetGenerator")
         return app_class()
