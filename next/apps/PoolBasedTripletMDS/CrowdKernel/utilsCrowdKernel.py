@@ -36,13 +36,14 @@ def main():
     """
     
     # generate some fake data
-    n = 10
+    n = 30
     d = 2
     m = int(ceil(40*n*d*log(n)))  # number of labels
     
-    p = 0.0; # error rate
+    p = 0.1; # error rate
     
-    S = []
+    Strain = []
+    Stest = []
     Xtrue = randn(n,d);
     for iter in range(0,m):
 
@@ -59,11 +60,19 @@ def main():
         if R<p:
             q = [ q[i] for i in [1,0,2]]
 
-        S.append(q)
+        if iter < .9*m:
+            Strain.append(q)
+        else:
+            Stest.append(q)
 
     # compute embedding 
-    X,emp_loss = computeEmbedding(n,d,S,mu=.01,num_random_restarts=2,epsilon=0,verbose=True)
+    X,emp_loss_train = computeEmbedding(n,d,Strain,mu=.01,num_random_restarts=2,epsilon=0,verbose=True)
 
+    # compute loss on test set
+    emp_loss_test,hinge_loss_test,log_loss_test = getLoss(X,Stest)
+
+    print
+    print 'Training loss = %f,   Test loss = %f' %(emp_loss_train,emp_loss_test)
 
 
 def getRandomQuery(X):
@@ -275,8 +284,9 @@ def computeEmbedding(n, d, S, mu=.01, num_random_restarts=0,max_num_passes=0,max
     """
 
     if max_num_passes==0:
-        max_num_passes = 16
+        max_num_passes = 32
     
+    X_old = None
     emp_loss_old = float('inf')
     num_restarts = -1
     
@@ -285,12 +295,13 @@ def computeEmbedding(n, d, S, mu=.01, num_random_restarts=0,max_num_passes=0,max
         
         print "Epoch SGD"
         ts = time.time()
-        X,acc = computeEmbeddingWithEpochSGD(n,d,S,mu,max_num_passes=max_num_passes,epsilon=epsilon,verbose=verbose)
+        X,acc = computeEmbeddingWithEpochSGD(n,d,S,mu,max_num_passes=max_num_passes,epsilon=0.,verbose=verbose)
         te_sgd = time.time()-ts
         
         print "Gradient Descent"
         ts = time.time()
         X_new, emp_loss_new, log_loss_new, hinge_loss_new, acc_new = computeEmbeddingWithGD(X, S, mu, max_iters=50, max_norm=max_norm, epsilon=epsilon, verbose=verbose)
+        emp_loss_new,hinge_loss_new,log_loss_new = getLoss(X_new,S)
         te_gd = time.time()-ts
 
         if emp_loss_new<emp_loss_old:
@@ -355,7 +366,6 @@ def computeEmbeddingWithEpochSGD(n,d,S,mu, max_num_passes=0,max_norm=0,epsilon=0
     if verbose:
         emp_loss,hinge_loss,log_loss = getLoss(X,S)
         print "iter=%d,   emp_loss=%f,   hinge_loss=%f, log_loss=%f,  a=%f" % (0,emp_loss,hinge_loss,log_loss,a)
-    print max_iters, epoch_length, max_num_passes, max_num_passes*m
     rel_max_grad = None
     while t < max_iters:
         t += 1
@@ -463,8 +473,6 @@ def computeEmbeddingWithGD(X, S, mu, max_iters=0, max_norm=0, epsilon=0.01, c1=0
         # get gradient and stopping-time statistics
         ts = time.time()
         G,log_loss,avg_grad_row_norm_sq,max_grad_row_norm_sq,avg_row_norm_sq  = getGradient(X, S, mu)
-        if verbose:
-            print "Gradient Compute time %s"%(time.time() - ts)
         rel_max_grad = sqrt( max_grad_row_norm_sq / avg_row_norm_sq )
         rel_avg_grad = sqrt( avg_grad_row_norm_sq / avg_row_norm_sq )
         if rel_max_grad < epsilon:
@@ -476,8 +484,6 @@ def computeEmbeddingWithGD(X, S, mu, max_iters=0, max_norm=0, epsilon=0.01, c1=0
         alpha = 2*alpha
         ts = time.time()
         emp_loss_0, hinge_loss_0, log_loss_0 = getLoss(X,S)
-        if verbose:
-            print "Loss Compute time %s"%(time.time() - ts)
         norm_grad_sq_0 = avg_grad_row_norm_sq*n
         emp_loss_k, hinge_loss_k, log_loss_k = getLoss(X-alpha*G, S)
         
@@ -496,7 +502,7 @@ def computeEmbeddingWithGD(X, S, mu, max_iters=0, max_norm=0, epsilon=0.01, c1=0
         
         # check losses
         if verbose:
-            print "crowd  iter=%d,   emp_loss=%f,   hinge_loss=%f,   log_loss=%f,   rel_avg_grad=%f,   rel_max_grad=%f,   a=%f,   i_t=%d" % (t,emp_loss_k,hinge_loss_k,log_loss_k,rel_avg_grad,rel_max_grad,alpha,inner_t)
+            print "iter=%d,   emp_loss=%f,   hinge_loss=%f,   log_loss=%f,   rel_avg_grad=%f,   rel_max_grad=%f,   a=%f,   i_t=%d" % (t,emp_loss_k,hinge_loss_k,log_loss_k,rel_avg_grad,rel_max_grad,alpha,inner_t)
 
     
     return X,emp_loss_0,hinge_loss_0,log_loss_0,rel_max_grad
