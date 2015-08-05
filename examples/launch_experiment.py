@@ -44,7 +44,11 @@ def generate_target_blob(file, prefix, AWS_BUCKET_NAME, AWS_ID, AWS_KEY):
             print "uploading", target_name
             target_file = target_file_dict[target_name]
             target_url = upload_to_S3(bucket, prefix+"_"+target_name, StringIO(target_file))
-            print "success", target_url
+
+            url_prox = target_url.split('/')
+            url_temp = 'http://s3.amazonaws.com/'+AWS_BUCKET_NAME+'/'+url_prox[3]+'/'+url_prox[4]
+            print "success", url_temp
+            
             if target_name.endswith(('jpg','png')):
                 primary_type = 'image'
             elif target_name.endswith('mp4'):
@@ -54,7 +58,8 @@ def generate_target_blob(file, prefix, AWS_BUCKET_NAME, AWS_ID, AWS_KEY):
             print "primary_type", primary_type
             target = {  'target_id': prefix+"_"+target_name,
                         'primary_type': primary_type,
-                        'primary_description': target_url,
+                        # 'primary_description': target_url,
+                        'primary_description': url_temp,
                         'alt_type': 'text',
                         'alt_description': target_name
                      }
