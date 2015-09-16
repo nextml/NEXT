@@ -16,11 +16,15 @@ $ git clone https://github.com/kgjamieson/NEXT.git
 
 We are actively working to develop and improve NEXT, but users should be aware of the following caveats: 
 - NEXT currently supports only UNIX based OS (e.g. Windows compatibility is not yet available).
-- An Amazon Web Services account is needed to launch NEXT on EC2; we have worked hard to make this process as simple as possible, at cost of ease of running the full NEXT stack on a local machine.
+- An Amazon Web Services account is needed to launch NEXT on EC2; we have worked hard to make this process as simple as possible, at cost of ease of running the full NEXT stack on a local machine. We plan to make NEXT usable on a personal computer in the future.
 
 ### Launching NEXT on EC2
 
-First, you must set your Amazon Web Services (AWS) account credentials as enviornment variables. If you don't already have AWS account, you can follow our AWS account quickstart [here](https://github.com/kgjamieson/NEXT/wiki/AWS-Account-Quickstart) or the official AWS account set-up guide [here](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/get-set-up-for-amazon-ec2.html) for an in-depth introduction.
+First, you must set your Amazon Web Services (AWS) account credentials as enviornment variables. If you don't already have AWS account, you can follow our AWS account quickstart [here](https://github.com/kgjamieson/NEXT/wiki/AWS-Account-Quickstart) or the official AWS account set-up guide [here](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/get-set-up-for-amazon-ec2.html) for an in-depth introduction. Make sure to get
+
+* AWS access key id
+* AWS secret access key
+* Key Pair (pem file)
 
 Export your AWS credentials as environment variables using:
 ```
@@ -65,8 +69,6 @@ Because NEXT aims to make it easy to reproduce empirical active learning results
 
 First, in a new terminal, export your AWS credentials and use `get-master` to obtain your public EC2 DNS.
 ```
-$ export AWS_SECRET_ACCESS_KEY=[your_secret_aws_access_key_here]
-$ export AWS_ACCESS_KEY_ID=[your_aws_access_key_id_here]
 $ export AWS_BUCKET_NAME=[your_aws_bucket_name_here]
 $ cd NEXT/ec2
 $ python next_ec2.py --key-pair=[keypair] --identity-file=[key-file] get-master [cluster-name]
