@@ -15,13 +15,17 @@ export AWS_ACCESS_KEY_ID=
 export AWS_SECRET_ACCESS_KEY=
 python launch_experiment --experiment_file=
 """
-import random
+import os
+import re
+import imp
+import sys
 import json
-import time, datetime
+import getopt
+import zipfile
 import requests
-import os, sys, getopt, imp
-import csv, zipfile, getopt
+import datetime
 from StringIO import StringIO
+
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 
@@ -30,7 +34,8 @@ def generate_target_blob(file, prefix, AWS_BUCKET_NAME, AWS_ID, AWS_KEY):
     Upload targets and return a target blob for upload with the target_manager.
     
     Inputs: ::\n
-        file: fully qualified path of a file on the system. Must be a zipfile with pictures or a text file.
+        file: fully qualified path of a file on the system. 
+	      Must be a zipfile with pictures or a text file.
         prefix: string to prefix every uploaded file name with
         AWS_BUCKET_NAME: Aws bucket name
         AWS_ID: Aws id
@@ -41,58 +46,54 @@ def generate_target_blob(file, prefix, AWS_BUCKET_NAME, AWS_ID, AWS_KEY):
         target_file_dict = zipfile_to_dictionary(file)
         bucket = get_AWS_bucket(AWS_BUCKET_NAME, AWS_ID, AWS_KEY)        
         for target_name in target_file_dict.keys():
-            print "uploading", target_name
+            print 'uploading', target_name
             target_file = target_file_dict[target_name]
-            target_url = upload_to_S3(bucket, prefix+"_"+target_name, StringIO(target_file))
+            target_url = upload_to_S3(bucket,
+                                      '{}_{}'.format(prefix,
+                                                     target_name),
+                                      StringIO(target_file))
 
             url_prox = target_url.split('/')
-            url_temp = 'http://s3.amazonaws.com/'+AWS_BUCKET_NAME+'/'+url_prox[3]+'/'+url_prox[4]
-            print "success", url_temp
-            
-            if target_name.endswith(('jpg','png')):
+            url_temp = 'http://s3.amazonaws.com/{}/{}/{}'.format(AWS_BUCKET_NAME,
+                                                                 url_prox[3],
+                                                                 url_prox[4])
+            if re.search(r"\.(jpe?g|png|gif|bmp)", target_name, re.IGNORECASE):
                 primary_type = 'image'
             elif target_name.endswith('mp4'):
                 primary_type = 'video'
+            elif target_name.endswith('mp3'):
+                primary_type = 'audio'
             else:
                 primary_type = 'other'
-            print "primary_type", primary_type
-            target = {  'target_id': prefix+"_"+target_name,
-                        'primary_type': primary_type,
-                        # 'primary_description': target_url,
-                        'primary_description': url_temp,
-                        'alt_type': 'text',
-                        'alt_description': target_name
-                     }
+                
+            target = {'target_id': '{}_{}'.format(prefix, target_name),
+                      'primary_type': primary_type,
+                      'primary_description': url_temp,
+                      'alt_type': 'text',
+                      'alt_description': target_name}
             targets.append(target)
-
     elif file.endswith('.txt'):
-         i = 0
          with open(file) as f:
+            i = 0
             for line in f:
                 line = line.strip()
                 if line:
                     i += 1
-                    target = {  'target_id': str(i),
-                                'primary_type': 'text',
-                                'primary_description':line,
-                                'alt_type': 'text',
-                                'alt_description':line
-                                }
+                    target = {'target_id': str(i),
+                              'primary_type': 'text',
+                              'primary_description':line,
+                              'alt_type': 'text',
+                              'alt_description':line}
                     targets.append(target)
     else:
         raise Exception('Target file name must be .txt or .zip.')
-
-    # print targets
     return {'target_blob' : targets}
 
 def get_AWS_bucket(AWS_BUCKET_NAME,AWS_ID, AWS_KEY):
     """
     Creates a bucket for an S3 account 
-
     """
     conn = S3Connection(AWS_ID, AWS_KEY)
-    #Maybe by default we should try to create bucket and then catch exception?
-    #Also, migrate the bucket name to settings.Config
     bucket = conn.get_bucket(AWS_BUCKET_NAME)
     return bucket            
 
@@ -123,21 +124,21 @@ def zipfile_to_dictionary(filename):
     Outputs: ::\n
         result: the returned dictionary
     """
-    listOfFiles= []
-    dictionary ={}
-    print "filename in z to d",filename 
+    
+    
     zf = zipfile.ZipFile(filename,'r')
-    listOfFiles = zf.namelist() 
-    for i in listOfFiles:
-        if not i.startswith('__MACOSX') and i.endswith(('jpg','jpeg','png','gif','bmp', 'mp4')):
-            f= zf.read(i)
-            dictionary[i] = f
-        
+    files_list = zf.namelist() 
+    dictionary = {}
+    for i in files_list:
+        if re.search(r"\.(jpe?g|png|gif|bmp|mp4|mp3)",
+                     i, re.IGNORECASE):
+            f = zf.read(i)
+            dictionary[os.path.basepath(i)] = f
     return dictionary
 
 def import_experiment_list(file):
     # Load experiment file
-    mod=imp.load_source('experiment', experiment_file)
+    mod = imp.load_source('experiment', file)
     experiment_list = mod.experiment_list
     return experiment_list
 
@@ -177,10 +178,9 @@ def launch_experiment(host, experiment_list, AWS_ID, AWS_KEY, AWS_BUCKET_NAME):
       experiment['initExp']['args']['context'] = experiment['context']
       experiment['initExp']['args']['context_type'] = experiment['context_type']
 
-    url = "http://"+host+"/api/experiment"  
-    print "Initializing experiment", experiment['initExp']
+    url = 'http://{}/api/experiment'.format(host)  
+    print 'Initializing experiment', experiment['initExp']
     response = requests.post(url, json.dumps(experiment['initExp']), headers={'content-type':'application/json'})
-    print "initExp response = ",response.text, response.status_code
     
     initExp_response_dict = json.loads(response.text)
     exp_uid = initExp_response_dict['exp_uid']
@@ -194,7 +194,6 @@ def launch_experiment(host, experiment_list, AWS_ID, AWS_KEY, AWS_BUCKET_NAME):
     # Upload targets
     if 'target_file' in experiment.keys():
       target_file = experiment['target_file'] 
-      print "target file in launch_Experiment", target_file
       target_blob = generate_target_blob(file=target_file,
                                          prefix=str(datetime.date.today()),
                                          AWS_BUCKET_NAME=AWS_BUCKET_NAME,
@@ -207,10 +206,10 @@ def launch_experiment(host, experiment_list, AWS_ID, AWS_KEY, AWS_BUCKET_NAME):
       create_target_mapping_dict['target_blob'] = target_blob['target_blob']
     
       #print create_target_mapping_dict
-      url = "http://"+host+"/api/targets/createtargetmapping"
+      url = 'http://{}/api/targets/createtargetmapping'.format(host)
       response = requests.post(url, json.dumps(create_target_mapping_dict), headers={'content-type':'application/json'})  
 
-    print "Create Target Mapping response", response, response.text, response.status_code
+    print 'Create Target Mapping response', response, response.text, response.status_code
 
     print
     print "Query Url is at:", "http://"+host+"/query/query_page/query_page/"+exp_uid+"/"+perm_key
