@@ -1,15 +1,22 @@
-# Constants
-# author: Kevin Jamieson, kevin.g.jamieson@gmail.com, Lalit Jain, lalitkumarj@gmail.com
-# last updated: 2/21/2015
-#
-# Main configuration file for next_backend. Feel free to adjust by hand, but it should be adjusted through docker environment variables.
-# To allow for fig usage and docker linking, we use the enviroment variables available here:
-# http://docs.docker.com/userguide/dockerlinks/
-# Note that this forces us to run redis and mongodb on 6379 and 27017. This seems to be best practice anyways.
-#######################################
+"""
+constants.py
+
+author: Kevin Jamieson, kevin.g.jamieson@gmail.com, 
+	Lalit Jain, lalitkumarj@gmail.com
+last updated: 2/21/2015
+
+Main configuration file for next_backend. Feel free to adjust by hand, but it
+should be adjusted through docker environment variables.  To allow for fig
+usage and docker linking, we use the enviroment variables available here:
+http://docs.docker.com/userguide/dockerlinks/ Note that this forces us to run
+redis and mongodb on 6379 and 27017. This seems to be best practice anyways.
+"""
 import os
 
-# Variable to enable sites. This allows you to build clients and sites on the NEXT system.
+
+# Variable to enable sites. This allows you to build clients and sites on the
+# NEXT system.
+
 SITES_ENABLED = False
 
 # Backend Host Url
