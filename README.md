@@ -26,7 +26,7 @@ First, you must set your Amazon Web Services (AWS) account credentials as envior
 * AWS secret access key
 * Key Pair (pem file) 
  
-**WARNING**: Make sure to note down the region that your key pair was made in. By default, the script assumes the region is Oregon (us-west-2). If you choose to use a different region, every time you use the ``next_ec2.py`` script, make sure to specify the region ``--region=<region>`` (i.e., ``--region=us-west-2``). For example, after selecting the regions "Oregon," the region ``us-west-2`` is specified on the EC2 dashboard.  
+**WARNING**: Make sure to note down the region that your key pair was made in. By default, the script assumes the region is Oregon (us-west-2). If you choose to use a different region, every time you use the ``next_ec2.py`` script, make sure to specify the region ``--region=<region>`` (i.e., ``--region=us-west-2``). For example, after selecting the regions "Oregon," the region ``us-west-2`` is specified on the EC2 dashboard. If another region is used, an ``--ami`` option has to be included. For ease, we recommend using the Oregon region.
 
 Export your AWS credentials as environment variables using:
 
