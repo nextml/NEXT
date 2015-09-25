@@ -10,7 +10,7 @@ For more information, in-depth tutorials, and API docs, we recommend visiting ou
 
 You can download the latest version of NEXT from github with the following clone command:
 
-```
+```shell
 $ git clone https://github.com/kgjamieson/NEXT.git
 ```
 
@@ -24,23 +24,31 @@ First, you must set your Amazon Web Services (AWS) account credentials as envior
 
 * AWS access key id
 * AWS secret access key
-* Key Pair (pem file)
+* Key Pair (pem file) 
+ 
+**WARNING**: Make sure to note down the region that your key pair was made in. By default, the script assumes the region is Oregon (us-west-2). If you choose to use a different region, every time you use the ``next_ec2.py`` script, make sure to specify the region ``--region=<region>`` (i.e., ``--region=us-west-2``). For example, after selecting the regions "Oregon," the region ``us-west-2`` is specified on the EC2 dashboard.  
 
 Export your AWS credentials as environment variables using:
-```
+
+```shell
 $ export AWS_SECRET_ACCESS_KEY=[your_secret_aws_access_key_here]
 $ export AWS_ACCESS_KEY_ID=[your_aws_access_key_id_here]
 ```
-Note that you'll need to use your `AWS_SECRET_ACCESS_KEY` and `AWS_ACCESS_KEY_ID` again later, so feel free to save them in a secure file for convenient reference later.
+
+**WARNING**: Note that you'll need to use your `AWS_SECRET_ACCESS_KEY` and `AWS_ACCESS_KEY_ID` again later, so feel free to save them in a secure file for convenient reference later. 
 
 Install the local python packages needed for NEXT:
-```
+
+```shell
 $ cd NEXT
 $ sudo pip install -r local_requirements.txt
 ```
 
+Throughout the rest of this tutorial, we will be using the ``next_ec2.py`` startup script heavily. For more options and instructions, run ``python next_ec2.py`` without any arguments. Additionally, ``python next_ec2.py -h`` will provide helper options.
+
 For persistent data storage, we first need to create a bucket in AWS S3 using:
-```
+
+```shell
 $ cd ec2
 $ python next_ec2.py --key-pair=[keypair] --identity-file=[key-file] createbucket [cluster-name]
 ```
@@ -50,14 +58,15 @@ where:
 - `[key-file]` is the private key file for your key pair
 - `[cluster-name]` is the custom name you create and assign to your cluster
 
-This will print out another environment variable command `export AWS_BUCKET_NAME=[bucket_uid]`. Copy and paste this command into your terminal. 
+**WARNING**: This will print out another environment variable command `export AWS_BUCKET_NAME=[bucket_uid]`. Copy and paste this command into your terminal. 
 
-You will also need to use your `bucket_uid` later, so feel free to save it in a file along side your `AWS_SECRET_ACCESS_KEY` and `AWS_ACCESS_KEY_ID` for later reference.
+You will also need to use your `bucket_uid` later, so save it in a file along side your `AWS_SECRET_ACCESS_KEY` and `AWS_ACCESS_KEY_ID` for later reference.
 
 Now you are ready to fire up the NEXT system using our `launch` command. This command will create a new EC2 instance, pull the NEXT repository to that instance, install all of the relevant Docker images, and finally run all Docker containers. 
 
 Users should note that this script launches a single `m3.large` machine, the current default NEXT EC2 instance type. This instance type costs $0.14 per hour to run. For more detailed EC2 pricing information, refer to this AWS [page](http://aws.amazon.com/ec2/pricing/).
-```
+
+```shell
 $ python next_ec2.py --key-pair=[keypair] --identity-file=[key-file] launch [cluster-name]
 ```
 
@@ -75,13 +84,15 @@ $ python next_ec2.py --key-pair=[keypair] --identity-file=[key-file] get-master 
 ```
 
 Then export this public EC2 DNS.
-```
+
+```shell
 $ export NEXT_BACKEND_GLOBAL_HOST=[your_public_ec2_DNS_here]
 $ export NEXT_BACKEND_GLOBAL_PORT=8000
 ```
 
 Now you can execute `run_examples.py` to initialize and launch the NEXT experiments.
-```
+
+```shell
 $ cd ../examples
 $ python run_examples.py
 ```
@@ -106,7 +117,8 @@ Where, again, `[exp_uid]` corresponds to the unique Experiment ID shown on the e
 If you'd like to backup your database to access your data later, refer to this [wiki](https://github.com/kgjamieson/NEXT/wiki/NEXT-EC2-Launch-Tutorial#instance-teardown-and-database-backups) for detailed steps.
 
 Finally, you can terminate your EC2 instance and shutdown NEXT using:
-```
+
+```shell
 $ cd ../ec2
 $ python next_ec2.py --key-pair=[keypair] --identity-file=[key-file] destroy [cluster-name]
 ```
