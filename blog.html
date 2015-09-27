@@ -1,0 +1,24 @@
+---
+layout: default
+---
+<div class="container">
+  <h2> NEXT Blog </h2>
+  <ul class="post-list">
+    {% for post in site.posts %}
+    <li>
+      <h2>
+	<a class="post-link" href="{{ post.url | remove_first: '/' | prepend: site.baseurl }}">{{ post.title }}</a>
+      </h2>
+      <section itemprop="description">
+	<p>{{ post.content | strip_html | truncatewords: 50 }}</p>
+      </section>
+      <section>
+    	<div>{{ post.date | date: "%B %-d, %Y" }}| {{post.post_author}}</div>
+      </section>
+    </li>
+    {% if forloop.last == false %}
+    <hr>
+    {% endif %}
+    {% endfor %}
+  </ul>
+</div>
