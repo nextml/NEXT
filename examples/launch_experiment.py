@@ -30,8 +30,15 @@ from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 
 # TODO: Need to get to a point where the user specifies an alt_type/description
-def generate_target_blob(file, prefix, AWS_BUCKET_NAME, AWS_ID, AWS_KEY):
-    """
+def generate_target_blob(AWS_BUCKET_NAME,
+                         AWS_ID,
+                         AWS_KEY,
+                         prefix,
+                         primary_file,                         
+                         primary_type,
+                         alt_file=None,
+                         alt_type='text'):
+    '''
     Upload targets and return a target blob for upload with the target_manager.
     
     Inputs: ::\n
@@ -41,35 +48,56 @@ def generate_target_blob(file, prefix, AWS_BUCKET_NAME, AWS_ID, AWS_KEY):
         AWS_BUCKET_NAME: Aws bucket name
         AWS_ID: Aws id
         AWS_KEY: Aws key
-    """
+    '''
     targets = []
-    if file.endswith('.zip'):
-        target_file_dict = zipfile_to_dictionary(file)
-        bucket = get_AWS_bucket(AWS_BUCKET_NAME, AWS_ID, AWS_KEY)        
-        for target_name, target_file in target_file_dict.iteritems():
-            print 'uploading', target_name
-            target_url = upload_to_S3(bucket,
-                                      '{}_{}'.format(prefix,
-                                                     target_name),
-                                      StringIO(target_file))
-            alt_type = 'text'
-            alt_description = target_name 
-            if re.search(r"\.(jpe?g|png|gif|bmp)", target_name, re.IGNORECASE):
-                primary_type = 'image'
-            elif target_name.endswith('mp4'):
-                primary_type = 'video'
-                alt_type = 'image'
-                alt_description = target_url
-            elif target_name.endswith('mp3'):
-                primary_type = 'audio'
-            else:
-                primary_type = 'other'
-            target = {'target_id': '{}_{}'.format(prefix, target_name),
-                      'primary_type': primary_type,
-                      'primary_description': target_url,
-                      'alt_type': alt_type,
-                      'alt_description': alt_description}
-            targets.append(target)
+    bucket = get_AWS_bucket(AWS_BUCKET_NAME, AWS_ID, AWS_KEY)
+    print primary_file, primary_type, alt_file, alt_type
+    if primary_file.endswith('.zip'):
+        target_file_dict, target_name_dict = zipfile_to_dictionary(primary_file)
+        if alt_type != 'text':
+            assert alt_file != None, 'Need an alt_file.'
+            alt_file_dict, alt_name_dict = zipfile_to_dictionary(alt_file)
+            try:
+                pairs = [(target_name_dict[key],
+                          target_file_dict[key],
+                          alt_name_dict[key],
+                          alt_file_dict[key])
+                         for key in target_file_dict.keys()]
+            except:
+                raise Exception('Primary target names must'
+                                'match alt target names.')
+
+            for primary_name, primary_file, alt_name, alt_file in pairs:    
+                primary_url = upload_to_S3(bucket,
+                                           '{}_{}'.format(prefix,
+                                                          primary_name),
+                                           StringIO(primary_file))
+                alt_url = upload_to_S3(bucket,
+                                       '{}_{}'.format(prefix,
+                                                      alt_name),
+                                       StringIO(alt_file))
+
+                target = {'target_id': '{}_{}'.format(prefix, primary_name),
+                          'primary_type': primary_type,
+                          'primary_description': primary_url,
+                          'alt_type': alt_type,
+                          'alt_description': alt_url}
+                targets.append(target)
+        else:
+            if alt_type == 'text':
+                for key, primary_file in target_file_dict.iteritems():    
+                    primary_file_name = target_name_dict[key]
+                    primary_url = upload_to_S3(bucket,
+                                               '{}_{}'.format(prefix,
+                                                              primary_file_name),
+                                               StringIO(primary_file))
+                    target = {'target_id': '{}_{}'.format(prefix, primary_file_name),
+                              'primary_type': primary_type,
+                              'primary_description': primary_url,
+                              'alt_type': 'text',
+                              'alt_description': primary_file_name}
+                    targets.append(target)
+                
     elif file.endswith('.txt'):
          with open(file) as f:
             i = 0
@@ -122,17 +150,18 @@ def zipfile_to_dictionary(filename):
     Outputs: ::\n
         result: the returned dictionary
     """
-    
-    
     zf = zipfile.ZipFile(filename,'r')
     files_list = zf.namelist() 
     dictionary = {}
+    names_dictionary = {}
     for i in files_list:
         if re.search(r"\.(jpe?g|png|gif|bmp|mp4|mp3)",
                      i, re.IGNORECASE):
             f = zf.read(i)
-            dictionary[os.path.basename(i)] = f
-    return dictionary
+            name = os.path.basename(i).split('.')[0]
+            dictionary[name] = f
+            names_dictionary[name] = os.path.basename(i)
+    return dictionary, names_dictionary
 
 def import_experiment_list(file):
     # Load experiment file
@@ -189,13 +218,15 @@ def launch_experiment(host, experiment_list, AWS_ID, AWS_KEY, AWS_BUCKET_NAME):
     widget_key_list.append(str(perm_key))
      
     # Upload targets
-    if 'target_file' in experiment.keys():
-      target_file = experiment['target_file'] 
-      target_blob = generate_target_blob(file=target_file,
-                                         prefix=str(datetime.date.today()),
-                                         AWS_BUCKET_NAME=AWS_BUCKET_NAME,
+    if 'primary_target_file' in experiment.keys():
+      target_blob = generate_target_blob(AWS_BUCKET_NAME=AWS_BUCKET_NAME,
                                          AWS_ID=AWS_ID, 
-                                         AWS_KEY=AWS_KEY)
+                                         AWS_KEY=AWS_KEY,
+                                         prefix=str(datetime.date.today()),
+                                         primary_file=experiment['primary_target_file'],
+                                         primary_type=experiment['primary_type'],
+                                         alt_file=experiment.get('alt_target_file', None),
+                                         alt_type=experiment.get('alt_type','text'))
       create_target_mapping_dict = {}
       create_target_mapping_dict['app_id'] = experiment['initExp']['app_id']
       create_target_mapping_dict['exp_uid'] = exp_uid
@@ -230,10 +261,5 @@ if __name__=='__main__':
   experiment_list =  import_experiment_list(opts['--experiment_file'])
 
   launch_experiment(os.environ.get('NEXT_BACKEND_GLOBAL_HOST')+":"+port, experiment_list, AWS_ID=os.environ.get('AWS_ACCESS_KEY_ID'), AWS_KEY=os.environ.get('AWS_SECRET_ACCESS_KEY'), AWS_BUCKET_NAME=os.environ.get('AWS_BUCKET_NAME') )
-
-#if __name__ == "__main__":
-#    opts, args = getopt.getopt(sys.argv[1:], None, ["prefix=","file=","bucket=", "AWS_ID=", "AWS_KEY="])
-#    opts = dict(opts)
-#    print generate_target_blob(opts['--file'], opts['--prefix'], opts['--bucket'], opts['--id'], opts['--key'])
 
 

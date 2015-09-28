@@ -60,7 +60,8 @@ initExp['site_key'] = 'replace this with working site key'
 # Set the context   
 experiment = {}
 experiment['initExp'] = initExp
-experiment['target_file'] = curr_dir+"/cap436.txt"
+experiment['primary_type'] = 'text'
+experiment['primary_target_file'] = curr_dir+"/cap436.txt"
 experiment['context'] = curr_dir+"/cap436.jpg"
 experiment['context_type'] = 'image'
 experiment_list.append(experiment)
@@ -79,13 +80,3 @@ except:
 # Call launch_experiment module found in NEXT/lauch_experiment.py
 exp_uid_list, exp_key_list, widget_key_list = launch_experiment(host, experiment_list, AWS_ACCESS_ID, AWS_SECRET_ACCESS_KEY, AWS_BUCKET_NAME)
 
-# Update the cartoon_dueling.html file wit the exp_uid_list and widget_key_list
-# with open('cartoon_dueling.html','r') as page:
-#   print "opended file"
-#   page_string = page.read()
-#   page_string = page_string.replace("{{exp_uid_list}}", str(exp_uid_list))
-#   page_string = page_string.replace("{{widget_key_list}}", str(widget_key_list))
-#   with open('../../next_frontend_base/next_frontend_base/templates/cartoon_dueling.html','w') as out:
-#     out.write(page_string)
-#     out.flush()
-#     out.close()
