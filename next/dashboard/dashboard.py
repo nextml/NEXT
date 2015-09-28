@@ -5,7 +5,7 @@ last updated: 9/16/15
 
 Flask controller for dashboards. 
 """
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, url_for
 from jinja2 import Environment, PackageLoader, ChoiceLoader
 
 import next.constants as constants
@@ -94,7 +94,8 @@ def experiment_dashboard(exp_uid, app_id, exp_key):
                            exp_uid=exp_uid,
                            alg_list=alg_list,
                            host_url=host_url,
-                           perm_key=perm_key)
+                           perm_key=perm_key,
+                           url_for=url_for)
 
 
 

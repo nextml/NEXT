@@ -29,6 +29,7 @@ from StringIO import StringIO
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 
+# TODO: Need to get to a point where the user specifies an alt_type/description
 def generate_target_blob(file, prefix, AWS_BUCKET_NAME, AWS_ID, AWS_KEY):
     """
     Upload targets and return a target blob for upload with the target_manager.
@@ -45,32 +46,29 @@ def generate_target_blob(file, prefix, AWS_BUCKET_NAME, AWS_ID, AWS_KEY):
     if file.endswith('.zip'):
         target_file_dict = zipfile_to_dictionary(file)
         bucket = get_AWS_bucket(AWS_BUCKET_NAME, AWS_ID, AWS_KEY)        
-        for target_name in target_file_dict.keys():
+        for target_name, target_file in target_file_dict.iteritems():
             print 'uploading', target_name
-            target_file = target_file_dict[target_name]
             target_url = upload_to_S3(bucket,
                                       '{}_{}'.format(prefix,
                                                      target_name),
                                       StringIO(target_file))
-
-            url_prox = target_url.split('/')
-            url_temp = 'http://s3.amazonaws.com/{}/{}/{}'.format(AWS_BUCKET_NAME,
-                                                                 url_prox[3],
-                                                                 url_prox[4])
+            alt_type = 'text'
+            alt_description = target_name 
             if re.search(r"\.(jpe?g|png|gif|bmp)", target_name, re.IGNORECASE):
                 primary_type = 'image'
             elif target_name.endswith('mp4'):
                 primary_type = 'video'
+                alt_type = 'image'
+                alt_description = target_url
             elif target_name.endswith('mp3'):
                 primary_type = 'audio'
             else:
                 primary_type = 'other'
-                
             target = {'target_id': '{}_{}'.format(prefix, target_name),
                       'primary_type': primary_type,
-                      'primary_description': url_temp,
-                      'alt_type': 'text',
-                      'alt_description': target_name}
+                      'primary_description': target_url,
+                      'alt_type': alt_type,
+                      'alt_description': alt_description}
             targets.append(target)
     elif file.endswith('.txt'):
          with open(file) as f:
@@ -133,7 +131,7 @@ def zipfile_to_dictionary(filename):
         if re.search(r"\.(jpe?g|png|gif|bmp|mp4|mp3)",
                      i, re.IGNORECASE):
             f = zf.read(i)
-            dictionary[os.path.basepath(i)] = f
+            dictionary[os.path.basename(i)] = f
     return dictionary
 
 def import_experiment_list(file):
@@ -156,7 +154,6 @@ def launch_experiment(host, experiment_list, AWS_ID, AWS_KEY, AWS_BUCKET_NAME):
   exp_uid_list = []
   exp_key_list = []
   widget_key_list = []
-
   # establish S3 connection and use boto get_bucket
   bucket = get_AWS_bucket(AWS_BUCKET_NAME, AWS_ID, AWS_KEY)
 
