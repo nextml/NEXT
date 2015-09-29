@@ -1,1 +1,1 @@
-Accessible at http://nextml.github.io/NEXT/index.html
+Accessible at http://nextml.github.io/NEXT
