@@ -2,16 +2,16 @@
 
 NEXT is a system that makes it *easy* to develop, evaluate, and apply active learning.
 
-This readme contains a quick start to launch the NEXT system on EC2, and to replicate and launch the experiments from the [NEXT paper](http://homepages.cae.wisc.edu/~jamieson/resources/next.pdf). There are more detailed launch instructions [here](https://github.com/kgjamieson/NEXT/wiki/NEXT-EC2-Launch-Tutorial).
+This readme contains a quick start to launch the NEXT system on EC2, and to replicate and launch the experiments from the [NEXT paper](http://www.cs.berkeley.edu/~kjamieson/resources/next.pdf). There are more detailed launch instructions [here](https://github.com/nextml/NEXT/wiki/NEXT-EC2-Launch-Tutorial).
 
-For more information, in-depth tutorials, and API docs, we recommend visiting our GitHub wiki [here](https://github.com/kgjamieson/NEXT/wiki).
+For more information, in-depth tutorials, and API docs, we recommend visiting our GitHub wiki [here](https://github.com/nextml/NEXT/wiki).
 
 ### Getting the code
 
 You can download the latest version of NEXT from github with the following clone command:
 
 ```shell
-$ git clone https://github.com/kgjamieson/NEXT.git
+$ git clone https://github.com/nextml/NEXT.git
 ```
 
 We are actively working to develop and improve NEXT, but users should be aware of the following caveats: 
@@ -20,7 +20,7 @@ We are actively working to develop and improve NEXT, but users should be aware o
 
 ### Launching NEXT on EC2
 
-First, you must set your Amazon Web Services (AWS) account credentials as enviornment variables. If you don't already have AWS account, you can follow our AWS account quickstart [here](https://github.com/kgjamieson/NEXT/wiki/AWS-Account-Quickstart) or the official AWS account set-up guide [here](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/get-set-up-for-amazon-ec2.html) for an in-depth introduction. Make sure to have access to
+First, you must set your Amazon Web Services (AWS) account credentials as enviornment variables. If you don't already have AWS account, you can follow our AWS account quickstart [here](https://github.com/nextml/NEXT/wiki/AWS-Account-Quickstart) or the official AWS account set-up guide [here](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/get-set-up-for-amazon-ec2.html) for an in-depth introduction. Make sure to have access to
 
 * AWS access key id
 * AWS secret access key
@@ -98,7 +98,7 @@ Once initialized, this script will return a link that you can distribute yoursel
 
 `http://your_public_ec2_DNS_here:8000/query/query_page/query_page/[exp_uid]/[exp_key]` 
 
-where `[exp_uid]` and `[exp_key]` are unique identifiers for each of the respective Dueling Bandits Pure Exploration, Active Non-Metric Multidimensional Scaling (MDS), and Tuple Bandits Pure Exploration experiments respectively. See this [wiki page](https://github.com/kgjamieson/NEXT/wiki/Replicating-NEXT-Experiments#some-experiment-information) for a little more information.
+where `[exp_uid]` and `[exp_key]` are unique identifiers for each of the respective Dueling Bandits Pure Exploration, Active Non-Metric Multidimensional Scaling (MDS), and Tuple Bandits Pure Exploration experiments respectively. See this [wiki page](https://github.com/nextml/NEXT/wiki/Replicating-NEXT-Experiments#some-experiment-information) for a little more information.
 
 Navigate to the `strange_fruit_triplet` query link (the last one that printed out to your terminal) and answer some questions! Doing so will provide the system with data you can view and interact with in the next step.
 
@@ -112,7 +112,7 @@ And obtain all logs for an experiment through our RESTful API, visit:
 
 Where, again, `[exp_uid]` corresponds to the unique Experiment ID shown on the experiment dashboard pages.
 
-If you'd like to backup your database to access your data later, refer to this [wiki](https://github.com/kgjamieson/NEXT/wiki/NEXT-EC2-Launch-Tutorial#instance-teardown-and-database-backups) for detailed steps.
+If you'd like to backup your database to access your data later, refer to this [wiki](https://github.com/nextml/NEXT/wiki/NEXT-EC2-Launch-Tutorial#instance-teardown-and-database-backups) for detailed steps.
 
 Finally, you can terminate your EC2 instance and shutdown NEXT using:
 
