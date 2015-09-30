@@ -29,7 +29,6 @@ from StringIO import StringIO
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 
-# TODO: Need to get to a point where the user specifies an alt_type/description
 def generate_target_blob(AWS_BUCKET_NAME,
                          AWS_ID,
                          AWS_KEY,

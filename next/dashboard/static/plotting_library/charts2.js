@@ -1387,19 +1387,22 @@ var buttonsChart = [["#A9A9C6"]];
          }
          */
         d3TripletPlot = function(data) {
-            console.log("in plot", data)
+            console.log("in plot", data);
 
             if (data.length == 0){
-                $('#'+div_id).html("<h3>No data available to be plotted.<h3>")
+                $('#'+div_id).html("<h3>No data available to be plotted.<h3>");
             }
 
-            image_data = []
-            text_data = []
+            image_data = [];
+            text_data = [];
+	    video_data = [];
             for(i=0; i < data.length; i++){
                 if(data[i].target.primary_type=="image" || data[i].target.primary_type=="img"){
-                    image_data.push(data[i])
+                    image_data.push(data[i]);
                 } else if(data[i].target.primary_type=="text") {
-                    text_data.push(data[i])
+                    text_data.push(data[i]);
+                } else if(data[i].target.primary_type=="video") {
+                    text_data.push(data[i]);
                 }
             }
 
@@ -1488,7 +1491,7 @@ var buttonsChart = [["#A9A9C6"]];
                 .on("mousedown", inspect_target );
 
 
-            var texts = svg.selectAll("text").data(text_data);
+             var texts = svg.selectAll("text").data(text_data);
             texts.enter()
                 .append("svg:text")
                 .attr("text", function(d) { return d.target.primary_description })
@@ -1510,6 +1513,28 @@ var buttonsChart = [["#A9A9C6"]];
                 } )
                 .on("mousedown", inspect_target );
 
+
+	    var videos = svg.selectAll("video").data(video_data);
+            texts.enter()
+                .append("svg:image")
+                .attr("xlink:href", function(d) { return d.target.alt_description })
+                .attr("x", function(d) { return x(d.x) })
+                .attr("y", function(d) { return y(d.y) })
+                .attr("font-family", "sans-serif")
+                .attr("font-size", fontsize+"px")
+                .attr("fill", "black")
+                .attr("text-anchor", "middle")
+                .attr("dominant-baseline","middle")
+                .text( function(d) { console.log("text", d.x, d.y, d.target.alt_description); return d.target.alt_description } )
+                .on("mouseover", function(d){ d3.select(this)
+                    .attr("font-size", .75*dilation/zm.scale()*fontsize+"px")
+                    .each( show_tooltip )
+                } )
+                .on("mouseout", function(d){ d3.select(this)
+                    .attr("font-size", 1/zm.scale()*fontsize+"px")
+                    .each( hide_tooltip )
+                } )
+                .on("mousedown", inspect_target );
 
 
 
