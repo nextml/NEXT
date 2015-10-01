@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# This file was forked from the Apache Spark project and modified. Many 
-# thanks to those guys for a great time-saving file.   
+# This file was forked from the Apache Spark project and modified. Many
+# thanks to those guys for a great time-saving file.
 #
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
@@ -41,8 +41,7 @@ import urllib2
 import warnings
 from datetime import datetime
 from optparse import OptionParser
-from sys import stderr
-
+from sys import stderr, version_info
 
 """
 # launch a new cluster of instance type "c3.8xlarge" (see http://www.ec2instances.info or below for other choices)
@@ -88,7 +87,7 @@ EC2_NEXT_PATH = EC2_SRC_PATH + '/next-discovery'
 LOCAL_NEXT_PATH = './../'
 
 DEFAULT_REGION = 'us-west-2'
-DEFAULT_AMI = 'ami-6989a659'  # Ubuntu Server 14.04 LTS 
+DEFAULT_AMI = 'ami-6989a659'  # Ubuntu Server 14.04 LTS
 DEFAULT_USER = 'ubuntu'
 DEFAULT_INSTANCE_TYPE = 'm3.large'
 
@@ -102,53 +101,62 @@ class UsageError(Exception):
 
 
 instance_info = {
-"c1.medium" : { "cpu": 2, "memory": 1.7, "cost_per_hr": 0.13 }, 
-"c1.xlarge" : { "cpu": 8, "memory": 7, "cost_per_hr": 0.52 }, 
-"c3.large" : { "cpu": 2, "memory": 3.75, "cost_per_hr": 0.105 }, 
-"c3.xlarge" : { "cpu": 4, "memory": 7.5, "cost_per_hr": 0.21 }, 
-"c3.2xlarge" : { "cpu": 8, "memory": 15, "cost_per_hr": 0.42 }, 
-"c3.4xlarge" : { "cpu": 16, "memory": 30, "cost_per_hr": 0.84 }, 
-"c3.8xlarge" : { "cpu": 32, "memory": 60, "cost_per_hr": 1.68 }, 
-"c4.large" : { "cpu": 2, "memory": 3.75, "cost_per_hr": 0.116 }, 
-"c4.xlarge" : { "cpu": 4, "memory": 7.5, "cost_per_hr": 0.232 }, 
-"c4.2xlarge" : { "cpu": 8, "memory": 15, "cost_per_hr": 0.464 }, 
-"c4.4xlarge" : { "cpu": 16, "memory": 30, "cost_per_hr": 0.928 }, 
-"c4.8xlarge" : { "cpu": 36, "memory": 60, "cost_per_hr": 1.856 }, 
-"cc2.8xlarge" : { "cpu": 32, "memory": 60.5, "cost_per_hr": 2 }, 
-"cr1.8xlarge" : { "cpu": 32, "memory": 244, "cost_per_hr": 3.5 }, 
-"d2.xlarge" : { "cpu": 4, "memory": 30.5, "cost_per_hr": 0.69 }, 
-"d2.2xlarge" : { "cpu": 8, "memory": 61, "cost_per_hr": 1.38 }, 
-"d2.4xlarge" : { "cpu": 16, "memory": 122, "cost_per_hr": 2.76 }, 
-"d2.8xlarge" : { "cpu": 36, "memory": 244, "cost_per_hr": 5.52 }, 
-"g2.2xlarge" : { "cpu": 8, "memory": 15, "cost_per_hr": 0.65 }, 
-"g2.8xlarge" : { "cpu": 32, "memory": 60, "cost_per_hr": 2.6 }, 
-"hi1.4xlarge" : { "cpu": 16, "memory": 60.5, "cost_per_hr": 3.1 }, 
-"hs1.8xlarge" : { "cpu": 16, "memory": 117, "cost_per_hr": 4.6 }, 
-"i2.xlarge" : { "cpu": 4, "memory": 30.5, "cost_per_hr": 0.853 }, 
-"i2.2xlarge" : { "cpu": 8, "memory": 61, "cost_per_hr": 1.705 }, 
-"i2.4xlarge" : { "cpu": 16, "memory": 122, "cost_per_hr": 3.41 }, 
-"i2.8xlarge" : { "cpu": 32, "memory": 244, "cost_per_hr": 6.82 }, 
-"m1.small" : { "cpu": 1, "memory": 1.7, "cost_per_hr": 0.044 }, 
-"m1.medium" : { "cpu": 1, "memory": 3.75, "cost_per_hr": 0.087 }, 
-"m1.large" : { "cpu": 2, "memory": 7.5, "cost_per_hr": 0.175 }, 
-"m1.xlarge" : { "cpu": 4, "memory": 15, "cost_per_hr": 0.35 }, 
-"m2.xlarge" : { "cpu": 2, "memory": 17.1, "cost_per_hr": 0.245 }, 
-"m2.2xlarge" : { "cpu": 4, "memory": 34.2, "cost_per_hr": 0.49 }, 
-"m2.4xlarge" : { "cpu": 8, "memory": 68.4, "cost_per_hr": 0.98 }, 
-"m3.medium" : { "cpu": 1, "memory": 3.75, "cost_per_hr": 0.07 }, 
-"m3.large" : { "cpu": 2, "memory": 7.5, "cost_per_hr": 0.14 }, 
-"m3.xlarge" : { "cpu": 4, "memory": 15, "cost_per_hr": 0.28 }, 
-"m3.2xlarge" : { "cpu": 8, "memory": 30, "cost_per_hr": 0.56 }, 
-"r3.large" : { "cpu": 2, "memory": 15, "cost_per_hr": 0.175 }, 
-"r3.xlarge" : { "cpu": 4, "memory": 30.5, "cost_per_hr": 0.35 }, 
-"r3.2xlarge" : { "cpu": 8, "memory": 61, "cost_per_hr": 0.7 }, 
-"r3.4xlarge" : { "cpu": 16, "memory": 122, "cost_per_hr": 1.4 }, 
-"r3.8xlarge" : { "cpu": 32, "memory": 244, "cost_per_hr": 2.8 }, 
-"t1.micro" : { "cpu": 1, "memory": 0.615, "cost_per_hr": 0.02 }, 
-"t2.micro" : { "cpu": 1, "memory": 1, "cost_per_hr": 0.013 }, 
-"t2.small" : { "cpu": 1, "memory": 2, "cost_per_hr": 0.026 }, 
-"t2.medium" : { "cpu": 2, "memory": 4, "cost_per_hr": 0.052 }, 
+"c1.medium" : { "cpu": 2, "memory": 1.7, "cost_per_hr": 0.13 },
+"c1.xlarge" : { "cpu": 8, "memory": 7, "cost_per_hr": 0.52 },
+"c3.large" : { "cpu": 2, "memory": 3.75, "cost_per_hr": 0.105 },
+"c3.xlarge" : { "cpu": 4, "memory": 7.5, "cost_per_hr": 0.21 },
+"c3.2xlarge" : { "cpu": 8, "memory": 15, "cost_per_hr": 0.42 },
+"c3.4xlarge" : { "cpu": 16, "memory": 30, "cost_per_hr": 0.84 },
+"c3.8xlarge" : { "cpu": 32, "memory": 60, "cost_per_hr": 1.68 },
+"c4.large" : { "cpu": 2, "memory": 3.75, "cost_per_hr": 0.116 },
+"c4.xlarge" : { "cpu": 4, "memory": 7.5, "cost_per_hr": 0.232 },
+"c4.2xlarge" : { "cpu": 8, "memory": 15, "cost_per_hr": 0.464 },
+"c4.4xlarge" : { "cpu": 16, "memory": 30, "cost_per_hr": 0.928 },
+"c4.8xlarge" : { "cpu": 36, "memory": 60, "cost_per_hr": 1.856 },
+"cc2.8xlarge" : { "cpu": 32, "memory": 60.5, "cost_per_hr": 2 },
+"cr1.8xlarge" : { "cpu": 32, "memory": 244, "cost_per_hr": 3.5 },
+"d2.xlarge" : { "cpu": 4, "memory": 30.5, "cost_per_hr": 0.69 },
+"d2.2xlarge" : { "cpu": 8, "memory": 61, "cost_per_hr": 1.38 },
+"d2.4xlarge" : { "cpu": 16, "memory": 122, "cost_per_hr": 2.76 },
+"d2.8xlarge" : { "cpu": 36, "memory": 244, "cost_per_hr": 5.52 },
+"g2.2xlarge" : { "cpu": 8, "memory": 15, "cost_per_hr": 0.65 },
+"g2.8xlarge" : { "cpu": 32, "memory": 60, "cost_per_hr": 2.6 },
+"hi1.4xlarge" : { "cpu": 16, "memory": 60.5, "cost_per_hr": 3.1 },
+"hs1.8xlarge" : { "cpu": 16, "memory": 117, "cost_per_hr": 4.6 },
+"i2.xlarge" : { "cpu": 4, "memory": 30.5, "cost_per_hr": 0.853 },
+"i2.2xlarge" : { "cpu": 8, "memory": 61, "cost_per_hr": 1.705 },
+"i2.4xlarge" : { "cpu": 16, "memory": 122, "cost_per_hr": 3.41 },
+"i2.8xlarge" : { "cpu": 32, "memory": 244, "cost_per_hr": 6.82 },
+"m1.small" : { "cpu": 1, "memory": 1.7, "cost_per_hr": 0.044 },
+"m1.medium" : { "cpu": 1, "memory": 3.75, "cost_per_hr": 0.087 },
+"m1.large" : { "cpu": 2, "memory": 7.5, "cost_per_hr": 0.175 },
+"m1.xlarge" : { "cpu": 4, "memory": 15, "cost_per_hr": 0.35 },
+"m2.xlarge" : { "cpu": 2, "memory": 17.1, "cost_per_hr": 0.245 },
+"m2.2xlarge" : { "cpu": 4, "memory": 34.2, "cost_per_hr": 0.49 },
+"m2.4xlarge" : { "cpu": 8, "memory": 68.4, "cost_per_hr": 0.98 },
+"m3.medium" : { "cpu": 1, "memory": 3.75, "cost_per_hr": 0.07 },
+"m3.large" : { "cpu": 2, "memory": 7.5, "cost_per_hr": 0.14 },
+"m3.xlarge" : { "cpu": 4, "memory": 15, "cost_per_hr": 0.28 },
+"m3.2xlarge" : { "cpu": 8, "memory": 30, "cost_per_hr": 0.56 },
+"r3.large" : { "cpu": 2, "memory": 15, "cost_per_hr": 0.175 },
+"r3.xlarge" : { "cpu": 4, "memory": 30.5, "cost_per_hr": 0.35 },
+"r3.2xlarge" : { "cpu": 8, "memory": 61, "cost_per_hr": 0.7 },
+"r3.4xlarge" : { "cpu": 16, "memory": 122, "cost_per_hr": 1.4 },
+"r3.8xlarge" : { "cpu": 32, "memory": 244, "cost_per_hr": 2.8 },
+"t1.micro" : { "cpu": 1, "memory": 0.615, "cost_per_hr": 0.02 },
+"t2.micro" : { "cpu": 1, "memory": 1, "cost_per_hr": 0.013 },
+"t2.small" : { "cpu": 1, "memory": 2, "cost_per_hr": 0.026 },
+"t2.medium" : { "cpu": 2, "memory": 4, "cost_per_hr": 0.052 },
 }
+
+class colors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
 
 # Configure and parse our command-line arguments
 def parse_args():
@@ -181,7 +189,7 @@ def parse_args():
         help="Availability zone to launch instances in, or 'all' to spread " +
              "slaves across multiple (an additional $0.01/Gb for bandwidth" +
              "between zones applies) (default: a single zone chosen at random)")
-    parser.add_option("-a", "--ami", default=DEFAULT_AMI, 
+    parser.add_option("-a", "--ami", default=DEFAULT_AMI,
         help="Amazon Machine Image ID to use (default: %default). ")
     parser.add_option(
         "-D", metavar="[ADDRESS:]PORT", dest="proxy_port",
@@ -386,6 +394,13 @@ def launch_cluster(conn, opts, cluster_name):
         image = conn.get_all_images(image_ids=[opts.ami])[0]
     except:
         print >> stderr, "Could not find AMI " + opts.ami
+        print colors.FAIL + '[error] The startup script could not find your AMI. '\
+                + 'You are either in the incorrect region (in which case see [1]) '\
+                + 'or need to specify both the --region and --ami flags.\n'\
+                + 'example: --region={0} --ami={1}\n'.format(DEFAULT_REGION, DEFAULT_AMI)\
+                + '\n'\
+                + '[1]:https://github.com/nextml/NEXT/issues/11'\
+                + colors.ENDC
         sys.exit(1)
 
     # Create block device mapping so that we can add EBS volumes if asked to.
@@ -661,10 +676,10 @@ def list_bucket(opts):
     AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
     conn = boto.connect_s3( AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY )
-    print "Trying to connect to bucket %s"%(opts.bucket) 
+    print "Trying to connect to bucket %s"%(opts.bucket)
     try:
         bucket = conn.get_bucket( opts.bucket )
-        if hasattr(opts,'prefix'):    
+        if hasattr(opts,'prefix'):
             print [ key.name.encode( "utf-8" ) for key in bucket.list(prefix=opts.prefix) ]
         else:
             print [ key.name.encode( "utf-8" ) for key in bucket.list() ]
@@ -675,8 +690,8 @@ def list_bucket(opts):
 def createbucket(opts):
     AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
-    conn = boto.connect_s3( AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY )    
-    
+    conn = boto.connect_s3( AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY )
+
     gotbucket = False
     while not gotbucket:
         bucket_uid = '%030x' % random.randrange(16**30)
@@ -690,7 +705,7 @@ def createbucket(opts):
     print
     print 'To automatically use this bucket, input the following command into your terminal:'
     print 'export AWS_BUCKET_NAME='+bucket_uid
-    
+
 def rsync_docker_config(opts, master_nodes, slave_nodes):
     master = master_nodes[0].public_dns_name
 
@@ -738,7 +753,7 @@ def rsync_docker_config(opts, master_nodes, slave_nodes):
             dest.close()
 
 
-    num_sync_workers = 6  # should be abotu the number of active algorithms  
+    num_sync_workers = 6  # should be abotu the number of active algorithms
     unicorn_multiplier = .15
     docker_compose_template_vars = {
         "DATABASE_NUM_GUNICORN_WORKERS":int(unicorn_multiplier*master_num_cpus+1),
@@ -967,7 +982,7 @@ def real_main():
     (opts, action, cluster_name) = parse_args()
 
     print 'opts : ' + str(opts)
-    print 
+    print
     print 'cluster_name : ' + str(cluster_name)
     print
 
@@ -986,17 +1001,33 @@ def real_main():
         opts.zone = random.choice(conn.get_all_zones()).name
 
     if action == "launch":
-        if opts.resume:
-            (master_nodes, slave_nodes) = get_existing_cluster(conn, opts, cluster_name)
-        else:
-            (master_nodes, slave_nodes) = launch_cluster(conn, opts, cluster_name)
-        wait_for_cluster_state(
-            conn=conn,
-            opts=opts,
-            cluster_instances=(master_nodes + slave_nodes),
-            cluster_state='ssh-ready'
-        )
-        setup_cluster(conn, master_nodes, slave_nodes, opts, True)
+        print colors.OKBLUE + '[fyi]: NEXT has launched once red and blue messages start'\
+                            + ' printing.\n' + colors.ENDC
+        try:
+            if opts.resume:
+                (master_nodes, slave_nodes) = get_existing_cluster(conn, opts, cluster_name)
+            else:
+                (master_nodes, slave_nodes) = launch_cluster(conn, opts, cluster_name)
+
+            print_dns_urls(prefix=True)
+            wait_for_cluster_state(
+                conn=conn,
+                opts=opts,
+                cluster_instances=(master_nodes + slave_nodes),
+                cluster_state='ssh-ready'
+            )
+            print_dns_urls(instances=master_nodes + slave_nodes)
+            setup_cluster(conn, master_nodes, slave_nodes, opts, True)
+        except boto.exception.EC2ResponseError:
+            print colors.FAIL + '[error] Your cluster failed to launch. This could happen'\
+                  + ' for several reasons:\n'\
+                  + '1. Are you in the right region? AMIs and keypairs are region\n'\
+                  + '   specific. For more details, see [0] and [1].\n'\
+                  + '2. Have you followed the setup guide at [2]?\n'\
+                  + '\n[0]:https://github.com/nextml/NEXT/issues/11\n'\
+                  + '[1]:https://github.com/nextml/NEXT/wiki/Troubleshooting\n'\
+                  + '[2]:https://github.com/nextml/NEXT/wiki/NEXT-EC2-Launch-Tutorial'\
+                 + colors.ENDC\
 
     elif action == "destroy":
         print "Are you sure you want to destroy the cluster %s?" % cluster_name
@@ -1106,7 +1137,7 @@ def real_main():
     elif action == "docker_up":
         (master_nodes, slave_nodes) = get_existing_cluster(conn, opts, cluster_name)
         docker_up(opts, master_nodes, slave_nodes)
-    
+
     elif action == "docker_login":
         (master_nodes, slave_nodes) = get_existing_cluster(conn, opts, cluster_name)
         docker_login(opts, master_nodes, slave_nodes)
@@ -1167,18 +1198,32 @@ def real_main():
         for inst in master_nodes:
             if inst.state not in ["shutting-down", "terminated"]:
                 inst.start()
+        print_dns_urls(prefix=True)
         wait_for_cluster_state(
             conn=conn,
             opts=opts,
             cluster_instances=(master_nodes + slave_nodes),
             cluster_state='ssh-ready'
         )
+        print_dns_urls(instances=master_nodes + slave_nodes)
         setup_cluster(conn, master_nodes, slave_nodes, opts, False)
 
     else:
         print >> stderr, "Invalid action: %s" % action
         sys.exit(1)
 
+
+def print_dns_urls(instances=None, prefix=False):
+    if instances:
+        for inst in instances:
+            print colors.OKBLUE + '[1]:http://%s' % inst.public_dns_name + colors.ENDC
+            print colors.OKBLUE + '[2]:http://%s:8000/dashboard/experiment_list' \
+                                 % inst.public_dns_name + colors.ENDC
+    if prefix:
+        print colors.OKBLUE + '[fyi]: The NEXT web interface will be available at [1]\n'\
+                             + '[fyi]: The NEXT dashboard will be available at [2]\n'\
+                             + '[fyi]: (URLs [1] and [2] available after cluster ssh-ready)'\
+                             + '[fyi]: (also available through get-master command' + colors.ENDC
 
 def main():
     try:
