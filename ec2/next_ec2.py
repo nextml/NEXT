@@ -41,8 +41,7 @@ import urllib2
 import warnings
 from datetime import datetime
 from optparse import OptionParser
-from sys import stderr
-
+from sys import stderr, version_info
 
 """
 # launch a new cluster of instance type "c3.8xlarge" (see http://www.ec2instances.info or below for other choices)
@@ -149,6 +148,15 @@ instance_info = {
 "t2.small" : { "cpu": 1, "memory": 2, "cost_per_hr": 0.026 },
 "t2.medium" : { "cpu": 2, "memory": 4, "cost_per_hr": 0.052 },
 }
+
+class colors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
 
 # Configure and parse our command-line arguments
 def parse_args():
@@ -386,6 +394,13 @@ def launch_cluster(conn, opts, cluster_name):
         image = conn.get_all_images(image_ids=[opts.ami])[0]
     except:
         print >> stderr, "Could not find AMI " + opts.ami
+        print colors.FAIL + '[error] The startup script could not find your AMI. '\
+                + 'You are either in the incorrect region (in which case see [1]) '\
+                + 'or need to specify both the --region and --ami flags.\n'\
+                + 'example: --region={0} --ami={1}\n'.format(DEFAULT_REGION, DEFAULT_AMI)\
+                + '\n'\
+                + '[1]:https://github.com/nextml/NEXT/issues/11'\
+                + colors.ENDC
         sys.exit(1)
 
     # Create block device mapping so that we can add EBS volumes if asked to.
@@ -986,20 +1001,33 @@ def real_main():
         opts.zone = random.choice(conn.get_all_zones()).name
 
     if action == "launch":
-        print '[fyi]: It in complete once red and blue messages start printing.'
-        if opts.resume:
-            (master_nodes, slave_nodes) = get_existing_cluster(conn, opts, cluster_name)
-        else:
-            (master_nodes, slave_nodes) = launch_cluster(conn, opts, cluster_name)
-        print_dns_urls(prefix=True)
-        wait_for_cluster_state(
-            conn=conn,
-            opts=opts,
-            cluster_instances=(master_nodes + slave_nodes),
-            cluster_state='ssh-ready'
-        )
-        print_dns_urls(instances=master_nodes + slave_nodes)
-        setup_cluster(conn, master_nodes, slave_nodes, opts, True)
+        print colors.OKBLUE + '[fyi]: NEXT has launched once red and blue messages start'\
+                            + ' printing.\n' + colors.ENDC
+        try:
+            if opts.resume:
+                (master_nodes, slave_nodes) = get_existing_cluster(conn, opts, cluster_name)
+            else:
+                (master_nodes, slave_nodes) = launch_cluster(conn, opts, cluster_name)
+
+            print_dns_urls(prefix=True)
+            wait_for_cluster_state(
+                conn=conn,
+                opts=opts,
+                cluster_instances=(master_nodes + slave_nodes),
+                cluster_state='ssh-ready'
+            )
+            print_dns_urls(instances=master_nodes + slave_nodes)
+            setup_cluster(conn, master_nodes, slave_nodes, opts, True)
+        except boto.exception.EC2ResponseError:
+            print colors.FAIL + '[error] Your cluster failed to launch. This could happen'\
+                  + ' for several reasons:\n'\
+                  + '1. Are you in the right region? AMIs and keypairs are region\n'\
+                  + '   specific. For more details, see [0] and [1].\n'\
+                  + '2. Have you followed the setup guide at [2]?\n'\
+                  + '\n[0]:https://github.com/nextml/NEXT/issues/11\n'\
+                  + '[1]:https://github.com/nextml/NEXT/wiki/Troubleshooting\n'\
+                  + '[2]:https://github.com/nextml/NEXT/wiki/NEXT-EC2-Launch-Tutorial'\
+                 + colors.ENDC\
 
     elif action == "destroy":
         print "Are you sure you want to destroy the cluster %s?" % cluster_name
@@ -1186,15 +1214,6 @@ def real_main():
 
 
 def print_dns_urls(instances=None, prefix=False):
-    class colors:
-        HEADER = '\033[95m'
-        OKBLUE = '\033[94m'
-        OKGREEN = '\033[92m'
-        WARNING = '\033[93m'
-        FAIL = '\033[91m'
-        ENDC = '\033[0m'
-        BOLD = '\033[1m'
-
     if instances:
         for inst in instances:
             print colors.OKBLUE + '[1]:http://%s' % inst.public_dns_name + colors.ENDC
