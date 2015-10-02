@@ -50,8 +50,10 @@ def generate_target_blob(AWS_BUCKET_NAME,
     '''
     targets = []
     bucket = get_AWS_bucket(AWS_BUCKET_NAME, AWS_ID, AWS_KEY)
-    print primary_file, primary_type, alt_file, alt_type
-    if primary_file.endswith('.zip'):
+    is_primary_zip = ((type(primary_file) is str and primary_file.endswith('.zip'))
+                      or (zipfile.is_zipfile(primary_file))) 
+    
+    if is_primary_zip:
         target_file_dict, target_name_dict = zipfile_to_dictionary(primary_file)
         if alt_type != 'text':
             assert alt_file != None, 'Need an alt_file.'
@@ -96,8 +98,7 @@ def generate_target_blob(AWS_BUCKET_NAME,
                               'alt_type': 'text',
                               'alt_description': primary_file_name}
                     targets.append(target)
-                
-    elif file.endswith('.txt'):
+    else:
          with open(file) as f:
             i = 0
             for line in f:
@@ -110,8 +111,6 @@ def generate_target_blob(AWS_BUCKET_NAME,
                               'alt_type': 'text',
                               'alt_description':line}
                     targets.append(target)
-    else:
-        raise Exception('Target file name must be .txt or .zip.')
     return {'target_blob' : targets}
 
 def get_AWS_bucket(AWS_BUCKET_NAME,AWS_ID, AWS_KEY):
