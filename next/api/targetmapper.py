@@ -37,8 +37,6 @@ Initialization::\n
 """
 from next.database_client.PermStore import PermStore
 from next.api.api_util import DatabaseException
-import random
-import time
 
 db = PermStore()
 class TargetMapper:
@@ -127,9 +125,16 @@ class TargetMapper:
             index = ii
             primary_description = target_tmp['primary_description']            
             primary_type = target_tmp['primary_type']
+            alt_type = target_tmp['alt_type']
             alt_description = target_tmp['alt_description']
             # Structure target document for MongoDB
-            doc = {'index': index, 'target_id': target_id, 'primary_description': primary_description, 'primary_type': primary_type, 'alt_description': alt_description,  'exp_uid': exp_uid}
+            doc = {'index': index,
+                   'target_id': target_id,
+                   'primary_description': primary_description,
+                   'primary_type': primary_type,
+                   'alt_description': alt_description,
+                   'alt_type': alt_type,
+                   'exp_uid': exp_uid}
             didSucceed, message = db.setDoc(self.database_id, self.bucket_id, None, doc)
 
             # If target not successfully created, throw an error
@@ -192,14 +197,17 @@ class TargetMapper:
             raise DatabaseException("Failed to get_target_data: %s"%(message))
         # This line is key. If no doc exists with the specified exp_uid and targetless = True, then targetless = False
         if not target_data:
-            return {'target_id':index, 'primary_description':index, 'primary_type':'text','alt_description':index, 'alt_type':'text'}
+            return {'target_id':index,
+                    'primary_description':index,
+                    'primary_type':'text',
+                    'alt_description':index,
+                    'alt_type':'text'}
         # Get an individual target form the DB given exp_uid and index
         target_data,didSucceed,message = db.getDocsByPattern(self.database_id, self.bucket_id, {'exp_uid': exp_uid, 'index':index})
         # If doc cannot be retreived, throw an error
         if not didSucceed:
             raise DatabaseException("Failed to get_target_data: %s"%(message))
         # Pop target_dict out of list and return
-        print "target_Data",target_data
         target_data_dict = target_data.pop(0)
         return target_data_dict
 
