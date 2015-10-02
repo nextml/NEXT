@@ -1395,13 +1395,15 @@ var buttonsChart = [["#A9A9C6"]];
 
             image_data = [];
             text_data = [];
+	    console.log("targets");
             for(i=0; i < data.length; i++){
                 if(data[i].target.primary_type=="image" || data[i].target.primary_type=="img"){
                     image_data.push(data[i]);
                 } else if(data[i].target.primary_type=="text") {
                     text_data.push(data[i]);
                 } else if(data[i].target.primary_type=="video") {
-		    if(data[i].alt_type=='image'){
+		    console.log(data[i].target)
+		    if(data[i].target.alt_type=="image"){
 			image_data.push(data[i]);
 		    } else {
 			text_data.push(data[i]);
