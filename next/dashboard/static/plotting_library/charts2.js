@@ -1395,14 +1395,17 @@ var buttonsChart = [["#A9A9C6"]];
 
             image_data = [];
             text_data = [];
-	    video_data = [];
             for(i=0; i < data.length; i++){
                 if(data[i].target.primary_type=="image" || data[i].target.primary_type=="img"){
                     image_data.push(data[i]);
                 } else if(data[i].target.primary_type=="text") {
                     text_data.push(data[i]);
                 } else if(data[i].target.primary_type=="video") {
-                    video_data.push(data[i]);
+		    if(data[i].alt_type=='image'){
+			image_data.push(data[i]);
+		    } else {
+			text_data.push(data[i]);
+		    }
                 }
             }
 
@@ -1513,28 +1516,6 @@ var buttonsChart = [["#A9A9C6"]];
                 } )
                 .on("mousedown", inspect_target );
 
-
-	    var videos = svg.selectAll("video").data(video_data);
-            texts.enter()
-                .append("svg:image")
-                .attr("xlink:href", function(d) { return d.target.alt_description })
-                .attr("x", function(d) { return x(d.x) })
-                .attr("y", function(d) { return y(d.y) })
-                .attr("font-family", "sans-serif")
-                .attr("font-size", fontsize+"px")
-                .attr("fill", "black")
-                .attr("text-anchor", "middle")
-                .attr("dominant-baseline","middle")
-                .text( function(d) { console.log("text", d.x, d.y, d.target.alt_description); return d.target.alt_description } )
-                .on("mouseover", function(d){ d3.select(this)
-                    .attr("font-size", .75*dilation/zm.scale()*fontsize+"px")
-                    .each( show_tooltip )
-                } )
-                .on("mouseout", function(d){ d3.select(this)
-                    .attr("font-size", 1/zm.scale()*fontsize+"px")
-                    .each( hide_tooltip )
-                } )
-                .on("mousedown", inspect_target );
 
 
 
