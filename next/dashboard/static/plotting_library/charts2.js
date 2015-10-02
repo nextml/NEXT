@@ -1402,7 +1402,7 @@ var buttonsChart = [["#A9A9C6"]];
                 } else if(data[i].target.primary_type=="text") {
                     text_data.push(data[i]);
                 } else if(data[i].target.primary_type=="video") {
-                    text_data.push(data[i]);
+                    video_data.push(data[i]);
                 }
             }
 
