@@ -1403,6 +1403,7 @@ var buttonsChart = [["#A9A9C6"]];
                     text_data.push(data[i]);
                 } else if(data[i].target.primary_type=="video") {
 		    console.log(data[i].target)
+		    data[i].target.primary_description = data[i].target.alt_description;
 		    if(data[i].target.alt_type=="image"){
 			image_data.push(data[i]);
 		    } else {
