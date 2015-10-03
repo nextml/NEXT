@@ -17,6 +17,7 @@ python launch_experiment --experiment_file=
 """
 import os
 import re
+import csv
 import imp
 import sys
 import json
@@ -48,12 +49,14 @@ def generate_target_blob(AWS_BUCKET_NAME,
         AWS_ID: Aws id
         AWS_KEY: Aws key
     '''
+    print "generating blob"
     targets = []
     bucket = get_AWS_bucket(AWS_BUCKET_NAME, AWS_ID, AWS_KEY)
     is_primary_zip = ((type(primary_file) is str and primary_file.endswith('.zip'))
-                      or (zipfile.is_zipfile(primary_file))) 
+                      or (zipfile.is_zipfile(primary_file)))
     
     if is_primary_zip:
+        
         target_file_dict, target_name_dict = zipfile_to_dictionary(primary_file)
         if alt_type != 'text':
             assert alt_file != None, 'Need an alt_file.'
@@ -99,18 +102,22 @@ def generate_target_blob(AWS_BUCKET_NAME,
                               'alt_description': primary_file_name}
                     targets.append(target)
     else:
-         with open(file) as f:
-            i = 0
-            for line in f:
-                line = line.strip()
-                if line:
-                    i += 1
-                    target = {'target_id': str(i),
-                              'primary_type': 'text',
-                              'primary_description':line,
-                              'alt_type': 'text',
-                              'alt_description':line}
-                    targets.append(target)
+        if type(primary_file) is str:
+            f = open(primary_file)
+        else:
+            f = primary_file
+            f.seek(0)
+        i = 0
+        for line in f.read().splitlines():
+            line = line.strip()
+            if line:
+                i += 1
+                target = {'target_id': str(i),
+                          'primary_type': 'text',
+                          'primary_description':line,
+                          'alt_type': 'text',
+                          'alt_description':line}
+                targets.append(target)
     return {'target_blob' : targets}
 
 def get_AWS_bucket(AWS_BUCKET_NAME,AWS_ID, AWS_KEY):

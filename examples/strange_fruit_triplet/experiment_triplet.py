@@ -53,8 +53,8 @@ initExp['site_key'] = 'replace this with working site key'
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 experiment = {}
 experiment['initExp'] = initExp
-#experiment['primary_type'] = 'image'
-#experiment['primary_target_file'] = '{}/strangefruit30.zip'.format(curr_dir)
+experiment['primary_type'] = 'image'
+experiment['primary_target_file'] = '{}/strangefruit30.zip'.format(curr_dir)
 experiment_list.append(experiment)
 
 # Launch the experiment
