@@ -1,18 +1,15 @@
 import os, sys
-from boto.s3.connection import S3Connection
-from boto.s3.key import Key
 
 # import launch_experiment. We assume that it is located in the next-discovery top level directory.
 sys.path.append("../")
 from launch_experiment import *
 
-curr_dir = os.path.dirname(os.path.abspath(__file__))
 experiment_list = []
-supported_alg_ids = ['RandomSampling','RandomSampling','UncertaintySampling','CrowdKernel','STE']
+alg_ids = ['RandomSampling','RandomSampling','UncertaintySampling','CrowdKernel','STE']
 
 # Create common alg_list
 alg_list = []
-for idx,alg_id in enumerate(supported_alg_ids):
+for idx,alg_id in enumerate(alg_ids):
   alg_item = {}
   alg_item['alg_id'] = alg_id
   if idx==0:
@@ -43,23 +40,25 @@ initExp['args']['failure_probability'] = .01
 initExp['args']['participant_to_algorithm_management'] = 'one_to_many' 
 initExp['args']['algorithm_management_settings'] = algorithm_management_settings 
 initExp['args']['alg_list'] = alg_list 
-# initExp['args']['instructions'] = 'Test instructions'
-# initExp['args']['debrief'] = 'Test debrief'
+initExp['args']['instructions'] = 'Test instructions'
+initExp['args']['debrief'] = 'Test debrief'
 initExp['app_id'] = 'PoolBasedTripletMDS'
 initExp['site_id'] = 'replace this with working site id'
 initExp['site_key'] = 'replace this with working site key'
 
 
+curr_dir = os.path.dirname(os.path.abspath(__file__))
 experiment = {}
 experiment['initExp'] = initExp
-experiment['target_file'] = curr_dir+"/strangefruit30.zip"
-print "target_file",curr_dir+"/strangefruit30.zip"
+experiment['primary_type'] = 'image'
+experiment['primary_target_file'] = sys.argv[1]
 experiment_list.append(experiment)
 
 # Launch the experiment
 host = "localhost:8000"
+print "It's happening"
 exp_uid_list, exp_key_list, widget_key_list = launch_experiment(host, experiment_list)
-
+print exp_uid_list, exp_key_list, widget_key_list
 # Update the cartoon_dueling.html file wit the exp_uid_list and widget_key_list
 # with open('strange_fruit_triplet.html','r') as page:
 #   print "opended file"
