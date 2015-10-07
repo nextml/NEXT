@@ -1,0 +1,46 @@
+{% if query.context_type != "none" %}
+<div class="target" id="center">
+  {% if query.context_type == "text" %}
+  <div class="table-box">
+    <div class="text"> {{ query.context }} </div>
+  </div>
+  {% elif query.context_type == "image" or query.context_type == "img" %}
+  <img class="image" src='{{ query.context }}'> </img>
+  {% endif %}
+</div>
+
+<script>
+  $('#query').css({'-webkit-align-self':'flex-start','align-self':'flex-start'});
+</script>
+{% endif %}
+
+<div id="query" style="align-self: flex-start;
+                        display: flex;
+                        flex-direction: row;
+                        align-items: stretch;
+                        flex-wrap: wrap;
+                        flex-grow: 1;
+                        -webkit-align-self: flex-start;
+                        display: -webkit-flex;
+                        -webkit-flex-direction: row;
+                        -webkit-align-items: stretch;
+                        -webkit-flex-wrap: wrap;
+                        -webkit-flex-grow: 1;
+                        padding-bottom: 5px">
+  {% for t in query.targets %}
+    <div class="target" id="{{loop.index}}" 
+        onclick="next_widget.processAnswer(&quot;{{ t.target_id }}&quot;);
+                  console.log('reporting answer!')
+                  $('#'+{{loop.index}}).css({'border': '2px solid #FF0000'});">
+      {% if t.primary_type == "image" or t.primary_type == "img"%}
+      <img class="image" src={{ t.primary_description }}> </img>
+      {% elif t.primary_type == "text"%}   
+      <div class="table-box">
+        <div class="text">{{ t.primary_description }}</div>
+      </div>
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>
+
+

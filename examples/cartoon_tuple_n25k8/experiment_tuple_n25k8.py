@@ -10,9 +10,6 @@ Usage:
 python experiment_tuple_n25k8.py
 """
 import os, sys
-from boto.s3.connection import S3Connection
-from boto.s3.key import Key
-
 # import launch_experiment. We assume that it is located in the next-discovery top level directory.
 sys.path.append("../")
 from launch_experiment import *
@@ -70,6 +67,8 @@ for cap in cap_list:
 # Set the context
   experiment = {}
   experiment['initExp'] = initExp
+  experiment['primary_type'] = 'text'
+  experiment['primary_target_file'] = curr_dir+"/"+cap+".txt"
   experiment['target_file'] = curr_dir+"/"+cap+".txt"
   experiment['context'] = curr_dir+"/"+cap+".jpg"
   experiment['context_type'] = 'image'

@@ -41,8 +41,8 @@ class AppDashboard(object):
     stat_list.append(stat)
 
     # stat = {}
-    # stat['stat_id'] = 'api_reportAnswer_activity_stacked_histogram'
-    # stat['description'] = self.api_reportAnswer_activity_stacked_histogram.__doc__
+    # stat['stat_id'] = 'api_processAnswer_activity_stacked_histogram'
+    # stat['description'] = self.api_processAnswer_activity_stacked_histogram.__doc__
     # stat['necessary_params'] = []
     # stat_list.append(stat)
 
@@ -75,10 +75,10 @@ class AppDashboard(object):
 
   def api_activity_histogram(self,app_id,exp_uid,task):
     """
-    Description: returns the data to plot all API activity (for all algorithms) in a histogram with respect to time for any task in {getQuery,reportAnswer,predict} 
+    Description: returns the data to plot all API activity (for all algorithms) in a histogram with respect to time for any task in {getQuery,processAnswer,predict} 
 
     Expected input:
-      (string) task :  must be in {'getQuery','reportAnswer','predict'}
+      (string) task :  must be in {'getQuery','processAnswer','predict'}
 
     Expected output (in dict):
       (string) plot_type : 'histogram'
@@ -115,7 +115,7 @@ class AppDashboard(object):
     algorithms and each line indicates the durations to complete the task (wrt to the api call) 
 
     Expected input:
-      (string) task :  must be in {'getQuery','reportAnswer','predict'}
+      (string) task :  must be in {'getQuery','processAnswer','predict'}
 
     Expected output (in dict):
       plot_type 'multi_line_plot'
@@ -193,7 +193,7 @@ class AppDashboard(object):
     are broken down into compute,db_set,db_get (for cpu, database_set, database_get)
 
     Expected input:
-      (string) task :  must be in {'getQuery','reportAnswer','predict'}
+      (string) task :  must be in {'getQuery','processAnswer','predict'}
       (string) alg_label : must be a valid alg_label contained in alg_list list of dicts 
 
     Expected output (in dict):
@@ -307,7 +307,7 @@ class AppDashboard(object):
 
   def response_time_histogram(self,app_id,exp_uid,alg_label):
     """
-    Description: returns the data to plot response time histogram of reportAnswer for each algorithm  
+    Description: returns the data to plot response time histogram of processAnswer for each algorithm  
 
     Expected input:
       (string) alg_label : must be a valid alg_label contained in alg_list list of dicts 
@@ -350,7 +350,7 @@ class AppDashboard(object):
 
   def network_delay_histogram(self,app_id,exp_uid,alg_label):
     """
-    Description: returns the data to network delay histogram of the time it takes to getQuery+reportAnswer for each algorithm  
+    Description: returns the data to network delay histogram of the time it takes to getQuery+processAnswer for each algorithm  
 
     Expected input:
       (string) alg_label : must be a valid alg_label contained in alg_list list of dicts 

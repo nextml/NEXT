@@ -165,22 +165,22 @@ def run_all(assert_200):
 
     target_winner = targets[numpy.argmax(rewards)]['target']['target_id']
 
-    # test reportAnswer #
+    # test processAnswer #
     #####################
-    reportAnswer_args_dict = {}
-    reportAnswer_args_dict["exp_uid"] = exp_uid
-    reportAnswer_args_dict["exp_key"] = exp_key
-    reportAnswer_args_dict["args"] = {}
-    reportAnswer_args_dict["args"]["query_uid"] = query_uid
-    reportAnswer_args_dict["args"]["target_winner"] = target_winner
+    processAnswer_args_dict = {}
+    processAnswer_args_dict["exp_uid"] = exp_uid
+    processAnswer_args_dict["exp_key"] = exp_key
+    processAnswer_args_dict["args"] = {}
+    processAnswer_args_dict["args"]["query_uid"] = query_uid
+    processAnswer_args_dict["args"]["target_winner"] = target_winner
 
-    url = 'http://'+HOSTNAME+'/api/experiment/reportAnswer'
-    print "POST reportAnswer args = ", reportAnswer_args_dict
-    response,dt = timeit(requests.post)(url, json.dumps(reportAnswer_args_dict), headers={'content-type':'application/json'})
-    print "POST reportAnswer response", response.text, response.status_code
-    print "POST reportAnswer duration = ", dt
+    url = 'http://'+HOSTNAME+'/api/experiment/processAnswer'
+    print "POST processAnswer args = ", processAnswer_args_dict
+    response,dt = timeit(requests.post)(url, json.dumps(processAnswer_args_dict), headers={'content-type':'application/json'})
+    print "POST processAnswer response", response.text, response.status_code
+    print "POST processAnswer duration = ", dt
     print
-    reportAnswer_json_response = eval(response.text)
+    processAnswer_json_response = eval(response.text)
 
 
   # test getStats #

@@ -1,0 +1,96 @@
+
+<!-- Center Target -->
+<div class="target" id="center">
+  {% if query.center.primary_type == "image" or query.center.primary_type == "img" %}
+  <img class="image" src={{ query.center.primary_description }}> </img>
+
+  {% elif query.center.primary_type == "text" %}    
+  <div class="table-box">
+    <div class="text">{{ query.center.primary_description }}</div>    
+  </div>
+
+  {% elif query.center.primary_type == "video" %}
+  <video class="image" width="320" height="240"  poster="http://jimpunk.net/Loading/wp-content/uploads/loading1.gif" controls autoplay loop>
+    <source src={{ query.center.primary_description }} type="video/mp4"> 
+      Your browser does not support the video tag.
+  </video>
+  {% endif %}
+</div>
+
+  <div class="query" style="align-self: center;
+                        display: flex;
+                        flex-direction: row;
+                        align-items: stretch;
+                        flex-wrap: nowrap;
+                        flex-grow: 1;
+                        -webkit-align-self: center;
+                        display: -webkit-flex;
+                        -webkit-flex-direction: row;
+                        -webkit-align-items: stretch;
+                        -webkit-flex-wrap: nowrap;
+                        -webkit-flex-grow: 1;">
+    <!-- Left Target -->
+    <div class="target" id="left" onclick="next_widget.processAnswer(&quot;{{ query.left.target_id }}&quot;); $('#left').css({'border': '2px solid #FF0000'});">
+      {% if query.left.primary_type == "image" or query.left.primary_type == "img"%}
+      	<img class="image" src={{ query.left.primary_description }}> </img>
+      {% elif query.left.primary_type == "text"%}  	
+    	  <div class="table-box">
+          <div class="text">{{ query.left.primary_description }}</div>
+          </div>
+	  {% elif query.center.primary_type == "video" %}
+	  <video class="image" width="320" height="240" poster="http://jimpunk.net/Loading/wp-content/uploads/loading1.gif" controls autoplay loop>
+	    <source src={{ query.left.primary_description }} type="video/mp4"> 
+	      Your browser does not support the video tag.
+	  </video>
+	  {% endif %}
+    </div>
+
+    <!-- Right Target -->
+    <div class="target" id="right" onclick="next_widget.processAnswer(&quot;{{ query.right.target_id }}&quot;); $('#right').css({'border': '2px solid #FF0000'});">
+      {% if query.right.primary_type == "image" or query.right.primary_type == "img" %}
+    		<img class="image" src={{ query.right.primary_description }}> </img>
+    	{% elif query.right.primary_type == "text" %}		
+        <div class="table-box">
+    		  <div class="text">{{ query.right.primary_description }}</div>
+        </div>
+	{% elif query.center.primary_type == "video" %}
+	  <video class="image" width="320" height="240" poster="http://jimpunk.net/Loading/wp-content/uploads/loading1.gif" controls autoplay loop>
+	    <source src={{ query.right.primary_description }} type="video/mp4"> 
+	      Your browser does not support the video tag.
+	  </video>
+    	{% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+  document.onkeydown = checkKey;
+
+  function checkKey(e) {
+
+      e = e || window.event;
+
+      if (e.keyCode == '37') {
+         // left arrow
+         $('#left').css({'border': '4px solid #FF0000'})
+         next_widget.processAnswer("{{ query.left.target_id }}")
+      }
+      else if (e.keyCode == '39') {
+         // right arrow
+        $('#right').css({'border': '4px solid #FF0000'})
+        next_widget.processAnswer("{{ query.right.target_id }}")
+      }
+
+  }
+
+  $('#right').click(function() {
+    $('#right').css({'border': '4px solid #FF0000'})
+  }); 
+
+  $('#left').click(function() {
+    $('#left').css({'border': '4px solid #FF0000'})
+  }); 
+
+</script>
+
+

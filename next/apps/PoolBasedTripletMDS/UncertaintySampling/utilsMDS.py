@@ -38,9 +38,10 @@ def main():
     d = 2
     m = int(ceil(40*n*d*log(n)))  # number of labels
     
-    p = 0.0; # error rate
+    p = 0.1; # error rate
     
-    S = []
+    Strain = []
+    Stest = []
     Xtrue = randn(n,d);
     for iter in range(0,m):
 
@@ -57,12 +58,21 @@ def main():
         if R<p:
             q = [ q[i] for i in [1,0,2]]
 
-        S.append(q)
+        if iter < .9*m:
+            Strain.append(q)
+        else:
+            Stest.append(q)
 
 
     # compute embedding 
-    X,emp_loss = computeEmbedding(n,d,S,num_random_restarts=2,epsilon=0.01,verbose=True)
+    X,emp_loss_train = computeEmbedding(n,d,Strain,num_random_restarts=2,epsilon=0.01,verbose=True)
 
+    # compute loss on test set
+    emp_loss_test,hinge_loss_test = getLoss(X,Stest)
+
+    print
+    print 'Training loss = %f,   Test loss = %f' %(emp_loss_train,emp_loss_test)
+    
 
 
 def getRandomQuery(X):
@@ -216,17 +226,20 @@ def computeEmbedding(n,d,S,num_random_restarts=0,max_num_passes=0,max_iter_GD=0,
     if max_iter_GD ==0:
         max_iter_GD = 50
 
+    X_old = None
     emp_loss_old = float('inf')
     num_restarts = -1
     while num_restarts < num_random_restarts:
         num_restarts += 1
 
         ts = time.time()
+
         X,acc = computeEmbeddingWithEpochSGD(n,d,S,max_num_passes=max_num_passes_SGD,max_norm=max_norm,epsilon=epsilon,verbose=verbose)
         te_sgd = time.time()-ts
 
         ts = time.time()
         X_new,emp_loss_new,hinge_loss_new,acc_new = computeEmbeddingWithGD(X,S,max_iters=max_iter_GD,max_norm=max_norm,epsilon=epsilon,verbose=verbose)
+
         te_gd = time.time()-ts
 
         if emp_loss_new<emp_loss_old:

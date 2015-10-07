@@ -1,0 +1,83 @@
+{% if query.context_type != "none" %}
+<div class="target" id="center">
+
+  {% if query.context_type == "text" %}
+  <div class="table-box">
+    <div class="text"> {{ query.context }} </div>
+  </div>
+  
+  {% elif query.context_type == "image" or query.context_type == "img" %}
+  <img class="image" src='{{ query.context }}'> </img>
+  {% endif %}
+
+</div>
+
+<script>
+  $('#query').css({'-webkit-align-self':'flex-start','align-self':'flex-start'});
+</script>
+{% endif %}
+
+<div id="query" style="align-self: center;
+                        display: flex;
+                        flex-direction: row;
+                        align-items: stretch;
+                        flex-wrap: nowrap;
+                        flex-grow: 1;
+                        -webkit-align-self: center;
+                        display: -webkit-flex;
+                        -webkit-flex-direction: row;
+                        -webkit-align-items: stretch;
+                        -webkit-flex-wrap: nowrap;
+                        -webkit-flex-grow: 1;">
+  <!-- Left Target -->
+  <div class="target" id="left" onclick="next_widget.processAnswer(&quot;{{ query.left.target_id }}&quot;);
+                                          console.log('reporting answer!')
+                                          $('#left').css({'border': '2px solid #FF0000'});">
+    {% if query.left.primary_type == "image" or query.left.primary_type == "img"%}
+    <img class="image" src={{ query.left.primary_description }}> </img>
+    {% elif query.left.primary_type == "text"%}   
+    <div class="table-box">
+      <div class="text">{{ query.left.primary_description }}</div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Right Target -->    
+  <div class="target" id="right" onclick="next_widget.processAnswer(&quot;{{ query.right.target_id }}&quot;)
+                                          console.log('reporting answer!')
+                                          $('#right').css({'border': '2px solid #FF0000'});">
+    {% if query.right.primary_type == "image" or query.right.primary_type == "img" %}
+      <img class="image" src={{ query.right.primary_description }}> </img>
+    {% elif query.right.primary_type == "text" %}    
+      <div class="table-box">
+        <div class="text">{{ query.right.primary_description }}</div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  console.log()
+
+  document.onkeydown = checkKey;
+
+  function checkKey(e) {
+
+      e = e || window.event;
+
+      if (e.keyCode == '37') {
+         // left arrow
+         $('#left').css({'border': '2px solid #FF0000'})
+         next_widget.processAnswer("{{ query.left.target_id }}")
+      }
+      else if (e.keyCode == '39') {
+         // right arrow
+        $('#right').css({'border': '2px solid #FF0000'})
+        next_widget.processAnswer("{{ query.right.target_id }}")
+      }
+  }
+</script>
+
+
+
+

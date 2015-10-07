@@ -26,7 +26,7 @@ def apply(app_id, exp_uid, task_name, args_in_json, enqueue_timestamp):
 	time_enqueued = delta_datetime.seconds + delta_datetime.microseconds/1000000.
 
 	# modify args_in
-	if task_name == 'reportAnswer':
+	if task_name == 'processAnswer':
 		args_in_dict = json.loads(args_in_json)
 		args_in_dict['meta'] = {'timestamp_answer_received':enqueue_timestamp}
 		args_in_json = json.dumps(args_in_dict)

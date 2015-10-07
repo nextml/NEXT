@@ -36,7 +36,7 @@ def run_all(assert_200):
         return result,(te-ts)
     return timed
 
-  app_id = 'StochasticDuelingBordaBanditsPureExploration'
+  app_id = 'DuelingBanditsPureExploration'
   # assert_200 = False
   num_arms = 10
   true_means = numpy.array(range(num_arms))/float(num_arms)
@@ -191,24 +191,24 @@ def run_all(assert_200):
 
 
     #############################################
-    # test POST reportAnswer 
+    # test POST processAnswer 
     #############################################
-    reportAnswer_args_dict = {}
-    reportAnswer_args_dict["exp_uid"] = exp_uid
-    reportAnswer_args_dict["exp_key"] = exp_key
-    reportAnswer_args_dict["args"] = {}
-    reportAnswer_args_dict["args"]["query_uid"] = query_uid
-    reportAnswer_args_dict["args"]['target_winner'] = index_winner
-    reportAnswer_args_dict["args"]['response_time'] = response_time
+    processAnswer_args_dict = {}
+    processAnswer_args_dict["exp_uid"] = exp_uid
+    processAnswer_args_dict["exp_key"] = exp_key
+    processAnswer_args_dict["args"] = {}
+    processAnswer_args_dict["args"]["query_uid"] = query_uid
+    processAnswer_args_dict["args"]['target_winner'] = index_winner
+    processAnswer_args_dict["args"]['response_time'] = response_time
 
-    url = 'http://'+HOSTNAME+'/api/experiment/reportAnswer'
-    print "POST reportAnswer args = ", reportAnswer_args_dict
-    response,dt = timeit(requests.post)(url, json.dumps(reportAnswer_args_dict), headers={'content-type':'application/json'})
-    print "POST reportAnswer response", response.text, response.status_code
+    url = 'http://'+HOSTNAME+'/api/experiment/processAnswer'
+    print "POST processAnswer args = ", processAnswer_args_dict
+    response,dt = timeit(requests.post)(url, json.dumps(processAnswer_args_dict), headers={'content-type':'application/json'})
+    print "POST processAnswer response", response.text, response.status_code
     if assert_200: assert response.status_code is 200
-    print "POST reportAnswer duration = ", dt
+    print "POST processAnswer duration = ", dt
     print
-    reportAnswer_json_response = eval(response.text)
+    processAnswer_json_response = eval(response.text)
 
 
     # # test predict #
@@ -246,7 +246,7 @@ def run_all(assert_200):
   #   necessary_params = stat['necessary_params']
 
   #   if ('alg_label' in necessary_params) and ('task' in necessary_params):
-  #     for task in ['getQuery','reportAnswer','predict']:
+  #     for task in ['getQuery','processAnswer','predict']:
   #       for alg_label in alg_label_list:
   #         getStats_dict = {}
   #         getStats_dict['stat_id'] = stat_id
@@ -263,7 +263,7 @@ def run_all(assert_200):
   #       args_list.append(getStats_args_json)
 
   #   elif ('task' in necessary_params):
-  #     for task in ['getQuery','reportAnswer','predict']:
+  #     for task in ['getQuery','processAnswer','predict']:
   #       getStats_dict = {}
   #       getStats_dict['stat_id'] = stat_id
   #       getStats_dict['params'] = {'task':task}

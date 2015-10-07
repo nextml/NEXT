@@ -44,7 +44,7 @@ class PoolBasedTripletMDSPrototype(object):
     return NotImplementedError
 
   
-  def reportAnswer(self,db,index=0,reward=0.5):
+  def processAnswer(self,db,index=0,reward=0.5):
     """
     reporting back the reward of pulling the arm suggested by getQuery
 

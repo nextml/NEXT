@@ -188,7 +188,7 @@ def run_all(assert_200, num_clients):
         index_right = target['index']
 
     #############################################
-    # test POST reportAnswer 
+    # test POST processAnswer 
     #############################################
     # generate simulated reward
     direction = norm(X_true[index_left]-X_true[index_center])-norm(X_true[index_right]-X_true[index_center])
@@ -200,21 +200,21 @@ def run_all(assert_200, num_clients):
     else:
       target_winner = index_right
    
-    reportAnswer_args_dict = {}
-    reportAnswer_args_dict["exp_uid"] = exp_uid
-    reportAnswer_args_dict["exp_key"] = exp_key
-    reportAnswer_args_dict["args"] = {}
-    reportAnswer_args_dict["args"]["query_uid"] = query_uid
-    reportAnswer_args_dict["args"]["target_winner"] = target_winner
+    processAnswer_args_dict = {}
+    processAnswer_args_dict["exp_uid"] = exp_uid
+    processAnswer_args_dict["exp_key"] = exp_key
+    processAnswer_args_dict["args"] = {}
+    processAnswer_args_dict["args"]["query_uid"] = query_uid
+    processAnswer_args_dict["args"]["target_winner"] = target_winner
 
-    url = 'http://'+HOSTNAME+'/api/experiment/reportAnswer'
-    print "POST reportAnswer args = ", reportAnswer_args_dict
-    response,dt = timeit(requests.post)(url, json.dumps(reportAnswer_args_dict), headers={'content-type':'application/json'})
-    print "POST reportAnswer response", response.text, response.status_code
+    url = 'http://'+HOSTNAME+'/api/experiment/processAnswer'
+    print "POST processAnswer args = ", processAnswer_args_dict
+    response,dt = timeit(requests.post)(url, json.dumps(processAnswer_args_dict), headers={'content-type':'application/json'})
+    print "POST processAnswer response", response.text, response.status_code
     if assert_200: assert response.status_code is 200
-    print "POST reportAnswer duration = ", dt
+    print "POST processAnswer duration = ", dt
     print
-    reportAnswer_json_response = eval(response.text)
+    processAnswer_json_response = eval(response.text)
 
   # #############################################
   # # test GET logs 
@@ -251,7 +251,7 @@ def run_all(assert_200, num_clients):
   args_list.append(getStats_args_dict)
 
   getStats_args_dict = {}
-  getStats_args_dict['stat_id'] = 'api_reportAnswer_activity_stacked_histogram'
+  getStats_args_dict['stat_id'] = 'api_processAnswer_activity_stacked_histogram'
   getStats_args_dict['params'] = {}
   args_list.append(getStats_args_dict)
 

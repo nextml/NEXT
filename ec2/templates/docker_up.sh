@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+[ $(getent group docker) ] || groupadd docker
+sudo gpasswd -a $(whoami) docker
+
 cd /usr/local/next-discovery
 
 {{ environment_variables }}

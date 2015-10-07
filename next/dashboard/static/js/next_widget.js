@@ -48,7 +48,7 @@ var next_widget = (function($){
 		// Set the div to this html
 		//$('#'+div_id).html(data.html);
 
-		// Build args dictionary for the reportAnswer call
+		// Build args dictionary for the processAnswer call
 		// _args = {};
 		// _args["app_id"] = args["app_id"];
 		// _args["exp_uid"] = args["exp_uid"];
@@ -87,13 +87,13 @@ var next_widget = (function($){
 
 
 
-	reportAnswer: function(target_id) {
+	processAnswer: function(target_id) {
 	    /**
 	     * Function for reporting an answer coming from a getQuery call.
 	     * Is routed through the widget system.
 	     * Input: target_id of the winner
 	     */
-	    _args["name"] = "reportAnswer";
+	    _args["name"] = "processAnswer";
 	    _args["args"]["target_winner"] = target_id;
 	    console.log(_args)
 	    $.ajax({
@@ -102,9 +102,9 @@ var next_widget = (function($){
 		contentType: "application/json",
 		data: JSON.stringify(_args)
 	    }).done( function(data, textStatus,XHR){
-		_callbacks.reportAnswer_success();
+		_callbacks.processAnswer_success();
 	    } ).fail(function(error){
-		_callbacks.reportAnswer_failure();
+		_callbacks.processAnswer_failure();
 	    });
 	}
     };

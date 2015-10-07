@@ -9,9 +9,6 @@ Usage:
 python experiment_tuple.py
 """
 import os, sys
-from boto.s3.connection import S3Connection
-from boto.s3.key import Key
-
 # import launch_experiment. We assume that it is located in the next-discovery top level directory.
 sys.path.append("../")
 from launch_experiment import *
@@ -60,10 +57,11 @@ for cap in cap_list:
   initExp['site_id'] = 'replace this with working site id'
   initExp['site_key'] = 'replace this with working site key'
 
-# Set the context
+# Set the context and targets
   experiment = {}
   experiment['initExp'] = initExp
-  experiment['target_file'] = curr_dir+"/"+cap+".txt"
+  experiment['primary_type'] = 'text'
+  experiment['primary_target_file'] = curr_dir+"/"+cap+".txt"
   experiment['context'] = curr_dir+"/"+cap+".jpg"
   experiment['context_type'] = 'image'
   experiment_list.append(experiment)

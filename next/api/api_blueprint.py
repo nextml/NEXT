@@ -18,8 +18,8 @@ api_interface.add_resource(Experiment, '/experiment', '/experiment/<string:exp_u
 from next.api.resources.get_query import getQuery
 api_interface.add_resource(getQuery, '/experiment/<string:exp_uid>/<string:exp_key>/getQuery', '/experiment/getQuery')
 
-from next.api.resources.report_answer import reportAnswer
-api_interface.add_resource(reportAnswer, '/experiment/reportAnswer')
+from next.api.resources.process_answer import processAnswer
+api_interface.add_resource(processAnswer, '/experiment/processAnswer')
 
 from next.api.resources.stats import Stats
 api_interface.add_resource(Stats, '/experiment/stats')

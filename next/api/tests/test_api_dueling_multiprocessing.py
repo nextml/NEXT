@@ -15,7 +15,7 @@ HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')+':'+os.enviro
 
 def run_all(assert_200):
 
-  app_id = 'StochasticDuelingBordaBanditsPureExploration'
+  app_id = 'DuelingBanditsPureExploration'
   num_arms = 25
   true_means = numpy.array(range(num_arms))/float(num_arms)
   total_pulls_per_client = 1000
@@ -119,7 +119,7 @@ def simulate_one_client( input_args ):
 
 
   getQuery_times = []
-  reportAnswer_times = []
+  processAnswer_times = []
   for t in range(total_pulls):
     
 
@@ -171,29 +171,29 @@ def simulate_one_client( input_args ):
 
 
     #############################################
-    # test POST reportAnswer 
+    # test POST processAnswer 
     #############################################
-    reportAnswer_args_dict = {}
-    reportAnswer_args_dict["exp_uid"] = exp_uid
-    reportAnswer_args_dict["exp_key"] = exp_key
-    reportAnswer_args_dict["args"] = {}
-    reportAnswer_args_dict["args"]["query_uid"] = query_uid
-    reportAnswer_args_dict["args"]['target_winner'] = index_winner
-    reportAnswer_args_dict["args"]['response_time'] = response_time
+    processAnswer_args_dict = {}
+    processAnswer_args_dict["exp_uid"] = exp_uid
+    processAnswer_args_dict["exp_key"] = exp_key
+    processAnswer_args_dict["args"] = {}
+    processAnswer_args_dict["args"]["query_uid"] = query_uid
+    processAnswer_args_dict["args"]['target_winner'] = index_winner
+    processAnswer_args_dict["args"]['response_time'] = response_time
 
-    url = 'http://'+HOSTNAME+'/api/experiment/reportAnswer'
-    print "POST reportAnswer args = ", reportAnswer_args_dict
-    response,dt = timeit(requests.post)(url, json.dumps(reportAnswer_args_dict), headers={'content-type':'application/json'})
-    print "POST reportAnswer response", response.text, response.status_code
+    url = 'http://'+HOSTNAME+'/api/experiment/processAnswer'
+    print "POST processAnswer args = ", processAnswer_args_dict
+    response,dt = timeit(requests.post)(url, json.dumps(processAnswer_args_dict), headers={'content-type':'application/json'})
+    print "POST processAnswer response", response.text, response.status_code
     if assert_200: assert response.status_code is 200
-    print "POST reportAnswer duration = ", dt
-    reportAnswer_times.append(dt)
+    print "POST processAnswer duration = ", dt
+    processAnswer_times.append(dt)
     print
-    reportAnswer_json_response = eval(response.text)
+    processAnswer_json_response = eval(response.text)
 
-  reportAnswer_times.sort()
+  processAnswer_times.sort()
   getQuery_times.sort()
-  return_str = '%s \n\t getQuery\t : %f (5),    %f (50),    %f (95)\n\t reportAnswer\t : %f (5),    %f (50),    %f (95)\n' % (participant_uid,getQuery_times[int(.05*total_pulls)],getQuery_times[int(.50*total_pulls)],getQuery_times[int(.95*total_pulls)],reportAnswer_times[int(.05*total_pulls)],reportAnswer_times[int(.50*total_pulls)],reportAnswer_times[int(.95*total_pulls)])
+  return_str = '%s \n\t getQuery\t : %f (5),    %f (50),    %f (95)\n\t processAnswer\t : %f (5),    %f (50),    %f (95)\n' % (participant_uid,getQuery_times[int(.05*total_pulls)],getQuery_times[int(.50*total_pulls)],getQuery_times[int(.95*total_pulls)],processAnswer_times[int(.05*total_pulls)],processAnswer_times[int(.50*total_pulls)],processAnswer_times[int(.95*total_pulls)])
   return return_str
 
 

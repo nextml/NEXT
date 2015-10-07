@@ -67,7 +67,7 @@ class RandomSampling(TupleBanditsPureExplorationPrototype):
 
     return targets
 
-  def reportAnswer(self,resource,targets,index_winner=0):
+  def processAnswer(self,resource,targets,index_winner=0):
     """
     reporting back the reward of pulling the arm suggested by getQuery
 

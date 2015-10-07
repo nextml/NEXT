@@ -349,7 +349,7 @@ class PoolBasedTripletMDS(AppPrototype):
               (str) label : in {'left','right','center'} 
               (int) flag : integer for algorithm's use
             }
-      (str) query_uid : unique identifier of query (used to look up for reportAnswer)
+      (str) query_uid : unique identifier of query (used to look up for processAnswer)
       
 
     Usage: 
@@ -466,7 +466,7 @@ class PoolBasedTripletMDS(AppPrototype):
       ell.log( app_id+':APP-EXCEPTION', log_entry  )
       return '{}',False,error
 
-  def reportAnswer(self,exp_uid,args_json,db,ell):
+  def processAnswer(self,exp_uid,args_json,db,ell):
     """
     reporting back the reward of pulling the arm suggested by getQuery
 
@@ -481,26 +481,26 @@ class PoolBasedTripletMDS(AppPrototype):
         return (JSON) '{}', (bool) True,''
 
     Usage:
-      reportAnswer_args_json,didSucceed,message = app.reportAnswer(db_API,exp_uid,reportAnswer_args_json)
+      processAnswer_args_json,didSucceed,message = app.processAnswer(db_API,exp_uid,processAnswer_args_json)
 
     Example input:
-      reportAnswer_args_json = {"query_uid": "a061ce00742603afc540d23e08ab77b3", "index_winner": 15}
+      processAnswer_args_json = {"query_uid": "a061ce00742603afc540d23e08ab77b3", "index_winner": 15}
 
     Example output:
-      reportAnswer_response_json = {}
+      processAnswer_response_json = {}
     """
 
     try:
       app_id = self.app_id
 
-      log_entry = { 'exp_uid':exp_uid,'task':'reportAnswer','json':args_json,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'processAnswer','json':args_json,'timestamp':utils.datetimeNow() } 
       ell.log( app_id+':APP-CALL', log_entry  )
 
       # convert args_json to args_dict
       try:
         args_dict = json.loads(args_json)
       except:
-        error = "%s.reportAnswer input args_json is in improper format" % self.app_id
+        error = "%s.processAnswer input args_json is in improper format" % self.app_id
         return '{}',False,error
 
       # check for the fields that must be contained in args or error occurs
@@ -509,7 +509,7 @@ class PoolBasedTripletMDS(AppPrototype):
         try:
           args_dict[field]
         except KeyError:
-          error = "%s.reportAnswer input arguments missing field: %s" % (self.app_id,str(field)) 
+          error = "%s.processAnswer input arguments missing field: %s" % (self.app_id,str(field)) 
           return '{}',False,error
 
       # get list of algorithms associated with project
@@ -563,10 +563,10 @@ class PoolBasedTripletMDS(AppPrototype):
         q = [index_right,index_left,index_center]
       db.set(app_id+':queries',query_uid,'q',q)
 
-      # call reportAnswer
-      didSucceed,dt = utils.timeit(alg.reportAnswer)(resource=rc,index_center=index_center,index_left=index_left,index_right=index_right,index_winner=index_winner)
+      # call processAnswer
+      didSucceed,dt = utils.timeit(alg.processAnswer)(resource=rc,index_center=index_center,index_left=index_left,index_right=index_right,index_winner=index_winner)
 
-      log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'reportAnswer','duration':dt } 
+      log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'processAnswer','duration':dt } 
       log_entry_durations.update( rc.getDurations() )
       meta = {'log_entry_durations':log_entry_durations}
 
@@ -587,13 +587,13 @@ class PoolBasedTripletMDS(AppPrototype):
       args_out = {'args':response_args_dict,'meta':meta}
       response_json = json.dumps(args_out)
 
-      log_entry = { 'exp_uid':exp_uid,'task':'reportAnswer','json':response_json,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'processAnswer','json':response_json,'timestamp':utils.datetimeNow() } 
       ell.log( app_id+':APP-RESPONSE', log_entry  )
 
       return response_json,True,""
     except Exception, err:
       error = traceback.format_exc()
-      log_entry = { 'exp_uid':exp_uid,'task':'reportAnswer','error':error,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'processAnswer','error':error,'timestamp':utils.datetimeNow() } 
       ell.log( app_id+':APP-EXCEPTION', log_entry  )
       return '{}',False,error
 
@@ -793,8 +793,8 @@ class PoolBasedTripletMDS(AppPrototype):
         stats = activity_stats
 
       # input None
-      elif stat_id == "api_reportAnswer_activity_stacked_histogram":
-        activity_stats = dashboard.api_reportAnswer_activity_stacked_histogram(self.app_id,exp_uid)
+      elif stat_id == "api_processAnswer_activity_stacked_histogram":
+        activity_stats = dashboard.api_processAnswer_activity_stacked_histogram(self.app_id,exp_uid)
         stats = activity_stats
 
       # input task

@@ -1387,19 +1387,28 @@ var buttonsChart = [["#A9A9C6"]];
          }
          */
         d3TripletPlot = function(data) {
-            console.log("in plot", data)
+            console.log("in plot", data);
 
             if (data.length == 0){
-                $('#'+div_id).html("<h3>No data available to be plotted.<h3>")
+                $('#'+div_id).html("<h3>No data available to be plotted.<h3>");
             }
 
-            image_data = []
-            text_data = []
+            image_data = [];
+            text_data = [];
+	    console.log("targets");
             for(i=0; i < data.length; i++){
                 if(data[i].target.primary_type=="image" || data[i].target.primary_type=="img"){
-                    image_data.push(data[i])
+                    image_data.push(data[i]);
                 } else if(data[i].target.primary_type=="text") {
-                    text_data.push(data[i])
+                    text_data.push(data[i]);
+                } else if(data[i].target.primary_type=="video") {
+		    console.log(data[i].target)
+		    data[i].target.primary_description = data[i].target.alt_description;
+		    if(data[i].target.alt_type=="image"){
+			image_data.push(data[i]);
+		    } else {
+			text_data.push(data[i]);
+		    }
                 }
             }
 
@@ -1488,7 +1497,7 @@ var buttonsChart = [["#A9A9C6"]];
                 .on("mousedown", inspect_target );
 
 
-            var texts = svg.selectAll("text").data(text_data);
+             var texts = svg.selectAll("text").data(text_data);
             texts.enter()
                 .append("svg:text")
                 .attr("text", function(d) { return d.target.primary_description })

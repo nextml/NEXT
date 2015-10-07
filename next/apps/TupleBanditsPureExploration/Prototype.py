@@ -49,13 +49,13 @@ class TupleBanditsPureExplorationPrototype(object):
 
     Expected output (in json structure with string keys):
       (list) target_indices : list of k target indexes e.g. [ (int) target_index_1, ... , (int) target_index_k ]
-      (str) query_uid : unique identifier of query (used to look up for reportAnswer)
+      (str) query_uid : unique identifier of query (used to look up for processAnswer)
 
     """
     return NotImplementedError
 
   
-  def reportAnswer(self,exp_uid,args_json):
+  def processAnswer(self,exp_uid,args_json):
     """
     reporting back the reward of pulling the arm suggested by getQuery
 
