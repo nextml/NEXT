@@ -112,7 +112,6 @@
           // Hide the address bar!
           window.scrollTo(0, 1);
         }, 0);
-        $('#directions').modal({backdrop:'static'});
       });
     </script>
 
@@ -131,9 +130,31 @@
       </div>
     </div>
 
-    <!-- instructions at top -->
+    <!-- instructions Modal -->
+    <div class="modal fade" id="directions" tabindex="-1" role="dialog" aria-labelledby="directions" aria-hidden="true" data-keyboard="false">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title" id="modal-title">Instructions</h1>
+          </div>
+          <div class="modal-body">
+              <p>
+              <center><p id="directions_text"></p></center>
+              </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="">Dismiss</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- instructions in new popup -->
     <div id="top_instructions">
-      <center><h4 id="directions_text"></h4></center>
+        <center>
+        <input id="clickMe" type="button" value="Directions"
+                onclick="load_instructions();" />
+        </center>
     </div>
 
     <!-- widget wrapper -->
@@ -197,10 +218,12 @@
             $('#debrief').modal('show');
           }
       }
+    var load_instructions = function(){
+        $('#directions').modal({backdrop:'static'});
+    }
 
       next_widget.getInfo(info_args, callbacks);
       next_widget.getQuery(div_id, args, callbacks);
-
     </script>
   </body>
 </html>
