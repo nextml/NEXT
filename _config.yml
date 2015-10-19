@@ -5,6 +5,7 @@ description: > # this means to ignore newlines until "baseurl:"
   NEXT is a machine learning system that runs in the cloud and makes it easy to develop, evaluate, and apply active learning in the real-world. Ask better questions. Get better results. Faster. Automated.
 baseurl: "" # the subpath of your site, e.g. /blog/
 url: "http://nextml.org" # the base hostname & protocol for your site
+github: "https://github.com/nextml/next/"
 
 
 # Build settings
@@ -18,4 +19,4 @@ defaults:
       type: posts   # limit to posts
     values:
       is_post: true # automatically set is_post=true for all posts
-      
+
