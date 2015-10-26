@@ -83,8 +83,15 @@ def experiment_dashboard(exp_uid, app_id, exp_key):
     alg_list = [{'alg_label':alg['alg_label'],
                  'alg_label_clean':'_'.join(alg['alg_label'].split())}
                 for alg in alg_label_list]
-    host_url = 'http://{}:{}'.format(constants.NEXT_BACKEND_GLOBAL_HOST,
-                                     constants.NEXT_BACKEND_GLOBAL_PORT)
+
+    if (constants.NEXT_BACKEND_GLOBAL_HOST and
+        constants.NEXT_BACKEND_GLOBAL_PORT):        
+        host_url = 'http://{}:{}'.format(constants.NEXT_BACKEND_GLOBAL_HOST,
+                                         constants.NEXT_BACKEND_GLOBAL_PORT)
+    else:
+        host_url = ''
+    print 'host_url', host_url
+    print constants.NEXT_BACKEND_GLOBAL_HOST, constants.NEXT_BACKEND_GLOBAL_PORT 
     env = Environment(loader=ChoiceLoader([PackageLoader('next.apps.{}'.format(app_id),
                                                          'dashboard'),
                                            PackageLoader('next.dashboard',
