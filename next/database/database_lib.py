@@ -11,7 +11,7 @@ def make_mongodump(name):
                      '--out dump/mongo_dump').format(hostname=constants.MONGODB_HOST,
                                                       port=constants.MONGODB_PORT),
                     shell=True)
-    subprocess.call(('tar czf {path}/{name} '
+    subprocess.call(('tar czf {path}/{name}.tar.gz '
                      'dump/mongo_dump').format(path='dump',
                                                 name=name),
                     shell=True)
