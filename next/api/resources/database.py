@@ -61,7 +61,7 @@ class DatabaseBackup(Resource):
         :statuscode 200: Database backup successfully returned
         :statuscode 400: database backup failed to be generated
     	""" 
-        name = str(next.utils.datetimeNow())
+        name = str(next.utils.datetimeNow().strftime("%Y-%m-%d_%H:%M:%S"))
         location = make_mongodump(name)
         
         f = file(location)
