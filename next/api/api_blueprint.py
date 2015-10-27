@@ -45,3 +45,6 @@ api_interface.add_resource(Widgets,'/widgets/getwidget')
 
 from next.api.resources.widgets import WidgetKeys
 api_interface.add_resource(WidgetKeys,'/widgets/temp-widget-keys')
+
+from next.api.resources.database import DabaseBackup
+api_interface.add_resource(DatabaseBackup,'/databasebackup')
