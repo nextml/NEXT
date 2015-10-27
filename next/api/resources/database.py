@@ -12,9 +12,9 @@ curl -X GET http://localhost:8001/api/experiment/[exp_uid]/[exp_key]/logs
 import json
 import time
 
-from flask import Flask
+from flask import Flask, Response
 from flask.ext import restful
-from flask.ext.restful import Resource, reqparse, Response
+from flask.ext.restful import Resource, reqparse
 
 import next.utils
 import next.broker.broker
