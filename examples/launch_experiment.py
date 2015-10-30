@@ -55,8 +55,7 @@ def generate_target_blob(AWS_BUCKET_NAME,
     is_primary_zip = ((type(primary_file) is str and primary_file.endswith('.zip'))
                       or (zipfile.is_zipfile(primary_file)))
     
-    if is_primary_zip:
-        
+    if is_primary_zip:        
         target_file_dict, target_name_dict = zipfile_to_dictionary(primary_file)
         if alt_type != 'text':
             assert alt_file != None, 'Need an alt_file.'
@@ -161,7 +160,7 @@ def zipfile_to_dictionary(filename):
     names_dictionary = {}
     for i in files_list:
         if re.search(r"\.(jpe?g|png|gif|bmp|mp4|mp3)",
-                     i, re.IGNORECASE):
+                     i, re.IGNORECASE) and not i.startswith('__MACOSX'):
             f = zf.read(i)
             name = os.path.basename(i).split('.')[0]
             dictionary[name] = f
