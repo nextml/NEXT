@@ -2,7 +2,7 @@
 <!-- Center Target -->
 <div class="target" id="center">
   {% if query.center.primary_type == "image" or query.center.primary_type == "img" %}
-  <img class="image" src={{ query.center.primary_description }}> </img>
+  <img class="image img-responsive center-block" src={{ query.center.primary_description }} style="max-height:100%"> </img>
 
   {% elif query.center.primary_type == "text" %}    
   <div class="table-box">
@@ -32,7 +32,7 @@
     <!-- Left Target -->
     <div class="target" id="left" onclick="next_widget.processAnswer(&quot;{{ query.left.target_id }}&quot;); $('#left').css({'border': '2px solid #FF0000'});">
       {% if query.left.primary_type == "image" or query.left.primary_type == "img"%}
-      	<img class="image" src={{ query.left.primary_description }}> </img>
+      	<img class="image img-responsive center-block" src={{ query.left.primary_description }} style="max-height:100%"> </img>
       {% elif query.left.primary_type == "text"%}  	
     	  <div class="table-box">
           <div class="text">{{ query.left.primary_description }}</div>
@@ -48,7 +48,7 @@
     <!-- Right Target -->
     <div class="target" id="right" onclick="next_widget.processAnswer(&quot;{{ query.right.target_id }}&quot;); $('#right').css({'border': '2px solid #FF0000'});">
       {% if query.right.primary_type == "image" or query.right.primary_type == "img" %}
-    		<img class="image" src={{ query.right.primary_description }}> </img>
+      <img class="image" src={{ query.right.primary_description }} style="max-height:100%"> </img>
     	{% elif query.right.primary_type == "text" %}		
         <div class="table-box">
     		  <div class="text">{{ query.right.primary_description }}</div>
