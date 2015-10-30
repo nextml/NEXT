@@ -10,6 +10,15 @@
   <h1 id="header" class="page-header">Experiment Dashboard: {{ exp_uid }}</h1>
 </div>
 
+<div class="col-lg-8 col-lg-offset-2">
+  <p> <b> app_id: </b> {{ app_id }} <br>
+      <b> exp_id: </b> {{ exp_uid }} <br>
+      <b> Start date: </b> {{ exp_start_data }} <br>
+      <b> Last activity: </b> {{ last_activity }} <br>
+      <b> Number of participants: </b> {{ num_participants }} <br>
+      <b> Number of answers: </b> {{ num_queries }} <br> </p>
+</div>
+
     <!--###################### api_activity_histogram #######################-->
     <div class="row row-spacing">
       <div class="col-sm-3">
