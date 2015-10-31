@@ -15,6 +15,8 @@ from datetime import datetime
 from datetime import timedelta
 from next.utils import utils
 
+MAX_SAMPLES_PER_PLOT = 100
+
 class AppDashboard(object):
 
   def __init__(self,db,ell):
@@ -92,7 +94,11 @@ class AppDashboard(object):
     list_of_log_dict,didSucceed,message = self.ell.get_logs_with_filter(app_id+':APP-CALL',{'exp_uid':exp_uid,'task':task})
 
     t = []
-    for item in list_of_log_dict:
+    num_items = len(list_of_log_dict)
+    multiplier = min(num_items,MAX_SAMPLES_PER_PLOT)
+    for k in range(multiplier):
+      idx = k*num_items/multiplier
+      item = list_of_log_dict[idx]
       t.append(str(item['timestamp'])[:-3])
 
     data = {}
@@ -155,8 +161,19 @@ class AppDashboard(object):
         k+=1
         x.append(k)
         y.append( item.get('app_duration',0.) + item.get('duration_enqueued',0.) )
-
         t.append(str(item['timestamp'])[:-3])
+      
+      x = numpy.array(x)
+      y = numpy.array(y)
+      t = numpy.array(t)
+      num_items = len(list_of_log_dict)
+      multiplier = min(num_items,MAX_SAMPLES_PER_PLOT)
+      incr_inds = [ k*num_items/multiplier for k in range(multiplier)]
+      max_inds = list(numpy.argsort(y)[0:multiplier])
+      final_inds = sorted(set(incr_inds + max_inds))
+      x = list(x[final_inds])
+      y = list(y[final_inds])
+      t = list(t[final_inds])
 
 
       alg_dict = {}
@@ -221,6 +238,18 @@ class AppDashboard(object):
     list_of_log_dict,didSucceed,message = self.ell.get_logs_with_filter(app_id+':ALG-DURATION',{'alg_uid':alg_uid,'task':task})
     list_of_log_dict = sorted(list_of_log_dict, key=lambda item: utils.str2datetime(item['timestamp']) )
 
+
+    y = []
+    for item in list_of_log_dict:
+      y.append( item.get('app_duration',0.) + item.get('duration_enqueued',0.) )
+    y = numpy.array(y)
+    num_items = len(list_of_log_dict)
+    multiplier = min(num_items,MAX_SAMPLES_PER_PLOT)
+    incr_inds = [ k*num_items/multiplier for k in range(multiplier)]
+    max_inds = list(numpy.argsort(y)[0:multiplier])
+    final_inds = sorted(set(incr_inds + max_inds))
+
+
     x = []
     t = []
     enqueued = []
@@ -232,10 +261,9 @@ class AppDashboard(object):
 
     max_y_value = 0.
     min_y_value = float('inf')
-    k = 0
-    for item in list_of_log_dict:
-      k += 1
-      x.append(k)
+    for idx in final_inds:
+      item = list_of_log_dict[idx]
+      x.append(idx+1)
       t.append(str(item.get('timestamp','')))
 
       _alg_duration = item.get('duration',0.)
@@ -328,8 +356,13 @@ class AppDashboard(object):
 
     list_of_query_dict,didSucceed,message = self.db.get_docs_with_filter(app_id+':queries',{'exp_uid':exp_uid,'alg_uid':alg_uid})
 
+
     t = []
-    for item in list_of_query_dict:
+    num_items = len(list_of_query_dict)
+    multiplier = min(num_items,MAX_SAMPLES_PER_PLOT)
+    for k in range(multiplier):
+      idx = k*num_items/multiplier
+      item = list_of_query_dict[idx]
       try:
         t.append(item['response_time'])
       except:
@@ -372,7 +405,11 @@ class AppDashboard(object):
     list_of_query_dict,didSucceed,message = self.db.get_docs_with_filter(app_id+':queries',{'exp_uid':exp_uid,'alg_uid':alg_uid})
 
     t = []
-    for item in list_of_query_dict:
+    num_items = len(list_of_query_dict)
+    multiplier = min(num_items,MAX_SAMPLES_PER_PLOT)
+    for k in range(multiplier):
+      idx = k*num_items/multiplier
+      item = list_of_query_dict[idx]
       try:
         t.append(item['network_delay'])
       except:

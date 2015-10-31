@@ -753,16 +753,13 @@ def rsync_docker_config(opts, master_nodes, slave_nodes):
             dest.close()
 
 
-    num_sync_workers = 6  # should be abotu the number of active algorithms
-    unicorn_multiplier = .15
     docker_compose_template_vars = {
-        "DATABASE_NUM_GUNICORN_WORKERS":int(unicorn_multiplier*master_num_cpus+1),
-        "CELERY_SYNC_WORKER_COUNT": num_sync_workers,
+        "CELERY_SYNC_WORKER_COUNT": 6,
         "CELERY_ASYNC_WORKER_COUNT":2,
         "CELERY_THREADS_PER_ASYNC_WORKER":max(1,int(.35*master_num_cpus)),
-        "NEXT_BACKEND_NUM_GUNICORN_WORKERS":int(unicorn_multiplier*master_num_cpus+1),
+        "NEXT_BACKEND_NUM_GUNICORN_WORKERS":int(.9*master_num_cpus+1),
         "NEXT_BACKEND_GLOBAL_PORT":NEXT_BACKEND_GLOBAL_PORT,
-        "NEXT_FRONTEND_NUM_GUNICORN_WORKERS":int(unicorn_multiplier*master_num_cpus+1),
+        "NEXT_FRONTEND_NUM_GUNICORN_WORKERS":int(.9*master_num_cpus+1),
         "NEXT_FRONTEND_GLOBAL_PORT":NEXT_FRONTEND_GLOBAL_PORT
     }
     with open('./templates/docker-compose.yml') as src:
