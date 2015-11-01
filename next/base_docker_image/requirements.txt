@@ -7,3 +7,4 @@ redis
 celery
 boto
 greenlet
+mpld3

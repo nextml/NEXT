@@ -111,9 +111,11 @@ def experiment_dashboard(exp_uid, app_id, exp_key):
                                                          'dashboard'),
                                            PackageLoader('next.dashboard',
                                                          'templates')]))
-    template = env.get_template('{}.html'.format(app_id)) 
+    # template = env.get_template('{}.html'.format(app_id)) 
+    template = env.get_template('basic.html') 
     return template.render(app_id=app_id,
                            exp_uid=exp_uid,
+                           exp_key=exp_key,
                            alg_list=alg_list,
                            host_url=host_url,
                            perm_key=perm_key,

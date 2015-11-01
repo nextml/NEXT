@@ -15,6 +15,9 @@ from datetime import datetime
 from datetime import timedelta
 from next.utils import utils
 
+import matplotlib
+matplotlib.use('Agg')
+
 MAX_SAMPLES_PER_PLOT = 100
 
 class AppDashboard(object):
@@ -93,25 +96,47 @@ class AppDashboard(object):
 
     list_of_log_dict,didSucceed,message = self.ell.get_logs_with_filter(app_id+':APP-CALL',{'exp_uid':exp_uid,'task':task})
 
-    t = []
-    num_items = len(list_of_log_dict)
-    multiplier = min(num_items,MAX_SAMPLES_PER_PLOT)
-    for k in range(multiplier):
-      idx = k*num_items/multiplier
-      item = list_of_log_dict[idx]
-      t.append(str(item['timestamp'])[:-3])
+    # t = []
+    # num_items = len(list_of_log_dict)
+    # multiplier = min(num_items,MAX_SAMPLES_PER_PLOT)
+    # for k in range(multiplier):
+    #   idx = k*num_items/multiplier
+    #   item = list_of_log_dict[idx]
+    #   t.append(str(item['timestamp'])[:-3])
 
-    data = {}
-    data['legend_label'] = 'API Calls to '+task
-    data['t'] = t
+    # data = {}
+    # data['legend_label'] = 'API Calls to '+task
+    # data['t'] = t
 
-    return_dict = {}
-    return_dict['data'] = data
-    return_dict['plot_type'] = 'histogram'
-    return_dict['x_label'] = 'Date'
-    return_dict['y_label'] = 'Count'
+    # return_dict = {}
+    # return_dict['data'] = data
+    # return_dict['plot_type'] = 'histogram'
+    # return_dict['x_label'] = 'Date'
+    # return_dict['y_label'] = 'Count'
+
+
+    from datetime import datetime
+    from datetime import timedelta
+    numerical_timestamps = [ ( utils.str2datetime(item['timestamp'])-datetime(1970,1,1)).total_seconds() for item in list_of_log_dict]
+
+    import matplotlib.pyplot as plt
+    import mpld3
+    fig, ax = plt.subplots(subplot_kw=dict(axisbg='#FFFFFF'))
+    ax.hist(numerical_timestamps,int(1+4*numpy.sqrt(len(numerical_timestamps))),alpha=0.5,color='black')
+    ax.set_axis_off()
+    # ax.set_xlabel('API Call')
+    # ax.set_ylabel('Duration (s)')
+    #ax.set_xlim([x_min,x_max])
+    #ax.set_ylim([y_min,y_max])
+    #ax.grid(color='white', linestyle='solid')
+    # ax.set_title(task, size=14)
+    # labels = ['point {0}'.format(i + 1) for i in range(N)]
+    # tooltip = mpld3.plugins.PointLabelTooltip(scatter, labels=labels)
+    # mpld3.plugins.connect(fig, tooltip)
+    plot_dict = mpld3.fig_to_dict(fig)
+
     
-    return return_dict
+    return plot_dict
 
 
 
@@ -200,8 +225,29 @@ class AppDashboard(object):
     return_dict['y_label'] = 'Duration (s)'
     return_dict['y_min'] = y_min
     return_dict['y_max'] = y_max
-    
-    return return_dict
+
+
+    import matplotlib.pyplot as plt
+    import mpld3
+    fig, ax = plt.subplots(subplot_kw=dict(axisbg='#EEEEEE'))
+    for alg_dict in list_of_alg_dicts:
+        ax.plot(alg_dict['x'],alg_dict['y'],label=alg_dict['legend_label'])
+    ax.set_xlabel('API Call')
+    ax.set_ylabel('Duration (s)')
+    ax.set_xlim([x_min,x_max])
+    ax.set_ylim([y_min,y_max])
+    ax.grid(color='white', linestyle='solid')
+    ax.set_title(task, size=14)
+    legend = ax.legend(loc=2,ncol=3,mode="expand")
+    for label in legend.get_texts():
+      label.set_fontsize('small')
+    # labels = ['point {0}'.format(i + 1) for i in range(N)]
+    # tooltip = mpld3.plugins.PointLabelTooltip(scatter, labels=labels)
+    # mpld3.plugins.connect(fig, tooltip)
+    plot_dict = mpld3.fig_to_dict(fig)
+
+
+    return plot_dict
 
 
   def compute_duration_detailed_stacked_area_plot(self,app_id,exp_uid,task,alg_label,detailedDB=False):
@@ -328,9 +374,32 @@ class AppDashboard(object):
       return_dict['y_min'] = 0.
       return_dict['y_max'] = 0.
     return_dict['y_label'] = 'Duration (s)'
+
+
+    import matplotlib.pyplot as plt
+    import mpld3
+    fig, ax = plt.subplots(subplot_kw=dict(axisbg='#EEEEEE'))
+    # stack_coll = ax.stackplot(x,list(numpy.zeros(len(compute))),compute,dbGet,dbSet,admin,enqueued, alpha=.5)
+    stack_coll = ax.stackplot(x,compute,dbGet,dbSet,admin,enqueued, alpha=.5)
+    ax.set_xlabel('API Call')
+    ax.set_ylabel('Duration (s)')
+    ax.set_xlim([return_dict['x_min'],return_dict['x_max']])
+    ax.set_ylim([0.,return_dict['y_max']])
+    ax.grid(color='white', linestyle='solid')
+    ax.set_title(alg_label+' - '+task, size=14)
+    # make proxy artists
+    proxy_rects = [plt.Rectangle((0, 0), 1, 1, alpha=.5,fc=pc.get_facecolor()[0]) for pc in stack_coll]
+    # make the legend
+    legend = ax.legend(proxy_rects, ['compute','dbGet','dbSet','admin','enqueued'],loc=2,ncol=3,mode="expand")
+    for label in legend.get_texts():
+      label.set_fontsize('small')
+    # labels = ['point {0}'.format(i + 1) for i in range(N)]
+    # tooltip = mpld3.plugins.PointLabelTooltip(scatter, labels=labels)
+    # mpld3.plugins.connect(fig, tooltip)
+    plot_dict = mpld3.fig_to_dict(fig)
     
 
-    return return_dict
+    return plot_dict
 
 
   def response_time_histogram(self,app_id,exp_uid,alg_label):

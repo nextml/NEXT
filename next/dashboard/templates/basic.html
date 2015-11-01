@@ -1,0 +1,284 @@
+{% extends "outline.html" %}
+
+{% block title %} Experiment Dashboard {% endblock %}
+
+{% block sidebar %}{% endblock %}
+
+{% block body %}
+
+
+<div class="container-fluid" style ='background-color: #FFFFFF; padding-bottom: 1cm; text-align: center'>
+    <h2 id="header">Experiment Dashboard: {{ exp_uid }}</h2>
+
+    <div class="col-lg-10 col-lg-offset-1" style"display: inline-block">
+        <div id = "api_activity_histogram_processAnswer"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    plot_response = function(data) {
+        console.log(data)
+        data.json['width'] = 1000
+        data.json['height'] = 100
+        mpld3.draw_figure("api_activity_histogram_processAnswer", data.json);
+    }
+      
+    data = next_widget.getWidget(
+    {
+    'app_id': "{{ app_id }}",
+    'exp_uid': "{{ exp_uid }}",
+    'name': 'getStats',
+    'widget_key': "{{ perm_key }}",
+    'args':{
+    'stat_id' : 'api_activity_histogram',
+    'params'  : {'task':'processAnswer'}
+    }
+    },
+    plot_response
+    );
+</script>
+
+<div class="container-fluid" style ='padding-bottom: 1cm'>   
+    <div class="col-lg-10 col-lg-offset-1">
+        <div class="row">
+            <h2> Experiment info </h2> 
+        </div>
+        <div class="row">
+            <p> 
+            <b> app_id: </b> {{ app_id }} <br>
+            <b> exp_id: </b> {{ exp_uid }} <br>
+            <b> exp_key: </b> {{ exp_key }} <br>
+            <b> Start date: </b> {{ exp_start_data }} <br>
+            <b> Last activity: </b> {{ last_activity }} <br>
+            <b> Number of participants: </b> {{ num_participants }} <br>
+            <b> Number of answers: </b> {{ num_queries }} <br> 
+            <b> Backend Exceptions: </b> {{ host_url }}/api/experiment/{{ exp_uid }}/{{ exp_key }}/logs/APP-EXCEPTION
+            </p>
+        </div>
+    </div>
+</div>
+
+<!--################## compute_duration_multiline_plot #################### -->
+<div class="container-fluid" style ='background-color: #FFFFFF; padding-bottom: 1cm'>   
+    <div class="col-lg-10 col-lg-offset-1">
+        <div class="row">
+            <h2> Algorithm timing comparison </h2> 
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                <div id = "compute_duration_multiline_plot_getQuery"></div>
+            </div>
+            <div class="col-md-3">
+                <div id = "compute_duration_multiline_plot_processAnswer"></div>
+            </div>
+            <div class="col-md-3">
+                <div id = "compute_duration_multiline_plot_predict"></div>
+            </div>
+            <div class="col-md-3">
+                <div id = "compute_duration_multiline_plot_daemonProcess"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    plot_response = function(data) {
+        data.json['width'] = 250
+        data.json['height'] = 250
+        mpld3.draw_figure("compute_duration_multiline_plot_getQuery", data.json);
+    }
+
+    data = next_widget.getWidget(
+        {
+        "app_id": "{{ app_id }}",
+        "exp_uid": "{{ exp_uid }}",
+        'name': 'getStats',
+        'widget_key': "{{ perm_key }}",
+        "args":{
+        "stat_id" : "compute_duration_multiline_plot",
+        "params"  : {"task": "getQuery" } } 
+        },
+        plot_response
+        )
+
+    plot_response = function(data) {
+        data.json['width'] = 250
+        data.json['height'] = 250
+        mpld3.draw_figure("compute_duration_multiline_plot_processAnswer", data.json);
+    }
+
+    data = next_widget.getWidget(
+        {
+        "app_id": "{{ app_id }}",
+        "exp_uid": "{{ exp_uid }}",
+        'name': 'getStats',
+        'widget_key': "{{ perm_key }}",
+        "args":{
+        "stat_id" : "compute_duration_multiline_plot",
+        "params"  : {"task": "processAnswer" } } 
+        },
+        plot_response
+        )
+
+    plot_response = function(data) {
+        data.json['width'] = 250
+        data.json['height'] = 250
+        mpld3.draw_figure("compute_duration_multiline_plot_predict", data.json);
+    }
+
+    data = next_widget.getWidget(
+        {
+        "app_id": "{{ app_id }}",
+        "exp_uid": "{{ exp_uid }}",
+        'name': 'getStats',
+        'widget_key': "{{ perm_key }}",
+        "args":{
+        "stat_id" : "compute_duration_multiline_plot",
+        "params"  : {"task": "predict" } } 
+        },
+        plot_response
+        )
+
+    plot_response = function(data) {
+        data.json['width'] = 250
+        data.json['height'] = 250
+        mpld3.draw_figure("compute_duration_multiline_plot_daemonProcess", data.json);
+    }
+
+    data = next_widget.getWidget(
+        {
+        "app_id": "{{ app_id }}",
+        "exp_uid": "{{ exp_uid }}",
+        'name': 'getStats',
+        'widget_key': "{{ perm_key }}",
+        "args":{
+        "stat_id" : "compute_duration_multiline_plot",
+        "params"  : {"task": "daemonProcess" } } 
+        },
+        plot_response
+        )
+</script>
+
+
+
+<!--###################### compute_duration_detailed_stacked_atea_plots for each algorithm ###################-->
+
+<div class="container-fluid" style ='padding-bottom: 1cm'>   
+    <div class="col-lg-10 col-lg-offset-1">
+        <h2> Individual algorithm timing breakdown </h2>  
+    </div>
+    <div class="col-lg-10 col-lg-offset-1">
+        {% for alg in alg_list %} 
+        <div class="row">
+            <h3> {{ alg.alg_label_clean }} </h3> 
+        </div> 
+        <div class="row">
+            <div class="col-md-3">
+                <div id= "compute_duration_detailed_stacked_area_plot_getQuery_{{ alg.alg_label_clean }}"></div>
+            </div>
+            <div class="col-md-3">
+                <div id= "compute_duration_detailed_stacked_area_plot_processAnswer_{{ alg.alg_label_clean }}"></div>
+            </div>
+            <div class="col-md-3">
+                <div id= "compute_duration_detailed_stacked_area_plot_predict_{{ alg.alg_label_clean }}"></div>
+            </div>
+            <div class="col-md-3">
+                <div id= "compute_duration_detailed_stacked_area_plot_daemonProcess_{{ alg.alg_label_clean }}"></div>
+            </div>
+        </div>
+
+        <script>
+            plot_response = function(data) {
+                console.log(data.json)
+                data.json['width'] = 250
+                data.json['height'] = 250
+                mpld3.draw_figure("compute_duration_detailed_stacked_area_plot_getQuery_{{ alg.alg_label_clean }}", data.json);
+            }
+          
+            data = next_widget.getWidget(
+            {
+            'app_id': "{{ app_id }}",
+            'exp_uid': "{{ exp_uid }}",
+            'name': 'getStats',
+            'widget_key': "{{ perm_key }}",
+            'args':{
+            'stat_id' : 'compute_duration_detailed_stacked_area_plot',
+            'params'  : {'task':'getQuery', 'alg_label':'{{ alg.alg_label }}' }
+            }
+            },
+            plot_response
+            );
+
+
+            plot_response = function(data) {
+                data.json['width'] = 250
+                data.json['height'] = 250
+                mpld3.draw_figure("compute_duration_detailed_stacked_area_plot_processAnswer_{{ alg.alg_label_clean }}", data.json);
+            }  
+          
+            data = next_widget.getWidget(
+            {
+            'app_id': "{{ app_id }}",
+            'exp_uid': "{{ exp_uid }}",
+            'name': 'getStats',
+            'widget_key': "{{ perm_key }}",
+            'args':{
+            'stat_id' : 'compute_duration_detailed_stacked_area_plot',
+            'params'  : {'task':'processAnswer', 'alg_label':'{{ alg.alg_label }}' }
+            }
+            },
+            plot_response
+            );
+
+
+            plot_response = function(data) {
+                data.json['width'] = 250
+                data.json['height'] = 250
+                mpld3.draw_figure("compute_duration_detailed_stacked_area_plot_predict_{{ alg.alg_label_clean }}", data.json);
+            }  
+          
+          
+            data = next_widget.getWidget(
+            {
+            'app_id': "{{ app_id }}",
+            'exp_uid': "{{ exp_uid }}",
+            'name': 'getStats',
+            'widget_key': "{{ perm_key }}",
+            'args':{
+            'stat_id' : 'compute_duration_detailed_stacked_area_plot',
+            'params'  : {'task':'predict', 'alg_label':'{{ alg.alg_label }}' }
+            }
+            },
+            plot_response
+            );
+
+
+            plot_response = function(data) {
+                data.json['width'] = 250
+                data.json['height'] = 250
+                mpld3.draw_figure("compute_duration_detailed_stacked_area_plot_daemonProcess_{{ alg.alg_label_clean }}", data.json);
+            }  
+
+          
+            data = next_widget.getWidget(
+            {
+            'app_id': "{{ app_id }}",
+            'exp_uid': "{{ exp_uid }}",
+            'name': 'getStats',
+            'widget_key': "{{ perm_key }}",
+            'args':{
+            'stat_id' : 'compute_duration_detailed_stacked_area_plot',
+            'params'  : {'task':'daemonProcess', 'alg_label':'{{ alg.alg_label }}' }
+            }
+            },
+            plot_response
+            );
+          
+        </script>
+        {% endfor %}
+    </div>
+</div>
+
+
+
+{% endblock %} 
