@@ -17,7 +17,6 @@
 
 <script type="text/javascript">
     plot_response = function(data) {
-        console.log(data)
         data.json['width'] = 1000
         data.json['height'] = 100
         mpld3.draw_figure("api_activity_histogram_processAnswer", data.json);
@@ -52,7 +51,7 @@
             <b> Last activity: </b> {{ last_activity }} <br>
             <b> Number of participants: </b> {{ num_participants }} <br>
             <b> Number of answers: </b> {{ num_queries }} <br> 
-            <b> Backend Exceptions: </b> {{ host_url }}/api/experiment/{{ exp_uid }}/{{ exp_key }}/logs/APP-EXCEPTION
+            <b> Logs: </b> {{ host_url }}/api/experiment/{{ exp_uid }}/{{ exp_key }}/logs
             </p>
         </div>
     </div>
@@ -188,7 +187,6 @@
 
         <script>
             plot_response = function(data) {
-                console.log(data.json)
                 data.json['width'] = 250
                 data.json['height'] = 250
                 mpld3.draw_figure("compute_duration_detailed_stacked_area_plot_getQuery_{{ alg.alg_label_clean }}", data.json);
@@ -322,7 +320,6 @@
                 );
 
                 plot_response = function(data) {
-                    console.log(data)
                     data.json['width'] = 250
                     data.json['height'] = 250
                     mpld3.draw_figure("network_delay_histogram_{{ alg.alg_label_clean }}", data.json);

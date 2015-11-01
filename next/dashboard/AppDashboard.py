@@ -96,25 +96,6 @@ class AppDashboard(object):
 
     list_of_log_dict,didSucceed,message = self.ell.get_logs_with_filter(app_id+':APP-CALL',{'exp_uid':exp_uid,'task':task})
 
-    # t = []
-    # num_items = len(list_of_log_dict)
-    # multiplier = min(num_items,MAX_SAMPLES_PER_PLOT)
-    # for k in range(multiplier):
-    #   idx = k*num_items/multiplier
-    #   item = list_of_log_dict[idx]
-    #   t.append(str(item['timestamp'])[:-3])
-
-    # data = {}
-    # data['legend_label'] = 'API Calls to '+task
-    # data['t'] = t
-
-    # return_dict = {}
-    # return_dict['data'] = data
-    # return_dict['plot_type'] = 'histogram'
-    # return_dict['x_label'] = 'Date'
-    # return_dict['y_label'] = 'Count'
-
-
     from datetime import datetime
     from datetime import timedelta
     numerical_timestamps = [ ( utils.str2datetime(item['timestamp'])-datetime(1970,1,1)).total_seconds() for item in list_of_log_dict]
@@ -124,15 +105,6 @@ class AppDashboard(object):
     fig, ax = plt.subplots(subplot_kw=dict(axisbg='#FFFFFF'))
     ax.hist(numerical_timestamps,int(1+4*numpy.sqrt(len(numerical_timestamps))),alpha=0.5,color='black')
     ax.set_axis_off()
-    # ax.set_xlabel('API Call')
-    # ax.set_ylabel('Duration (s)')
-    #ax.set_xlim([x_min,x_max])
-    #ax.set_ylim([y_min,y_max])
-    #ax.grid(color='white', linestyle='solid')
-    # ax.set_title(task, size=14)
-    # labels = ['point {0}'.format(i + 1) for i in range(N)]
-    # tooltip = mpld3.plugins.PointLabelTooltip(scatter, labels=labels)
-    # mpld3.plugins.connect(fig, tooltip)
     plot_dict = mpld3.fig_to_dict(fig)
 
     
@@ -241,9 +213,6 @@ class AppDashboard(object):
     legend = ax.legend(loc=2,ncol=3,mode="expand")
     for label in legend.get_texts():
       label.set_fontsize('small')
-    # labels = ['point {0}'.format(i + 1) for i in range(N)]
-    # tooltip = mpld3.plugins.PointLabelTooltip(scatter, labels=labels)
-    # mpld3.plugins.connect(fig, tooltip)
     plot_dict = mpld3.fig_to_dict(fig)
 
 
@@ -379,7 +348,6 @@ class AppDashboard(object):
     import matplotlib.pyplot as plt
     import mpld3
     fig, ax = plt.subplots(subplot_kw=dict(axisbg='#EEEEEE'))
-    # stack_coll = ax.stackplot(x,list(numpy.zeros(len(compute))),compute,dbGet,dbSet,admin,enqueued, alpha=.5)
     stack_coll = ax.stackplot(x,compute,dbGet,dbSet,admin,enqueued, alpha=.5)
     ax.set_xlabel('API Call')
     ax.set_ylabel('Duration (s)')
@@ -387,15 +355,10 @@ class AppDashboard(object):
     ax.set_ylim([0.,return_dict['y_max']])
     ax.grid(color='white', linestyle='solid')
     ax.set_title(alg_label+' - '+task, size=14)
-    # make proxy artists
     proxy_rects = [plt.Rectangle((0, 0), 1, 1, alpha=.5,fc=pc.get_facecolor()[0]) for pc in stack_coll]
-    # make the legend
     legend = ax.legend(proxy_rects, ['compute','dbGet','dbSet','admin','enqueued'],loc=2,ncol=3,mode="expand")
     for label in legend.get_texts():
       label.set_fontsize('small')
-    # labels = ['point {0}'.format(i + 1) for i in range(N)]
-    # tooltip = mpld3.plugins.PointLabelTooltip(scatter, labels=labels)
-    # mpld3.plugins.connect(fig, tooltip)
     plot_dict = mpld3.fig_to_dict(fig)
     
 
