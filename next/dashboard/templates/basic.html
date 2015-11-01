@@ -162,7 +162,6 @@
 
 
 <!--###################### compute_duration_detailed_stacked_atea_plots for each algorithm ###################-->
-
 <div class="container-fluid" style ='padding-bottom: 1cm'>   
     <div class="col-lg-10 col-lg-offset-1">
         <h2> Individual algorithm timing breakdown </h2>  
@@ -275,6 +274,76 @@
             );
           
         </script>
+        {% endfor %}
+    </div>
+</div>
+
+
+
+<!--###################### network_delay_histogram #######################-->
+<div class="container-fluid" style ='padding-bottom: 1cm; background-color: #FFFFFF'>  
+    <div class="col-lg-10 col-lg-offset-1">
+        <h2> Client-side timing </h2>  
+    </div>
+    <div class="col-lg-10 col-lg-offset-1">
+        {% for alg in alg_list %} 
+        <div>
+            <div class="row">
+                <h3> {{ alg.alg_label_clean }} </h3> 
+            </div> 
+            <div class="row">
+                <div class="col-md-3">
+                    <div id = "response_time_histogram_{{ alg.alg_label_clean }}"></div>
+                </div>
+                <div class="col-md-3">
+                    <div id = "network_delay_histogram_{{ alg.alg_label_clean }}"></div>
+                </div>
+            </div>
+        
+            <script>
+                plot_response = function(data) {
+                    data.json['width'] = 250
+                    data.json['height'] = 250
+                    mpld3.draw_figure("response_time_histogram_{{ alg.alg_label_clean }}", data.json);
+                }
+                  
+                data = next_widget.getWidget(
+                {
+                'app_id': "{{ app_id }}",
+                'exp_uid': "{{ exp_uid }}",
+                'name': 'getStats',
+                'widget_key': "{{ perm_key }}",
+                'args':{
+                'stat_id' : 'response_time_histogram',
+                'params'  : {'alg_label':'{{ alg.alg_label }}'}
+                }
+                },
+                plot_response
+                );
+
+                plot_response = function(data) {
+                    console.log(data)
+                    data.json['width'] = 250
+                    data.json['height'] = 250
+                    mpld3.draw_figure("network_delay_histogram_{{ alg.alg_label_clean }}", data.json);
+                }
+
+                data = next_widget.getWidget(
+                {
+                'app_id': "{{ app_id }}",
+                'exp_uid': "{{ exp_uid }}",
+                'name': 'getStats',
+                'widget_key': "{{ perm_key }}",
+                'args':{
+                'stat_id' : 'network_delay_histogram',
+                'params'  : {'alg_label':'{{ alg.alg_label }}'}
+                }
+                },
+                plot_response
+                );
+              
+            </script>
+        </div>
         {% endfor %}
     </div>
 </div>
