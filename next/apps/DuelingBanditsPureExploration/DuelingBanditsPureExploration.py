@@ -22,7 +22,7 @@ from next.resource_client.ResourceClient import ResourceClient
 # import next.logging_client.LoggerHTTP as ell
 import next.utils as utils
 from next.apps.AppPrototype import AppPrototype
-from next.apps.DuelingBanditsPureExploration.Dashboard import DuelingBanditsPureExplorationDashboard
+from next.apps.DuelingBanditsPureExploration.dashboard.Dashboard import DuelingBanditsPureExplorationDashboard
 
 class DuelingBanditsPureExploration(AppPrototype):
 

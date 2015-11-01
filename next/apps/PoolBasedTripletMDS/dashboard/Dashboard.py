@@ -14,7 +14,7 @@ import numpy.random
 from datetime import datetime
 from datetime import timedelta
 from next.utils import utils
-from next.apps.AppDashboard import AppDashboard
+from next.dashboard.AppDashboard import AppDashboard
 
 # import next.database_client.DatabaseAPIHTTP as db
 # import next.logging_client.LoggerHTTP as ell

@@ -18,7 +18,7 @@ from next.utils import utils
 import matplotlib
 matplotlib.use('Agg')
 
-MAX_SAMPLES_PER_PLOT = 100
+MAX_SAMPLES_PER_PLOT = 200
 
 class AppDashboard(object):
 
@@ -192,7 +192,7 @@ class AppDashboard(object):
       y = numpy.array(y)
       t = numpy.array(t)
       num_items = len(list_of_log_dict)
-      multiplier = min(num_items,MAX_SAMPLES_PER_PLOT)
+      multiplier = min(num_items,MAX_SAMPLES_PER_PLOT/2)
       incr_inds = [ k*num_items/multiplier for k in range(multiplier)]
       max_inds = list(numpy.argsort(y)[0:multiplier])
       final_inds = sorted(set(incr_inds + max_inds))
@@ -290,7 +290,7 @@ class AppDashboard(object):
       y.append( item.get('app_duration',0.) + item.get('duration_enqueued',0.) )
     y = numpy.array(y)
     num_items = len(list_of_log_dict)
-    multiplier = min(num_items,MAX_SAMPLES_PER_PLOT)
+    multiplier = min(num_items,MAX_SAMPLES_PER_PLOT/2)
     incr_inds = [ k*num_items/multiplier for k in range(multiplier)]
     max_inds = list(numpy.argsort(y)[0:multiplier])
     final_inds = sorted(set(incr_inds + max_inds))
@@ -427,23 +427,28 @@ class AppDashboard(object):
 
 
     t = []
-    for item in list_of_query_dict:
+    num_items = len(list_of_query_dict)
+    multiplier = min(num_items,MAX_SAMPLES_PER_PLOT)
+    for k in range(multiplier):
+      idx = k*num_items/multiplier
+      item = list_of_query_dict[idx]
       try:
         t.append(item['response_time'])
       except:
         pass
 
-    import matplotlib.pyplot as plt
-    import mpld3
-    fig, ax = plt.subplots(subplot_kw=dict(axisbg='#FFFFFF'))
-    ax.hist(t,int(1+4*numpy.sqrt(len(t))),alpha=0.5,color='black')
-    ax.set_axis_off()
-    ax.set_xlabel('Durations (s)')
-    ax.set_ylabel('Count')
-    ax.set_title(alg_label+" - response time", size=14)
-    plot_dict = mpld3.fig_to_dict(fig)
 
-    return plot_dict
+    data = {}
+    data['legend_label'] = 'Response Time '
+    data['t'] = t
+
+    return_dict = {}
+    return_dict['data'] = data
+    return_dict['plot_type'] = 'histogram_real'
+    return_dict['x_label'] = 'Durations'
+    return_dict['y_label'] = 'Count'
+    
+    return return_dict
 
   def network_delay_histogram(self,app_id,exp_uid,alg_label):
     """

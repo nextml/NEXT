@@ -20,7 +20,7 @@ import traceback
 from next.resource_client.ResourceClient import ResourceClient
 import next.utils as utils
 from next.apps.AppPrototype import AppPrototype
-from next.apps.PoolBasedTripletMDS.Dashboard import PoolBasedTripletMDSDashboard
+from next.apps.PoolBasedTripletMDS.dashboard.Dashboard import PoolBasedTripletMDSDashboard
 
 class PoolBasedTripletMDS(AppPrototype):
 

@@ -20,7 +20,7 @@ import traceback
 from next.resource_client.ResourceClient import ResourceClient
 import next.utils as utils
 from next.apps.AppPrototype import AppPrototype
-from next.apps.TupleBanditsPureExploration.Dashboard import TupleBanditsPureExplorationDashboard
+from next.apps.TupleBanditsPureExploration.dashboard.Dashboard import TupleBanditsPureExplorationDashboard
 
 class TupleBanditsPureExploration(AppPrototype):
 

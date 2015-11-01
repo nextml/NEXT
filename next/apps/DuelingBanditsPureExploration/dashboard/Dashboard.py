@@ -1,10 +1,10 @@
 """
-TupleBanditsPureExplorationDashboard 
-author: Nick Glattard, n.glattard@gmail.com
-last updated: 4/24/2015
+StochasticBanditsPureExplorationDashboard 
+author: Kevin Jamieson, kevin.g.jamieson@gmail.com
+last updated: 1/4/2015
 
 ######################################
-TupleBanditsPureExplorationDashboard
+DuelingBanditsPureExplorationDashboard
 
 """
 
@@ -12,13 +12,15 @@ TupleBanditsPureExplorationDashboard
 import json
 import numpy
 import numpy.random
-import matplotlib.pyplot as plt
 from datetime import datetime
 from datetime import timedelta
 from next.utils import utils
-from next.apps.AppDashboard import AppDashboard
+# from next.database_client.DatabaseClientHTTP import DatabaseClient
+# import next.database_client.DatabaseAPIHTTP as db
+# import next.logging_client.LoggerHTTP as ell
+from next.dashboard.AppDashboard import AppDashboard
 
-class TupleBanditsPureExplorationDashboard(AppDashboard):
+class DuelingBanditsPureExplorationDashboard(AppDashboard):
 
     def __init__(self,db,ell):
         AppDashboard.__init__(self,db,ell)
@@ -70,8 +72,6 @@ class TupleBanditsPureExplorationDashboard(AppDashboard):
         
         list_of_log_dict,didSucceed,message = self.ell.get_logs_with_filter(app_id+':ALG-EVALUATION',{'alg_uid':alg_uid})
         list_of_log_dict = sorted(list_of_log_dict, key=lambda k: k['num_reported_answers'] )
-
-        print didSucceed, message
         
         item = list_of_log_dict[-1]
 
