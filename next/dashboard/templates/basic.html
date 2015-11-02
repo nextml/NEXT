@@ -166,113 +166,143 @@
         <h2> Individual algorithm timing breakdown </h2>  
     </div>
     <div class="col-lg-10 col-lg-offset-1">
-        {% for alg in alg_list %} 
-        <div class="row">
-            <h3> {{ alg.alg_label_clean }} </h3> 
-        </div> 
-        <div class="row">
-            <div class="col-md-3">
-                <div id= "compute_duration_detailed_stacked_area_plot_getQuery_{{ alg.alg_label_clean }}"></div>
-            </div>
-            <div class="col-md-3">
-                <div id= "compute_duration_detailed_stacked_area_plot_processAnswer_{{ alg.alg_label_clean }}"></div>
-            </div>
-            <div class="col-md-3">
-                <div id= "compute_duration_detailed_stacked_area_plot_predict_{{ alg.alg_label_clean }}"></div>
-            </div>
-            <div class="col-md-3">
-                <div id= "compute_duration_detailed_stacked_area_plot_daemonProcess_{{ alg.alg_label_clean }}"></div>
-            </div>
+
+        <ul class="nav nav-tabs" role="tablist">
+            {% for alg in alg_list %} 
+                {% if loop.first %}
+                    <li role="presentation" class="active"><a href="#compute_duration_detailed_{{ alg.alg_label_clean }}" aria-controls="compute_duration_detailed_{{ alg.alg_label_clean }}" role="tab" data-toggle="tab">{{ alg.alg_label_clean }}</a></li>
+                {% else %}
+                    <li role="presentation"><a href="#compute_duration_detailed_{{ alg.alg_label_clean }}" aria-controls="compute_duration_detailed_{{ alg.alg_label_clean }}" role="tab" data-toggle="tab">{{ alg.alg_label_clean }}</a></li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+
+        <div class="tab-content">
+            {% for alg in alg_list %} 
+                {% if loop.first %}
+                    <div role="tabpanel" class="tab-pane active" id="compute_duration_detailed_{{ alg.alg_label_clean }}">
+                        <div class="col-md-3">
+                            <div id= "compute_duration_detailed_stacked_area_plot_getQuery_{{ alg.alg_label_clean }}"></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div id= "compute_duration_detailed_stacked_area_plot_processAnswer_{{ alg.alg_label_clean }}"></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div id= "compute_duration_detailed_stacked_area_plot_predict_{{ alg.alg_label_clean }}"></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div id= "compute_duration_detailed_stacked_area_plot_daemonProcess_{{ alg.alg_label_clean }}"></div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div role="tabpanel" class="tab-pane" id="compute_duration_detailed_{{ alg.alg_label_clean }}">
+                        <div class="col-md-3">
+                            <div id= "compute_duration_detailed_stacked_area_plot_getQuery_{{ alg.alg_label_clean }}"></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div id= "compute_duration_detailed_stacked_area_plot_processAnswer_{{ alg.alg_label_clean }}"></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div id= "compute_duration_detailed_stacked_area_plot_predict_{{ alg.alg_label_clean }}"></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div id= "compute_duration_detailed_stacked_area_plot_daemonProcess_{{ alg.alg_label_clean }}"></div>
+                        </div>
+                    </div>
+                {% endif %}
+
+
+
+
+                <script>
+                    plot_response = function(data) {
+                        data.json['width'] = 250
+                        data.json['height'] = 250
+                        mpld3.draw_figure("compute_duration_detailed_stacked_area_plot_getQuery_{{ alg.alg_label_clean }}", data.json);
+                    }
+                  
+                    data = next_widget.getWidget(
+                    {
+                    'app_id': "{{ app_id }}",
+                    'exp_uid': "{{ exp_uid }}",
+                    'name': 'getStats',
+                    'widget_key': "{{ perm_key }}",
+                    'args':{
+                    'stat_id' : 'compute_duration_detailed_stacked_area_plot',
+                    'params'  : {'task':'getQuery', 'alg_label':'{{ alg.alg_label }}' }
+                    }
+                    },
+                    plot_response
+                    );
+
+
+                    plot_response = function(data) {
+                        data.json['width'] = 250
+                        data.json['height'] = 250
+                        mpld3.draw_figure("compute_duration_detailed_stacked_area_plot_processAnswer_{{ alg.alg_label_clean }}", data.json);
+                    }  
+                  
+                    data = next_widget.getWidget(
+                    {
+                    'app_id': "{{ app_id }}",
+                    'exp_uid': "{{ exp_uid }}",
+                    'name': 'getStats',
+                    'widget_key': "{{ perm_key }}",
+                    'args':{
+                    'stat_id' : 'compute_duration_detailed_stacked_area_plot',
+                    'params'  : {'task':'processAnswer', 'alg_label':'{{ alg.alg_label }}' }
+                    }
+                    },
+                    plot_response
+                    );
+
+
+                    plot_response = function(data) {
+                        data.json['width'] = 250
+                        data.json['height'] = 250
+                        mpld3.draw_figure("compute_duration_detailed_stacked_area_plot_predict_{{ alg.alg_label_clean }}", data.json);
+                    }  
+                  
+                  
+                    data = next_widget.getWidget(
+                    {
+                    'app_id': "{{ app_id }}",
+                    'exp_uid': "{{ exp_uid }}",
+                    'name': 'getStats',
+                    'widget_key': "{{ perm_key }}",
+                    'args':{
+                    'stat_id' : 'compute_duration_detailed_stacked_area_plot',
+                    'params'  : {'task':'predict', 'alg_label':'{{ alg.alg_label }}' }
+                    }
+                    },
+                    plot_response
+                    );
+
+
+                    plot_response = function(data) {
+                        data.json['width'] = 250
+                        data.json['height'] = 250
+                        mpld3.draw_figure("compute_duration_detailed_stacked_area_plot_daemonProcess_{{ alg.alg_label_clean }}", data.json);
+                    }  
+
+                  
+                    data = next_widget.getWidget(
+                    {
+                    'app_id': "{{ app_id }}",
+                    'exp_uid': "{{ exp_uid }}",
+                    'name': 'getStats',
+                    'widget_key': "{{ perm_key }}",
+                    'args':{
+                    'stat_id' : 'compute_duration_detailed_stacked_area_plot',
+                    'params'  : {'task':'daemonProcess', 'alg_label':'{{ alg.alg_label }}' }
+                    }
+                    },
+                    plot_response
+                    );
+                  
+                </script>
+            {% endfor %}
         </div>
-
-        <script>
-            plot_response = function(data) {
-                data.json['width'] = 250
-                data.json['height'] = 250
-                mpld3.draw_figure("compute_duration_detailed_stacked_area_plot_getQuery_{{ alg.alg_label_clean }}", data.json);
-            }
-          
-            data = next_widget.getWidget(
-            {
-            'app_id': "{{ app_id }}",
-            'exp_uid': "{{ exp_uid }}",
-            'name': 'getStats',
-            'widget_key': "{{ perm_key }}",
-            'args':{
-            'stat_id' : 'compute_duration_detailed_stacked_area_plot',
-            'params'  : {'task':'getQuery', 'alg_label':'{{ alg.alg_label }}' }
-            }
-            },
-            plot_response
-            );
-
-
-            plot_response = function(data) {
-                data.json['width'] = 250
-                data.json['height'] = 250
-                mpld3.draw_figure("compute_duration_detailed_stacked_area_plot_processAnswer_{{ alg.alg_label_clean }}", data.json);
-            }  
-          
-            data = next_widget.getWidget(
-            {
-            'app_id': "{{ app_id }}",
-            'exp_uid': "{{ exp_uid }}",
-            'name': 'getStats',
-            'widget_key': "{{ perm_key }}",
-            'args':{
-            'stat_id' : 'compute_duration_detailed_stacked_area_plot',
-            'params'  : {'task':'processAnswer', 'alg_label':'{{ alg.alg_label }}' }
-            }
-            },
-            plot_response
-            );
-
-
-            plot_response = function(data) {
-                data.json['width'] = 250
-                data.json['height'] = 250
-                mpld3.draw_figure("compute_duration_detailed_stacked_area_plot_predict_{{ alg.alg_label_clean }}", data.json);
-            }  
-          
-          
-            data = next_widget.getWidget(
-            {
-            'app_id': "{{ app_id }}",
-            'exp_uid': "{{ exp_uid }}",
-            'name': 'getStats',
-            'widget_key': "{{ perm_key }}",
-            'args':{
-            'stat_id' : 'compute_duration_detailed_stacked_area_plot',
-            'params'  : {'task':'predict', 'alg_label':'{{ alg.alg_label }}' }
-            }
-            },
-            plot_response
-            );
-
-
-            plot_response = function(data) {
-                data.json['width'] = 250
-                data.json['height'] = 250
-                mpld3.draw_figure("compute_duration_detailed_stacked_area_plot_daemonProcess_{{ alg.alg_label_clean }}", data.json);
-            }  
-
-          
-            data = next_widget.getWidget(
-            {
-            'app_id': "{{ app_id }}",
-            'exp_uid': "{{ exp_uid }}",
-            'name': 'getStats',
-            'widget_key': "{{ perm_key }}",
-            'args':{
-            'stat_id' : 'compute_duration_detailed_stacked_area_plot',
-            'params'  : {'task':'daemonProcess', 'alg_label':'{{ alg.alg_label }}' }
-            }
-            },
-            plot_response
-            );
-          
-        </script>
-        {% endfor %}
     </div>
 </div>
 
@@ -284,20 +314,41 @@
         <h2> Client-side timing </h2>  
     </div>
     <div class="col-lg-10 col-lg-offset-1">
-        {% for alg in alg_list %} 
-        <div>
-            <div class="row">
-                <h3> {{ alg.alg_label_clean }} </h3> 
-            </div> 
-            <div class="row">
-                <div class="col-md-3">
-                    <div id = "response_time_histogram_{{ alg.alg_label_clean }}"></div>
-                </div>
-                <div class="col-md-3">
-                    <div id = "network_delay_histogram_{{ alg.alg_label_clean }}"></div>
-                </div>
-            </div>
-        
+
+        <ul class="nav nav-tabs" role="tablist">
+            {% for alg in alg_list %} 
+                {% if loop.first %}
+                    <li role="presentation" class="active"><a href="#client_times_{{ alg.alg_label_clean }}" aria-controls="client_times_{{ alg.alg_label_clean }}" role="tab" data-toggle="tab">{{ alg.alg_label_clean }}</a></li>
+                {% else %}
+                    <li role="presentation"><a href="#client_times_{{ alg.alg_label_clean }}" aria-controls="client_times_{{ alg.alg_label_clean }}" role="tab" data-toggle="tab">{{ alg.alg_label_clean }}</a></li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+
+        <div class="tab-content">
+            {% for alg in alg_list %} 
+                {% if loop.first %}
+                    <div role="tabpanel" class="tab-pane active" id="client_times_{{ alg.alg_label_clean }}">
+                        <div class="col-md-3">
+                            <div id = "response_time_histogram_{{ alg.alg_label_clean }}"></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div id = "network_delay_histogram_{{ alg.alg_label_clean }}"></div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div role="tabpanel" class="tab-pane" id="client_times_{{ alg.alg_label_clean }}">
+                        <div class="col-md-3">
+                            <div id = "response_time_histogram_{{ alg.alg_label_clean }}"></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div id = "network_delay_histogram_{{ alg.alg_label_clean }}"></div>
+                        </div>
+                    </div>
+                {% endif %}
+            <!-- <div role="tabpanel" class="tab-pane active" id="home"> -->
+            
+
             <script>
                 plot_response = function(data) {
                     data.json['width'] = 250
@@ -340,8 +391,9 @@
                 );
               
             </script>
+            {% endfor %}
         </div>
-        {% endfor %}
+
     </div>
 </div>
 
