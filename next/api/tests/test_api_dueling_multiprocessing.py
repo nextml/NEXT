@@ -23,7 +23,7 @@ def run_all(assert_200):
   num_experiments = 1
 
   # clients run in simultaneous fashion using multiprocessing library
-  num_clients = 500
+  num_clients = 1000
 
   pool = Pool(processes=num_clients)           
 
@@ -31,7 +31,7 @@ def run_all(assert_200):
   # input test parameters
   n = num_arms
   delta = 0.05
-  supported_alg_ids = ['BR_LilUCB','BR_Random','BR_SuccElim','BeatTheMean','BR_Thompson']
+  supported_alg_ids = ['BR_LilUCB','BR_Random','BR_Thompson','BR_LilUCB_b2','BR_Random_b2','BR_Thompson_b2']
 
   alg_list = []
   for alg_id in supported_alg_ids:

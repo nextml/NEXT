@@ -78,16 +78,10 @@ def experiment_dashboard(exp_uid, app_id, exp_key):
     exp_start_data = rm.get_app_exp_uid_start_date(exp_uid)+' UTC'
     participant_uids = rm.get_participant_uids(exp_uid)
     num_participants = len(participant_uids)
-    last_datetime = None
     num_queries = 0
     for participant_uid in participant_uids:
       queries = rm.get_participant_data(participant_uid, exp_uid)
       num_queries += len(queries)
-
-      this_datetime = utils.str2datetime(queries[-1]['timestamp_query_generated'])
-      if last_datetime==None or this_datetime>last_datetime:
-        last_datetime = this_datetime
-    last_activity = utils.datetime2str(last_datetime)+' UTC'
 
     # Migrate this code to use keychain
     docs,didSucceed,message = db.getDocsByPattern('next_frontend_base',
@@ -125,7 +119,6 @@ def experiment_dashboard(exp_uid, app_id, exp_key):
                            exp_start_data=exp_start_data,
                            num_participants=num_participants,
                            num_queries=num_queries,
-                           last_activity=last_activity
                            )
 
 

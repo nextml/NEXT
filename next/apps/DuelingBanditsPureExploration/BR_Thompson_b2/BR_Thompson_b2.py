@@ -13,7 +13,7 @@ import numpy
 import numpy.random
 from next.apps.DuelingBanditsPureExploration.Prototype import DuelingBanditsPureExplorationPrototype
 
-class BR_Thompson(DuelingBanditsPureExplorationPrototype):
+class BR_Thompson_b2(DuelingBanditsPureExplorationPrototype):
 
   def daemonProcess(self,resource,daemon_args_dict):
 

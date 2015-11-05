@@ -11,7 +11,7 @@ import numpy
 import numpy.random
 from next.apps.DuelingBanditsPureExploration.Prototype import DuelingBanditsPureExplorationPrototype
 
-class BR_Random(DuelingBanditsPureExplorationPrototype):
+class BR_Random_b2(DuelingBanditsPureExplorationPrototype):
 
   def daemonProcess(self,resource,daemon_args_dict):
     return True
