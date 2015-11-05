@@ -561,6 +561,7 @@ class DuelingBanditsPureExploration(AppPrototype):
           index_painted = target['index']
 
       index_winner = args_dict['index_winner']
+      query_meta = args_dict.get('query_meta',{})
 
       # update query doc
       timestamp_query_generated,didSucceed,message = db.get(app_id+':queries',query_uid,'timestamp_query_generated')
@@ -576,6 +577,7 @@ class DuelingBanditsPureExploration(AppPrototype):
       db.set(app_id+':queries',query_uid,'response_time',response_time)
       db.set(app_id+':queries',query_uid,'network_delay',round_trip_time-response_time)
       db.set(app_id+':queries',query_uid,'index_winner',index_winner)
+      db.set(app_id+':queries',query_uid,'query_meta',query_meta)
 
       # call processAnswer
       didSucceed,dt = utils.timeit(alg.processAnswer)(resource=rc,index_left=index_left,index_right=index_right,index_painted=index_painted,index_winner=index_winner)
