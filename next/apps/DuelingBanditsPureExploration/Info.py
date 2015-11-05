@@ -58,7 +58,7 @@ def get_implemented_algs():
     """
     Returns list of algorithms that are fully operational and implemented for this app
     """
-    return ['BR_LilUCB','BR_Random','BR_SuccElim','BeatTheMean','BR_Thompson']
+    return ['BR_LilUCB','BR_Random','BR_SuccElim','BeatTheMean','BR_Thompson','BR_LilUCB_b2','BR_Random_b2','BR_Thompson_b2']
 
 
 def get_default_alg_list():
