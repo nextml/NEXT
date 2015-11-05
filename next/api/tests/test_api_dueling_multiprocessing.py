@@ -16,14 +16,14 @@ HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')+':'+os.enviro
 def run_all(assert_200):
 
   app_id = 'DuelingBanditsPureExploration'
-  num_arms = 25
+  num_arms = 300
   true_means = numpy.array(range(num_arms))/float(num_arms)
-  total_pulls_per_client = 1000
+  total_pulls_per_client = 100
 
   num_experiments = 1
 
   # clients run in simultaneous fashion using multiprocessing library
-  num_clients = 200
+  num_clients = 500
 
   pool = Pool(processes=num_clients)           
 

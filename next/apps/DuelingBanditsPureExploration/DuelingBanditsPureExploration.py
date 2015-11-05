@@ -550,6 +550,7 @@ class DuelingBanditsPureExploration(AppPrototype):
       # get specific algorithm to make calls to 
       alg = utils.get_app_alg(self.app_id,alg_id)
 
+      n,didSucceed,message = db.get(app_id+':experiments',exp_uid,'n')
       targets,didSucceed,message = db.get(app_id+':queries',query_uid,'target_indices')
       for target in targets:
         if target['label'] == 'left':

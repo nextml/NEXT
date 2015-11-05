@@ -756,10 +756,10 @@ def rsync_docker_config(opts, master_nodes, slave_nodes):
     docker_compose_template_vars = {
         "CELERY_SYNC_WORKER_COUNT": 6,
         "CELERY_ASYNC_WORKER_COUNT":2,
-        "CELERY_THREADS_PER_ASYNC_WORKER":max(1,int(.35*master_num_cpus)),
-        "NEXT_BACKEND_NUM_GUNICORN_WORKERS":int(.9*master_num_cpus+1),
+        "CELERY_THREADS_PER_ASYNC_WORKER":max(1,int(.7*master_num_cpus)),
+        "NEXT_BACKEND_NUM_GUNICORN_WORKERS":int(1.6*master_num_cpus+1),
         "NEXT_BACKEND_GLOBAL_PORT":NEXT_BACKEND_GLOBAL_PORT,
-        "NEXT_FRONTEND_NUM_GUNICORN_WORKERS":int(.9*master_num_cpus+1),
+        "NEXT_FRONTEND_NUM_GUNICORN_WORKERS":int(1),
         "NEXT_FRONTEND_GLOBAL_PORT":NEXT_FRONTEND_GLOBAL_PORT
     }
     with open('./templates/docker-compose.yml') as src:
