@@ -312,6 +312,41 @@ class DatabaseAPI(object):
         except:
             return None,False,'DatabaseAPI.get Failed with unknown exception'
 
+    def get_many(self,bucket_id,doc_uid,key_list):
+        """
+        Get values corresponding to keys in key_list, returns None if no key exists
+
+        Inputs: 
+            (string) bucket_id, (string) doc_uid, (list of string) key_list
+
+        Outputs: 
+            (dict of {key1:value1,key2:value2}) return_dict, (bool) didSucceed, (string) message 
+
+        Usage: ::\n
+            return_dict,didSucceed,message = db.get_many(bucket_id,doc_uid,key_list)
+        """
+        try:
+
+            if USE_CACHE:
+                raise
+            else:
+                # not using cache
+                doc,didSucceed,message = self.get_doc(bucket_id,doc_uid)
+
+                return_dict = {}
+                for key in key_list:
+                    try:
+                        return_dict[key] = doc[key]
+                    except:
+                        pass
+
+                if not didSucceed:
+                    return None,False,message
+                return return_dict,True,'Hit PermStore'
+
+        except:
+            return None,False,'DatabaseAPI.get Failed with unknown exception'
+
     def increment(self,bucket_id,doc_uid,key,value=1):
         """
         increments a key by amount value. If key does not exist, sets {key:value}
@@ -346,6 +381,41 @@ class DatabaseAPI(object):
 
         except:
             return None,False,'DatabaseAPI.increment Failed with unknown exception'
+
+    def increment_many(self,bucket_id,doc_uid,key_value_dict):
+        """
+        increments a key by amount value. If key does not exist, sets {key:value}
+        
+        Inputs: 
+            (string) bucket_id, (string) doc_uid, ({(str)key1:(float)value1,(int)key2:(float) value2}) key_value_dict
+        
+        Outputs:
+            (bool) didSucceed, (string) message 
+        
+        Usage: ::\n
+            didSucceed,message = db.increment_many(bucket_id,doc_uid,key_value_dict)
+        """
+        try:
+            if USE_CACHE:
+                # need to implement cache!!
+                #############################
+
+                didSucceed,message,dt = utils.timeit(self.permStore.increment_many)(constants.app_data_database_id,bucket_id,doc_uid,key_value_dict)
+                self.duration_permStoreSet += dt
+                if not didSucceed:
+                    return False,message
+                return True,'Hit PermStore'
+
+            else:
+                didSucceed,message,dt = utils.timeit(self.permStore.increment_many)(constants.app_data_database_id,bucket_id,doc_uid,key_value_dict)
+                self.duration_permStoreSet += dt
+                if not didSucceed:
+                    return False,message
+                return True,'Hit PermStore'
+
+
+        except:
+            return False,'DatabaseAPI.increment Failed with unknown exception'
 
 
     def get_list(self,bucket_id,doc_uid,key):

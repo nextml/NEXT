@@ -442,6 +442,32 @@ class PermStore(object):
             error = "MongoDB.set Failed with unknown exception"
             return False,error
 
+    def increment_many(self,database_id,bucket_id,doc_uid,key_value_dict):
+        """
+        increments a key by amount value. If key does not exist, sets {key:value}
+        
+        Inputs: 
+            (string) database_id, (string) bucket_id, (string) doc_uid, ({(str)key1:(float)value1,(int)key2:(float) value2}) key_value_dict
+        
+        Outputs:
+            (bool) didSucceed, (string) message 
+        
+        Usage: ::\n
+            didSucceed,message = db.increment_many(database_id,bucket_id,doc_uid,key_value_dict)
+        """
+        if self.client == None:
+            didSucceed,message = self.connectToMongoServer()
+            if not didSucceed:
+                return False,message
+
+        try:
+            self.client[database_id][bucket_id].update({"_id":doc_uid},{ '$inc': key_value_dict } )
+            return True,'From Mongo'
+        except:
+            raise
+            error = "MongoDB.set Failed with unknown exception"
+            return False,error
+
     def get_list(self,database_id,bucket_id,doc_uid,key):
         """
         gets saved by key. If key does not exist, returns None

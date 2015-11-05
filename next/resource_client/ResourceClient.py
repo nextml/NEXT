@@ -31,10 +31,20 @@ class ResourceClient(object):
         self.durationGet += dt
         return value
 
+    def get_many(self,key_list):
+        return_dict,didSucceed,message,dt = utils.timeit(self.db.get_many)(self.bucket_id,self.doc_uid,key_list)
+        self.durationGet += dt
+        return return_dict
+
     def increment(self,key,value=1):
         new_value,didSucceed,message,dt = utils.timeit(self.db.increment)(self.bucket_id,self.doc_uid,key,value)
         self.durationSet += dt
         return new_value
+
+    def increment_many(self,key_value_dict):
+        didSucceed,message,dt = utils.timeit(self.db.increment_many)(self.bucket_id,self.doc_uid,key_value_dict)
+        self.durationSet += dt
+        return True
 
     def get_list(self,key):
         value_list,didSucceed,message,dt = utils.timeit(self.db.get_list)(self.bucket_id,self.doc_uid,key)

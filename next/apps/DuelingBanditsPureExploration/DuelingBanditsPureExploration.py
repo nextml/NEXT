@@ -584,12 +584,13 @@ class DuelingBanditsPureExploration(AppPrototype):
       meta = {'log_entry_durations':log_entry_durations}
 
       ###############
-      predict_id = 'arm_ranking'
-      params = {'alg_label':alg_label}
-      predict_args_dict = {'predict_id':predict_id,'params':params}
-      predict_args_json = json.dumps(predict_args_dict)
+      if num_reported_answers % ((n+4)/4) == 0:
+        predict_id = 'arm_ranking'
+        params = {'alg_label':alg_label}
+        predict_args_dict = {'predict_id':predict_id,'params':params}
+        predict_args_json = json.dumps(predict_args_dict)
 
-      db.submit_job(app_id,exp_uid,'predict',predict_args_json,ignore_result=True)
+        db.submit_job(app_id,exp_uid,'predict',predict_args_json,ignore_result=True)
       ###############
 
       response_args_dict = {}

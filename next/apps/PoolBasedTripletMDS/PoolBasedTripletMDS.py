@@ -574,7 +574,7 @@ class PoolBasedTripletMDS(AppPrototype):
       # check if we're going to evaluate this loss
       n,didSucceed,message = db.get(app_id+':experiments',exp_uid,'n')
       
-      if num_reported_answers % (n/4) == 0:
+      if num_reported_answers % ((n+4)/4) == 0:
         predict_id = 'evaluate_on_test'
         params = {'test_alg_label':test_alg_label,'alg_label':alg_label}
         predict_args_dict = {'predict_id':predict_id,'params':params}

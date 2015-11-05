@@ -16,15 +16,6 @@ from next.apps.DuelingBanditsPureExploration.Prototype import DuelingBanditsPure
 class BR_LilUCB(DuelingBanditsPureExplorationPrototype):
 
   def daemonProcess(self,resource,daemon_args_dict):
-
-    if 'task' in daemon_args_dict and 'args' in daemon_args_dict:
-      task = daemon_args_dict['task']
-      args = daemon_args_dict['args']
-      if task == '__update_sufficient_statistics':
-        self.__update_sufficient_statistics(resource,args)
-    else:
-      return False
-
     return True
   
   def initExp(self,resource,n=0,failure_probability=0.05):
@@ -39,13 +30,12 @@ class BR_LilUCB(DuelingBanditsPureExplorationPrototype):
     Expected output (comma separated):
       (boolean) didSucceed : did everything execute correctly
     """
-    running_sum_vec = numpy.zeros(n).tolist()
-    num_pulls_vec = numpy.zeros(n).tolist()
     resource.set('n',n)
     resource.set('failure_probability',failure_probability)
-    resource.set('running_sum_vec',running_sum_vec)
-    resource.set('num_pulls_vec',num_pulls_vec)
-    resource.set('total_pulls',0)
+    resource.increment('total_pulls',0)
+    for i in range(n):
+      resource.increment('Xsum_'+str(i),0.)
+      resource.increment('T_'+str(i),0)
 
     return True
 
@@ -65,10 +55,20 @@ class BR_LilUCB(DuelingBanditsPureExplorationPrototype):
     beta = 0.0 # algorithm parameter
 
     n = resource.get('n')
-    sumX = resource.get('running_sum_vec')
-    T = resource.get('num_pulls_vec')
+    key_list = ['failure_probability']
+    for i in range(n):
+      key_list.append( 'Xsum_'+str(i) )
+      key_list.append( 'T_'+str(i) )
 
-    delta = resource.get('failure_probability')
+    key_value_dict = resource.get_many(key_list)
+
+    sumX = []
+    T = []
+    for i in range(n):
+      sumX.append( key_value_dict['Xsum_'+str(i)] )
+      T.append( key_value_dict['T_'+str(i)] )
+
+    delta = key_value_dict['failure_probability']
     sigma_sq = .25
 
     mu = numpy.zeros(n)
@@ -119,16 +119,11 @@ class BR_LilUCB(DuelingBanditsPureExplorationPrototype):
     if index_left==index_painted:
       alt_index = index_right
 
+    reward = 0.
     if index_painted==index_winner:
-      index_loser = alt_index
-    else:
-      index_loser = index_painted
+      reward = 1.
 
-    q = [index_winner,index_loser,index_painted]
-    resource.append_list('S',q)
-
-    daemon_args_dict = {'task':'__update_sufficient_statistics','args':{}}
-    resource.daemonProcess(daemon_args_dict,time_limit=1)
+    resource.increment_many({'Xsum_'+str(index_painted):reward,'T_'+str(index_painted):1,'total_pulls':1})
     
     return True
 
@@ -143,8 +138,19 @@ class BR_LilUCB(DuelingBanditsPureExplorationPrototype):
       (list int) arm_ranking : list of integers where the the ith arm at the jth index represents the belief that the ith arm is the jth most likely arm to be the ``best'' arm 
     """
     n = resource.get('n')
-    sumX = resource.get('running_sum_vec')
-    T = resource.get('num_pulls_vec')
+
+    key_list = []
+    for i in range(n):
+      key_list.append( 'Xsum_'+str(i) )
+      key_list.append( 'T_'+str(i) )
+
+    key_value_dict = resource.get_many(key_list)
+
+    sumX = []
+    T = []
+    for i in range(n):
+      sumX.append( key_value_dict['Xsum_'+str(i)] )
+      T.append( key_value_dict['T_'+str(i)] )
 
     mu = numpy.zeros(n)
     for i in range(n):
@@ -157,28 +163,3 @@ class BR_LilUCB(DuelingBanditsPureExplorationPrototype):
     
     return mu.tolist(),prec
     
-
-
-  def __update_sufficient_statistics(self,resource,args):
-
-    n = resource.get('n')
-    S = resource.get_list('S')
-
-    running_sum_vec = numpy.zeros(n).tolist()
-    num_pulls_vec = numpy.zeros(n).tolist()
-
-    for q in S:
-      index_winner = q[0]
-      index_loser = q[1]
-      index_painted = q[2]
-
-      if index_winner==index_painted:
-        running_sum_vec[index_painted] += 1
-      num_pulls_vec[index_painted] += 1
-
-    total_pulls = len(S)
-
-    resource.set('running_sum_vec',running_sum_vec)
-    resource.set('num_pulls_vec',num_pulls_vec)
-    resource.set('total_pulls',total_pulls)
-
