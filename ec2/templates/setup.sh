@@ -21,7 +21,7 @@ pip install \
 apt-get install -y linux-image-extra-$(uname -r) aufs-tools  
 
 # downloads and installs docker
-curl -sSL https://get.docker.com/ubuntu/ | sh
+curl -sSL https://get.docker.com/ | sh
 
 # orchestrates docker containers
 pip install docker-compose
