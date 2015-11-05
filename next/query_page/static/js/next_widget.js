@@ -97,7 +97,7 @@ var next_widget = (function($){
 		    });
 		},
 
-		processAnswer: function(target_id) {
+	processAnswer: function(target_id, query_meta) {
 		    /**
 		     * Function for reporting an answer coming from a getQuery call.
 		     * Is routed through the widget system.
@@ -107,7 +107,10 @@ var next_widget = (function($){
 		    _args["args"]["target_winner"] = target_id;
 		    currTime = new Date().getTime();
 		    _args["args"]["response_time"] = (currTime -  _queryTime)/1000.;
-		    console.log(_args)
+	    console.log(_args)
+	    if (typeof meta !=== "undefined") {
+		_args["args"]["query_meta"] = meta
+	    }
 		    $.ajax({
 			url: _url+"/api/widgets/getwidget",
 			type: "POST",
