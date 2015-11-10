@@ -107,8 +107,9 @@ var next_widget = (function($){
 		    _args["args"]["target_winner"] = target_id;
 		    currTime = new Date().getTime();
 		    _args["args"]["response_time"] = (currTime -  _queryTime)/1000.;
+	    
 	    console.log(_args)
-	    if (typeof meta !=== "undefined") {
+	    if (typeof meta !== "undefined") {
 		_args["args"]["query_meta"] = meta
 	    }
 		    $.ajax({
