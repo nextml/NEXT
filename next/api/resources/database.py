@@ -51,7 +51,7 @@ class DatabaseBackup(Resource):
         :statuscode 200: Database backup successfully returned
         :statuscode 400: database backup failed to be generated
     	""" 
-        name = str(next.utils.datetimeNow().strftime("%Y-%m-%d_%H:%M:%S"))
+        name = str(next.utils.datetimeNow().strftime("%Y-%m-%d_%H:%M:%S"))+'.zip'
         location = make_mongodump(name)
         
         zip_file = file(location)

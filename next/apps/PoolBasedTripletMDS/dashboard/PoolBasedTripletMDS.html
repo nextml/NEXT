@@ -395,6 +395,40 @@
     </div>
 </div>
 
+<!--###################### test_error_multiline_plot ###################-->
+<div class="container-fluid" style ='padding-bottom: 1cm'>  
+    <div class="col-lg-10 col-lg-offset-1">
+        <h2> Test Error Plot </h2>  
+    </div>
+  <div class="col-lg-10 col-lg-offset-1">
+    <div id="test_error_multiline_plot_getQuery"></div>
+  </div>
+</div>
+<script>
+
+  plot_response = function(data) {
+  	data.json['width'] = 250
+  	data.json['height'] = 250
+  charts.plot(data.json,"test_error_multiline_plot_getQuery","Triplet Test Error");
+  }
+
+  
+  
+  data = next_widget.getWidget(
+  {
+  'app_id': "{{ app_id }}",
+  'exp_uid': "{{ exp_uid }}",
+  'name': 'getStats',
+  'widget_key': "{{ perm_key }}",
+  'args':{
+  'stat_id' : 'test_error_multiline_plot',
+  'params'  : {'task':''}
+  }
+  },
+  plot_response
+  );  
+</script>
+
 
 <!--##################### most_current_embedding ################ -->
 <div class="container-fluid" style ='padding-bottom: 1cm; background-color: #FFFFFF'>  
