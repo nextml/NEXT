@@ -3,17 +3,7 @@ next_backend Logs Resource
 author: Christopher Fernandez, Lalit Jain
 Logs resource for all logs associated with a specified experiment. 
 """
-
-'''
-example use:
-get a tripletMDS query:
-curl -X GET http://localhost:8001/api/experiment/[exp_uid]/[exp_key]/logs
-'''
-import json
-import time
-
-from flask import Flask, Response
-from flask.ext import restful
+from flask import Response
 from flask.ext.restful import Resource, reqparse
 
 import next.utils
@@ -28,8 +18,8 @@ resource_manager = ResourceManager()
 broker = next.broker.broker.JobBroker()
 keychain = KeyChain()
 
-# Request parser. Checks that necessary dictionary keys are available in a given resource.
-# We rely on learningLib functions to ensure that all necessary arguments are available and parsed. 
+# Request parser. Checks that necessary dictionary keys are available.
+# learningLib functions ensure that all necessary arguments are available. 
 post_parser = reqparse.RequestParser(argument_class=APIArgument)
 meta_success = {
     'code': 200,
@@ -64,6 +54,9 @@ class DatabaseBackup(Resource):
         name = str(next.utils.datetimeNow().strftime("%Y-%m-%d_%H:%M:%S"))
         location = make_mongodump(name)
         
-        f = file(location)
-        return Response(f, 200)
+        zip_file = file(location)
+        return Response(zip_file,
+                        mimetype='application/octet-stream',
+                        headers={'Content-Disposition':
+                                 'attachment;filename={}'.format(name)})
 
