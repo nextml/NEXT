@@ -1219,7 +1219,7 @@ def print_dns_urls(instances=None, prefix=False):
     if prefix:
         print colors.OKBLUE + '[fyi]: The NEXT web interface will be available at [1]\n'\
                              + '[fyi]: The NEXT dashboard will be available at [2]\n'\
-                             + '[fyi]: (URLs [1] and [2] available after cluster ssh-ready)'\
+                             + '[fyi]: (URLs [1] and [2] available after cluster ssh-ready)\n'\
                              + '[fyi]: (also available through get-master command' + colors.ENDC
 
 def main():
