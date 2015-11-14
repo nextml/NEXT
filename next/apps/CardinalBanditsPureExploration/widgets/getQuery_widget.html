@@ -25,9 +25,9 @@
                         -webkit-flex-wrap: wrap;
                         -webkit-flex-grow: 1;
                         padding-bottom: 5px">
-  {% for t in query.rating_options %}
-    <div class="target" id="{{loop.index}}" 
-        onclick="next_widget.processAnswer(&quot;{{ t.target_id }}&quot;);
+  {% for t in rating_options %}
+  <div class="target" id="{{loop.index}}" 
+         onclick="next_widget.processAnswer(&quot;{{ t.target_id }}&quot;);
                   console.log('reporting answer!')
                   $('#'+{{loop.index}}).css({'border': '2px solid #FF0000'});">
       {% if t.primary_type == "image" or t.primary_type == "img"%}

@@ -1,5 +1,4 @@
 from jinja2 import Environment, FileSystemLoader
-import requests
 import json
 import os
 from next.api.widgets_library.widget_prototype import Widget
@@ -30,22 +29,22 @@ class WidgetGenerator(Widget):
         Output: ::\n
 		(str) getQuery widget.
         """
-        exp_uid = args["exp_uid"]
-        app_id = args["app_id"]
+        exp_uid = args['exp_uid']
+        app_id = args['app_id']
         if 'participant_uid' in args['args'].keys():
-            args['args']['participant_uid'] = exp_uid+"_"+args['args']['participant_uid']
-        args_json = json.dumps(args["args"])
-        response_json,didSucceed,message = broker.applyAsync(app_id,exp_uid,"getQuery",args_json)        
+            args['args']['participant_uid'] = '_'.format(exp_uid,
+                                                         args['args']['participant_uid'])
+        args_json = json.dumps(args['args'])
+        response_json,didSucceed,message = broker.applyAsync(app_id,
+                                                             exp_uid,
+                                                             'getQuery',
+                                                             args_json)        
         response_dict = eval(response_json)
-        for target_index in response_dict["target_indices"]:
-            target_index['target'] = targetmapper.get_target_data(exp_uid, target_index["index"])
+        print 'response_dict', response_dict
 
+        index = response_dict['target_indices'][0]['index']
         query = {}
-        targets = []
-        for target in response_dict["target_indices"]:
-            targets.append(target['target'])
-        query['target'] = response_dict["target_indices"]['target']
-
+        query['target'] = targetmapper.get_target_data(exp_uid, index)                                                       
         template = env.get_template("getQuery_widget.html")
 
         rating_options = []
@@ -55,8 +54,10 @@ class WidgetGenerator(Widget):
                     'primary_type':'text',
                     'alt_description':i,
                     'alt_type':'text'})
-
-        return {'html': template.render(query = query, rating_options = rating_options), 'args': response_dict }
+            
+        return {'html': template.render(query = query,
+                                        rating_options = rating_options),
+                'args': response_dict }
 
 
     
@@ -74,19 +75,25 @@ class WidgetGenerator(Widget):
         try:
             target_winner = args['args']['target_winner']
         except:
-            return {'message':"Failed to specify all arguments or misformed arguments", 'code':400, 'status':'FAIL', 'base_error':'[target_winner]. Missing required parameter in the JSON body or the post body or the query string'}, 400
+            return {'message':('Failed to specify all arguments '
+                               'or misformed arguments'),
+                    'code':400,
+                    'status':'FAIL',
+                    'base_error':('[target_winner]. Missing required parameter'
+                                  'in the JSON body or the post body'
+                                  'or the query string')}, 400
         
-        index_winner = int(targetmapper.get_index_given_targetID(exp_uid, target_winner))
-        
+        index_winner = target_winner
+
         # Set the index winner.
-        args['args']["index_winner"] = index_winner
+        args['args']['index_winner'] = index_winner
 
         # Args from dict to json type
-        args_json = json.dumps(args["args"]) 
+        args_json = json.dumps(args['args']) 
         # Execute processAnswer 
-        response_json,didSucceed,message = broker.applyAsync(app_id,exp_uid,"processAnswer",args_json)
+        response_json,didSucceed,message = broker.applyAsync(app_id,exp_uid,'processAnswer',args_json)
 
-        return { 'html':"success"}
+        return { 'html':'success'}
 
 
     
