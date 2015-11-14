@@ -15,10 +15,10 @@ HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')+':'+os.enviro
 
 def run_all(assert_200):
 
-  app_id = 'DuelingBanditsPureExploration'
-  num_arms = 300
+  app_id = 'CardinalBanditsPureExploration'
+  num_arms = 50
   true_means = numpy.array(range(num_arms))/float(num_arms)
-  total_pulls_per_client = 100
+  total_pulls_per_client = 50
 
   num_experiments = 1
 
@@ -31,7 +31,8 @@ def run_all(assert_200):
   # input test parameters
   n = num_arms
   delta = 0.05
-  supported_alg_ids = ['BR_LilUCB_b2','BR_Random_b2','BR_Thompson_b2']
+  R = 0.5
+  supported_alg_ids = ['RandomSampling','LUCB','LilUCB']
 
   alg_list = []
   for alg_id in supported_alg_ids:
@@ -57,13 +58,12 @@ def run_all(assert_200):
   initExp_args_dict['args'] = {}
   initExp_args_dict['args']['n'] = n
   initExp_args_dict['args']['failure_probability'] = delta
+  initExp_args_dict['args']['R'] = R
   initExp_args_dict['args']['participant_to_algorithm_management'] = 'one_to_many' # 'one_to_one'  #optional field
   initExp_args_dict['args']['algorithm_management_settings'] = algorithm_management_settings #optional field
   initExp_args_dict['args']['alg_list'] = alg_list #optional field
   initExp_args_dict['args']['instructions'] = 'You want instructions, here are your test instructions'
   initExp_args_dict['args']['debrief'] = 'You want a debrief, here is your test debrief'
-  initExp_args_dict['args']['context_type'] = 'text'
-  initExp_args_dict['args']['context'] = 'Boom baby dueling works'
   initExp_args_dict['app_id'] = app_id
   initExp_args_dict['site_id'] = 'replace this with working site id'
   initExp_args_dict['site_key'] = 'replace this with working site key'
@@ -146,13 +146,7 @@ def simulate_one_client( input_args ):
     query_dict = json.loads(response.text)
     query_uid = query_dict['query_uid']
     targets = query_dict['target_indices']
-    for target in targets:
-      if target['label'] == 'left':
-        index_left = target['index']
-      if target['label'] == 'right':
-        index_right = target['index']
-      if target['flag'] == 1:
-        index_painted = target['index']
+    target_index = targets[0]['index']
 
     # generate simulated reward #
     #############################
@@ -160,12 +154,7 @@ def simulate_one_client( input_args ):
     ts = time.time()
 
     time.sleep(  avg_response_time*numpy.random.rand()  )
-    reward_left = true_means[index_left] + numpy.random.randn()*0.5
-    reward_right = true_means[index_right] + numpy.random.randn()*0.5
-    if reward_left>reward_right:
-      index_winner = index_left
-    else:
-      index_winner = index_right
+    target_reward = true_means[target_index] + numpy.random.randn()*0.5
 
     response_time = time.time() - ts
 
@@ -178,7 +167,8 @@ def simulate_one_client( input_args ):
     processAnswer_args_dict["exp_key"] = exp_key
     processAnswer_args_dict["args"] = {}
     processAnswer_args_dict["args"]["query_uid"] = query_uid
-    processAnswer_args_dict["args"]['target_winner'] = index_winner
+    processAnswer_args_dict["args"]["target_winner"] = target_index
+    processAnswer_args_dict["args"]['target_reward'] = target_reward
     processAnswer_args_dict["args"]['response_time'] = response_time
 
     url = 'http://'+HOSTNAME+'/api/experiment/processAnswer'

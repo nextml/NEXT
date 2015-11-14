@@ -38,8 +38,8 @@ class JobBroker:
             task_name(app_id, exp_id, args)
 
         """
-        domain = self.__get_domain_for_job(app_id+"_"+exp_uid)
         submit_timestamp = utils.datetimeNow('string')
+        domain = self.__get_domain_for_job(app_id+"_"+exp_uid)
         result = tasks.apply.apply_async(args=[app_id,exp_uid,task_name, args, submit_timestamp], exchange='async@'+domain, routing_key='async@'+domain)
         if ignore_result:
             return True
@@ -56,11 +56,11 @@ class JobBroker:
             (string) app_id, (string) exp_id, (string) task_name, (json) args
 
         """
+        submit_timestamp = utils.datetimeNow('string')
         if namespace==None:
             namespace=exp_uid
         domain = self.__get_domain_for_job(app_id+"_"+exp_uid)
         job_uid = utils.getNewUID()
-        submit_timestamp = utils.datetimeNow('string')
         if time_limit == 0:
             soft_time_limit = None
             hard_time_limit = None

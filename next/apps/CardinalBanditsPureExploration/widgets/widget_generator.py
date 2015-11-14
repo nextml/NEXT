@@ -22,8 +22,7 @@ class WidgetGenerator(Widget):
     
     def getQuery(self, args):
         """
-        Generates a getQuery widget. Uses the args format as specified in::\n
-    		/next_backend/next/learningLibs/apps/TupleBanditsPureExploration
+        Generates a getQuery widget. 
         
         Input: ::\n
         	(dict) args 
@@ -45,15 +44,19 @@ class WidgetGenerator(Widget):
         targets = []
         for target in response_dict["target_indices"]:
             targets.append(target['target'])
-        query['targets'] = targets
-
-        # add context to query
-        query['context_type'] = response_dict['context_type']
-        query['context'] = response_dict['context']
+        query['target'] = response_dict["target_indices"]['target']
 
         template = env.get_template("getQuery_widget.html")
 
-        return {'html': template.render(query = query), 'args': response_dict }
+        rating_options = []
+        for i in range(5):
+            rating_options.append({'target_id':i,
+                    'primary_description':i,
+                    'primary_type':'text',
+                    'alt_description':i,
+                    'alt_type':'text'})
+
+        return {'html': template.render(query = query, rating_options = rating_options), 'args': response_dict }
 
 
     

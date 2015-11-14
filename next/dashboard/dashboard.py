@@ -27,6 +27,7 @@ def experiment_list():
     """
     Endpoint that renders a page with a simple list of all experiments. 
     """
+
     # Experiments set
     experiments = []
     for app_id in rm.get_app_ids():
