@@ -218,6 +218,16 @@ class CardinalBanditsPureExploration(AppPrototype):
       else:
         num_tries = args_dict['num_tries']
 
+      if 'context_type' not in args_dict:
+        context_type = 'none'
+      else:
+        context_type = args_dict['context_type']
+
+      if 'context' not in args_dict:
+        context = ''
+      else:
+        context = args_dict['context']
+
       # ALGORITHM_MANAGEMENT_MODE FORMATTING CHECK
       if 'algorithm_management_settings' not in args_dict:
         params = {}
@@ -294,6 +304,8 @@ class CardinalBanditsPureExploration(AppPrototype):
       db.set(app_id+':experiments',exp_uid,'participant_to_algorithm_management',participant_to_algorithm_management)
       db.set(app_id+':experiments',exp_uid,'instructions',instructions)
       db.set(app_id+':experiments',exp_uid,'debrief',debrief)
+      db.set(app_id+':experiments',exp_uid,'context_type',context_type)
+      db.set(app_id+':experiments',exp_uid,'context',context)
       db.set(app_id+':experiments',exp_uid,'num_tries',num_tries)
 
       # now create intitialize each algorithm
@@ -419,6 +431,10 @@ class CardinalBanditsPureExploration(AppPrototype):
       # call getQuery
       target_index,dt = utils.timeit(alg.getQuery)(resource=rc)
       targets = [ {'index':target_index} ]
+
+      # check for context
+      context_type,didSucceed,message = db.get(app_id+':experiments',exp_uid,'context_type')
+      context,didSucceed,message = db.get(app_id+':experiments',exp_uid,'context')
 
       # log
       log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'getQuery','duration':dt } 
