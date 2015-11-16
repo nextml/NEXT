@@ -719,10 +719,9 @@ class PoolBasedTripletMDS(AppPrototype):
         params['test_y'] = test_y
 
         ##### Get Embedding #####
-        Xd,X2 = alg.getStats(rc)
+        Xd = alg.getStats(rc)
 
         params['Xd'] = Xd
-        params['X2'] = X2
 
         log_entry = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'timestamp':utils.datetimeNow() } 
         log_entry.update( params )

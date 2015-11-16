@@ -126,7 +126,30 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
         return_dict['y_min'] = y_min
         return_dict['y_max'] = y_max
 
-        return return_dict
+        # return return_dict
+
+        import matplotlib.pyplot as plt
+        import mpld3
+        fig, ax = plt.subplots(subplot_kw=dict(axisbg='#EEEEEE'))
+        for alg_dict in list_of_alg_dicts:
+            ax.plot(alg_dict['x'],alg_dict['y'],label=alg_dict['legend_label'])
+        ax.set_xlabel('Number of answered triplets')
+        ax.set_ylabel('Error on hold-out set')
+        ax.set_xlim([x_min,x_max])
+        ax.set_ylim([y_min,y_max])
+        ax.grid(color='white', linestyle='solid')
+        ax.set_title('Triplet Test Error', size=14)
+        legend = ax.legend(loc=2,ncol=3,mode="expand")
+        for label in legend.get_texts():
+          label.set_fontsize('small')
+        plot_dict = mpld3.fig_to_dict(fig)
+
+
+        return plot_dict
+
+
+
+        
 
 
     def most_current_embedding(self,app_id,exp_uid,alg_label):
@@ -160,7 +183,7 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
         
         item = list_of_log_dict[-1]
 
-        embedding = item['X2']
+        embedding = item['Xd']
 
         data = []
         x_min = numpy.float('inf')
@@ -171,8 +194,12 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
 
             target_dict = {}
             target_dict['index'] = idx
-            target_dict['x'] = target[0]
-            target_dict['y'] = target[1]
+            target_dict['x'] = target[0] # this is what will actually be plotted, 
+            try:
+                target_dict['y'] = target[1] # takes first two components, (could be replaced by PCA)
+            except:
+                target_dict['y'] = 0.
+            target_dict['darray'] = target
 
             x_min = min(x_min,target[0])
             x_max = max(x_max,target[0])
@@ -182,6 +209,7 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
             data.append(target_dict)
     
         return_dict = {}
+        return_dict['timestamp'] = item['timestamp']
         return_dict['x_min'] = x_min
         return_dict['x_max'] = x_max
         return_dict['y_min'] = y_min

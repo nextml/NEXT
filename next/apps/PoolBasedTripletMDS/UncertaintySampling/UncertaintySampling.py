@@ -42,13 +42,11 @@ class UncertaintySampling(PoolBasedTripletMDSPrototype):
     """
 
     X = numpy.random.randn(n,d)
-    X2 = numpy.random.randn(n,2)
 
     resource.set('n',n)
     resource.set('d',d)
     resource.set('delta',failure_probability)
     resource.set('X',X.tolist())
-    resource.set('X2',X2.tolist())
     # resource.set('S',[]) # do not initialize a list that you plan to append to! When you append_list the first item it will be created automatically.
     # resource.set('num_reported_answers',0) # do not initialize an incremental variable you plan to increment. When you increment for the first time it will initizliae the variable at 0.
     return True
@@ -170,13 +168,11 @@ class UncertaintySampling(PoolBasedTripletMDSPrototype):
       
     Expected output (comma separated): 
       (float[n][d]) Xd : n-by-d embedding formatted of an n-length list of d-length lists of floats
-      (float[n][2]) Xd : n-by-2 embedding formatted of an n-length list of 2-length lists of floats
     """
 
     X = numpy.array(resource.get('X'))
-    X2 = numpy.array(resource.get('X2'))
 
-    return X.tolist(),X2.tolist()
+    return X.tolist()
 
 
   def __incremental_embedding_update(self,resource,args):
@@ -188,7 +184,6 @@ class UncertaintySampling(PoolBasedTripletMDSPrototype):
 
 
     X = numpy.array(resource.get('X'))
-    X2 = numpy.array(resource.get('X2'))
     # set maximum time allowed to update embedding
     t_max = 1.0
     epsilon = 0.01 # a relative convergence criterion, see computeEmbeddingWithGD documentation
@@ -202,20 +197,7 @@ class UncertaintySampling(PoolBasedTripletMDSPrototype):
       X,emp_loss_new,hinge_loss_new,acc = utilsMDS.computeEmbeddingWithGD(X,S,max_iters=2**k,verbose=verbose)
       k += 1
 
-    if d==2:
-      X2 = X
-    else:
-      # take a single gradient step
-      t_start = time.time()
-      X2,emp_loss_new,hinge_loss_new,acc = utilsMDS.computeEmbeddingWithGD(X2,S,max_iters=1,verbose=verbose)
-      k=1
-      while (time.time()-t_start<0.5*t_max) and (acc > epsilon):      
-        # take a single gradient step
-        X2,emp_loss_new,hinge_loss_new,acc = utilsMDS.computeEmbeddingWithGD(X2,S,max_iters=2**k,verbose=verbose)
-        k += 1
-
     resource.set('X',X.tolist())
-    resource.set('X2',X2.tolist())
 
   def __full_embedding_update(self,resource,args):
     verbose = False
@@ -225,7 +207,6 @@ class UncertaintySampling(PoolBasedTripletMDSPrototype):
     S = resource.get_list('S')
 
     X_old = numpy.array(resource.get('X'))
-    X2_old = numpy.array(resource.get('X2'))
 
     t_max = 5.0
     epsilon = 0.01 # a relative convergence criterion, see computeEmbeddingWithGD documentation
@@ -236,7 +217,6 @@ class UncertaintySampling(PoolBasedTripletMDSPrototype):
     X,emp_loss_new,hinge_loss_new,acc = utilsMDS.computeEmbeddingWithGD(X,S,max_iters=1,verbose=verbose)
     k = 1
     while (time.time()-t_start<0.5*t_max) and (acc > epsilon):
-      # take a single gradient step
       X,emp_loss_new,hinge_loss_new,acc = utilsMDS.computeEmbeddingWithGD(X,S,max_iters=2**k,verbose=verbose)
       k += 1
     emp_loss_new,hinge_loss_new = utilsMDS.getLoss(X,S)
@@ -244,22 +224,7 @@ class UncertaintySampling(PoolBasedTripletMDSPrototype):
       X = X_old
     resource.set('X',X.tolist())
 
-    if d==2:
-      X2 = X
-    else:
-      emp_loss_old,hinge_loss_old = utilsMDS.getLoss(X2_old,S)
-      X2,tmp = utilsMDS.computeEmbeddingWithEpochSGD(n,2,S,max_num_passes=16,epsilon=0,verbose=verbose)
-      t_start = time.time()
-      X2,emp_loss_new,hinge_loss_new,acc = utilsMDS.computeEmbeddingWithGD(X2,S,max_iters=1,verbose=verbose)
-      k = 1
-      while (time.time()-t_start<0.5*t_max) and (acc > epsilon):      
-        # take a single gradient step
-        X2,emp_loss_new,hinge_loss_new,acc = utilsMDS.computeEmbeddingWithGD(X2,S,max_iters=2**k,verbose=verbose)
-        k += 1
-      emp_loss_new,hinge_loss_new = utilsMDS.getLoss(X2,S)
-      if emp_loss_old < emp_loss_new:
-        X2 = X2_old
-      resource.set('X2',X2.tolist())
+
 
     
     
