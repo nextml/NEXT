@@ -52,8 +52,9 @@ class RandomSampling(CardinalBanditsPureExplorationPrototype):
     while k<len(priority_list) and (priority_list[k] in do_not_ask_list): 
       k+=1
     if k==len(priority_list):
-      k = numpy.random.randint(n)
-    index = priority_list[k]
+      index = numpy.random.randint(n)
+    else:
+      index = priority_list[k]
 
     return index
 

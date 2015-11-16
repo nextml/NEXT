@@ -77,15 +77,16 @@ class LilUCB(CardinalBanditsPureExplorationPrototype):
         UCB[i] = mu[i] + numpy.sqrt( 2.0*R*R*numpy.log( 4*T[i]*T[i]/delta ) / T[i] )
 
     if len(A)>0:
-      index = numpy.random.choice(A)
+      priority_list = numpy.random.permutation(A)
     else:
-      # index = numpy.argmax(UCB)
       priority_list = numpy.argsort(-UCB)
-      k = 0
-      while k<len(priority_list) and (priority_list[k] in do_not_ask_list): 
-        k+=1
-      if k==len(priority_list):
-        k = numpy.random.randint(n)
+    
+    k = 0
+    while k<len(priority_list) and (priority_list[k] in do_not_ask_list): 
+      k+=1
+    if k==len(priority_list):
+      index = numpy.random.randint(n)
+    else:
       index = priority_list[k]
 
 
