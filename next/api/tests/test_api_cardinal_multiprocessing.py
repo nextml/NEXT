@@ -18,12 +18,12 @@ def run_all(assert_200):
   app_id = 'CardinalBanditsPureExploration'
   num_arms = 50
   true_means = numpy.array(range(num_arms))/float(num_arms)
-  total_pulls_per_client = 50
+  total_pulls_per_client = 51
 
   num_experiments = 1
 
   # clients run in simultaneous fashion using multiprocessing library
-  num_clients = 500
+  num_clients = 400
 
   pool = Pool(processes=num_clients)           
 
@@ -31,7 +31,7 @@ def run_all(assert_200):
   # input test parameters
   n = num_arms
   delta = 0.05
-  R = 0.5
+  R = 2 # assumes scores in range [1,5]
   supported_alg_ids = ['RandomSampling','LUCB','LilUCB']
 
   alg_list = []
@@ -154,7 +154,8 @@ def simulate_one_client( input_args ):
     ts = time.time()
 
     time.sleep(  avg_response_time*numpy.random.rand()  )
-    target_reward = true_means[target_index] + numpy.random.randn()*0.5
+    # target_reward = true_means[target_index] + numpy.random.randn()*0.5
+    target_reward = 1.+sum(numpy.random.rand(4)<true_means[target_index]) # in {1,2,3,4,5}
 
     response_time = time.time() - ts
 

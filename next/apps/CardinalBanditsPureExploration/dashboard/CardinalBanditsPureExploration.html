@@ -50,7 +50,9 @@
             <b> Start date: </b> {{ exp_start_data }} <br>
             <b> Number of participants: </b> {{ num_participants }} <br>
             <b> Number of answers: </b> {{ num_queries }} <br> 
-            <b> Logs: </b> {{ host_url }}/api/experiment/{{ exp_uid }}/{{ exp_key }}/logs
+            <b> Backend Exceptions: </b> <a href="{{ host_url }}/api/experiment/{{ exp_uid }}/{{ exp_key }}/logs/APP-EXCEPTION" target="_blank">Open in new tab</a>  <br>
+            <b> Participant data: </b> <a href="{{ host_url }}/api/experiment/{{ exp_uid }}/{{ exp_key }}/participants" target="_blank">Open in new tab</a>  <br>
+            <b> Query page: </b> <a href="{{ host_url }}/query/query_page/query_page_popup/{{ exp_uid }}/{{ exp_key }}" target="_blank">Open in new tab</a>  <br>
             </p>
         </div>
     </div>

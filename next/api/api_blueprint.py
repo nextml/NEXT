@@ -31,7 +31,7 @@ from next.api.resources.about import About
 api_interface.add_resource(About, '/about')
 
 from next.api.resources.logs import Logs
-api_interface.add_resource(Logs, '/experiment/<string:exp_uid>/<string:exp_key>/logs')
+api_interface.add_resource(Logs, '/experiment/<string:exp_uid>/<string:exp_key>/logs','/experiment/<string:exp_uid>/<string:exp_key>/logs/<log_type>')
 
 from next.api.resources.participants import Participants
 api_interface.add_resource(Participants, '/experiment/<string:exp_uid>/<string:exp_key>/participants')

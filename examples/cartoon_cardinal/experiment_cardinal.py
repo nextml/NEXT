@@ -50,11 +50,11 @@ initExp = {}
 initExp['args'] = {}
 initExp['args']['n'] = 25
 initExp['args']['failure_probability'] = .05
-initExp['args']['R'] = .5
+initExp['args']['R'] = 2. # assumes scores are in {1,2,3,4,5}
 initExp['args']['participant_to_algorithm_management'] = 'one_to_many' 
 initExp['args']['algorithm_management_settings'] = algorithm_management_settings 
 initExp['args']['alg_list'] = alg_list 
-initExp['args']['num_tries'] = 50
+initExp['args']['num_tries'] = 25 # if more than this starts asking random because no repeats allowed
 initExp['app_id'] = 'CardinalBanditsPureExploration'
 initExp['site_id'] = 'replace this with working site id'
 initExp['site_key'] = 'replace this with working site key'
@@ -76,7 +76,7 @@ try:
   host = os.environ['NEXT_BACKEND_GLOBAL_HOST']+":"+os.environ.get('NEXT_BACKEND_GLOBAL_PORT', '8000')
 
 except:
-  print "You must set AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, NEXT_BACKEND_GLOBAL_HOST as environment variables"
+  print "You must set AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_BUCKET_NAME, NEXT_BACKEND_GLOBAL_HOST as environment variables"
   sys.exit()
 
 # Call launch_experiment module found in NEXT/lauch_experiment.py

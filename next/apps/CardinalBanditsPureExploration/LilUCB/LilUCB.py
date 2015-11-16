@@ -35,13 +35,13 @@ class LilUCB(CardinalBanditsPureExplorationPrototype):
     return True
 
   
-  def getQuery(self,resource):
+  def getQuery(self,resource,do_not_ask_list):
     """
     A request to ask which index/arm to pull
 
     Expected input:
-      (next.database.DatabaseClient) resource : database client, can cell resource.set(key,value), value=resource.get(key) 
-
+      (next.database.DatabaseClient) resource : database client, can cell resource.set(key,value), value=resource.get(key)
+      (list int) do_not_ask_list : list of indices that are not desired to be asked. 
     Expected output (comma separated): 
       (int) target_index : idnex of arm to pull (in 0,n-1)
     """
@@ -79,7 +79,15 @@ class LilUCB(CardinalBanditsPureExplorationPrototype):
     if len(A)>0:
       index = numpy.random.choice(A)
     else:
-      index = numpy.argmax(UCB)
+      # index = numpy.argmax(UCB)
+      priority_list = numpy.argsort(-UCB)
+      k = 0
+      while k<len(priority_list) and (priority_list[k] in do_not_ask_list): 
+        k+=1
+      if k==len(priority_list):
+        k = numpy.random.randint(n)
+      index = priority_list[k]
+
 
     return index
 

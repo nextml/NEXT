@@ -35,13 +35,13 @@ class LUCB(CardinalBanditsPureExplorationPrototype):
     return True
 
   
-  def getQuery(self,resource):
+  def getQuery(self,resource,do_not_ask_list):
     """
     A request to ask which index/arm to pull
 
     Expected input:
-      (next.database.DatabaseClient) resource : database client, can cell resource.set(key,value), value=resource.get(key) 
-
+      (next.database.DatabaseClient) resource : database client, can cell resource.set(key,value), value=resource.get(key)
+      (list int) do_not_ask_list : list of indices that are not desired to be asked. 
     Expected output (comma separated): 
       (int) target_index : idnex of arm to pull (in 0,n-1)
     """
@@ -80,15 +80,30 @@ class LUCB(CardinalBanditsPureExplorationPrototype):
       index = numpy.random.choice(A)
     else:
       # with equal probability choose empirical maximizer and upper confidence bound that is not emp max
-      emp_max_index = numpy.argmax(mu)
+      # emp_max_index = numpy.argmax(mu)
+
+      priority_list = numpy.argsort(-mu)
+      k = 0
+      while k<len(priority_list) and (priority_list[k] in do_not_ask_list): 
+        k+=1
+      if k==len(priority_list):
+        return numpy.random.randint(n)  # no more to ask! just return
+      emp_max_index = priority_list[k]
+
       if numpy.random.rand()<0.5:
         index = emp_max_index
       else:
-        sorted_indexes = numpy.argsort(-UCB)
-        if sorted_indexes[0] == emp_max_index:
-          index = sorted_indexes[1]
-        else:
-          index = sorted_indexes[0]
+        # ask for biggest UCB that is not equal to empirical max or in do_not_ask_list
+        # if you are here, emp_max_index is not in do_not_ask_list already
+        do_not_ask_list.append(emp_max_index)
+
+        priority_list = numpy.argsort(-UCB)
+        k = 0
+        while k<len(priority_list) and (priority_list[k] in do_not_ask_list): 
+          k+=1
+        if k==len(priority_list):
+          return numpy.random.randint(n)  # no more to ask! just return
+        index = priority_list[k]
 
     return index
 

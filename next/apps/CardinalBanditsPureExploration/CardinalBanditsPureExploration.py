@@ -190,7 +190,7 @@ class CardinalBanditsPureExploration(AppPrototype):
           return '{}',False,error
 
       n = args_dict['n']
-      R = args_dict.get('k',0.5)
+      R = args_dict.get('R',2) # default sufficient for scores in range [1,5]
       delta = args_dict['failure_probability']
 
       if 'alg_list' in args_dict:
@@ -422,6 +422,14 @@ class CardinalBanditsPureExploration(AppPrototype):
       else:
         raise Exception('participant_to_algorithm_management : '+participant_to_algorithm_management+' not implemented')
 
+      # figure out which queries have already been asked
+      queries,didSucceed,message = db.get_docs_with_filter(app_id+':queries',{'participant_uid':participant_uid})
+      do_not_ask_list = []
+      for q in queries:
+        for t in q.get('target_indices',[]):
+          do_not_ask_list.append(t['index'])
+      do_not_ask_list = list(set(do_not_ask_list))
+
       # get sandboxed database for the specific app_id,alg_id,exp_uid - closing off the rest of the database to the algorithm
       rc = ResourceClient(app_id,exp_uid,alg_uid,db)
 
@@ -429,7 +437,7 @@ class CardinalBanditsPureExploration(AppPrototype):
       alg = utils.get_app_alg(self.app_id,alg_id)
 
       # call getQuery
-      target_index,dt = utils.timeit(alg.getQuery)(resource=rc)
+      target_index,dt = utils.timeit(alg.getQuery)(resource=rc,do_not_ask_list=do_not_ask_list)
       targets = [ {'index':target_index} ]
 
       # check for context

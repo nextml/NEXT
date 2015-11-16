@@ -85,16 +85,14 @@ class Logs(Resource):
         # Get logs for exp_uid from resource_manager
         experiment_logs = resource_manager.get_experiment_logs(exp_uid)
         if not experiment_logs:
-            return attach_meta({},meta_error['ExpDoesNotExistError'], backend_error=message)
+            return attach_meta({'message':'No logs to report.'},meta_success), 200
         else:
             all_logs = {'log_data': experiment_logs}
             return attach_meta(all_logs,meta_success), 200
 
-
-class LogsOfType(Resource):
-    def get(self, exp_uid, log_type):
+    def get(self, exp_uid, exp_key, log_type):
         """
-        .. http:get:: /experiment/<exp_uid>/logs
+        .. http:get:: /experiment/<exp_uid>/logs/<log_type>
 
         Get all logs associated with a given exp_uid.
 
@@ -132,7 +130,7 @@ class LogsOfType(Resource):
         # Get logs for exp_uid from resource_manager
         experiment_logs = resource_manager.get_experiment_logs_of_type(exp_uid,log_type)
         if not experiment_logs:
-            return attach_meta('No logs to report',meta_success), 200
+            return attach_meta({'message':'No logs to report.'},meta_success), 200
         else:
             all_logs = {'log_data': experiment_logs}
             return attach_meta(all_logs,meta_success), 200
