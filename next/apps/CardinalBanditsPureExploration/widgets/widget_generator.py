@@ -85,7 +85,7 @@ class WidgetGenerator(Widget):
                                   'in the JSON body or the post body'
                                   'or the query string')}, 400
         
-        target_reward = target_winner
+        target_reward = int(target_winner)
         # Set the index winner.
         args['args']['target_reward'] = target_reward
 
