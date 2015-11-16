@@ -44,16 +44,18 @@ class WidgetGenerator(Widget):
 
         index = response_dict['target_indices'][0]['index']
         query = {}
+        query['context'] = response_dict['context']
+        query['context_type'] = response_dict['context_type']
         query['target'] = targetmapper.get_target_data(exp_uid, index)                                                       
-        template = env.get_template("getQuery_widget.html")
+        template = env.get_template('getQuery_widget.html')
 
         rating_options = []
         for i in range(5):
             rating_options.append({'target_id':i,
-                    'primary_description':i,
-                    'primary_type':'text',
-                    'alt_description':i,
-                    'alt_type':'text'})
+                                   'primary_description':i,
+                                   'primary_type':'text',
+                                   'alt_description':i,
+                                   'alt_type':'text'})
             
         return {'html': template.render(query = query,
                                         rating_options = rating_options),
@@ -83,16 +85,17 @@ class WidgetGenerator(Widget):
                                   'in the JSON body or the post body'
                                   'or the query string')}, 400
         
-        index_winner = target_winner
-
+        target_reward = target_winner
         # Set the index winner.
-        args['args']['index_winner'] = index_winner
+        args['args']['target_reward'] = target_reward
 
         # Args from dict to json type
         args_json = json.dumps(args['args']) 
         # Execute processAnswer 
-        response_json,didSucceed,message = broker.applyAsync(app_id,exp_uid,'processAnswer',args_json)
-
+        response_json,didSucceed,message = broker.applyAsync(app_id,
+                                                             exp_uid,
+                                                             'processAnswer',
+                                                             args_json)
         return { 'html':'success'}
 
 
@@ -102,7 +105,8 @@ class WidgetGenerator(Widget):
         Generates a getStats widget. Uses the args format as specified in::\n
         /next_backend/next/learningLibs/apps/TupleBanditsPureExploration
 
-        Returns a JSON object with the appropriate stats. Eventually modify to push the whole plot forward.
+        Returns a JSON object with the appropriate stats. 
+        Eventually modify to push the whole plot forward.
         Input: ::\n
         (dict) args 
         """
@@ -111,24 +115,26 @@ class WidgetGenerator(Widget):
         app_id = resource_manager.get_app_id(exp_uid)
         args_json = json.dumps(args["args"])
         
-        response_json,didSucceed,message = broker.applyAsync(app_id,exp_uid,"getStats",args_json)
+        response_json,didSucceed,message = broker.applyAsync(app_id,
+                                                             exp_uid,
+                                                             'getStats',
+                                                             args_json)
         response_dict = json.loads(response_json,parse_float=lambda o:round(float(o),4))
-        
         try:
-            for d in response_dict["data"]:
+            for d in response_dict['data']:
                 try:
                     # If a datapoint (d) has a key, attach a target to that datapoint.
                     if 'index' in d.keys():
                         try:
-                            d["target"] = targetmapper.get_target_data(exp_uid, d["index"])
+                            d['target'] = targetmapper.get_target_data(exp_uid,
+                                                                       d["index"])
                         except:
-                            print "failed to get target"
+                            print 'failed to get target'
                 except:
                     pass
         except:
             # e.g. response_dict does not contain key "data"
             pass
-
         return { 'json':response_dict }
 
 
@@ -142,10 +148,12 @@ class WidgetGenerator(Widget):
         """
         info = {}
         response = resource_manager.get_experiment(args['exp_uid'])
-
-        info['instructions'] = response.get("instructions","Click on bottom target that is most similar to the top.")
-        info['debrief'] = response.get("debrief", "Thanks for participating")
-        info['num_tries'] = response.get("num_tries", 100)
+        instructions_string = ('Click on bottom target '
+                              'that is most similar to the top.')
+        info['instructions'] = response.get('instructions',
+                                            instructions_string)
+        info['debrief'] = response.get('debrief', 'Thanks for participating')
+        info['num_tries'] = response.get('num_tries', 100)
         print info
         return {'response': info}
 

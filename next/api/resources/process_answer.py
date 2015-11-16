@@ -116,18 +116,27 @@ class processAnswer(Resource):
         # Parse out a target_winner. If the argument doesn't exist, return a meta dictionary error.
         try:
             target_winner = args_data['args']['target_winner']
+            index_winner = int(targetmapper.get_index_given_targetID(exp_uid,
+                                                             target_winner))
+            # Set the index winner.
+            args_data['args']["index_winner"] = index_winner        
         except:
-            return {'message':"Failed to specify all arguments or misformed arguments", 'code':400, 'status':'FAIL', 'base_error':'[target_winner]. Missing required parameter in the JSON body or the post body or the query string'}, 400
+            error_string = ('[target_winner]. Missing required parameter in the'
+                            ' JSON body or the post body or the query string')
+            # return {'message':('Failed to specify all arguments'
+            #                    'or misformed arguments'),
+            #         'code':400,
+            #         'status':'FAIL',
+            #         'base_error':error_string}, 400
         
-        index_winner = int(targetmapper.get_index_given_targetID(exp_uid, target_winner))
         
-        # Set the index winner.
-        args_data['args']["index_winner"] = index_winner
-
         # Args from dict to json type
         args_json = json.dumps(args_data["args"]) 
         # Execute processAnswer 
-        response_json,didSucceed,message = broker.applyAsync(app_id,exp_uid,"processAnswer",args_json)
+        response_json,didSucceed,message = broker.applyAsync(app_id,
+                                                             exp_uid,
+                                                             'processAnswer',
+                                                             args_json)
 
         if didSucceed:
             return attach_meta(eval(response_json), meta_success), 200

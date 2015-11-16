@@ -448,6 +448,7 @@ class CardinalBanditsPureExploration(AppPrototype):
       query['query_uid'] = query_uid
       query['target_indices'] = targets
 
+      
       # save query data to database
       query_doc = {}
       query_doc.update(query)
@@ -457,15 +458,19 @@ class CardinalBanditsPureExploration(AppPrototype):
       query_doc['alg_label'] = alg_label
       query_doc['timestamp_query_generated'] = timestamp
       for field in query_doc:
-        db.set(app_id+':queries',query_uid,field,query_doc[field])
+        db.set(app_id+':queries', query_uid, field, query_doc[field])
 
+      # add context after updating query doc to avoid redundant information
+      query['context'] = context
+      query['context_type'] = context_type
+        
       args_out = {'args':query,'meta':meta}
       response_json = json.dumps(args_out)
 
       log_entry = { 'exp_uid':exp_uid,'task':'getQuery','json':response_json,'timestamp':utils.datetimeNow() } 
       ell.log( app_id+':APP-RESPONSE', log_entry  )
 
-      return response_json,True,''
+      return response_json, True,''
     except Exception, err:
       error = traceback.format_exc()
       log_entry = { 'exp_uid':exp_uid,'task':'getQuery','error':error,'timestamp':utils.datetimeNow(),'args_json':args_json }  
