@@ -32,7 +32,7 @@ class WidgetGenerator(Widget):
         exp_uid = args['exp_uid']
         app_id = args['app_id']
         if 'participant_uid' in args['args'].keys():
-            args['args']['participant_uid'] = '_'.format(exp_uid,
+            args['args']['participant_uid'] = '{}_{}'.format(exp_uid,
                                                          args['args']['participant_uid'])
         args_json = json.dumps(args['args'])
         response_json,didSucceed,message = broker.applyAsync(app_id,
