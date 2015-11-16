@@ -42,14 +42,12 @@ class STE(PoolBasedTripletMDSPrototype):
     """
 
     X = numpy.random.randn(n,d)*.0001
-    X2 = numpy.random.randn(n,2)*.0001
     tau = numpy.random.rand(n,n)
     
     resource.set('n',n)
     resource.set('d',d)
     resource.set('delta',failure_probability)
     resource.set('X',X.tolist())
-    resource.set('X2',X2.tolist())
     resource.set('tau',tau.tolist())
     # resource.set('S',[]) # do not initialize a list that you plan to append to! When you append_list the first item it will be created automatically.
     # resource.set('num_reported_answers',0) # do not initialize an incremental variable you plan to increment. When you increment for the first time it will initizliae the variable at 0.
@@ -184,23 +182,20 @@ class STE(PoolBasedTripletMDSPrototype):
       
     Expected output (comma separated): 
       (float[n][d]) Xd : n-by-d embedding formatted of an n-length list of d-length lists of floats
-      (float[n][2]) Xd : n-by-2 embedding formatted of an n-length list of 2-length lists of floats
     """
 
     X = numpy.array(resource.get('X'))
-    X2 = numpy.array(resource.get('X2'))
 
-    return X.tolist(),X2.tolist()
+    return X.tolist()
 
   def __incremental_embedding_update(self,resource,args):
+    verbose = False
     
     n = resource.get('n')
     d = resource.get('d')
     S = resource.get_list('S')
-    verbose = False
     
     X = numpy.array(resource.get('X'))
-    X2 = numpy.array(resource.get('X2'))
     # set maximum time allowed to update embedding
     t_max = 1.0
     epsilon = 0.00001 # a relative convergence criterion, see computeEmbeddingWithGD documentation
@@ -208,54 +203,26 @@ class STE(PoolBasedTripletMDSPrototype):
     
     t_start = time.time()
     X,emp_loss_new,hinge_loss_new,log_loss_new,acc = utilsSTE.computeEmbeddingWithGD(X,S,alpha,max_iters=1, epsilon=epsilon,verbose=verbose)
-    _te = time.time()
     k = 1
     while (time.time()-t_start<.5*t_max) and (acc > epsilon):
-      # take a single gradient step
-      ts = time.time()
       X,emp_loss_new,hinge_loss_new,log_loss_new,acc = utilsSTE.computeEmbeddingWithGD(X,S,alpha,max_iters=2**k, epsilon=epsilon,verbose=verbose)
       k+=1
-      if verbose==True:
-        print "Incremental embedding time of X gradient step at iteration %s is %s"%(str(k),str(time.time()-ts))
-        
-    if d==2:
-      X2 = X
-    else:
-      t_start = time.time()   
-      X2,emp_loss_new,hinge_loss_new,log_loss_new,acc = utilsSTE.computeEmbeddingWithGD(X2,S,alpha,max_iters=1, epsilon=epsilon,verbose=verbose)
-      k = 1
-      while (time.time()-t_start<.5*t_max) and (acc > epsilon):      
-        # take a single gradient step
-        ts = time.time()
-        X2,emp_loss_new,hinge_loss_new,log_loss_new,acc = utilsSTE.computeEmbeddingWithGD(X2,S,alpha,max_iters=2**k, epsilon=epsilon, verbose=verbose)
-        k+=1
-        if verbose:
-          print "Incremental embedding time of X2 gradient step at itration %s is %s"%(str(k),str(time.time()-ts))
 
-      t_s = time.time()
-      tau = utilsSTE.getSTETauDistribution(X,S,alpha)
-      if verbose:
-        print "Time to compute tau %s"%str(time.time()-t_s)
+    tau = utilsSTE.getSTETauDistribution(X,S,alpha)
 
     resource.set('X',X.tolist())
-    resource.set('X2',X2.tolist())
-
-    _ts = time.time()
-    tau = utilsSTE.getSTETauDistribution(X,S,alpha)
-    _te = time.time()
-
     resource.set('tau',tau.tolist())
 
 
 
   def __full_embedding_update(self,resource,args):
+    verbose = False
+    
     n = resource.get('n')
     d = resource.get('d')
     S = resource.get_list('S')
-    verbose=False
 
     X_old = numpy.array(resource.get('X'))
-    X2_old = numpy.array(resource.get('X2'))
     # set maximum time allowed to update embedding
     t_max = 5.0
     epsilon = 0.00001 # a relative convergence criterion, see computeEmbeddingWithGD documentation
@@ -267,51 +234,15 @@ class STE(PoolBasedTripletMDSPrototype):
     X,emp_loss_new,hinge_loss_new,log_loss_new,acc = utilsSTE.computeEmbeddingWithGD(X,S,alpha,max_iters=1, epsilon=epsilon,verbose=verbose)
     k = 1
     while (time.time()-t_start<.5*t_max) and (acc > epsilon):
-      # take a single gradient step
       X,emp_loss_new,hinge_loss_new,log_loss_new,acc = utilsSTE.computeEmbeddingWithGD(X,S,alpha,max_iters=2**k, epsilon=epsilon,verbose=verbose)
       k += 1
     emp_loss_new,hinge_loss_new,log_loss_new = utilsSTE.getLoss(X,S, alpha)
     if emp_loss_old < emp_loss_new:
       X = X_old
-
-    if d==2:
-      X2 = X
-    else:
-      emp_loss_old,hinge_loss_old,log_loss_old = utilsSTE.getLoss(X2_old,S,alpha)
-      X2,tmp = utilsSTE.computeEmbeddingWithEpochSGD(n,2,S,alpha,max_num_passes=16,epsilon=0,verbose=verbose)
-      t_start = time.time()
-      X2,emp_loss_new,hinge_loss_new,log_loss_new,acc = utilsSTE.computeEmbeddingWithGD(X2,S,alpha,max_iters=1, epsilon=epsilon,verbose=verbose)
-      k = 1
-      while (time.time()-t_start<.5*t_max) and (acc > epsilon):      
-        # take a single gradient step
-        X2,emp_loss_new,hinge_loss_new,log_loss_new,acc = utilsSTE.computeEmbeddingWithGD(X2,S,alpha,max_iters=2**k, epsilon=epsilon,verbose=verbose)
-        k += 1
-      emp_loss_new,hinge_loss_new,log_loss_new = utilsSTE.getLoss(X2,S, alpha)
-      if emp_loss_old < emp_loss_new:
-        X2 = X2_old
     
-    _ts = time.time()
     tau = utilsSTE.getSTETauDistribution(X,S,alpha)
-    _te = time.time()
+
     resource.set('X',X.tolist())
-    resource.set('X2',X2.tolist())
     resource.set('tau',tau.tolist())
-
-
-
-
-    # # set maximum time allowed to update embedding
-    # t_max = 0.05 
-    # epsilon = 0.01 # a relative convergence criterion, see computeEmbeddingWithGD documentation
-    # t_start = time.time()
-
-    # X,emp_loss = computeEmbedding(n,d,S,num_random_restarts=1,epsilon=epsilon)
-
-    # X2,emp_loss = computeEmbedding(n,2,S,num_random_restarts=1,epsilon=epsilon)
-
-    # resource.set('X',X.tolist())
-    # resource.set('X2',X2.tolist())
-
-
 
 

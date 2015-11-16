@@ -75,11 +75,11 @@ popup_alert = function(text){
     </div>
 </div>
 
-<!--################## response times #################### -->
+<!--################## activity #################### -->
 <div class="container-fluid" style ='background-color: #FFFFFF; padding-bottom: 1cm'>
     <div class="col-lg-10 col-lg-offset-1">
         <div class="row">
-            <h2> Response times
+            <h2> Activity
             <button type="button" class="btn btn-primary btn-xs"
                   onclick="popup_alert('This is a graph of when people responded. The x-axis is a datetime string and the y-axis is the number of responses recorded.')">?</button>
             </h2>
@@ -446,16 +446,16 @@ popup_alert = function(text){
                   onclick="popup_alert('The error against a hold out set. This hold out set is labeled \'Test\' on the new experiment page. We\'d like these errors to converge to 0 quickly.')">?</button>
         </h2>
     </div>
-  <div class="col-lg-10 col-lg-offset-1">
-    <div id="test_error_multiline_plot_getQuery"></div>
+  <div class="col-lg-10 col-lg-offset-1" style='text-align: center'>
+    <div id="test_error_multiline_plot"></div>
   </div>
 </div>
 <script>
 
   plot_response = function(data) {
-  	data.json['width'] = 250
-  	data.json['height'] = 250
-  charts.plot(data.json,"test_error_multiline_plot_getQuery","Triplet Test Error");
+    data.json['width'] = 800
+    data.json['height'] = 350
+    mpld3.draw_figure("test_error_multiline_plot", data.json);
   }
 
 
@@ -500,10 +500,12 @@ popup_alert = function(text){
             {% for alg in alg_list %}
                 {% if loop.first %}
                     <div role="tabpanel" class="tab-pane active" id="ranking_{{ alg.alg_label_clean }}">
+                        <div id = "download_embedding_{{ alg.alg_label_clean }}"></div>
                         <div id = "most_current_embedding_{{ alg.alg_label_clean }}" class="embedding"></div>
                     </div>
                 {% else %}
                     <div role="tabpanel" class="tab-pane" id="ranking_{{ alg.alg_label_clean }}">
+                        <div id = "download_embedding_{{ alg.alg_label_clean }}"></div>
                         <div id = "most_current_embedding_{{ alg.alg_label_clean }}" class="embedding"></div>
                     </div>
                 {% endif %}
@@ -512,7 +514,22 @@ popup_alert = function(text){
 
             <script>
               plot_response = function(data) {
-              charts.plotCurrentEmbedding(data.json.data,"most_current_embedding_{{ alg.alg_label_clean }}");
+                var data_list = JSON.parse(JSON.stringify(data.json.data));
+                // var data_list = data.json.data.slice();
+                for (var i = 0; i < data_list.length; i++) { 
+                    delete data_list[i]['x'];
+                    delete data_list[i]['y'];
+                    delete data_list[i]['index'];
+                }                
+                var tmp_data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data_list));
+                var a = document.createElement('a');
+                a.href = 'data:' + tmp_data;
+                a.download = 'embedding.txt';
+                a.innerHTML = 'Download embedding (Generated '+ data.json.timestamp + ' UTC)';
+                var container = document.getElementById("download_embedding_{{ alg.alg_label_clean }}");
+                container.appendChild(a);
+
+                charts.plotCurrentEmbedding(data.json.data,"most_current_embedding_{{ alg.alg_label_clean }}");
               }
 
 
