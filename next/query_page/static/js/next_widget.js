@@ -107,6 +107,8 @@ var next_widget = (function($){
 		    _args["args"]["target_winner"] = target_id;
 		    currTime = new Date().getTime();
 		    _args["args"]["response_time"] = (currTime -  _queryTime)/1000.;
+
+		    _args["args"]["target_reward"] = target_id; // hack so cardinal bandits works
 	    
 	    console.log(_args)
 	    if (typeof meta !== "undefined") {

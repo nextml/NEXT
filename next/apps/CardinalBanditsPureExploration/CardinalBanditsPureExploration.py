@@ -555,7 +555,7 @@ class CardinalBanditsPureExploration(AppPrototype):
       target_index = targets[0]['index']
 
       # get the index winner
-      target_reward = args_dict['target_reward']
+      target_reward = float(args_dict['target_reward'])
 
       # update query doc
       timestamp_query_generated,didSucceed,message = db.get(app_id+':queries',query_uid,'timestamp_query_generated')
@@ -581,7 +581,7 @@ class CardinalBanditsPureExploration(AppPrototype):
 
       # calling predict 
       ###############
-      if num_reported_answers % ((n+4)/4) == 0:
+      if (num_reported_answers<10*n and num_reported_answers % 4 ==0) or num_reported_answers % ((n+4)/4) == 0:
         predict_id = 'arm_ranking'
         params = {'alg_label':alg_label}
         predict_args_dict = {'predict_id':predict_id,'params':params}

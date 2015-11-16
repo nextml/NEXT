@@ -108,9 +108,12 @@ class RandomSampling(CardinalBanditsPureExplorationPrototype):
     mu = numpy.zeros(n)
     prec = numpy.zeros(n)
     for i in range(n):
-      if T[i]<2 or mu[i]==float('inf'):
+      if T[i]==0 or mu[i]==float('inf'):
         mu[i] = -1
         prec[i] = -1
+      elif T[i]==1:
+        mu[i] = float(sumX[i]) / T[i]
+        prec[i] = R
       else:
         mu[i] = float(sumX[i]) / T[i]
         prec[i] = numpy.sqrt( float( max(R*R,sumX2[i] - T[i]*mu[i]*mu[i]) ) / ( T[i] - 1. ) / T[i] )

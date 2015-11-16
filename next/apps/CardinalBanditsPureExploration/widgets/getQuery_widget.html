@@ -32,33 +32,35 @@
   $('#query').css({'-webkit-align-self':'flex-start','align-self':'flex-start'});
 </script>
 
-<div id="query" style="align-self: flex-start;
-                        display: flex;
-                        flex-direction: row;
-                        align-items: stretch;
-                        flex-wrap: wrap;
-                        flex-grow: 1;
-                        -webkit-align-self: flex-start;
-                        display: -webkit-flex;
-                        -webkit-flex-direction: row;
-                        -webkit-align-items: stretch;
-                        -webkit-flex-wrap: wrap;
-                        -webkit-flex-grow: 1;
-                        padding-bottom: 5px">
-  {% for t in rating_options %}
-  <div class="target" id="{{loop.index}}" 
-         onclick="next_widget.processAnswer(&quot;{{ t.target_id }}&quot;);
-                  console.log('reporting answer!')
-                  $('#'+{{loop.index}}).css({'border': '2px solid #FF0000'});">
-      {% if t.primary_type == "image" or t.primary_type == "img"%}
-      <img class="image" src={{ t.primary_description }}> </img>
-      {% elif t.primary_type == "text"%}   
-      <div class="table-box">
-        <div class="text">{{ t.primary_description }}</div>
+<div style="width:600px; display: block; margin-left: auto; margin-right: auto;">
+  <div id="query" style="align-self: flex-start;
+                          display: flex;
+                          flex-direction: row;
+                          align-items: stretch;
+                          flex-wrap: wrap;
+                          flex-grow: 1;
+                          -webkit-align-self: flex-start;
+                          display: -webkit-flex;
+                          -webkit-flex-direction: row;
+                          -webkit-align-items: stretch;
+                          -webkit-flex-wrap: wrap;
+                          -webkit-flex-grow: 1;
+                          padding-bottom: 5px">
+    {% for t in rating_options %}
+    <div class="target" id="{{loop.index}}" 
+           onclick="next_widget.processAnswer(&quot;{{ t.target_id }}&quot;);
+                    console.log('reporting answer!')
+                    $('#'+{{loop.index}}).css({'border': '2px solid #FF0000'});">
+        {% if t.primary_type == "image" or t.primary_type == "img"%}
+        <img class="image" src={{ t.primary_description }}> </img>
+        {% elif t.primary_type == "text"%}   
+        <div class="table-box">
+          <div class="text">{{ t.primary_description }}</div>
+        </div>
+        {% endif %}
       </div>
-      {% endif %}
-    </div>
-  {% endfor %}
+    {% endfor %}
+  </div>
 </div>
 
 

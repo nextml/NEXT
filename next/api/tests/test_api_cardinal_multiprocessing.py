@@ -16,9 +16,9 @@ HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')+':'+os.enviro
 def run_all(assert_200):
 
   app_id = 'CardinalBanditsPureExploration'
-  num_arms = 50
+  num_arms = 150
   true_means = numpy.array(range(num_arms))/float(num_arms)
-  total_pulls_per_client = 51
+  total_pulls_per_client = 50
 
   num_experiments = 1
 
