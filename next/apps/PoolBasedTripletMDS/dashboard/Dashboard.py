@@ -171,17 +171,22 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
             (float) y : y-value of target
         """
 
+        # get list of algorithms associated with project
         alg_list,didSucceed,message = self.db.get(app_id+':experiments',exp_uid,'alg_list')
 
         for algorithm in alg_list:
-            if algorithm['alg_label'] == alg_label:
-                alg_id = algorithm['alg_id']
-                alg_uid = algorithm['alg_uid']
-        
-        list_of_log_dict,didSucceed,message = self.ell.get_logs_with_filter(app_id+':ALG-EVALUATION',{'alg_uid':alg_uid})
-        list_of_log_dict = sorted(list_of_log_dict, key=lambda item: utils.str2datetime(item['timestamp']) )
-        
-        item = list_of_log_dict[-1]
+            if alg_label == algorithm['alg_label']:
+              test_alg_label = algorithm['test_alg_label']
+
+        predict_id = 'evaluate_on_test'
+        params = {'test_alg_label':test_alg_label,'alg_label':alg_label}
+        predict_args_dict = {'predict_id':predict_id,'params':params}
+        predict_args_json = json.dumps(predict_args_dict)
+        next_app = utils.get_app(app_id)
+        args_out_json,didSucceed,message = next_app.predict(exp_uid, predict_args_json, self.db, self.ell)
+        predict_args_dict = json.loads(args_out_json)
+        item = predict_args_dict['args']
+
 
         embedding = item['Xd']
 

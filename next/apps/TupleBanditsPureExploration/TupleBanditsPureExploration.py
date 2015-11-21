@@ -692,7 +692,8 @@ class TupleBanditsPureExploration(AppPrototype):
 
         ell.log( app_id+':ALG-EVALUATION', log_entry  )
 
-      response_args_dict = {}
+        response_args_dict = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'targets':targets,'num_reported_answers':num_reported_answers}
+
       args_out = {'args':response_args_dict,'meta':meta}
       predict_json = json.dumps(args_out)
 

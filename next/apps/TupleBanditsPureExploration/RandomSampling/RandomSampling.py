@@ -105,8 +105,8 @@ class RandomSampling(TupleBanditsPureExplorationPrototype):
     T = resource.get('num_pulls_vec')
     wins_vec = resource.get('running_wins_vec')
 
-    mu = [ 1.0*wins_vec[i]/T[i] for i in range(n)]
-    prec = [ numpy.sqrt(1.0/t) for t in T]
+    mu = [ 1.0*wins_vec[i]/max(1.,T[i]) for i in range(n)]
+    prec = [ numpy.sqrt(1.0/max(1.,t)) for t in T]
     
     return mu,prec
     

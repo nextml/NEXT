@@ -60,17 +60,14 @@ class CardinalBanditsPureExplorationDashboard(AppDashboard):
             (int) ranking : rank (0 to number of targets - 1) representing belief of being best arm
         """
 
-        alg_list,didSucceed,message = self.db.get(app_id+':experiments',exp_uid,'alg_list')
-
-        for algorithm in alg_list:
-            if algorithm['alg_label'] == alg_label:
-                alg_id = algorithm['alg_id']
-                alg_uid = algorithm['alg_uid']
-        
-        list_of_log_dict,didSucceed,message = self.ell.get_logs_with_filter(app_id+':ALG-EVALUATION',{'alg_uid':alg_uid})
-        list_of_log_dict = sorted(list_of_log_dict, key=lambda k: k['num_reported_answers'] )
-        
-        item = list_of_log_dict[-1]
+        predict_id = 'arm_ranking'
+        params = {'alg_label':alg_label}
+        predict_args_dict = {'predict_id':predict_id,'params':params}
+        predict_args_json = json.dumps(predict_args_dict)
+        next_app = utils.get_app(app_id)
+        args_out_json,didSucceed,message = next_app.predict(exp_uid, predict_args_json, self.db, self.ell)
+        predict_args_dict = json.loads(args_out_json)
+        item = predict_args_dict['args']
 
         return_dict = {}
         return_dict['headers'] = [{'label':'Rank','field':'rank'},{'label':'Target','field':'index'},{'label':'Score','field':'score'},{'label':'Precision','field':'precision'}]

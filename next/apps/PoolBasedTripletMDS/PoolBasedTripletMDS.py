@@ -728,9 +728,9 @@ class PoolBasedTripletMDS(AppPrototype):
 
         ell.log( app_id+':ALG-EVALUATION', log_entry  )
 
-        data = params
+        params['timestamp'] = str(log_entry['timestamp'])
+        response_args_dict = params
 
-      response_args_dict = data
       args_out = {'args':response_args_dict,'meta':meta}
       predict_json = json.dumps(args_out)
 
