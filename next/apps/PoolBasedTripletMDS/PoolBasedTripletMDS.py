@@ -575,8 +575,8 @@ class PoolBasedTripletMDS(AppPrototype):
       n,didSucceed,message = db.get(app_id+':experiments',exp_uid,'n')
       
       if num_reported_answers % ((n+4)/4) == 0:
-        predict_id = 'evaluate_on_test'
-        params = {'test_alg_label':test_alg_label,'alg_label':alg_label}
+        predict_id = 'get_embedding'
+        params = {'alg_label':alg_label}
         predict_args_dict = {'predict_id':predict_id,'params':params}
         predict_args_json = json.dumps(predict_args_dict)
 
@@ -646,34 +646,19 @@ class PoolBasedTripletMDS(AppPrototype):
       predict_id = args_dict['predict_id']
       params = args_dict['params']
 
-      if predict_id == "evaluate_on_test":
+      alg_label = params['alg_label']
 
-        alg_label = params['alg_label']
-        test_alg_label = params['test_alg_label']
+      # get list of algorithms associated with project
+      alg_list,didSucceed,message = db.get(app_id+':experiments',exp_uid,'alg_list')
+      
+      # get alg_id
+      for algorithm in alg_list:
+        if alg_label == algorithm['alg_label']:
+          alg_id = algorithm['alg_id']
+          alg_uid = algorithm['alg_uid']
 
-        # get list of algorithms associated with project
-        alg_list,didSucceed,message = db.get(app_id+':experiments',exp_uid,'alg_list')
-        
-        # get alg_id
-        for algorithm in alg_list:
-          if alg_label == algorithm['alg_label']:
-            alg_id = algorithm['alg_id']
-            alg_uid = algorithm['alg_uid']
-            num_reported_answers,didSucceed,message = db.get(app_id+':experiments',exp_uid,'num_reported_answers_for_'+alg_uid)
-            if type(num_reported_answers)!=int:
-              num_reported_answers=0
-          if test_alg_label == algorithm['alg_label']:
-            test_alg_id = algorithm['alg_id']
-            test_alg_uid = algorithm['alg_uid']
-
-        # get list of triplets from test
-        queries,didSucceed,message = db.get_docs_with_filter(app_id+':queries',{'alg_uid':test_alg_uid})
-        
-        test_S = []
-        for query in queries:
-          if 'q' in query.keys():
-            q = query['q']
-            test_S.append(q)
+      meta = {}
+      if predict_id=='get_embedding':
 
         # get sandboxed database for the specific app_id,alg_id,exp_uid - closing off the rest of the database to the algorithm
         rc = ResourceClient(app_id,exp_uid,alg_uid,db)
@@ -681,47 +666,15 @@ class PoolBasedTripletMDS(AppPrototype):
         # get specific algorithm to make calls to 
         alg = utils.get_app_alg(self.app_id,alg_id)
 
-        ##### Triplet Predict #####
-        # call predict
-        if len(test_S)>0:
-
-          labels = []
-          for idx,q in enumerate(test_S):
-            labels.append(1)
-            R = numpy.random.randn()
-            if R < 0:
-              test_S[idx] = [ q[1], q[0], q[2] ]
-              labels[idx] = -1
-
-
-          test_y,dt = utils.timeit(alg.predict)(rc,test_S)
-
-          log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'predict','duration':dt } 
-          log_entry_durations.update( rc.getDurations() )
-          meta = {'log_entry_durations':log_entry_durations}
-
-          # compute error rate: test_y should match labels
-          number_correct = 0.
-          for i in range(len(test_S)):
-            if test_y[i]*labels[i] > 0:
-              number_correct += 1.0
-          accuracy = number_correct/len(test_S)
-          err = 1.0-accuracy
-        else:
-          err = 0.5
-          labels = []
-          test_y = []
-
-        params['num_reported_answers'] = num_reported_answers
-        params['error'] = err
-        params['num_test_triplets'] = len(test_S)
-        params['labels'] = labels
-        params['test_y'] = test_y
-
         ##### Get Embedding #####
-        Xd = alg.getStats(rc)
+        Xd,num_reported_answers,dt = utils.timeit(alg.predict)(rc)
+
+        log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'predict','duration':dt } 
+        log_entry_durations.update( rc.getDurations() )
+        meta = {'log_entry_durations':log_entry_durations}
 
         params['Xd'] = Xd
+        params['num_reported_answers'] = num_reported_answers
 
         log_entry = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'timestamp':utils.datetimeNow() } 
         log_entry.update( params )
@@ -730,6 +683,22 @@ class PoolBasedTripletMDS(AppPrototype):
 
         params['timestamp'] = str(log_entry['timestamp'])
         response_args_dict = params
+
+      elif predict_id=='get_queries':
+
+        # get list of triplets from test
+        queries,didSucceed,message = db.get_docs_with_filter(app_id+':queries',{'alg_uid':alg_uid})
+
+        S = []
+        for query in queries:
+          if 'q' in query.keys():
+            q = query['q']
+            S.append(q)
+
+        params['queries'] = S
+        params['num_reported_answers'] = len(S)
+        response_args_dict = params
+
 
       args_out = {'args':response_args_dict,'meta':meta}
       predict_json = json.dumps(args_out)

@@ -76,6 +76,18 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
         # get list of algorithms associated with project
         alg_list,didSucceed,message = self.db.get(app_id+':experiments',exp_uid,'alg_list')
 
+        for algorithm in alg_list:
+            test_alg_label = algorithm['test_alg_label']
+
+        predict_id = 'get_queries'
+        params = {'alg_label':test_alg_label}
+        predict_args_dict = {'predict_id':predict_id,'params':params}
+        predict_args_json = json.dumps(predict_args_dict)
+        next_app = utils.get_app(app_id)
+        args_out_json,didSucceed,message = next_app.predict(exp_uid, predict_args_json, self.db, self.ell)
+        predict_args_dict = json.loads(args_out_json)
+        test_S = predict_args_dict['args']['queries']
+
         x_min = numpy.float('inf')
         x_max = -numpy.float('inf')
         y_min = numpy.float('inf')
@@ -92,24 +104,35 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
 
             x = []
             y = []
-            t = []
             for item in list_of_log_dict:
-                x.append(item['num_reported_answers'])
-                _y = float(item['error'])
-                y.append(_y)
-                t.append(str(item['timestamp'])[:-3])
+                num_reported_answers = item['num_reported_answers']
+                Xd = item['Xd']
 
-                if _y >0.:
-                    y_min = min(y_min,_y)
+                err = 0.5
+                if len(test_S)>0:
+                    # compute error rate
+                    number_correct = 0.
+                    for q in test_S:
+                        i,j,k = q
+                        score =  numpy.dot(Xd[j],Xd[j]) -2*numpy.dot(Xd[j],Xd[k]) + 2*numpy.dot(Xd[i],Xd[k]) - numpy.dot(Xd[i],Xd[i])
+                        if score > 0:
+                            number_correct += 1.0
+
+                    accuracy = number_correct/len(test_S)
+                    err = 1.0-accuracy
+
+                x.append(num_reported_answers)
+                y.append(err)
+
         
             alg_dict = {}
             alg_dict['legend_label'] = alg_label
             alg_dict['x'] = x
             alg_dict['y'] = y
-            alg_dict['t'] = t
             try:
                 x_min = min(x_min,min(x))
                 x_max = max(x_max,max(x))
+                y_min = min(y_min,min(y))
                 y_max = max(y_max,max(y))
             except:
                 pass
@@ -171,22 +194,14 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
             (float) y : y-value of target
         """
 
-        # get list of algorithms associated with project
-        alg_list,didSucceed,message = self.db.get(app_id+':experiments',exp_uid,'alg_list')
-
-        for algorithm in alg_list:
-            if alg_label == algorithm['alg_label']:
-              test_alg_label = algorithm['test_alg_label']
-
-        predict_id = 'evaluate_on_test'
-        params = {'test_alg_label':test_alg_label,'alg_label':alg_label}
+        predict_id = 'get_embedding'
+        params = {'alg_label':alg_label}
         predict_args_dict = {'predict_id':predict_id,'params':params}
         predict_args_json = json.dumps(predict_args_dict)
         next_app = utils.get_app(app_id)
         args_out_json,didSucceed,message = next_app.predict(exp_uid, predict_args_json, self.db, self.ell)
         predict_args_dict = json.loads(args_out_json)
         item = predict_args_dict['args']
-
 
         embedding = item['Xd']
 

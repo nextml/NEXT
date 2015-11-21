@@ -17,10 +17,10 @@ def run_all(assert_200):
 
   app_id = 'PoolBasedTripletMDS'
   num_objects = 30
-  desired_dimension = 4
+  desired_dimension = 2
   x = numpy.linspace(0,1,num_objects)
   X_true = numpy.vstack([x,x]).transpose()
-  total_pulls_per_client = 20
+  total_pulls_per_client = 100
 
   num_experiments = 1
 

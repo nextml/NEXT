@@ -13,12 +13,12 @@ class PoolBasedTripletMDSPrototype(object):
   def __init__(self): 
     self.app_id = 'PoolBasedTripletMDS'
 
-  def initExp(self,db,n=0,d=0,failure_probability=0.05):
+  def initExp(self,resource,n,d,failure_probability):
     """
     initialize the experiment 
 
     Expected input:
-      (next.database.DatabaseClient) db : database client, can cell db.set(key,value), value=db.get(key) 
+      (next.resource_client.ResourceClient) resource : resource client, can cell resource.set(key,value), value=resource.get(key) 
       (int) n : number of objects
       (int) d : desired dimension
       (float) failure_probability : confidence
@@ -29,12 +29,12 @@ class PoolBasedTripletMDSPrototype(object):
     return NotImplementedError
 
 
-  def getQuery(self,db):
+  def getQuery(self,resource):
     """
     A request to ask which triplet to ask next
 
     Expected input:
-      (next.database.DatabaseClient) db : database client, can cell db.set(key,value), value=db.get(key) 
+      (next.resource_client.ResourceClient) resource : resource client, can cell resource.set(key,value), value=resource.get(key) 
 
     Expected output: 
       (int) index_center : index of arm must be in {0,1,2,...,n-1}
@@ -49,7 +49,7 @@ class PoolBasedTripletMDSPrototype(object):
     reporting back the reward of pulling the arm suggested by getQuery
 
     Expected input:
-      (next.database.DatabaseClient) db : database client, can cell db.set(key,value), value=db.get(key) 
+      (next.resource_client.ResourceClient) resource : resource client, can cell resource.set(key,value), value=resource.get(key) 
       (int) index_center : index of center object
       (int) index_left : index of left object
       (int) index_right : index of right object
@@ -62,22 +62,15 @@ class PoolBasedTripletMDSPrototype(object):
 
   def predict(self,db):
     """
-     
-    """
-    return NotImplementedError
-
-    
-  def getStats(self,db):
-    """
-    reports statistics on the experiment model or process
+    predict embedding
 
     Expected input:
-      (next.database.DatabaseClient) db : database client, can cell db.set(key,value), value=db.get(key) 
+      (next.resource_client.ResourceClient) resource : resource client, can cell resource.set(key,value), value=resource.get(key) 
       
-    Expected output: 
+    Expected output (comma separated): 
       (float[n][d]) X : n-by-d embedding formatted of an n-length list of d-length lists of floats
-      (float[n][2]) X : n-by-2 embedding formatted of an n-length list of 2-length lists of floats
+      (int) num_reported_answers 
     """
     return NotImplementedError
 
-
+  

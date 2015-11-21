@@ -11,18 +11,6 @@ from next.apps.CardinalBanditsPureExploration.Prototype import CardinalBanditsPu
 class LUCB(CardinalBanditsPureExplorationPrototype):
 
   def initExp(self,resource,n,R,failure_probability):
-    """
-    initialize the experiment 
-
-    Expected input:
-      (next.database.ResourceClient) resource : database client, can cell resource.set(key,value), value=resource.get(key) 
-      (int) n : number of arms
-      (float) R : sub-Gaussian parameter, e.g. E[exp(t*X)]<=exp(t^2 R^2/2), defaults to R=0.5 (satisfies X \in [0,1])
-      (float) failure_probability : confidence
-
-    Expected output (comma separated):
-      (boolean) didSucceed : did everything execute correctly
-    """
     resource.set('n',n)
     resource.set('failure_probability',failure_probability)
     resource.set('R',R)
@@ -36,15 +24,6 @@ class LUCB(CardinalBanditsPureExplorationPrototype):
 
   
   def getQuery(self,resource,do_not_ask_list):
-    """
-    A request to ask which index/arm to pull
-
-    Expected input:
-      (next.database.DatabaseClient) resource : database client, can cell resource.set(key,value), value=resource.get(key)
-      (list int) do_not_ask_list : list of indices that are not desired to be asked. 
-    Expected output (comma separated): 
-      (int) target_index : idnex of arm to pull (in 0,n-1)
-    """
     n = resource.get('n')
 
     key_list = ['R','failure_probability']
@@ -115,33 +94,12 @@ class LUCB(CardinalBanditsPureExplorationPrototype):
 
     return index
 
-  def processAnswer(self,resource,target_index,target_reward):
-    """
-    reporting back the reward of pulling the arm suggested by getQuery
-
-    Expected input:
-      (next.database.DatabaseClient) resource : database client, can cell resource.set(key,value), value=resource.get(key) 
-      (int) target_index : index of arm pulled
-      (int) target_reward : reward of arm pulled
-
-    Expected output (comma separated): 
-      (boolean) didSucceed : did everything execute correctly
-    """    
+  def processAnswer(self,resource,target_index,target_reward): 
     resource.increment_many({'Xsum_'+str(target_index):target_reward,'X2sum_'+str(target_index):target_reward*target_reward,'T_'+str(target_index):1,'total_pulls':1})
     
     return True
 
   def predict(self,resource):
-    """
-    uses current model to return empirical estimates with uncertainties
-
-    Expected input:
-      (next.database.DatabaseClient) resource : database client, can cell resource.set(key,value), value=resource.get(key) 
-
-    Expected output: 
-      (list float) mu : list of floats representing the emprirical means
-      (list float) prec : list of floats representing the precision values (standard deviation)
-    """
     n = resource.get('n')
 
     key_list = ['R']

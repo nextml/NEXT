@@ -45,12 +45,6 @@ class AppDashboard(object):
     stat['necessary_params'] = ['task']
     stat_list.append(stat)
 
-    # stat = {}
-    # stat['stat_id'] = 'api_processAnswer_activity_stacked_histogram'
-    # stat['description'] = self.api_processAnswer_activity_stacked_histogram.__doc__
-    # stat['necessary_params'] = []
-    # stat_list.append(stat)
-
     stat = {}
     stat['stat_id'] = 'compute_duration_multiline_plot'
     stat['description'] = self.compute_duration_multiline_plot.__doc__

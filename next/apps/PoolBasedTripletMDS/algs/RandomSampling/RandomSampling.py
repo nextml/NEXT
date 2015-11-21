@@ -27,42 +27,16 @@ class RandomSampling(PoolBasedTripletMDSPrototype):
 
 
   def initExp(self,resource=None,n=0,d=0,failure_probability=0.05):
-    """
-    initialize the experiment 
-
-    Expected input:
-      (next.database.DatabaseClient) resource : database client, can cell resource.set(key,value), value=resource.get(key) 
-      (int) n : number of objects
-      (int) d : desired dimension
-      (float) failure_probability : confidence
-
-    Expected output (comma separated):
-      (boolean) didSucceed : did everything execute correctly
-    """
-
     X = numpy.random.randn(n,d)
 
     resource.set('n',n)
     resource.set('d',d)
     resource.set('delta',failure_probability)
     resource.set('X',X.tolist())
-    # resource.set('S',[]) # do not initialize a list that you plan to append to! When you append_list the first item it will be created automatically.
-    # resource.set('num_reported_answers',0) # do not initialize an incremental variable you plan to increment. When you increment for the first time it will initizliae the variable at 0.
     return True
 
 
   def getQuery(self,resource):
-    """
-    A request to ask which triplet to ask next
-
-    Expected input:
-      (next.database.DatabaseClient) resource : database client, can cell resource.set(key,value), value=resource.get(key) 
-
-    Expected output: 
-      (int) index_center : index of arm must be in {0,1,2,...,n-1}
-      (int) index_left : index of arm must be in {0,1,2,...,n-1} - index_center
-      (int) index_right : index of arm must be in {0,1,2,...,n-1} - index_center - index_left
-    """
     X = numpy.array(resource.get('X'))
 
     q,score = utilsMDS.getRandomQuery(X)
@@ -75,20 +49,6 @@ class RandomSampling(PoolBasedTripletMDSPrototype):
 
   
   def processAnswer(self,resource,index_center,index_left,index_right,index_winner):
-    """
-    reporting back the reward of pulling the arm suggested by getQuery
-
-    Expected input:
-      (next.database.DatabaseClient) resource : database client, can cell resource.set(key,value), value=resource.get(key) 
-      (int) index_center : index of center object
-      (int) index_left : index of left object
-      (int) index_right : index of right object
-      (int) index_winner : index of winner object, index_winner in {index_left,index_right}
-
-    Expected output (comma separated): 
-      (boolean) didSucceed : did everything execute correctly
-    """
-    
     if index_left==index_winner:
       q = [index_left,index_right,index_center]
     else:
@@ -109,37 +69,13 @@ class RandomSampling(PoolBasedTripletMDSPrototype):
     return True
 
 
-  def predict(self,resource,S):
-    """
-    
-    """
-    X = numpy.array(resource.get('X'))
+  def predict(self,resource):
+    key_value_dict = resource.get_many(['X','num_reported_answers'])
 
-    n,d = X.shape
+    X = key_value_dict.get('X',[])
+    num_reported_answers = key_value_dict.get('num_reported_answers',[])
 
-    y = []
-    for idx,q in enumerate(S):
-
-      # returns 1.0 if predicts k closer to i than j, -1.0 otherwise
-      y.append(numpy.sign(utilsMDS.getTripletScore(X,q)))
-
-    return y
-
-    
-  def getStats(self,resource):
-    """
-    reports statistics on the experiment model or process
-
-    Expected input:
-      (next.database.DatabaseClient) resource : database client, can cell resource.set(key,value), value=resource.get(key) 
-      
-    Expected output (comma separated): 
-      (float[n][d]) Xd : n-by-d embedding formatted of an n-length list of d-length lists of floats
-    """
-
-    X = numpy.array(resource.get('X'))
-
-    return X.tolist()
+    return X,num_reported_answers
 
 
   def __incremental_embedding_update(self,resource,args):
