@@ -5,7 +5,7 @@ last updated: 1/17/2015
 """
 import numpy
 import numpy.random
-from next.apps.PoolBasedTripletMDS.UncertaintySampling import utilsMDS
+from next.apps.PoolBasedTripletMDS.algs.UncertaintySampling import utilsMDS
 from next.apps.PoolBasedTripletMDS.Prototype import PoolBasedTripletMDSPrototype
 
 import time

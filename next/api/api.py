@@ -1,5 +1,5 @@
 from next.api import api_blueprint
-from next.dashboard import dashboard
+from next.dashboard.dashboard import dashboard
 from next.query_page import query_page
 
 from flask import Flask

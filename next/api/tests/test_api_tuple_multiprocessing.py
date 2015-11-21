@@ -19,12 +19,12 @@ def run_all(assert_200):
   num_arms = 20
   num_objects_to_display = 4
   true_means = numpy.array(range(num_arms))/float(num_arms)
-  total_pulls_per_client = 50
+  total_pulls_per_client = 10
 
-  num_experiments = 10
+  num_experiments = 1
 
   # clients run in simultaneous fashion using multiprocessing library
-  num_clients = 100
+  num_clients = 300
 
   pool = Pool(processes=num_clients)           
 

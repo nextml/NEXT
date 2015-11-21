@@ -18,7 +18,7 @@ def run_all(assert_200):
   app_id = 'CardinalBanditsPureExploration'
   num_arms = 150
   true_means = numpy.array(range(num_arms))/float(num_arms)
-  total_pulls_per_client = 50
+  total_pulls_per_client = 10
 
   num_experiments = 1
 

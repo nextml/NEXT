@@ -4,7 +4,7 @@ author: Kevin Jamieson, kevin.g.jamieson@gmail.com
 last updated: 1/17/2015
 """
 import numpy.random
-from next.apps.PoolBasedTripletMDS.RandomSampling import utilsMDS
+from next.apps.PoolBasedTripletMDS.algs.RandomSampling import utilsMDS
 from next.apps.PoolBasedTripletMDS.Prototype import PoolBasedTripletMDSPrototype
 
 import time

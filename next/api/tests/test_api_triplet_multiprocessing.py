@@ -20,12 +20,12 @@ def run_all(assert_200):
   desired_dimension = 4
   x = numpy.linspace(0,1,num_objects)
   X_true = numpy.vstack([x,x]).transpose()
-  total_pulls_per_client = 2000
+  total_pulls_per_client = 20
 
   num_experiments = 1
 
   # clients run in simultaneous fashion using multiprocessing library
-  num_clients = 3
+  num_clients = 30
 
   pool = Pool(processes=num_clients)           
 
