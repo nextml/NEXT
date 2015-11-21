@@ -106,10 +106,8 @@ def experiment_dashboard(exp_uid, app_id, exp_key):
                                                          'dashboard'),
                                            PackageLoader('next.dashboard',
                                                          'templates')]))
-    try:
-      template = env.get_template('{}.html'.format(app_id)) 
-    except:
-      template = env.get_template('basic.html') 
+    template = env.get_template('{}.html'.format(app_id)) # looks for /next/apps/{{ app_id }}/dashboard/{{ app_id }}.html
+    
     return template.render(app_id=app_id,
                            exp_uid=exp_uid,
                            exp_key=exp_key,
