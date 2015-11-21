@@ -31,31 +31,6 @@ class ResourceClient(object):
         self.durationGet += dt
         return value
 
-    def get_many(self,key_list):
-        return_dict,didSucceed,message,dt = utils.timeit(self.db.get_many)(self.bucket_id,self.doc_uid,key_list)
-        self.durationGet += dt
-        return return_dict
-
-    def increment(self,key,value=1):
-        new_value,didSucceed,message,dt = utils.timeit(self.db.increment)(self.bucket_id,self.doc_uid,key,value)
-        self.durationSet += dt
-        return new_value
-
-    def increment_many(self,key_value_dict):
-        didSucceed,message,dt = utils.timeit(self.db.increment_many)(self.bucket_id,self.doc_uid,key_value_dict)
-        self.durationSet += dt
-        return True
-
-    def get_list(self,key):
-        value_list,didSucceed,message,dt = utils.timeit(self.db.get_list)(self.bucket_id,self.doc_uid,key)
-        self.durationGet += dt
-        return value_list
-
-    def append_list(self,key,value):
-        didSucceed,message,dt = utils.timeit(self.db.append_list)(self.bucket_id,self.doc_uid,key,value)
-        self.durationSet += dt
-        return True
-
     def set(self,key,value):
         didSucceed,message,dt = utils.timeit(self.db.set)(self.bucket_id,self.doc_uid,key,value)
         self.durationSet += dt
@@ -65,12 +40,58 @@ class ResourceClient(object):
         didSucceed,message,dt = utils.timeit(self.db.delete)(self.bucket_id,self.doc_uid,key)
         self.durationSet += dt
         return True
-        
-    def getDurations(self):
-        timeDurations = {}
-        timeDurations['duration_dbSet'] = self.durationSet
-        timeDurations['duration_dbGet'] = self.durationGet
-        return timeDurations
+
+    def get_many(self,key_list):
+        """
+        key_list is a (list) of (string) keys. 
+        get_many returns dictionary with { key:value } for each key in key_list - all values retrieved simultaneously 
+        If requested key does not exist, the key will not exist in the returned dictionary
+        """
+        return_dict,didSucceed,message,dt = utils.timeit(self.db.get_many)(self.bucket_id,self.doc_uid,key_list)
+        self.durationGet += dt
+        return return_dict
+
+    def increment(self,key,value=1):
+        """
+        Atomic increment. Value can be integer or float. 
+        To initialize 'counter' at value X: rc.increment('counter',X) 
+        Returned value is the value of the key after increment has taken affect
+        """
+        new_value,didSucceed,message,dt = utils.timeit(self.db.increment)(self.bucket_id,self.doc_uid,key,value)
+        self.durationSet += dt
+        return new_value
+
+    def increment_many(self,key_value_dict):
+        """
+        Increments many keys simultaneously.
+        Example:
+            increment_many({'Xsum':.65,'T':1})
+            increment_many({'Xsum':.32,'T':1})
+            increment_many({'Xsum':.45,'T':1})
+
+            data = get_many(['Xsum','T'])
+            empirical_mean = data['Xsum'] / data['T']
+        """
+        didSucceed,message,dt = utils.timeit(self.db.increment_many)(self.bucket_id,self.doc_uid,key_value_dict)
+        self.durationSet += dt
+        return True
+
+    def append_list(self,key,value):
+        """
+        atomically append a value to a list with key 
+        List is initialized when first value is appended: rc.append_list('answer_pairs',(index,answer))
+        """
+        didSucceed,message,dt = utils.timeit(self.db.append_list)(self.bucket_id,self.doc_uid,key,value)
+        self.durationSet += dt
+        return True
+
+    def get_list(self,key):
+        """
+        retrieve list that was initialized and appeneded to by append_list
+        """
+        value_list,didSucceed,message,dt = utils.timeit(self.db.get_list)(self.bucket_id,self.doc_uid,key)
+        self.durationGet += dt
+        return value_list
 
     def daemonProcess(self,daemon_args,time_limit=300):
         """
@@ -81,15 +102,18 @@ class ResourceClient(object):
         on your daemonProcess. If the task is still executing after this time, we will forcefully kill it without notice. 
         Maximum time_limit before a kill signal is sent defaults to 5 minutes.  
         """
-        # import json
-        # import next.broker.broker
-        # broker = next.broker.broker.JobBroker()
         daemonProcess_args_dict = {'alg_uid':self.alg_uid,'daemon_args':daemon_args}
         daemonProcess_args_json = json.dumps(daemonProcess_args_dict)
-        # broker.applySyncByNamespace(self.app_id,self.exp_uid,"daemonProcess",daemonProcess_args_json,namespace=self.alg_uid,ignore_result=True,time_limit=time_limit)
 
         self.db.submit_job(self.app_id,self.exp_uid,'daemonProcess',daemonProcess_args_json,namespace=self.alg_uid,ignore_result=True,time_limit=time_limit)
 
         
-
+    def getDurations(self):
+        """
+        For book keeping purposes only
+        """
+        timeDurations = {}
+        timeDurations['duration_dbSet'] = self.durationSet
+        timeDurations['duration_dbGet'] = self.durationGet
+        return timeDurations
 
