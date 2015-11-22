@@ -177,4 +177,4 @@ var next_widget = (function($){
 
     
 
-})(jQuery,d3);
+})(jQuery);
