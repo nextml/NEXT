@@ -26,6 +26,7 @@ import zipfile
 import requests
 import datetime
 from StringIO import StringIO
+import cgi
 
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
@@ -34,15 +35,15 @@ def generate_target_blob(AWS_BUCKET_NAME,
                          AWS_ID,
                          AWS_KEY,
                          prefix,
-                         primary_file,                         
+                         primary_file,
                          primary_type,
                          alt_file=None,
                          alt_type='text'):
     '''
     Upload targets and return a target blob for upload with the target_manager.
-    
+
     Inputs: ::\n
-        file: fully qualified path of a file on the system. 
+        file: fully qualified path of a file on the system.
 	      Must be a zipfile with pictures or a text file.
         prefix: string to prefix every uploaded file name with
         AWS_BUCKET_NAME: Aws bucket name
@@ -54,8 +55,8 @@ def generate_target_blob(AWS_BUCKET_NAME,
     bucket = get_AWS_bucket(AWS_BUCKET_NAME, AWS_ID, AWS_KEY)
     is_primary_zip = ((type(primary_file) is str and primary_file.endswith('.zip'))
                       or (zipfile.is_zipfile(primary_file)))
-    
-    if is_primary_zip:        
+
+    if is_primary_zip:
         target_file_dict, target_name_dict = zipfile_to_dictionary(primary_file)
         if alt_type != 'text':
             assert alt_file != None, 'Need an alt_file.'
@@ -70,7 +71,7 @@ def generate_target_blob(AWS_BUCKET_NAME,
                 raise Exception('Primary target names must'
                                 'match alt target names.')
 
-            for primary_name, primary_file, alt_name, alt_file in pairs:    
+            for primary_name, primary_file, alt_name, alt_file in pairs:
                 primary_url = upload_to_S3(bucket,
                                            '{}_{}'.format(prefix,
                                                           primary_name),
@@ -86,20 +87,19 @@ def generate_target_blob(AWS_BUCKET_NAME,
                           'alt_type': alt_type,
                           'alt_description': alt_url}
                 targets.append(target)
-        else:
-            if alt_type == 'text':
-                for key, primary_file in target_file_dict.iteritems():    
-                    primary_file_name = target_name_dict[key]
-                    primary_url = upload_to_S3(bucket,
-                                               '{}_{}'.format(prefix,
-                                                              primary_file_name),
-                                               StringIO(primary_file))
-                    target = {'target_id': '{}_{}'.format(prefix, primary_file_name),
-                              'primary_type': primary_type,
-                              'primary_description': primary_url,
-                              'alt_type': 'text',
-                              'alt_description': primary_file_name}
-                    targets.append(target)
+        elif alt_type == 'text':
+            for key, primary_file in target_file_dict.iteritems():
+                primary_file_name = target_name_dict[key]
+                primary_url = upload_to_S3(bucket,
+                                           '{}_{}'.format(prefix,
+                                                          primary_file_name),
+                                           StringIO(primary_file))
+                target = {'target_id': '{}_{}'.format(prefix, primary_file_name),
+                          'primary_type': primary_type,
+                          'primary_description': primary_url,
+                          'alt_type': 'text',
+                          'alt_description': primary_file_name}
+                targets.append(target)
     else:
         if type(primary_file) is str:
             f = open(primary_file)
@@ -110,6 +110,7 @@ def generate_target_blob(AWS_BUCKET_NAME,
         for line in f.read().splitlines():
             line = line.strip()
             if line:
+                line = cgi.escape(line, quote=True)
                 i += 1
                 target = {'target_id': str(i),
                           'primary_type': 'text',
@@ -121,41 +122,41 @@ def generate_target_blob(AWS_BUCKET_NAME,
 
 def get_AWS_bucket(AWS_BUCKET_NAME,AWS_ID, AWS_KEY):
     """
-    Creates a bucket for an S3 account 
+    Creates a bucket for an S3 account
     """
     conn = S3Connection(AWS_ID, AWS_KEY)
     bucket = conn.get_bucket(AWS_BUCKET_NAME)
-    return bucket            
+    return bucket
 
 def upload_to_S3(bucket, key, file_object):
     """
     Uploads a file object to a S3 instance
 
-    Inputs: ::\n 
+    Inputs: ::\n
         bucket: S3 bucket we want to upload to
         key: the key to access the file in the bucket;
         file_object: the file that needs to be uploaded
 
-    """   
+    """
     k = Key(bucket)
     k.key = key
     k.set_contents_from_file(file_object)
     k.set_acl('public-read')
     return k.generate_url(expires_in=0, query_auth=False, force_http=True)
 
-def zipfile_to_dictionary(filename): 
+def zipfile_to_dictionary(filename):
     """
     Takes in a zip file and returns a dictionary with the filenames
     as keys and file objects as values
 
-    Inputs: ::\n 
+    Inputs: ::\n
         file: the concerned zip file
-        
+
     Outputs: ::\n
         result: the returned dictionary
     """
     zf = zipfile.ZipFile(filename,'r')
-    files_list = zf.namelist() 
+    files_list = zf.namelist()
     dictionary = {}
     names_dictionary = {}
     for i in files_list:
@@ -176,14 +177,14 @@ def import_experiment_list(file):
 def launch_experiment(host, experiment_list, AWS_ID, AWS_KEY, AWS_BUCKET_NAME):
   """
   Initialize experiment from an array in an experiment file.
-  
+
   Inputs: ::\n
   	host: hostname of server running next_frontend_base
   	experiment_file: Fully qualified system name of file containing experiment info. Should contain an array called experiment_list, whose elements are dictionaries containing all the info needed to launch an experiment. The dictionary must contain the key initExp, a qualified experiment initialization dictionary. It can also contain an optional target_file key that should be the fully qualified name of a target_file on the system. The target_file can be either text (must end in .txt) or a zipfile containing images (which must end in .zip). Can also add additional context_type and context keys. If the context_type is an image, the context must be a fully qualified file name.
 
   	AWS_ID: Aws id
   	AWS_KEY: Aws key
-  """  
+  """
   exp_uid_list = []
   exp_key_list = []
   widget_key_list = []
@@ -195,36 +196,36 @@ def launch_experiment(host, experiment_list, AWS_ID, AWS_KEY, AWS_BUCKET_NAME):
     # Upload the context if there is one.
     # This is a bit sloppy. Try to think of a better way to do this.
     if 'context' in experiment.keys() and experiment['context_type']=='image':
-      print experiment['context'].split("/")[-1], experiment['context'] 
+      print experiment['context'].split("/")[-1], experiment['context']
       context_url = upload_to_S3(bucket, experiment['context'].split("/")[-1], open(experiment['context']))
       experiment['initExp']['args']['context'] = context_url
       experiment['initExp']['args']['context_type'] = "image"
     elif 'context' in experiment.keys() and experiment['context_type']=='video':
-      print experiment['context'].split("/")[-1], experiment['context'] 
+      print experiment['context'].split("/")[-1], experiment['context']
       context_url = upload_to_S3(bucket, experiment['context'].split("/")[-1], open(experiment['context']))
       experiment['initExp']['args']['context'] = context_url
-      experiment['initExp']['args']['context_type'] = "video"    
+      experiment['initExp']['args']['context_type'] = "video"
     elif 'context' in experiment.keys():
       experiment['initExp']['args']['context'] = experiment['context']
       experiment['initExp']['args']['context_type'] = experiment['context_type']
 
-    url = 'http://{}/api/experiment'.format(host)  
+    url = 'http://{}/api/experiment'.format(host)
     print 'Initializing experiment', experiment['initExp']
     response = requests.post(url, json.dumps(experiment['initExp']), headers={'content-type':'application/json'})
-    
+
     initExp_response_dict = json.loads(response.text)
     exp_uid = initExp_response_dict['exp_uid']
     exp_key = initExp_response_dict['exp_key']
     perm_key = initExp_response_dict['perm_key']
-    
+
     exp_uid_list.append(str(exp_uid))
     exp_key_list.append(str(exp_key))
     widget_key_list.append(str(perm_key))
-     
+
     # Upload targets
     if 'primary_target_file' in experiment.keys():
       target_blob = generate_target_blob(AWS_BUCKET_NAME=AWS_BUCKET_NAME,
-                                         AWS_ID=AWS_ID, 
+                                         AWS_ID=AWS_ID,
                                          AWS_KEY=AWS_KEY,
                                          prefix=str(datetime.date.today()),
                                          primary_file=experiment['primary_target_file'],
@@ -236,10 +237,10 @@ def launch_experiment(host, experiment_list, AWS_ID, AWS_KEY, AWS_BUCKET_NAME):
       create_target_mapping_dict['exp_uid'] = exp_uid
       create_target_mapping_dict['exp_key'] = exp_key
       create_target_mapping_dict['target_blob'] = target_blob['target_blob']
-    
+
       #print create_target_mapping_dict
       url = 'http://{}/api/targets/createtargetmapping'.format(host)
-      response = requests.post(url, json.dumps(create_target_mapping_dict), headers={'content-type':'application/json'})  
+      response = requests.post(url, json.dumps(create_target_mapping_dict), headers={'content-type':'application/json'})
 
     print 'Create Target Mapping response', response, response.text, response.status_code
 
@@ -255,7 +256,7 @@ def launch_experiment(host, experiment_list, AWS_ID, AWS_KEY, AWS_BUCKET_NAME):
 
 if __name__=='__main__':
   opts, args = getopt.getopt(sys.argv[1:], None, ["experiment_file="])
-  opts = dict(opts) 
+  opts = dict(opts)
   # Make sure to check for aws id and key here
   if not 'AWS_SECRET_ACCESS_KEY' in os.environ.keys() or not 'AWS_ACCESS_KEY_ID' in os.environ.keys() or not 'NEXT_BACKEND_GLOBAL_HOST' or not 'AWS_BUCKET_NAME' in os.environ.keys():
     print "You must set AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, NEXT_BACKEND_GLOBAL_HOST, AWS_BUCKET_NAME as environment variables"
