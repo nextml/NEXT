@@ -16,7 +16,7 @@ popup_alert = function(text){
 <div class="modal fade" id="info" tabindex="-1" role="button" aria-labelledby="" aria-hidden="true" data-keyboard="false">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <div class="modal-body" id="question-info" style='text-align:center;'>
+      <div class="modal-body" id="question-info" style='text-align:left;'>
       </div>
       <center>
       <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="">Dismiss</button>
@@ -33,7 +33,7 @@ popup_alert = function(text){
 
     <div class="col-lg-10 col-lg-offset-1" style"display: inline-block">
         <div id = "api_activity_histogram_processAnswer"></div><button type="button" class="btn btn-primary btn-xs"
-                  onclick="popup_alert('This is a graph of when people responded. The x-axis is a datetime string and the y-axis is the number of responses recorded.')">?</button>
+                  onclick="popup_alert('This is a graph depicting the relative frequency of activity over the course of the experiment starting from the launch and ending with the current time.<br><br><b>How it is measured:</b> Events are the timestamps of when answers to queries are received by the system. <br><br><b>How to use this information:</b> Gives the practitioner a qualitative idea of how load on the system has been distributed over time.')">?</button>
     </div>
 </div>
 
@@ -86,7 +86,7 @@ popup_alert = function(text){
         <div class="row">
             <h2> Algorithm timing comparison
             <button type="button" class="btn btn-primary btn-xs"
-                  onclick="popup_alert('How long each leg in <a href=\'\'>this image</a> takes. This is shown for each algorithm.<br>x-axis: API call.<br>y-axis: Time in seconds.<br>title: The leg in the image')">?</button>
+                  onclick="popup_alert('The outside world communicates with NEXT through requests to its HTTP API. A plot for each kind of request describes the amount of time the NEXT system took to respond to the sequence of requests. <br><br><b>How it is measured:</b> For {getQuery,processAnswer,predict} the timer starts when the request from the API is enqueued and stops when the response is sent back to the API. Because daemonComputes are jobs that are submitted by the algorithms (e.g. model updates) the timer starts on initial job submission and stopped when the job completes. Duration is measured in seconds. <br><br><b>How to use this information:</b>This timing information informs the practitioner how long each algorithm of NEXT is taking to respond to requests, which directly affects how long participants answering queries must wait between queries. Note, these times do not take into account the time it takes the response to get from NEXT to the user or the reverse direction. For this information see the Network Delay plots below. If daemonCompute times are large, this could indicate that it is taking a very long time for the model to update and queries are being served based on stale information. However, if much of this time is enqueued time, then depending on the implementation this may not be the case (see where time is being spent in the breakdown plots below).')">?</button>
             </h2>
         </div>
         <div class="row">
@@ -191,7 +191,7 @@ popup_alert = function(text){
     <div class="col-lg-10 col-lg-offset-1">
         <h2> Individual algorithm timing breakdown
             <button type="button" class="btn btn-primary btn-xs"
-                  onclick="popup_alert('The same graphs \'Algorithm timing comparison\' but now shown with tabs for each different algorithm. In each call for a particular algorithm and particular API call (i.e., getQuery\'s compute) is graphed so you can see the relative time each one takes.')">?</button>
+                  onclick="popup_alert('Here the line-graphs of \'Algorithm timing comparison\' are broken down further into stacked-area plots describing how that time is being spent for each algorithm. <br><br><b>How it is measured:</b> All times are the sum total of all time dedicate to the different operations and are measured in seconds. <br><i>- compute:</i> the time the algorithm spent executing its code for this kind of request. <br><i>- dbGet:</i> the time the algorithm spent waiting for \'get\' calls to the database <br><i>- dbSet:</i> the time the algorithm spent waiting for \'set\' calls to the database (includes increment and append operations). <br><i>- enqueued:</i> When the API retrieves a request (or a daemonCompute job is submitted) it is entered into a queue. This time refelects the amount of time that the job sat in the queue. For daemonCompute operations, each algorithm has its own queue and each submitted job is executed sequentially. If in each processAnswer, the query and answer are appended to a list, a daemonCompute is submitted to update the model, and this daemonCompute gets the most recent query,answer pairs from the database, then even if daemonCompute jobs pile up in the queues, the model will actually be up to date since each time a model update occurs it is working with the latest data at that particular time. <br><i>- admin:</i> the time spent by NEXT dedicated to bookkeeping and other administrative tasks, the algorithm developer has no control over this quantity. <br><i>dbGet</i> reflects all the time spent by NEXT dedicated to bookkeeping and other administrative tasks, the algorithm developer has no control over this quantity.  <br><br><b>How to use this information:</b>If an agorithm is performing too slowly, these plots can tell the developer where time is being spent so they can optimize this piece.')">?</button>
         </h2>
     </div>
     <div class="col-lg-10 col-lg-offset-1">
@@ -342,7 +342,7 @@ popup_alert = function(text){
     <div class="col-lg-10 col-lg-offset-1">
         <h2> Client-side timing
             <button type="button" class="btn btn-primary btn-xs"
-                  onclick="popup_alert('A histogram showing how long it took for each query. For each algorithm it is shown (a) the time it took for participants to answer a question (response time) and (b) the time required to present a question (network delay).')">?</button>
+                  onclick="popup_alert('Histograms showing client-side or participant-side timing information. For each algorithm it is shown (a) the time between the query being shown the participant and them selecting an answer (response time) and (b) the time between sending a query to the participant and receiving the answer at NEXT\'s API, with the response time subtracted off (network delay). This information, together with the internal timing of NEXT above, describes where all the time experienced by the participant is going. Different algorithms that request queries of differing difficulty may observe different response times.')">?</button>
         </h2>
     </div>
     <div class="col-lg-10 col-lg-offset-1">
