@@ -9,7 +9,7 @@
     <div class="col-lg-10 col-lg-offset-1">
         <h2> Rankings
             <button type="button" class="btn btn-primary btn-xs"
-                  onclick="popup_alert('Sufficient statistics collected by the algorithm, ordered by decreasing order of likelihood of being the winner. The score reflects the empirical probability of that arm being chosen relative to the other arm shown. The precision describes the square root of 1/4 times the inverse of the number of observations to describe the expected deviation of the empirical mean. Any -1 precision values indicate that that item has not yet receieved answers.')">?</button>
+                  onclick="popup_alert('Sufficient statistics collected by the algorithm, ordered by decreasing order of likelihood of being the winner. The score reflects the empirical probability that a particular arm beats another arm chosen uniformly at random from the total set of arms (e.g. the \'Borda\' score). The precision describes the square root of 1/4 times the inverse of the number of observations. If the so-called \'Borda reduction\' is used then this is an unbiased estimate of the mean and variance of the quantities. Any -1 precision values indicate that that item has not yet receieved answers.')">?</button>
         </h2>
     </div>
     <div class="col-lg-10 col-lg-offset-1">
