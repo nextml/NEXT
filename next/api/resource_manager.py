@@ -246,7 +246,21 @@ class ResourceManager:
 
         return alg_list
 
+    def get_git_hash_for_exp_uid(self,exp_uid):
+        """
+        Returns git_hash of when exp_uid was initialized
 
+        Inputs: ::\n
+            (string) exp_uid : unique experiment identifier
+
+        Outputs: ::\n
+            (string) git_hash : the alg_id of the algorithm
+        
+        """
+        app_id = self.get_app_id(exp_uid)
+        git_hash,didSucceed,message = db.get(app_id+':experiments',exp_uid,'git_hash')
+        
+        return git_hash
 
     def get_participant_uids(self,exp_uid):
         """

@@ -37,6 +37,7 @@ minionworker:
    - CELERY_SYNC_WORKER_COUNT={{CELERY_SYNC_WORKER_COUNT}}
    - CELERY_ASYNC_WORKER_COUNT={{CELERY_ASYNC_WORKER_COUNT}}
    - CELERY_THREADS_PER_ASYNC_WORKER={{CELERY_THREADS_PER_ASYNC_WORKER}}
+   - GIT_HASH={{GIT_HASH}}
    - PYTHONPATH=:/next_backend
 ####################################
 
@@ -61,6 +62,7 @@ nextbackenddocker:
    # global url for dashboards on backend
    - NEXT_BACKEND_GLOBAL_HOST
    - NEXT_BACKEND_GLOBAL_PORT
+   - GIT_HASH={{GIT_HASH}}
    - TERM=xterm
 ####################################
 

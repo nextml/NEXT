@@ -73,6 +73,8 @@ def experiment_dashboard(exp_uid, app_id, exp_key):
     Inputs: ::\n
     	(string) exp_uid, exp_uid for a current experiment.
     """
+    git_hash = rm.get_git_hash_for_exp_uid(exp_uid)
+
     # Not a particularly good way to do this. 
     alg_label_list = rm.get_algs_for_exp_uid(exp_uid)
 
@@ -111,6 +113,7 @@ def experiment_dashboard(exp_uid, app_id, exp_key):
     return template.render(app_id=app_id,
                            exp_uid=exp_uid,
                            exp_key=exp_key,
+                           git_hash=git_hash,
                            alg_list=alg_list,
                            host_url=host_url,
                            perm_key=perm_key,

@@ -716,6 +716,8 @@ def rsync_docker_config(opts, master_nodes, slave_nodes):
     master_num_cpus = instance_info[opts.master_instance_type]['cpu']
     slave_num_cpus = instance_info[opts.instance_type]['cpu']
 
+    git_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD'])[0:-1]
+
     # Create a temp directory in which we will place all the files to be
     # deployed after we substitue template parameters in them
     tmp_dir = tempfile.mkdtemp()
@@ -760,7 +762,8 @@ def rsync_docker_config(opts, master_nodes, slave_nodes):
         "NEXT_BACKEND_NUM_GUNICORN_WORKERS":int(1.6*master_num_cpus+1),
         "NEXT_BACKEND_GLOBAL_PORT":NEXT_BACKEND_GLOBAL_PORT,
         "NEXT_FRONTEND_NUM_GUNICORN_WORKERS":int(1),
-        "NEXT_FRONTEND_GLOBAL_PORT":NEXT_FRONTEND_GLOBAL_PORT
+        "NEXT_FRONTEND_GLOBAL_PORT":NEXT_FRONTEND_GLOBAL_PORT,
+        "GIT_HASH":git_hash
     }
     with open('./templates/docker-compose.yml') as src:
         with open(tmp_dir+'/docker-compose.yml', "w") as dest:

@@ -26,6 +26,13 @@ NEXT_BACKEND_GLOBAL_PORT = os.environ.get('NEXT_BACKEND_GLOBAL_PORT', '8000')
 AWS_ACCESS_ID = os.environ.get('AWS_ACCESS_ID', '')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY', '')
 
+GIT_HASH = os.environ.get('GIT_HASH', '')
+if GIT_HASH=='':
+    import subprocess
+    try:
+        GIT_HASH = subprocess.check_output(['git', 'rev-parse', 'HEAD'])[0:-1]
+    except:
+        GIT_HASH = ''
 
 MINIONREDIS_HOST = os.environ.get('MINIONREDIS_PORT_6379_TCP_ADDR', 'localhost')
 MINIONREDIS_PORT = int(os.environ.get('MINIONREDIS_PORT_6379_TCP_PORT', 6379))
