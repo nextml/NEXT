@@ -1,10 +1,42 @@
+<style>
+  html,body{
+  height:100%;
+  }
+
+  div.container{
+  height:100%;
+  }
+  
+  #wrapper {
+    height:100%;
+  }
+
+  div.row > div.col-xs-6 {
+    height:100%;
+    outline: 1px solid black;
+  }
+  
+  div.row > div.col-xs-12 {
+    height:100%;
+    outline: 1px solid black;
+  }
+  
+  #wrapper > div.row {
+    height:50%;
+  }
+
+  #wrapper img{
+    max-height:100%;
+    max-width:100%;
+    height:auto;
+  }
+</style>
+<br/>
 <div class="row" style="height:50%">
   <!-- Center Target -->
-  <br>
-  <div class="col-xs-12" style="outline: 1px solid black" id="center" >
+  <div class="col-xs-12" id="center" >
     {% if query.center.primary_type == "image" or query.center.primary_type == "img" %}
-    <img class="img-responsive center-block" src={{ query.center.primary_description }}></img>
-
+    <img class="center-block" src={{ query.center.primary_description }}></img>
     {% elif query.center.primary_type == "text" %}    
     <div>
       <div>{{ query.center.primary_description }}</div>    
@@ -18,12 +50,12 @@
     {% endif %}
   </div>
 </div>
-<br>
-<div class="row" style="height:50%">
+<br/>
+<div class="row">
   <!-- Left Target -->
-  <div class="col-xs-6" style="outline: 1px solid black" id="left">
+  <div class="col-xs-6" id="left">
     {% if query.left.primary_type == "image" or query.left.primary_type == "img"%}
-    <img class="img-responsive center-block" src={{ query.left.primary_description }}></img>
+    <img class="center-block" src={{ query.left.primary_description }}></img>
 
     {% elif query.left.primary_type == "text"%}  	
     <div>{{ query.left.primary_description }}</div>
@@ -37,9 +69,9 @@
   </div>
 
   <!-- Right Target -->
-  <div class="col-xs-6" style="outline: 1px solid black" id="right">
+  <div class="col-xs-6" id="right">
     {% if query.right.primary_type == "image" or query.right.primary_type == "img" %}
-    <img class="img-responsive center-block" src={{ query.right.primary_description }}> </img>
+    <img class="center-block" src={{ query.right.primary_description }}> </img>
     {% elif query.right.primary_type == "text" %}		
     <div>{{ query.right.primary_description }}</div>
     {% elif query.center.primary_type == "video" %}
