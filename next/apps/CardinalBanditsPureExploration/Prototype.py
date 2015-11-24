@@ -29,12 +29,13 @@ class CardinalBanditsPureExplorationPrototype(object):
     """
     return NotImplementedError
 
-  def getQuery(self,resource):
+  def getQuery(self,resource,do_not_ask_list):
     """
     A request to ask which index/arm to pull
 
     Expected input:
       (next.resource_client.ResourceClient) resource : resource client, can cell resource.set(key,value), value=resource.get(key) 
+      (list of int) do_not_ask_list : indices in {0,...,n-1} that the algorithm must not return. If there does not exist an index that is not in do_not_ask_list then any index is acceptable (this changes for each participant so they are not asked the same question twice)
 
     Expected output (comma separated): 
       (int) target_index : idnex of arm to pull (in 0,n-1)
