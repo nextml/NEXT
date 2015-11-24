@@ -42,7 +42,9 @@ def get_implemented_algs():
     """
     Returns list of algorithms that are fully operational and implemented for this app
     """
-    return ['UncertaintySampling','RandomSampling','CrowdKernel','STE']
+    import os
+    full_path = os.path.realpath(__file__)
+    return next(os.walk(os.path.dirname(full_path)+'/algs'))[1]
 
 
 def get_default_alg_list():
