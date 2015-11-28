@@ -3,7 +3,7 @@
 
 html,body {
 	height:100%;
-    background:center no-repeat fixed url('/assets/Idea_1.jpg');
+    background:center no-repeat fixed url('https://raw.githubusercontent.com/nextml/NEXT/gh-pages/assets/Idea_1.jpg');
     background-size: cover;
     color:#444;
     font-family: 'Lato', sans-serif;
