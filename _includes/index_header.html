@@ -1,0 +1,47 @@
+    <!-- Navigation -->
+    <a id='menu-toggle' href="#" class="btn btn-dark btn-lg toggle"><i class="fa
+    fa-bars"></i></a>
+    <nav id="sidebar-wrapper">
+        <ul class="sidebar-nav">
+            <a id="menu-close" href="#" class="btn btn-light btn-lg pull-right toggle"><i class="fa fa-times"></i></a>
+            <li class="sidebar-brand">
+                <a href="#top"  onclick = $("#menu-close").click(); >NEXT</a>
+            </li>
+            <li>
+                <a href="#services" onclick = $("#menu-close").click(); >Blog</a>
+            </li>
+            <li>
+                <a href="#top" onclick = $("#menu-close").click(); >Home</a>
+            </li>
+            <li>
+                <a href="#about" onclick = $("#menu-close").click(); >About</a>
+            </li>
+            <li>
+                <a href="#portfolio" onclick = $("#menu-close").click(); >Team</a>
+            </li>
+            <li>
+                <a href="#contact" onclick = $("#menu-close").click(); >Contact</a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Header -->
+    <header id="top" class="header">
+        <div class="text-vertical-center">
+            <h1>NEXT</h1>
+            <h2>Ask better questions</h2>
+            <h2>Get better results.  </h2>
+            <h2>Faster. Automated.   </h2>
+            <br>
+            <a href="{{site.github}}" class="btn btn-primary btn-lg"><i class="fa fa-github
+            fa-2x"></i> GitHub</a>
+            <a href="http://www.cs.berkeley.edu/~kjamieson/resources/next.pdf" class="btn btn-primary btn-lg"><i class="fa fa-book fa-2x"></i> Paper</a>
+            <a href="{{site.github}}/wiki" class="btn btn-primary btn-lg"><i class="fa fa-question-circle fa-2x"></i> Docs</a>
+            <br><br>
+            <a href="blog/" class="btn btn-primary btn-lg"><i class="fa
+                fa-rss fa-2x"></i> Blog</a>
+            <a href="{{site.next_data}}" class="btn btn-primary btn-lg"><i class="fa
+                fa-table fa-2x"></i> Data</a>
+        </div>
+    </header>
+
