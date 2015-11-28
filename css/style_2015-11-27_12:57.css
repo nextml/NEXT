@@ -231,8 +231,8 @@ hr {
 ============================ */
 
 .home-section {
-    padding-top: 10px;
-    padding-bottom: 10px;
+    padding-top: 110px;
+    padding-bottom: 110px;
     display:block;
     position:relative;
     z-index:120;
@@ -287,10 +287,11 @@ hr {
 
     /*background: url(../img/bg1.jpg) no-repeat top center;*/
     background: url(../assets/Idea_1.jpg) no-repeat top center;
+    background-size: 100%;
 }
 
 #intro.intro {
-    padding:20% 0 0 0;
+	padding:20% 0 0 0;
 }
 
 .intro .slogan {
@@ -319,7 +320,7 @@ hr {
   font-weight: 700;
   font-family: Montserrat, sans-serif;
   text-transform: uppercase;
-  text-shadow: -1px 1px 1px #fff;
+  /*text-shadow: -1px 1px 1px #fff;*/
 }
 
 /*desktop*/
@@ -763,13 +764,13 @@ Parallax
     background-color: rgba(255,255,255,.4);
 	}
 
-    .navbar.navbar-custom.navbar-fixed-top {
-        margin-bottom: 30px;
-    }
+	.navbar.navbar-custom.navbar-fixed-top {
+		margin-bottom: 30px;
+	}
 
-    .tp-banner-container {
-        padding-top:40px;
-    }
+	.tp-banner-container {
+		padding-top:40px;
+	}
 
 	.page-scroll a.btn-circle {
 		width: 40px;

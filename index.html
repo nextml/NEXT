@@ -1,178 +1,250 @@
----
-layout: default
----
-<script>
-    (function ($) {
+<!DOCTYPE html>
+<!--Theme taken from [1]-->
+<!--[1]:http://www.bootstrapzero.com/bootstrap-template/just-one-page-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>NEXT</title>
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Codeply">
 
-	jQuery(window).load(function() {
-	    $(".navbar-fixed-top").removeClass("top-nav-collapse");
-	    $("body").css("padding-top", 0);
-	    jQuery("#preloader").delay(100).fadeOut("slow");
-	    jQuery("#load").delay(100).fadeOut("slow");
-	});
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="//cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" rel="stylesheet" />
 
-
-	//jQuery to collapse the navbar on scroll
-	$(window).scroll(function() {
-	    if ($(".navbar").offset().top > 50) {
-		$(".navbar-fixed-top").addClass("top-nav-collapse");
-	    } else {
-		$(".navbar-fixed-top").removeClass("top-nav-collapse");
-	    }
-	});
-
-	//jQuery for page scrolling feature - requires jQuery Easing plugin
-	$(function() {
-	    $('.navbar-nav li a').bind('click', function(event) {
-		var $anchor = $(this);
-		$('html, body').stop().animate({
-		    scrollTop: $($anchor.attr('href')).offset().top
-		}, 1500, 'easeInOutExpo');
-		event.preventDefault();
-	    });
-	    $('.page-scroll a').bind('click', function(event) {
-		var $anchor = $(this);
-		$('html, body').stop().animate({
-		    scrollTop: $($anchor.attr('href')).offset().top
-		}, 1500, 'easeInOutExpo');
-		event.preventDefault();
-	    });
-	});
-
-    })(jQuery);
-</script>
-
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-69154318-1', 'auto');
-  ga('send', 'pageview');
-
-</script>
-
-<!-- Section: intro -->
-<section id="intro" class="intro">
-  <div style="vertical-align:middle;" class="slogan">
-    <h2>Ask better questions.</h2>
-    <h2>Get better results.</h2>
-    <h2>Faster. Automated.</h2>
-    <a href="{{site.github}}" class="btn btn-default btn-lg" ><i class="fa fa-github fa-2x"></i> GitHub</a>
-    <a href="http://www.cs.berkeley.edu/~kjamieson/resources/next.pdf" class="btn btn-default btn-lg"><i class="fa fa-book fa-2x"></i> Paper</a>
-    <!--<a href="https://github.com/nextml/NEXT_data" class="btn btn-default btn-lg"><i class="fa fa-github fa-2x"></i> Data</a>-->
-    <a href="{{site.github}}/wiki" class="btn btn-default btn-lg"><i class="fa fa-question-circle fa-2x"></i></i> Docs</a>
-  </div>
-  <div class="page-scroll">
-    <a href="#about" class="btn btn-circle">
-      <i class="fa fa-angle-double-down animated"></i>
-    </a>
-  </div>
-</section>
-
-
-<!-- Section: About -->
-<section id="about" class="home-section text-center">
-  <div class="heading-about">
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body >
+    <nav class="navbar navbar-trans navbar-fixed-top" role="navigation">
     <div class="container">
-      <div class="row">
-        <div class="col-lg-8 col-lg-offset-2">
-	    <div class="section-heading">
-	      <h2>About NEXT</h2>
-	    </div>
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapsible">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand text-danger" href="#">NEXT</a>
         </div>
-      </div>
+        <div class="navbar-collapse collapse" id="navbar-collapsible">
+            <ul class="nav navbar-nav navbar-left">
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="#section1">Home</a></li>
+                <li><a href="#section2">About</a></li>
+                <li><a href="#section3">Info</a></li>
+                <li><a href="#section4">Team</a></li>
+                <li><a href="blog.html">Blog</a></li>
+                <li>&nbsp;</li>
+            </ul>
+        </div>
     </div>
-  </div>
+</nav>
 
-  <div class="container">
-    <div class="row">
-      <p class="about-next">
-	NEXT accelerates machine learning by automatically focusing and optimizing crowdsourcing to gather information most salient to the task at hand, be it classification, clustering, ranking or regression.
-      </p>
+<section class="container-fluid" id="section1">
+    <div class="v-center">
+        <h1 class="text-center">NEXT</h1>
+        <h2 class="text-center lato animate slideInDown">Ask better questions.</h2>
+        <h2 class="text-center lato animate slideInDown">Get better results.  </h2>
+        <h2 class="text-center lato animate slideInDown">Faster. Automated.   </h2>
+        <p class="text-center">
+        <br><br><br><br><br>
+        <a href="#" class="btn btn-info btn-lg btn-huge lato"
+            data-toggle="modal" data-target="#myModal"><i class="fa
+            fa-github"></i> GitHub</a>
+        <a href="#" class="btn btn-info btn-lg btn-huge lato"
+            data-toggle="modal" data-target="#myModal"><i class="fa fa-book"></i> Paper</a>
+        <a href="#" class="btn btn-info btn-lg btn-huge lato"
+            data-toggle="modal" data-target="#myModal"><i class="fa fa-question-circle"></i> Docs</a>
+        </p>
     </div>
-    <div class="row row-spacing">
-      <div class="col-xs-12 col-md-6">
-        <div class="about-next-title">1. Design your experiment</div>
-        <p class="about-next-desc">
-          How do different beer styles relate to each other?<br>Input some beer styles: Pale Ale, Wheat Beer, Pilsner...
-        </p>
-
-        <div class="about-next-title">2. Enlist some help</div>
-        <p class="about-next-desc">
-          "Is a <b>Stout</b> more similar to a <b>Brown Ale</b> or <b>Pale Ale</b>?"<br>
-          &gt;&gt; <i>Brown Ale</i> <br>
-        </p>
-        <div class="about-next-title">3. Get answers</div>
-        <p class="about-next-desc">
-          Generate quick info-graphics or in-depth, statistical analyses and reports.
-          Because questions are asked sequentially in an adaptive fashion - not in a predefined list - you get your answers faster.
-        </p>
-      </div>
-      <div class="col-xs-12 col-md-6"><img src="{{site.url}}/assets/wordmap.png"/ width="100%"></div>
-    </div>
-    <!-- <i class="fa fa-2x fa-angle-down"></i> -->
+    <a href="#section2">
+        <div class="scroll-down bounceInDown animated">
+            <span>
+                <i class="fa fa-angle-down fa-2x"></i>
+            </span>
+        </div>
+    </a>
 </section>
 
-<!-- Section: Description -->
-<section>
-  <div class="container">
-    <div class="row">
-      <div class="col-md-4">
-        <h2><center>A System for <a href="http://www.cs.berkeley.edu/~kjamieson/resources/next.pdf">Real-World</a> Active Learning</center></h2>
-        <br><p>
-	    Active learning methods automatically adapt data collection by selecting the most
-	    informative  samples  in  order  to  accelerate  machine  learning.   Because  of  this,
-	    real-world testing and comparing active learning algorithms requires collecting
-	    new datasets (adaptively), rather than simply applying algorithms to benchmark
-	    datasets, as is the norm in (passive) machine learning research.  <br><br>To facilitate the
-	    development, testing and deployment of active learning for real applications, we
-	    have built an open-source software system for large-scale active learning research
-	    and experimentation.  The system, called NEXT, provides a unique platform for
-	    real-world, reproducible active learning research. This paper details the challenges
-	    of building the system and demonstrates its capabilities with several experiments.
-	    The results show how experimentation can help expose strengths and weaknesses
-	    of active learning algorithms, in sometimes unexpected and enlightening ways.
-	</p>
-        <center><p><a class="btn btn-default" href="http://www.cs.berkeley.edu/~kjamieson/resources/next.pdf" role="button">View our Paper »</a></p></center>
-      </div>
-
-      <div class="col-md-4">
-        <h2><center>Fully <a href="{{site.github}}">Open Source</a> for Reproducible Research</center></h2>
-        <br><p>
-	    Publishing data and software needed to reproduce experimental results is
-	    essential to scientific progress in all fields.  <br><br>Due to the adaptive nature of data collection in active
-	    learning experiments, it is not enough to simply publish data gathered in a previous experiment. For
-	    other researchers to recreate the experiment, the must be able to also reconstruct the exact adaptive
-	    process that was used to collect the data.  This means that the complete system, including any web
-	    facing  crowd  sourcing  tools,  not  just  algorithm  code  and  data,  must  be  made  publicly  available
-	    and easy to use. <br><br> By leveraging cloud computing, NEXT abstracts away the difficulties of building
-	    a data collection system and lets the researcher focus on active learning algorithm design.   Any
-	    other researcher can replicate an experiment in under one hour by just using the same experiment
-	    initialization parameters.
-	</p>
-        <center><p><a class="btn btn-default" href="{{site.github}}" role="button">Check out our GitHub Repo »</a></p></center><p></p>
-      </div>
-
-      <div class="col-md-4">
-        <h2><center>Built for Researchers <br>&amp; Practitioners</center></h2>
-        <br><p>
-	    NEXT puts state-of-the-art active learning algorithms
-	    in the hands of non-experts interested in collecting data in more efficient ways.  <br><br>This includes psy-
-	    chologists, social scientists, biologists, security analysts and researchers in any other field in which
-	    large amounts of data is collected, sometimes at a large dollar cost and time expense.  Choosing an
-	    appropriate active learning algorithm is perhaps an easier step for non-experts compared to data col-
-	    lection.<br><br>
-
-	    NEXT is accessible through a REST Web API and can be easily deployed in the cloud with minimal
-	    knowledge and expertise using automated scripts.   NEXT provides researchers a set of example
-	    templates and widgets that can be used as graphical user interfaces to collect data from participants
-	    (see supplementary materials for examples).
-	</p>
-        <center><p><a class="btn btn-default" href="{{site.github}}/wiki" role="button">Access NEXT wiki Docs »</a></p></center><p></p>
-      </div>
-
+<section class="container-fluid" id="section2">
+    <div class="container">
+        <div class="row text-center">
+            <h2 class="text-center lato"><b>About NEXT</b></h2>
+            <p class="lead">NEXT accelerates machine learning by automatically focusing and
+            optimizing crowdsourcing to gather information most salient to the
+            task at hand, be it classification, clustering, ranking or
+            regression.</p>
+        </div>
+        <div class="row text-center">
+            <div class='col-md-6'>
+                <h4 class="lead"><b>1. Design your experiment</b></h4>
+                <p class="lead">How do different beer styles relate to each other?<br>Input some
+                beer styles: Pale Ale, Wheat Beer, Pilsner...</p>
+                <h4 class="lead"><b>2. Enlist some help</b></h4>
+                <p class="lead">"Is a <b>Stout</b> more similar to a <b>Brown Ale</b> or <b>Pale Ale</b>?"<br>
+                &gt;&gt; <i>Brown Ale</i></p>
+                <h4 class='lead'><b>3. Get answers</b></h4>
+                <p class="lead">Generate quick info-graphics or in-depth, statistical analyses and reports.
+                Because questions are asked sequentially in an adaptive fashion - not
+                in a predefined list - you get your answers faster.</p>
+            </div>
+            <div class="col-sm-6"><img src="/assets/wordmap.png"/ width="100%"></div>
+        </div>
     </div>
-  </div>
 </section>
+
+<section class="container-fluid" id="section3">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="row">
+                    <div class="col-sm-12 text-center">
+                        <div class="panel panel-default slideInLeft animate">
+                            <div class="panel-heading">
+                                <h3>A SYSTEM FOR REAL-WORLD ACTIVE LEARNING</h3></div>
+                            <div class="panel-body">
+                                <p>Active learning methods automatically adapt
+                                data collection by selecting the most
+                                informative samples in order to accelerate
+                                machine learning. Because of this, real-world
+                                testing and comparing active learning algorithms
+                                requires collecting new datasets (adaptively),
+                                rather than simply applying algorithms to
+                                benchmark datasets, as is the norm in (passive)
+                                machine learning research.</p>
+                                <p>To facilitate the development, testing and deployment of active learning for real applications, we have built an open-source software system for large-scale active learning research and experimentation. The system, called NEXT, provides a unique platform for real-world, reproducible active learning research. This paper details the challenges of building the system and demonstrates its capabilities with several experiments. The results show how experimentation can help expose strengths and weaknesses of active learning algorithms, in sometimes unexpected and enlightening ways.</p>
+                                <hr>GO
+                                <hr>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4 text-center">
+                <div class="row">
+                    <div class="col-sm-12 text-center">
+                        <div class="panel panel-default slideInUp animate">
+                            <div class="panel-heading">
+                                <h3>FULLY OPEN SOURCE FOR REPRODUCIBLE RESEARCH</h3></div>
+                            <div class="panel-body">
+                                <p>Publishing data and software needed to
+                                reproduce experimental results is essential to
+                                scientific progress in all fields.</p>
+                                <p>Due to the adaptive nature of data collection
+                                in active learning experiments, it is not enough
+                                to simply publish data gathered in a previous
+                                experiment. For other researchers to recreate
+                                the experiment, the must be able to also
+                                reconstruct the exact adaptive process that was
+                                used to collect the data. This means that the
+                                complete system, including any web facing crowd
+                                sourcing tools, not just algorithm code and
+                                data, must be made publicly available and easy
+                                to use.</p>
+                                <p>By leveraging cloud computing, NEXT abstracts
+                                away the difficulties of building a data
+                                collection system and lets the researcher focus
+                                on active learning algorithm design. Any other
+                                researcher can replicate an experiment in under
+                                one hour by just using the same experiment
+                                initialization parameters.</p>
+                                <hr>GO
+                                <hr>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4 text-center">
+                <div class="row">
+                    <div class="col-sm-12 text-center">
+                        <div class="panel panel-default slideInRight animate">
+                            <div class="panel-heading">
+                                <h3>BUILT FOR RESEARCHERS & PRACTITIONERS</h3></div>
+                            <div class="panel-body">
+                                <p>There is other content and snippets of details or features that can be placed here..</p>
+                                <p>NEXT puts state-of-the-art active learning
+                                algorithms in the hands of non-experts
+                                interested in collecting data in more efficient
+                                ways.</p>
+                                <p>This includes psy- chologists, social
+                                scientists, biologists, security analysts and
+                                researchers in any other field in which large
+                                amounts of data is collected, sometimes at a
+                                large dollar cost and time expense. Choosing an
+                                appropriate active learning algorithm is perhaps
+                                an easier step for non-experts compared to data
+                                col- lection.</p>
+                                <p>NEXT is accessible through a REST Web API and
+                                can be easily deployed in the cloud with minimal
+                                knowledge and expertise using automated scripts.
+                                NEXT provides researchers a set of example
+                                templates and widgets that can be used as
+                                graphical user interfaces to collect data from
+                                participants (see supplementary materials for
+                                examples).</p>
+                                <hr>GO
+                                <hr>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--/row-->
+    </div>
+    <!--/container-->
+</section>
+
+
+<section class="container-fluid" id="section4">
+    <h2 class="text-center"><b>Team</b></h2>
+    <div class="row">
+        <div class="col-sm-6 col-sm-offset-3">
+            <h3 class="text-center lato slideInUp animate">The mathematicians
+                and developers behind NEXT</h3>
+            <br>
+            <div class="row">
+                 <div class="row">
+                     <div class="col-sm-6">
+                      <h3>Kevin Jamieson</h3>
+                      <img src="http://www.cs.berkeley.edu/~kjamieson/resources/kevin_crop2.jpg" class="img-responsive">
+                      <p> Kevin is a post doctoral researcher in the AMP lab at UC Berkeley working with Ben Recht. His research interests include multi-armed bandit problems, active learning, stochastic optimization, and sequential testing in statistics. His work ranges from theory, to practical algorithms with guarantees, to open-source machine learning systems. He received his PhD from the Electrical Engineering department at the University of Wisconsin - Madison, his MS from Columbia University, and his BS from the University of Washington.</p>
+                     </div>
+                     <div class="col-sm-6">
+                      <h3>Lalit Jain</h3>
+                      <img src="http://lalitjain.com/img/lalit320.jpg" class="img-responsive">
+                        <p> Lalit Jain is a graduate student in mathematics at the University of Wisconsin, Madison. His research interests revolve around algebraic geometry, topology and number theory. He has also been exploring applications of geometry to machine learning. He is advised by Jordan Ellenberg and Robert Nowak. </p>
+                     </div>
+                     <div class="col-sm-6">
+                      <h3>Scott Sievert</h3>
+                      <img src="http://scottsievert.github.io/images/about/colorado_3.png" class="img-responsive">
+                          <p>Scott Sievert is a graduate student at the University of Wisconsin-Madison. His research focuses on signal processing, optimization and inverse problems and received his B.S. from the University of Minnesota. He has contributed to many open source projects and is an ambassador for the Center for Open Science. </p>
+                     </div>
+                     <div class="col-sm-6">
+                      <h3>Rob Nowak</h3>
+                      <img src="http://nowak.ece.wisc.edu/robsea.jpg" class="img-responsive">
+                        <p> Rob is the McFarland-Bascom Professor in Engineering at the University of Wisconsin-Madison, where his research focuses on signal processing, machine learning, optimization, and statistics. He is a professor in <a href="http://www.engr.wisc.edu/ece.html">Electrical and Computer Engineering</a>, as well as being affiliated with the departments of <a href="http://www.cs.wisc.edu/">Computer Sciences</a> and <a href="http://www.engr.wisc.edu/bme.html">Biomedical Engineering</a> at the University of Wisconsin.  He is also a Fellow of the IEEE and the Wisconsin Institute for Discovery</p>
+                     </div>
+                 </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer id="footer">
+    <div class='text-center'>
+    Copyright ©2015 - All rights reserved - NEXT
+    </div>
+</footer>
+
+    <!--scripts loaded here-->
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+
+    <script src="js/scripts.js"></script>
+  </body>
+</html>

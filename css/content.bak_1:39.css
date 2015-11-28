@@ -14,13 +14,14 @@ General purpose CSS that I would like to eventually distribute out to only the f
     color: #4082C4;
 }
 
+
 .next-square-logo {
 	vertical-align: top;
 }
 
 .row-spacing {
-    padding-top: 30px;
-    padding-bottom: 120px;
+	padding-top: 30px;
+	padding-bottom: 120px;
 }
 
 .about-next {
@@ -59,7 +60,7 @@ General purpose CSS that I would like to eventually distribute out to only the f
 
 /*edit description class*/
 .description {
-    padding-bottom: 20px;
+	padding-bottom: 20px;
 }
 
 /*Edit button color*/
