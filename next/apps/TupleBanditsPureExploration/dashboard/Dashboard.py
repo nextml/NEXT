@@ -1,14 +1,3 @@
-"""
-TupleBanditsPureExplorationDashboard 
-author: Nick Glattard, n.glattard@gmail.com
-last updated: 4/24/2015
-
-######################################
-TupleBanditsPureExplorationDashboard
-
-"""
-
-
 import json
 import numpy
 import numpy.random

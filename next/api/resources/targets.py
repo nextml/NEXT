@@ -14,12 +14,10 @@ from next.api.api_util import APIArgument
 
 from next.api.targetmapper import TargetMapper
 from next.api.keychain import KeyChain
-from next.api.widgets_library import widgetManager
 from next.api.resource_manager import ResourceManager
 
 resource_manager = ResourceManager()
 keychain = KeyChain()
-widget_manager = widgetManager()
 targetmapper = TargetMapper()
 
 # Request parser. Checks that necessary dictionary keys are available in a given resource.

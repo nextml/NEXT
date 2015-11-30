@@ -1,13 +1,3 @@
-"""
-PoolBasedTripletMDSDashboard 
-author: Kevin Jamieson, kevin.g.jamieson@gmail.com
-last updated: 2/11/2015
-
-######################################
-PoolBasedTripletMDSDashboard
-"""
-
-
 import json
 import numpy
 import numpy.random
@@ -59,18 +49,7 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
           None
 
         Expected output (in dict):
-          plot_type 'multi_line_plot'
-          (string) x_label : 'Number of answered triplets'
-          (float) x_min : 1
-          (float) x_max : maximum number of reported answers for any algorithm
-          (string) y_label : 'Error on hold-out set'
-          (float) y_min : 0.
-          (float) y_max : maximum duration value achieved by any algorithm
-          (list of dicts with fields) data : 
-            (list of strings) t : list of timestamp strings
-            (list of floats) x : integers ranging from 1 to maximum number of elements in y (or t)
-            (list of floats) y : list of durations
-            (string) legend_label : alg_label
+          (dict) MPLD3 plot dictionary
         """
 
         # get list of algorithms associated with project
@@ -139,18 +118,6 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
 
             list_of_alg_dicts.append(alg_dict)
 
-        return_dict = {}
-        return_dict['data'] = list_of_alg_dicts
-        return_dict['plot_type'] = 'multi_line_plot'
-        return_dict['x_label'] = 'Number of answered triplets'
-        return_dict['x_min'] = x_min
-        return_dict['x_max'] = x_max
-        return_dict['y_label'] = 'Error on hold-out set'
-        return_dict['y_min'] = y_min
-        return_dict['y_max'] = y_max
-
-        # return return_dict
-
         import matplotlib.pyplot as plt
         import mpld3
         fig, ax = plt.subplots(subplot_kw=dict(axisbg='#EEEEEE'))
@@ -167,12 +134,7 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
           label.set_fontsize('small')
         plot_dict = mpld3.fig_to_dict(fig)
 
-
         return plot_dict
-
-
-
-        
 
 
     def most_current_embedding(self,app_id,exp_uid,alg_label):
