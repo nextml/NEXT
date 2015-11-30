@@ -10,13 +10,17 @@ from flask.ext.restful import Resource, reqparse, request
 import json, random
 import next.utils
 import next.broker.broker
+from next.api.targetmapper import TargetMapper
 from next.api.resource_manager import ResourceManager
 from next.api.api_util import *
 from next.api.api_util import APIArgument
 from next.api.keychain import KeyChain
+
+
 resource_manager = ResourceManager()
 broker = next.broker.broker.JobBroker()
 keychain = KeyChain()
+targetmapper = TargetMapper()
 
 # Request parser. Checks that necessary dictionary keys are available in a given resource.
 # We rely on learningLib functions to ensure that all necessary arguments are available and parsed. 
@@ -165,8 +169,15 @@ class Experiment(Resource):
         post_parser.add_argument('app_id', type=str, required=True)
         post_parser.add_argument('args', type=dict, required=True)
         
+        
         # Validate args with post_parser
         args_data = post_parser.parse_args()
+
+        # Parse out targets 
+        targets = request.json.pop('targets',None)
+        if targets:
+            args_data['args']['n'] = len(targets)
+            
         app_id = args_data["app_id"]
         site_id = args_data.get('site_id', None)
         site_key = args_data.get('site_key', None )
@@ -179,11 +190,15 @@ class Experiment(Resource):
         # Args from dict to json type             
         args_json = json.dumps(args_data["args"])
         # Execute initExp through the broker 
-        response_json,didSucceed,message = broker.applyAsync(app_id,exp_uid,"initExp",args_json)
-
+        response_json,didSucceed,message = broker.applyAsync(app_id,
+                                                             exp_uid,
+                                                             'initExp',
+                                                             args_json) 
         if not didSucceed:
-            return attach_meta({}, meta_error['InitExpError'] ,backend_error=message), 400
-        
+            return attach_meta({},
+                               meta_error['InitExpError'] ,
+                               backend_error=message), 400
+
         # Add experiment to experiments bucket
         didSucceed, message = resource_manager.set_experiment(site_id, exp_uid)
         
@@ -193,8 +208,15 @@ class Experiment(Resource):
         # Create an experiment key and a perm key
         exp_key = keychain.create_exp_key(site_id, site_key, exp_uid)
         perm_key = keychain.create_perm_key(exp_uid, exp_key)
-    
-        return attach_meta({'exp_uid':exp_uid, 'exp_key':exp_key, 'perm_key':perm_key}, meta_success), 200
+        print "targets", type(targets), targets, len(targets)
+        
+        # Add targets
+        if targets:
+            current_target_mapping = targetmapper.create_target_mapping(exp_uid,
+                                                                        targets)
+        return attach_meta({'exp_uid':exp_uid,
+                            'exp_key':exp_key,
+                            'perm_key':perm_key}, meta_success), 200
  
         
         

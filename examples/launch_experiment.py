@@ -117,7 +117,7 @@ def generate_target_blob(AWS_BUCKET_NAME,
                           'alt_type': 'text',
                           'alt_description':line}
                 targets.append(target)
-    return {'target_blob' : targets}
+    return targets
 
 def get_AWS_bucket(AWS_BUCKET_NAME,AWS_ID, AWS_KEY):
     """
@@ -208,6 +208,19 @@ def launch_experiment(host, experiment_list, AWS_ID, AWS_KEY, AWS_BUCKET_NAME):
       experiment['initExp']['args']['context'] = experiment['context']
       experiment['initExp']['args']['context_type'] = experiment['context_type']
 
+
+    # Upload targets
+    if 'primary_target_file' in experiment.keys():
+        targets = generate_target_blob(AWS_BUCKET_NAME=AWS_BUCKET_NAME,
+                                       AWS_ID=AWS_ID,
+                                       AWS_KEY=AWS_KEY,
+                                       prefix=str(datetime.date.today()),
+                                       primary_file=experiment['primary_target_file'],
+                                       primary_type=experiment['primary_type'],
+                                       alt_file=experiment.get('alt_target_file', None),
+                                       alt_type=experiment.get('alt_type','text'))
+        experiment['initExp']['targets'] = targets
+        
     url = 'http://{}/api/experiment'.format(host)
     print 'Initializing experiment', experiment['initExp']
     response = requests.post(url, json.dumps(experiment['initExp']), headers={'content-type':'application/json'})
@@ -220,28 +233,6 @@ def launch_experiment(host, experiment_list, AWS_ID, AWS_KEY, AWS_BUCKET_NAME):
     exp_uid_list.append(str(exp_uid))
     exp_key_list.append(str(exp_key))
     widget_key_list.append(str(perm_key))
-
-    # Upload targets
-    if 'primary_target_file' in experiment.keys():
-      target_blob = generate_target_blob(AWS_BUCKET_NAME=AWS_BUCKET_NAME,
-                                         AWS_ID=AWS_ID,
-                                         AWS_KEY=AWS_KEY,
-                                         prefix=str(datetime.date.today()),
-                                         primary_file=experiment['primary_target_file'],
-                                         primary_type=experiment['primary_type'],
-                                         alt_file=experiment.get('alt_target_file', None),
-                                         alt_type=experiment.get('alt_type','text'))
-      create_target_mapping_dict = {}
-      create_target_mapping_dict['app_id'] = experiment['initExp']['app_id']
-      create_target_mapping_dict['exp_uid'] = exp_uid
-      create_target_mapping_dict['exp_key'] = exp_key
-      create_target_mapping_dict['target_blob'] = target_blob['target_blob']
-
-      #print create_target_mapping_dict
-      url = 'http://{}/api/targets/createtargetmapping'.format(host)
-      response = requests.post(url, json.dumps(create_target_mapping_dict), headers={'content-type':'application/json'})
-
-    print 'Create Target Mapping response', response, response.text, response.status_code
 
     print
     print "Query Url is at:", "http://"+host+"/query/query_page/query_page/"+exp_uid+"/"+perm_key

@@ -17,7 +17,7 @@ meta_success = {'status':'OK', 'code':200}
 class About(Resource):
     def get(self, app_id=None):
         if app_id:
-            return api_util.attach_meta(utils.get_app_info_object(app_id),
+            return api_util.attach_meta({'api':utils.get_app_info_object(app_id)},
                                         meta_success), 200
         message = ('Welcome to the next.discovery system.\n '
                    'Available apps {}'.format(', '.join(utils.get_supported_apps())))
