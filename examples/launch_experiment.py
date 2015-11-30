@@ -219,7 +219,7 @@ def launch_experiment(host, experiment_list, AWS_ID, AWS_KEY, AWS_BUCKET_NAME):
                                        primary_type=experiment['primary_type'],
                                        alt_file=experiment.get('alt_target_file', None),
                                        alt_type=experiment.get('alt_type','text'))
-        experiment['initExp']['targets'] = targets
+        experiment['initExp']['args']['targets'] = targets
         
     url = 'http://{}/api/experiment'.format(host)
     print 'Initializing experiment', experiment['initExp']

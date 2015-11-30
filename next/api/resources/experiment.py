@@ -174,7 +174,7 @@ class Experiment(Resource):
         args_data = post_parser.parse_args()
 
         # Parse out targets 
-        targets = request.json.pop('targets',None)
+        targets = args_data['args'].pop('targets',None)
         if targets:
             args_data['args']['n'] = len(targets)
             
