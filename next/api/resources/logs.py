@@ -9,11 +9,14 @@ example use:
 get a tripletMDS query:
 curl -X GET http://localhost:8001/api/experiment/[exp_uid]/[exp_key]/logs
 '''
-from flask import Flask
+from flask import Flask, request, send_file
 from flask.ext import restful
 from flask.ext.restful import Resource, reqparse
 
 import json
+import zipfile
+from io import BytesIO as BytesIO
+
 import next.utils
 import next.broker.broker
 from next.api.api_util import *
@@ -45,52 +48,8 @@ meta_success = {
 
 # Logs resource class
 class Logs(Resource):
-    def get(self, exp_uid, exp_key):
-        """
-        .. http:get:: /experiment/<exp_uid>/logs
 
-        Get all logs associated with a given exp_uid.
-
-        **Example request**:
-
-        .. sourcecode:: http
-
-        GET /experiment/<exp_uid>/logs HTTP/1.1
-        Host: next_backend.next.discovery.wisc.edu
-
-        **Example response**:
-
-        .. sourcecode:: http
-        
-        HTTP/1.1 200 OK
-        Vary: Accept
-        Content-Type: application/json
-
-        [
-        	log_data: [experiment_logs],
-        	status: {
-        		code: 200,
-        		status: OK,
-       		},
-        ]
-        
-        :>json log_data: list experiment_logs of all logs for specified experiment.
-
-        :statuscode 200: Logs successfully returned
-        :statuscode 400: Logs failed to be generated
-    	""" 
-        if not keychain.verify_exp_key(exp_uid, exp_key):
-            return api_util.attach_meta({}, api_util.verification_dictionary), 401
-
-        # Get logs for exp_uid from resource_manager
-        experiment_logs = resource_manager.get_experiment_logs(exp_uid)
-        if not experiment_logs:
-            return attach_meta({'message':'No logs to report.'},meta_success), 200
-        else:
-            all_logs = {'log_data': experiment_logs}
-            return attach_meta(all_logs,meta_success), 200
-
-    def get(self, exp_uid, exp_key, log_type):
+    def get(self, exp_uid, exp_key, log_type=None):
         """
         .. http:get:: /experiment/<exp_uid>/logs/<log_type>
 
@@ -126,11 +85,34 @@ class Logs(Resource):
         """ 
         if not keychain.verify_exp_key(exp_uid, exp_key):
             return api_util.attach_meta({}, api_util.verification_dictionary), 401
+
+        zip_true = False
+        if request.args.get('zip'):
+            try:
+                zip_true = eval(request.args.get('zip'))
+            except:
+                pass
+
         
         # Get logs for exp_uid from resource_manager
-        experiment_logs = resource_manager.get_experiment_logs_of_type(exp_uid,log_type)
-        if not experiment_logs:
-            return attach_meta({'message':'No logs to report.'},meta_success), 200
-        else:
+        if log_type:
+            experiment_logs = resource_manager.get_experiment_logs_of_type(exp_uid,
+                                                                           log_type)
             all_logs = {'log_data': experiment_logs}
             return attach_meta(all_logs,meta_success), 200
+        else:
+            experiment_logs = resource_manager.get_experiment_logs(exp_uid)
+            all_logs = {'log_data': experiment_logs}
+            if zip_true:
+                zip_logs = BytesIO()
+                with zipfile.ZipFile(zip_logs, 'w') as zf:
+                    zf.writestr('logs.json', json.dumps(all_logs))
+                zip_logs.seek(0)
+                return send_file(zip_logs,
+                                 attachment_filename='logs.zip',
+                                 as_attachment='True')
+            else:
+                return attach_meta(all_logs,meta_success), 200
+
+        if not experiment_logs:
+            return attach_meta({'message':'No logs to report.'},meta_success), 200

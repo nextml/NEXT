@@ -6,7 +6,6 @@ from jinja2 import Environment, FileSystemLoader
 import next.broker.broker
 from next.api.targetmapper import TargetMapper
 from next.api.resource_manager import ResourceManager
-from next.api.widgets_library.widget_prototype import Widget
 
 # Use the current directory for widget templates
 TEMPLATES_DIRECTORY = os.path.dirname(__file__)
@@ -16,7 +15,7 @@ resource_manager = ResourceManager()
 broker = next.broker.broker.JobBroker()
 targetmapper = TargetMapper() 
 
-class WidgetGenerator(Widget):
+class WidgetGenerator():
     def getQuery(self, args):
         """
         Generates a getQuery widget. 

@@ -1,7 +1,6 @@
 from jinja2 import Environment, FileSystemLoader
 import json
 import os
-from next.api.widgets_library.widget_prototype import Widget
 import next.broker.broker
 from next.api.resource_manager import ResourceManager
 from next.api.targetmapper import TargetMapper
@@ -16,8 +15,7 @@ broker = next.broker.broker.JobBroker()
 targetmapper = TargetMapper() 
 
 
-class WidgetGenerator(Widget):
-
+class WidgetGenerator():
     
     def getQuery(self, args):
         """

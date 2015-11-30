@@ -8,38 +8,80 @@
 
 {% block body %}
 <!-- <div class="col-lg-12 "> -->
-	<div class="col-lg-8 col-lg-offset-2">
-		<h1 style="text-align:center;" class="page-header">Experiments</h1>
-		<p style="text-align:center;padding-bottom:20px;">Click on an experiment to see it's dashboard</p>
-	</div>
+<div class="row">
+  <div class="col-lg-8 col-lg-offset-2">
+    <h1 style="text-align:center;" class="page-header">Experiments</h1>
+    <p style="text-align:center;padding-bottom:20px;">Click on an experiment to see it's dashboard</p>
+  </div>
 
 
-	<div class="col-sm-10 col-sm-offset-1">
-		<table class="table table-bordered left">
-		  <thead>
-		    <th> Experiment ID </th>
-		    <th> App ID </th>
-		    <th> Date </th>
-		  </thead>
-		  {% for experiment in experiments %}
-		  <tr>
-		    <td>
-		      <a href="{{ url_for('dashboard.experiment_dashboard', exp_uid = experiment.exp_uid, app_id = experiment.app_id, exp_key = experiment.exp_key) }}">{{ experiment.exp_uid }}</a>
-		    </td>
-		    <td>
-		    {{ experiment.app_id }}
-		    </td>
-		    <td>
-	    	{{ experiment.start_date }}
-		    </td>
-		  </tr>
-		  {% endfor %}
-		</table>
-	</div>
-	<br>
-	<div class="col-sm-10 col-sm-offset-1">
-	  <a class="btn btn-info" role="button" href="/api/database/databasebackup"> Backup Experiments </a>
-	</div>
+  <div class="col-sm-10 col-sm-offset-1">
+    <table class="table table-bordered left">
+      <thead>
+	<th> Experiment ID </th>
+	<th> App ID </th>
+	<th> Date </th>
+      </thead>
+      {% for experiment in experiments %}
+      <tr>
+	<td>
+	  <a href="{{ url_for('dashboard.experiment_dashboard', exp_uid = experiment.exp_uid, app_id = experiment.app_id, exp_key = experiment.exp_key) }}">{{ experiment.exp_uid }}</a>
+	</td>
+	<td>
+	  {{ experiment.app_id }}
+	</td>
+	<td>
+	  {{ experiment.start_date }}
+	</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
 
+<div class="row">
+  <div class="col-md-6 center-block" style="border-right: 1px solid #ccc;">
+    <div class="center-block">
+    <!-- Backup button -->
+    <label for="exampleInputFile">Backup Experiments</label>
+    <p class="help-block">Download Database Backup.</p>
+    <a class="btn btn-info" role="button" href="/api/database/databasebackup"> Download </a>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="center-block"
+	 <!-- Restore -->
+	 <form method="post" enctype="multipart/form-data" class="box" action="/api/database/databaserestore">
+	   <div class="form-group">
+	     <label for="exampleInputFile">Restore Zip File</label>
+	     <p>Select a database backup file for restoring.</p><p> <font color="red">Warning: This will delete any current data and experiments on this running instance of NEXT</font></p>
+	     <input type="file" id="exampleInputFile" name="primary_file">
+	   </div>
+	   <script>
+	     loading = function(){
+	     console.log('please wait!');
+	     $('#pleaseWaitDialog').modal('show');//.show();
+	     };
+	   </script>
+	   
+	   <!-- Waiting for dialog -->
+	   <div class="modal fade" id="pleaseWaitDialog" tabindex="-1" role="dialog" aria-labelledby="notice" aria-hidden="true" data-keyboard="false">
+	     <div class="modal-dialog modal-lg">
+	       <div class="modal-content">
+		 <div class="modal-body" id="question-info" style='text-align:center;'></div>
+		 <center>
+		   <img src="/static/img/waiting.gif" style="width:300px; height:75;" />
+		   <br>
+		   Uploading...
+		 </center>
+	       </div>
+	     </div>
+	   </div>
+	   <input type="submit" onclick="loading();" class="btn btn-info" style="margin-bottom:20px" value="Restore" />  
+	 </form>
+  </div>
+</div>
+</div>
 <!-- </div> -->
 {% endblock %} 

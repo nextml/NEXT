@@ -7,24 +7,33 @@ edited: 2/17/15
 This file is used a resource the provides information like a description of this app, the
 supported algorithms and default parameters. This is NOT somewhere to retrieve experiment-specific information.
 """
+import next.apps.InfoPrototype as InfoPrototype
 
 def get_about():
     """
     Returns description of app
     """
     about_str = (
-"""PoolBasedTripletMDS applies crowd-sourcing and adaptive sampling to 
-non-metric multidimensional scaling (NMDS). The NMDS objective is simple enough to state. 
-Condsider n objects (e.g. different kinds of beer) and suppose you are given a set of relations 
-like "object A is more similar to object B than C." For a large set of these relations and given a 
-desired dimension input, NMDS attempts to find a set of n points in d-dimensions, denoted 
-x1,x2,...,xn where each xi is a d-dimensional vector, that best agrees with the given relations in 
-the sense that if "object A is more similar to object B than C" then NMDS tries to find a set of points 
-in which ||xA - xB||_2 < ||xA - xC||_2 on as many of these triplets as possible (Note, ||z||_2 is 
-defined as the 2-norm: ||z||_2 = sqrt( z(1)^2 + z(2)^2 + ... + z(n)^2 )). The set of points, or 
-embedding, is evaluated on different metrics, the most natural one being the number of relations, or triplets 
-the embedding fails to satisfy in the given set of relations.""")
+        """PoolBasedTripletMDS applies crowd-sourcing and adaptive sampling to 
+        non-metric multidimensional scaling (NMDS). The NMDS objective is simple enough to state. 
+        Condsider n objects (e.g. different kinds of beer) and suppose you are given a set of relations 
+        like "object A is more similar to object B than C." For a large set of these relations and given a 
+        desired dimension input, NMDS attempts to find a set of n points in d-dimensions, denoted 
+        x1,x2,...,xn where each xi is a d-dimensional vector, that best agrees with the given relations in 
+        the sense that if "object A is more similar to object B than C" then NMDS tries to find a set of points 
+        in which ||xA - xB||_2 < ||xA - xC||_2 on as many of these triplets as possible (Note, ||z||_2 is 
+        defined as the 2-norm: ||z||_2 = sqrt( z(1)^2 + z(2)^2 + ... + z(n)^2 )). The set of points, or 
+        embedding, is evaluated on different metrics, the most natural one being the number of relations, or triplets 
+        the embedding fails to satisfy in the given set of relations.""")
     return about_str
+
+def get_info_object():
+    info = InfoPrototype.get_info_object(get_implemented_algs)
+    args =  info['values']['initExp']['values']['args']['values'] 
+    args['d'] = {'description':'Dimension of embedding.',
+                 'type':'num',
+                 'values':[]}
+    return info
 
 def get_default_instructions():
     instructions_str = "Please select, using your mouse or left and right arrow keys, the item on the bottom that is closest to the top."
@@ -32,7 +41,7 @@ def get_default_instructions():
 
 def get_default_debrief():
     debrief = "Thank you for participating"
-    return debrief_str
+    return debrief
 
 def get_default_num_tries():
     num_tries = 100
@@ -45,7 +54,6 @@ def get_implemented_algs():
     import os
     full_path = os.path.realpath(__file__)
     return next(os.walk(os.path.dirname(full_path)+'/algs'))[1]
-
 
 def get_default_alg_list():
     """

@@ -14,12 +14,11 @@ from next.api.api_util import APIArgument
 
 from next.api.targetmapper import TargetMapper
 from next.api.keychain import KeyChain
-from next.api.widgets_library import widgetManager
+
 from next.api.resource_manager import ResourceManager
 
 resource_manager = ResourceManager()
 keychain = KeyChain()
-widget_manager = widgetManager()
 
 # Request parser. Checks that necessary dictionary keys are available in a given resource.
 # We rely on learningLib functions to ensure that all necessary arguments are available and parsed.
@@ -56,15 +55,18 @@ class Widgets(Resource):
 
         """
         args = request.get_json()
-        print "args for this widget request", args
-        app_id = resource_manager.get_app_id(args["exp_uid"])
-        args["app_id"] = app_id
+        app_id = str(resource_manager.get_app_id(args["exp_uid"]))
+        args['app_id'] = str(app_id)
 
         # Comment this back in, having some issues with it right now.
         # if not keychain.verify_widget_key(args['exp_uid'], args['widget_key']):
         #    return api_util.attach_meta({}, verification_error), 401
-        
-        widget = widget_manager.get_widget(args)
+        app_module = __import__('next.apps.{}.widgets'.format(app_id),
+                                fromlist=[app_id])
+        app_class = getattr(app_module, 'WidgetGenerator')
+        app = app_class()
+        widget_func = getattr(app, args['name'])
+        widget = widget_func(args)
         
         return widget, 200, {'Access-Control-Allow-Origin':'*', 'Content-Type':'application/json'}
 

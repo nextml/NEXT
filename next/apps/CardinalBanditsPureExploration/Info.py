@@ -7,7 +7,7 @@ edited: 11/13/15
 This file is used a resource the provides information like a description of this app, the
 supported algorithms and default parameters. This is NOT somewhere to retrieve experiment-specific information.
 """
-
+import next.apps.InfoPrototype as InfoPrototype
 def get_about():
     """
     Returns description of app
@@ -15,6 +15,20 @@ def get_about():
     about_str = (
         """Standard multi-armed bandit problem""")
     return about_str
+
+def get_info_object():
+    info = InfoPrototype.get_info_object(get_implemented_algs)
+    args =  info['values']['initExp']['values']['args']['values']
+    
+    args['R'] = {'description': 'Possible rewards from [1..R].',
+                 'type':'num',
+                 'values':[]}
+    
+    args['failure_probability'] = {'description': 'Failure probability.',
+                                   'type':'num',
+                                   'values':[]}
+    return info
+
 
 def get_default_instructions():
     instructions_str = "Please select the rating you think is most appropriate."

@@ -9,16 +9,18 @@ example use:
 get a tripletMDS query:
 curl -X GET http://localhost:8001/api/experiment/[exp_uid]/[exp_key]/participants
 '''
-from flask import Flask
+from flask import Flask, send_file, request
 from flask.ext import restful
 from flask.ext.restful import Resource, reqparse
 
 import json
+from io import BytesIO 
+import zipfile
+
 import next.utils
 import next.broker.broker
-from next.api.api_util import *
+import next.api.api_util as api_util
 from next.api.api_util import APIArgument
-
 from next.api.targetmapper import TargetMapper
 from next.api.keychain import KeyChain
 from next.api.resource_manager import ResourceManager
@@ -81,8 +83,15 @@ class Participants(Resource):
 
         :statuscode 200: Participants responses successfully returned
         :statuscode 400: Participants responses failed to be generated
-    	""" 
-        if not keychain.verify_exp_key(exp_uid,exp_key):
+    	"""
+        zip_true = False
+        if request.args.get('zip'):
+            try:
+                zip_true = eval(request.args.get('zip'))
+            except:
+                pass
+            
+        if not keychain.verify_exp_key(exp_uid, exp_key):
             return api_util.attach_meta({}, api_util.verification_error), 401
 
         # Get all participants for exp_uid from resource_manager
@@ -91,17 +100,26 @@ class Participants(Resource):
 
         # Iterate through list of all participants for specified exp_uid
         for participant in participant_uids:
-            response = resource_manager.get_participant_data(participant,exp_uid)
+            response = resource_manager.get_participant_data(participant,
+                                                             exp_uid)
             # Append participant query responses to list
             participant_responses[participant] = response
             
-        # Add list of all participant responses into a dictionary for internal communication
-        all_participant_responses = {'participant_responses': participant_responses}
-
-        for participant,responses in all_participant_responses["participant_responses"].iteritems():
+        for participant, responses in participant_responses.iteritems():
             for response in responses:
-                for target_index in response["target_indices"]:
-                    target_index['target'] = targetmapper.get_target_data(exp_uid, target_index["index"])
-
-        # Return participant dict and meta codes
-        return attach_meta(all_participant_responses,meta_success), 200
+                for target_index in response['target_indices']:
+                    target_index['target'] = targetmapper.get_target_data(exp_uid,
+                                                                          target_index['index'])
+                    
+        all_responses = {'participant_responses': participant_responses}
+        if zip_true:
+            zip_responses = BytesIO()
+            with zipfile.ZipFile(zip_responses, 'w') as zf:
+                zf.writestr('participants.json', json.dumps(all_responses))
+            zip_responses.seek(0)
+        
+            return send_file(zip_responses,
+                             attachment_filename='participants.zip',
+                             as_attachment='True')
+        else:
+            return api_util.attach_meta(all_responses, meta_success), 200

@@ -13,10 +13,14 @@ api_interface = api_util.NextBackendApi(api)
 
 # Format: Resource Class, get url, post url (when applicable)
 from next.api.resources.experiment import Experiment
-api_interface.add_resource(Experiment, '/experiment', '/experiment/<string:exp_uid>/<string:exp_key>')
+api_interface.add_resource(Experiment,
+                           '/experiment',
+                           '/experiment/<string:exp_uid>/<string:exp_key>')
 
 from next.api.resources.get_query import getQuery
-api_interface.add_resource(getQuery, '/experiment/<string:exp_uid>/<string:exp_key>/getQuery', '/experiment/getQuery')
+api_interface.add_resource(getQuery,
+                           '/experiment/<string:exp_uid>/<string:exp_key>/getQuery',
+                           '/experiment/getQuery')
 
 from next.api.resources.process_answer import processAnswer
 api_interface.add_resource(processAnswer, '/experiment/processAnswer')
@@ -28,17 +32,22 @@ from next.api.resources.predict import Predict
 api_interface.add_resource(Predict, '/experiment/predict')
 
 from next.api.resources.about import About
-api_interface.add_resource(About, '/about')
+api_interface.add_resource(About, '/about', '/about/<string:app_id>')
 
 from next.api.resources.logs import Logs
-api_interface.add_resource(Logs, '/experiment/<string:exp_uid>/<string:exp_key>/logs','/experiment/<string:exp_uid>/<string:exp_key>/logs/<log_type>')
+api_interface.add_resource(Logs,
+                           '/experiment/<string:exp_uid>/<string:exp_key>/logs',
+                           '/experiment/<string:exp_uid>/<string:exp_key>/logs/<log_type>')
 
 from next.api.resources.participants import Participants
-api_interface.add_resource(Participants, '/experiment/<string:exp_uid>/<string:exp_key>/participants')
+api_interface.add_resource(Participants,
+                           '/experiment/<string:exp_uid>/<string:exp_key>/participants')
 
 from next.api.resources.targets import Targets
 
-api_interface.add_resource(Targets,'/targets/<string:exp_uid>/<string:exp_key>', '/targets/createtargetmapping')
+api_interface.add_resource(Targets,
+                           '/targets/<string:exp_uid>/<string:exp_key>',
+                           '/targets/createtargetmapping')
 
 from next.api.resources.widgets import Widgets
 api_interface.add_resource(Widgets,'/widgets/getwidget')
@@ -46,5 +55,6 @@ api_interface.add_resource(Widgets,'/widgets/getwidget')
 from next.api.resources.widgets import WidgetKeys
 api_interface.add_resource(WidgetKeys,'/widgets/temp-widget-keys')
 
-from next.api.resources.database import DatabaseBackup
+from next.api.resources.database import DatabaseBackup, DatabaseRestore
 api_interface.add_resource(DatabaseBackup,'/database/databasebackup')
+api_interface.add_resource(DatabaseRestore,'/database/databaserestore')

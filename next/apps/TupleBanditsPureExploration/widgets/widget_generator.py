@@ -2,7 +2,6 @@ from jinja2 import Environment, FileSystemLoader
 import requests
 import json
 import os
-from next.api.widgets_library.widget_prototype import Widget
 import next.broker.broker
 from next.api.resource_manager import ResourceManager
 from next.api.targetmapper import TargetMapper
@@ -17,9 +16,7 @@ broker = next.broker.broker.JobBroker()
 targetmapper = TargetMapper() 
 
 
-class WidgetGenerator(Widget):
-
-    
+class WidgetGenerator():
     def getQuery(self, args):
         """
         Generates a getQuery widget. Uses the args format as specified in::\n
@@ -55,8 +52,6 @@ class WidgetGenerator(Widget):
 
         return {'html': template.render(query = query), 'args': response_dict }
 
-
-    
     def processAnswer(self,args):
         """
         Generates a processAnswer widget. Uses the args format as specified in::\n
@@ -84,8 +79,6 @@ class WidgetGenerator(Widget):
         response_json,didSucceed,message = broker.applyAsync(app_id,exp_uid,"processAnswer",args_json)
 
         return { 'html':"success"}
-
-
     
     def getStats(self,args):
         """

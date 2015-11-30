@@ -7,6 +7,7 @@ edited: 2/17/15
 This file is used a resource the provides information like a description of this app, the
 supported algorithms and default parameters. This is NOT somewhere to retrieve experiment-specific information.
 """
+import next.apps.InfoPrototype as InfoPrototype
 
 def get_about():
     """
@@ -42,13 +43,28 @@ decides which two to show at any given time and how to decide a winner. A getQue
 to choose from, the processAnswer reports which answer was selected.""")
     return about_str
 
+
+def get_info_object():
+    info = InfoPrototype.get_info_object(get_implemented_algs)
+    args =  info['values']['initExp']['values']['args']['values']
+    
+    args['context'] = {'description': 'Context for this experiment',
+                       'type':'[str,file]',
+                       'values':[]}
+    
+    args['context_type'] = {'description': 'Type of context',
+                            'type':'str',
+                            'values':['str','img','video','audio']}
+    return info
+
+
 def get_default_instructions():
     instructions_str = "Please select the item that is most appropriate."
     return instructions_str
 
 def get_default_debrief():
     debrief = "Thank you for participating"
-    return debrief_str
+    return debrief
 
 def get_default_num_tries():
     num_tries = 100
