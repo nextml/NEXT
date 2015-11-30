@@ -1,14 +1,3 @@
-"""
-CardinalBanditsPureExplorationDashboard 
-author: Kevin Jamieson
-last updated: 11/13/2015
-
-######################################
-CardinalBanditsPureExplorationDashboard
-
-"""
-
-
 import json
 import numpy
 import numpy.random

@@ -1,24 +1,9 @@
-
-"""
-StochasticBanditsPureExplorationDashboard 
-author: Kevin Jamieson, kevin.g.jamieson@gmail.com
-last updated: 1/4/2015
-
-######################################
-DuelingBanditsPureExplorationDashboard
-
-"""
-
-
 import json
 import numpy
 import numpy.random
 from datetime import datetime
 from datetime import timedelta
 from next.utils import utils
-# from next.database_client.DatabaseClientHTTP import DatabaseClient
-# import next.database_client.DatabaseAPIHTTP as db
-# import next.logging_client.LoggerHTTP as ell
 from next.dashboard.AppDashboard import AppDashboard
 
 class DuelingBanditsPureExplorationDashboard(AppDashboard):
