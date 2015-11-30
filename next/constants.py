@@ -74,20 +74,20 @@ CELERY_TASK_RESULT_EXPIRES=60
 CELERY_TASK_SERIALIZER='json'
 CELERY_ACCEPT_CONTENT=['json']  # Ignore other content
 CELERY_RESULT_SERIALIZER='json'
-CELERYD_PREFETCH_MULTIPLIER=2
+CELERYD_PREFETCH_MULTIPLIER=4
 
-from kombu import Exchange, Queue
-exchange_name = 'sync@{hostname}'.format(
-        hostname=os.environ.get('HOSTNAME', 'localhost'))
-sync_exchange = Exchange(name=exchange_name, type='fanout')
 
 CELERY_SYNC_WORKER_COUNT = int(os.environ.get('CELERY_SYNC_WORKER_COUNT',1))
-all_queues = ()
-for i in range(1,CELERY_SYNC_WORKER_COUNT+1):
-    queue_name = 'sync_queue_{worker_number}@{hostname}'.format(
-        worker_number=i,
-        hostname=os.environ.get('HOSTNAME', 'localhost'))
-    all_queues += (Queue(name=queue_name,exchange=sync_exchange),)
+# from kombu import Exchange, Queue
+# exchange_name = 'sync@{hostname}'.format(
+#         hostname=os.environ.get('HOSTNAME', 'localhost'))
+# sync_exchange = Exchange(name=exchange_name, type='fanout')
+# all_queues = ()
+# for i in range(1,CELERY_SYNC_WORKER_COUNT+1):
+#     queue_name = 'sync_queue_{worker_number}@{hostname}'.format(
+#         worker_number=i,
+#         hostname=os.environ.get('HOSTNAME', 'localhost'))
+#     all_queues += (Queue(name=queue_name,exchange=sync_exchange),)
 
-CELERY_QUEUES = all_queues
+# CELERY_QUEUES = all_queues
 

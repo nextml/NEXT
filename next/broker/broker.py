@@ -60,6 +60,37 @@ class JobBroker:
         if namespace==None:
             namespace=exp_uid
         domain = self.__get_domain_for_job(app_id+"_"+exp_uid)
+        num_queues = next.constants.CELERY_SYNC_WORKER_COUNT
+
+        # assign namespaces to queues (with worker of concurrency 1) in round-robbin  
+        try:
+            namespace_cnt = int(self.r.get(namespace+"_cnt"))
+        except:
+            pipe = self.r.pipeline(True)
+            while 1:
+                try:
+                    pipe.watch(namespace+"_cnt","namespace_counter")
+
+                    if not pipe.exists(namespace+"_cnt"):
+                        if not pipe.exists('namespace_counter'):
+                            namespace_counter = 0
+                        else:
+                            namespace_counter = pipe.get('namespace_counter')
+                        pipe.multi()
+                        pipe.set(namespace+"_cnt",int(namespace_counter)+1)
+                        pipe.set('namespace_counter',int(namespace_counter)+1)
+                        pipe.execute()
+                    else:
+                        pipe.unwatch()
+                    break
+                except redis.exceptions.WatchError:
+                    continue
+                finally:
+                    pipe.reset()
+            namespace_cnt = int(self.r.get(namespace+"_cnt"))
+        queue_number = (namespace_cnt % num_queues) + 1
+        queue_name = 'sync_queue_'+str(queue_number)+'@'+domain
+
         job_uid = utils.getNewUID()
         if time_limit == 0:
             soft_time_limit = None
@@ -67,7 +98,7 @@ class JobBroker:
         else:
             soft_time_limit = time_limit
             hard_time_limit = time_limit + .01
-        result = tasks.apply_sync_by_namespace.apply_async(args=[app_id,exp_uid,task_name, args, namespace, job_uid, submit_timestamp, time_limit], exchange='sync@'+domain, routing_key='sync@'+domain,soft_time_limit=soft_time_limit,time_limit=hard_time_limit)
+        result = tasks.apply_sync_by_namespace.apply_async(args=[app_id,exp_uid,task_name, args, namespace, job_uid, submit_timestamp, time_limit], queue=queue_name,soft_time_limit=soft_time_limit,time_limit=hard_time_limit)
         if ignore_result:
             return True
         else:

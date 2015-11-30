@@ -16,14 +16,14 @@ HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')+':'+os.enviro
 def run_all(assert_200):
 
   app_id = 'CardinalBanditsPureExploration'
-  num_arms = 150
+  num_arms = 50
   true_means = numpy.array(range(num_arms))/float(num_arms)
-  total_pulls_per_client = 10
+  total_pulls_per_client = 30
 
   num_experiments = 1
 
   # clients run in simultaneous fashion using multiprocessing library
-  num_clients = 400
+  num_clients = 200
 
   pool = Pool(processes=num_clients)           
 
@@ -32,7 +32,8 @@ def run_all(assert_200):
   n = num_arms
   delta = 0.05
   R = 2 # assumes scores in range [1,5]
-  supported_alg_ids = ['RandomSampling','LUCB','LilUCB']
+  supported_alg_ids = ['SimpleUCB','AlternativeUCB']
+  # supported_alg_ids = ['RandomSampling','LUCB','LilUCB']
 
   alg_list = []
   for alg_id in supported_alg_ids:
