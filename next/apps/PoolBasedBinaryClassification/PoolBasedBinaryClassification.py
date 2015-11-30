@@ -1,13 +1,13 @@
 """
-CardinalBanditsPureExploration app of the Online Learning Library for Next.Discovery
+PoolBasedBinaryClassification app of the Online Learning Library for Next.Discovery
 author: Kevin Jamieson, kevin.g.jamieson@gmail.com
 last updated: 11/13/2015
 
 ######################################
-CardinalBanditsPureExploration
+PoolBasedBinaryClassification
 
 This module manages the execution of different algorithms implemented to solve the 
-problem described in CardinalBanditsPureExplorationPrototype.py. See this file for
+problem described in PoolBasedBinaryClassificationPrototype.py. See this file for
 more info.
 """
 
@@ -19,12 +19,12 @@ import traceback
 from next.resource_client.ResourceClient import ResourceClient
 import next.utils as utils
 from next.apps.AppPrototype import AppPrototype
-from next.apps.CardinalBanditsPureExploration.dashboard.Dashboard import CardinalBanditsPureExplorationDashboard
+from next.apps.PoolBasedBinaryClassification.dashboard.Dashboard import PoolBasedBinaryClassificationDashboard
 
-class CardinalBanditsPureExploration(AppPrototype):
+class PoolBasedBinaryClassification(AppPrototype):
 
   def __init__(self): 
-    self.app_id = 'CardinalBanditsPureExploration'
+    self.app_id = 'PoolBasedBinaryClassification'
 
   def daemonProcess(self,exp_uid,args_json,db,ell):
     try:
@@ -87,9 +87,10 @@ class CardinalBanditsPureExploration(AppPrototype):
     initialize the project and necessary experiments 
 
     Expected input (in json structure with string keys):
-      (int) n: number of arms
-      [optional] (float) R: sub-Gaussian parameter, e.g. E[exp(t*X)]<=exp(t^2 R^2/2), defaults to R=0.5 (satisfies X \in [0,1])
+      (list of list of floats) example_pool: n-by-d list of vectors describing pool of examples that we can label
       (float) failure_probability : confidence
+      [optional] (list of list of integers) test_labels: list of (example_index,+-1) indicating the true label of example_index. This is unknown to the algorithms and used only for evaluation purposes. If list not provided, empty set and no test error computed
+      [optional] (string) context: yes/no question asked to the participant for any given target 
       [optional] (list of dicts) alg_list : with fields (Defaults given by Info.get_app_default_alg_list)
             (string) alg_id : valid alg_id for this app_id
             (string) alg_label : unique identifier for algorithm (e.g. may have experiment with repeated alg_id's, but alg_labels must be unqiue, will also be used for plot legends
@@ -181,7 +182,7 @@ class CardinalBanditsPureExploration(AppPrototype):
         return '{}',False,error
 
       # check for the fields that must be contained in args or error occurs
-      necessary_fields = ['n','failure_probability']
+      necessary_fields = ['example_pool','failure_probability']
       for field in necessary_fields:
         try:
           args_dict[field]
@@ -190,8 +191,8 @@ class CardinalBanditsPureExploration(AppPrototype):
           error = "%s.initExp input arguments missing field: %s" % (self.app_id,str(field)) 
           return '{}',False,error
 
-      n = args_dict['n']
-      R = args_dict.get('R',2) # default sufficient for scores in range [1,5]
+      example_pool = args_dict['example_pool']
+      test_labels = args_dict.get('test_labels',[]) 
       delta = args_dict['failure_probability']
 
       if 'alg_list' in args_dict:
@@ -297,8 +298,8 @@ class CardinalBanditsPureExploration(AppPrototype):
 
       db.set(app_id+':experiments',exp_uid,'exp_uid',exp_uid)
       db.set(app_id+':experiments',exp_uid,'app_id',app_id)
-      db.set(app_id+':experiments',exp_uid,'n',n)
-      db.set(app_id+':experiments',exp_uid,'R',R)
+      db.set(app_id+':experiments',exp_uid,'example_pool',example_pool)
+      db.set(app_id+':experiments',exp_uid,'test_labels',test_labels)
       db.set(app_id+':experiments',exp_uid,'failure_probability',delta)
       db.set(app_id+':experiments',exp_uid,'alg_list',alg_list)
       db.set(app_id+':experiments',exp_uid,'algorithm_management_settings',algorithm_management_settings)
@@ -326,7 +327,7 @@ class CardinalBanditsPureExploration(AppPrototype):
         alg = utils.get_app_alg(self.app_id,alg_id)
 
         # call initExp
-        didSucceed,dt = utils.timeit(alg.initExp)(resource=rc,n=n,R=R,failure_probability=delta)
+        didSucceed,dt = utils.timeit(alg.initExp)(resource=rc,example_pool=example_pool,failure_probability=delta)
 
         log_entry = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'initExp','duration':dt,'timestamp':utils.datetimeNow() } 
         ell.log( app_id+':ALG-DURATION', log_entry  )
@@ -354,16 +355,6 @@ class CardinalBanditsPureExploration(AppPrototype):
     Expected output (in json structure with string keys):
       (int) target_index : target index
       (str) query_uid : unique identifier of query (used to look up for processAnswer)
-
-    Usage: 
-      getQuery_response_json,didSucceed,message = app.getQuery(exp_uid,getQuery_args_json)
-
-    Example input:
-      getQuery_args_json = {"k": 3, "participant_uid": "0077110d03cf06b8f77d11acc399e8a7"}
-
-    Example output:
-      getQuery_response_json = {"query_uid": "4d02a9924f92138287edd17ca5feb6e1", "target_indices": [ 3, 6, 9 ]
-
     """
     try: 
       app_id = self.app_id
@@ -493,22 +484,13 @@ class CardinalBanditsPureExploration(AppPrototype):
 
     Expected input:
       (str) query_uid : unique identifier of query
-      (int) target_reward : reward of arm is a real random variable X satisfying E[exp(t*X)]<=exp(t^2 R^2/2) 
+      (int) target_reward : answer in {-1,1} representing no or yes, respectively.  
 
     Expected output (comma separated): 
       if error:
         return (JSON) '{}', (bool) False, (str) error
       else:
         return (JSON) '{}', (bool) True,''
-
-    Usage:
-      processAnswer_args_json,didSucceed,message = app.processAnswer(exp_uid,processAnswer_args_json)
-
-    Example input:
-      processAnswer_args_json = 
-
-    Example output:
-      processAnswer_response_json = {}
     """
 
     try:
@@ -552,7 +534,6 @@ class CardinalBanditsPureExploration(AppPrototype):
       alg = utils.get_app_alg(self.app_id,alg_id)
 
       # get targets associated with the specific query
-      n,didSucceed,message = db.get(app_id+':experiments',exp_uid,'n')
       targets,didSucceed,message = db.get(app_id+':queries',query_uid,'target_indices')
       target_index = targets[0]['index']
 
@@ -575,7 +556,7 @@ class CardinalBanditsPureExploration(AppPrototype):
       db.set(app_id+':queries',query_uid,'target_reward',target_reward)
 
       # call processAnswer
-      didSucceed,dt = utils.timeit(alg.processAnswer)(resource=rc,target_index=target_index,target_reward=target_reward)
+      didSucceed,dt = utils.timeit(alg.processAnswer)(resource=rc,target_index=target_index,target_label=target_reward)
 
       log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'processAnswer','duration':dt } 
       log_entry_durations.update( rc.getDurations() )
@@ -583,13 +564,12 @@ class CardinalBanditsPureExploration(AppPrototype):
 
       # calling predict 
       ###############
-      if (num_reported_answers<10*n and num_reported_answers % 4 ==0) or num_reported_answers % ((n+4)/4) == 0:
-        predict_id = 'arm_ranking'
-        params = {'alg_label':alg_label}
-        predict_args_dict = {'predict_id':predict_id,'params':params}
-        predict_args_json = json.dumps(predict_args_dict)
-        
-        db.submit_job(app_id,exp_uid,'predict',predict_args_json,ignore_result=True)
+      predict_id = 'predict_labels'
+      params = {'alg_label':alg_label}
+      predict_args_dict = {'predict_id':predict_id,'params':params}
+      predict_args_json = json.dumps(predict_args_dict)
+      
+      db.submit_job(app_id,exp_uid,'predict',predict_args_json,ignore_result=True)
       ###############
 
       response_args_dict = {}
@@ -612,7 +592,7 @@ class CardinalBanditsPureExploration(AppPrototype):
     Description: uses current model empirical estimates to forecast the ranking of the arms in order of likelhood of being the best from most to least likely
 
     Expected input:
-      (string) predict_id : 'arm_ranking'
+      (string) predict_id : 'predict_labels'
       (dict) params : dictionary with fields
           (string) alg_label : describes target algorithm to use
 
@@ -647,7 +627,7 @@ class CardinalBanditsPureExploration(AppPrototype):
       predict_id = args_dict['predict_id']
       params = args_dict['params']
 
-      if predict_id == "arm_ranking":
+      if predict_id == "predict_labels":
 
         alg_label = params['alg_label']
 
@@ -671,31 +651,27 @@ class CardinalBanditsPureExploration(AppPrototype):
         alg = utils.get_app_alg(self.app_id,alg_id)
 
         # call getQuery
-        scores,precisions,dt = utils.timeit(alg.predict)(resource=rc)
+        predicted_labels,dt = utils.timeit(alg.predict)(resource=rc)
 
         log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'predict','duration':dt } 
         log_entry_durations.update( rc.getDurations() )
         meta = {'log_entry_durations':log_entry_durations}
 
-        import numpy
-        ranks = (-numpy.array(scores)).argsort().tolist()
+        test_labels,didSucceed,message = db.get(app_id+':experiments',exp_uid,'test_labels')
 
-        n = len(scores)
-        indexes = numpy.array(range(n))[ranks]
-        scores = numpy.array(scores)[ranks]
-        precisions = numpy.array(precisions)[ranks]
-        ranks = range(n)
-
-        targets = []
-        for index in range(n):
-          targets.append( {'index':indexes[index],'rank':ranks[index],'score':scores[index],'precision':precisions[index]} )
+        num_errors = 0
+        for answer in test_labels:
+          target_index,target_label = answer
+          if target_label*predicted_labels[target_index] < 0:
+            num_errors += 1.
+        error = num_errors / float(max(1.,len(test_labels)))
 
         log_entry = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'timestamp':utils.datetimeNow() } 
-        log_entry.update( {'targets':targets,'num_reported_answers':num_reported_answers} )
+        log_entry.update( {'error':error,'num_reported_answers':num_reported_answers} )
 
         ell.log( app_id+':ALG-EVALUATION', log_entry  )
 
-        response_args_dict = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'targets':targets,'num_reported_answers':num_reported_answers }
+        response_args_dict = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'error':error,'num_reported_answers':num_reported_answers }
 
       args_out = {'args':response_args_dict,'meta':meta}
       predict_json = json.dumps(args_out)
@@ -748,7 +724,7 @@ class CardinalBanditsPureExploration(AppPrototype):
       stat_id = args_dict['stat_id']
       params = args_dict['params']
 
-      dashboard = CardinalBanditsPureExplorationDashboard(db,ell)
+      dashboard = PoolBasedBinaryClassificationDashboard(db,ell)
 
       # input task
       if stat_id == "api_activity_histogram":
@@ -787,9 +763,8 @@ class CardinalBanditsPureExploration(AppPrototype):
         stats = network_delay_stats
 
 
-      elif stat_id == "most_current_ranking":
-        alg_label = params['alg_label']
-        stats = dashboard.most_current_ranking(self.app_id,exp_uid,alg_label)
+      elif stat_id == "test_error_multiline_plot":
+        stats = dashboard.test_error_multiline_plot(self.app_id,exp_uid)
 
       response_json = json.dumps(stats)
 

@@ -1,0 +1,43 @@
+
+{% extends "basic.html" %}
+
+{% block custom_dashboard %}
+
+<!--###################### test_error_multiline_plot ###################-->
+<div class="container-fluid" style ='padding-bottom: 1cm'>
+    <div class="col-lg-10 col-lg-offset-1">
+        <h2> Test Error Plot
+            <button type="button" class="btn btn-primary btn-xs"
+                  onclick="popup_alert('The error against a hold out set. That is, each algorithm learns a classifier based on its training data that it has collected and is evaluated based on the evaluation set supplied to the algorithm on initialization.')">?</button>
+        </h2>
+    </div>
+  <div class="col-lg-10 col-lg-offset-1" style='text-align: center'>
+    <div id="test_error_multiline_plot"></div>
+  </div>
+</div>
+<script>
+
+  plot_response = function(data) {
+    data.json['width'] = 800
+    data.json['height'] = 350
+    mpld3.draw_figure("test_error_multiline_plot", data.json);
+  }
+
+
+
+  data = next_widget.getWidget(
+  {
+  'app_id': "{{ app_id }}",
+  'exp_uid': "{{ exp_uid }}",
+  'name': 'getStats',
+  'widget_key': "{{ perm_key }}",
+  'args':{
+  'stat_id' : 'test_error_multiline_plot',
+  'params'  : {'task':''}
+  }
+  },
+  plot_response
+  );
+</script>
+
+{% endblock %} 
