@@ -1,3 +1,37 @@
+<style>
+  html,body{
+  height:100%;
+  }
+
+  div.container{
+  height:100%;
+  }
+
+  #wrapper {
+    height:100%;
+  }
+
+  div.row > div.col-xs-6 {
+    height:100%;
+    outline: 1px solid black;
+  }
+
+  div.row > div.col-xs-12 {
+    height:100%;
+    outline: 1px solid black;
+  }
+
+  #wrapper > div.row {
+    height:50%;
+  }
+
+  #wrapper img{
+    max-height:100%;
+    max-width:100%;
+    height:auto;
+  }
+</style>
+
 {% if query.context_type != "none" %}
 <div class="target" id="center">
 
@@ -5,7 +39,7 @@
   <div class="table-box">
     <div class="text"> {{ query.context }} </div>
   </div>
-  
+
   {% elif query.context_type == "image" or query.context_type == "img" %}
   <img class="image" src='{{ query.context }}'> </img>
   {% endif %}
@@ -42,13 +76,13 @@
     {% endif %}
   </div>
 
-  <!-- Right Target -->    
+  <!-- Right Target -->
   <div class="target" id="right" onclick="next_widget.processAnswer(&quot;{{ query.right.target_id }}&quot;)
                                           console.log('reporting answer!')
                                           $('#right').css({'border': '2px solid #FF0000'});">
     {% if query.right.primary_type == "image" or query.right.primary_type == "img" %}
       <img class="image" src={{ query.right.primary_description }}> </img>
-    {% elif query.right.primary_type == "text" %}    
+    {% elif query.right.primary_type == "text" %}
       <div class="table-box">
         <div class="text">{{ query.right.primary_description }}</div>
       </div>

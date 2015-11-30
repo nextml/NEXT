@@ -6,7 +6,7 @@
   div.container{
   height:100%;
   }
-  
+
   #wrapper {
     height:100%;
   }
@@ -15,12 +15,12 @@
     height:100%;
     outline: 1px solid black;
   }
-  
+
   div.row > div.col-xs-12 {
     height:100%;
     outline: 1px solid black;
   }
-  
+
   #wrapper > div.row {
     height:50%;
   }
@@ -37,14 +37,14 @@
   <div class="col-xs-12" id="center" >
     {% if query.center.primary_type == "image" or query.center.primary_type == "img" %}
     <img class="center-block" src={{ query.center.primary_description }}></img>
-    {% elif query.center.primary_type == "text" %}    
+    {% elif query.center.primary_type == "text" %}
     <div>
-      <div>{{ query.center.primary_description }}</div>    
+      <div>{{ query.center.primary_description }}</div>
     </div>
-    
+
     {% elif query.center.primary_type == "video" %}
     <video width="320" height="240"  poster="http://jimpunk.net/Loading/wp-content/uploads/loading1.gif" controls autoplay loop>
-      <source src={{ query.center.primary_description }} type="video/mp4"> 
+      <source src={{ query.center.primary_description }} type="video/mp4">
 	Your browser does not support the video tag.
     </video>
     {% endif %}
@@ -57,12 +57,12 @@
     {% if query.left.primary_type == "image" or query.left.primary_type == "img"%}
     <img class="center-block" src={{ query.left.primary_description }}></img>
 
-    {% elif query.left.primary_type == "text"%}  	
+    {% elif query.left.primary_type == "text"%}
     <div>{{ query.left.primary_description }}</div>
 
     {% elif query.center.primary_type == "video" %}
     <video width="320" height="240" poster="http://jimpunk.net/Loading/wp-content/uploads/loading1.gif" controls autoplay loop>
-      <source src={{ query.left.primary_description }} type="video/mp4"> 
+      <source src={{ query.left.primary_description }} type="video/mp4">
 	Your browser does not support the video tag.
     </video>
     {% endif %}
@@ -72,11 +72,11 @@
   <div class="col-xs-6" id="right">
     {% if query.right.primary_type == "image" or query.right.primary_type == "img" %}
     <img class="center-block" src={{ query.right.primary_description }}> </img>
-    {% elif query.right.primary_type == "text" %}		
+    {% elif query.right.primary_type == "text" %}
     <div>{{ query.right.primary_description }}</div>
     {% elif query.center.primary_type == "video" %}
     <video width="320" height="240" poster="http://jimpunk.net/Loading/wp-content/uploads/loading1.gif" controls autoplay loop>
-      <source src={{ query.right.primary_description }} type="video/mp4"> 
+      <source src={{ query.right.primary_description }} type="video/mp4">
 	Your browser does not support the video tag.
     </video>
     {% endif %}
@@ -97,7 +97,7 @@
   	$('#left').css({'outline': '2px solid #FF0000'})
   }
 
-  
+
   function checkKey(e) {
       e = e || window.event;
       if (e.keyCode == '37') {
@@ -111,14 +111,14 @@
 
   $('#right').click(function() {
   	submit_right();
-  }); 
+  });
 
   $('#left').click(function() {
   	submit_left();
-  }); 
+  });
 
-  
-  
+
+
 </script>
 </div>
 

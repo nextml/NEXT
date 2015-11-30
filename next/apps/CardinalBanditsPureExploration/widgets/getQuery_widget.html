@@ -1,3 +1,37 @@
+<style>
+  html,body{
+  height:100%;
+  }
+
+  div.container{
+  height:100%;
+  }
+
+  #wrapper {
+    height:100%;
+  }
+
+  div.row > div.col-xs-6 {
+    height:100%;
+    outline: 1px solid black;
+  }
+
+  div.row > div.col-xs-12 {
+    height:100%;
+    outline: 1px solid black;
+  }
+
+  #wrapper > div.row {
+    height:50%;
+  }
+
+  #wrapper img{
+    max-height:100%;
+    max-width:100%;
+    height:auto;
+  }
+</style>
+
 {% if query.context_type != "none" %}
 <div class="target" id="center">
 
@@ -5,7 +39,7 @@
   <div class="table-box">
     <div class="text"> {{ query.context }} </div>
   </div>
-  
+
   {% elif query.context_type == "image" or query.context_type == "img" %}
   <img class="image" src='{{ query.context }}'> </img>
   {% endif %}
@@ -21,7 +55,7 @@
 <div class="target" id="center">
   {% if query.target.primary_type == "image" or query.target.primary_type == "img"%}
   <img class="image" src={{ query.target.primary_description }}> </img>
-  {% elif query.target.primary_type == "text"%}   
+  {% elif query.target.primary_type == "text"%}
   <div class="table-box">
     <div class="text">{{ query.target.primary_description }}</div>
   </div>
@@ -46,13 +80,13 @@
                         -webkit-flex-grow: 1;
                         padding-bottom: 5px">
   {% for t in rating_options %}
-  <div class="target" id="{{loop.index}}" 
+  <div class="target" id="{{loop.index}}"
          onclick="next_widget.processAnswer(&quot;{{ t.target_id }}&quot;);
                   console.log('reporting answer!')
                   $('#'+{{loop.index}}).css({'border': '2px solid #FF0000'});">
       {% if t.primary_type == "image" or t.primary_type == "img"%}
       <img class="image" src={{ t.primary_description }}> </img>
-      {% elif t.primary_type == "text"%}   
+      {% elif t.primary_type == "text"%}
       <div class="table-box">
         <div class="text">{{ t.primary_description }}</div>
       </div>
