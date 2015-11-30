@@ -19,12 +19,12 @@ def run_all(assert_200):
   X = numpy.random.randn(num_examples,3)
   app_id = 'PoolBasedBinaryClassification'
   true_means = numpy.tanh(X[:,0])
-  total_pulls_per_client = 30
+  total_pulls_per_client = 100
 
   num_experiments = 1
 
   # clients run in simultaneous fashion using multiprocessing library
-  num_clients = 2
+  num_clients = 10
 
   pool = Pool(processes=num_clients)           
 
@@ -34,7 +34,6 @@ def run_all(assert_200):
   example_pool = X.tolist()
   test_labels = [ [i,numpy.sign(X[i,0])] for i in range(num_examples) ]
   supported_alg_ids = ['RandomSamplingLinearLeastSquares']
-  # supported_alg_ids = ['RandomSampling','LUCB','LilUCB']
 
   alg_list = []
   for alg_id in supported_alg_ids:

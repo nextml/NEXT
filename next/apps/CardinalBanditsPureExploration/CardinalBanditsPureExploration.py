@@ -354,16 +354,6 @@ class CardinalBanditsPureExploration(AppPrototype):
     Expected output (in json structure with string keys):
       (int) target_index : target index
       (str) query_uid : unique identifier of query (used to look up for processAnswer)
-
-    Usage: 
-      getQuery_response_json,didSucceed,message = app.getQuery(exp_uid,getQuery_args_json)
-
-    Example input:
-      getQuery_args_json = {"k": 3, "participant_uid": "0077110d03cf06b8f77d11acc399e8a7"}
-
-    Example output:
-      getQuery_response_json = {"query_uid": "4d02a9924f92138287edd17ca5feb6e1", "target_indices": [ 3, 6, 9 ]
-
     """
     try: 
       app_id = self.app_id
@@ -500,15 +490,6 @@ class CardinalBanditsPureExploration(AppPrototype):
         return (JSON) '{}', (bool) False, (str) error
       else:
         return (JSON) '{}', (bool) True,''
-
-    Usage:
-      processAnswer_args_json,didSucceed,message = app.processAnswer(exp_uid,processAnswer_args_json)
-
-    Example input:
-      processAnswer_args_json = 
-
-    Example output:
-      processAnswer_response_json = {}
     """
 
     try:
