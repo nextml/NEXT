@@ -61,10 +61,23 @@ def get_app_about(app_id):
     about = utils.get_default_alg_list('PoolBasedTripletMDS')
     print about
   """
-  app_id = str(app_id) # soemtimes input is unicode formatted which causes error
+  app_id = str(app_id) # sometimes input is unicode formatted which causes error
   next_path = 'next.apps.'
   app_module = __import__(next_path+app_id,fromlist=[''])
   return app_module.get_about()
+
+def get_app_info_object(app_id):
+  """
+  Returns a string with a high-level description of the app
+
+  Usage: ::\n
+    about = utils.get_default_alg_list('PoolBasedTripletMDS')
+    print about
+  """
+  app_id = str(app_id) # soemtimes input is unicode formatted which causes error
+  next_path = 'next.apps.'
+  app_module = __import__(next_path+app_id,fromlist=[''])
+  return app_module.get_info_object()
 
 def get_app_default_instructions(app_id):
   """
