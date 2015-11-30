@@ -1,9 +1,4 @@
 """
-PoolBasedTripletMDS app of the Online Learning Library for Next.Discovery
-author: Kevin Jamieson, kevin.g.jamieson@gmail.com
-last updated: 1/28/2015
-
-######################################
 PoolBasedTripletMDS
 
 This module manages the execution of different algorithms implemented to solve the 
@@ -102,21 +97,6 @@ class PoolBasedTripletMDS(AppPrototype):
       [optional] (string) instructions
       [optional] (string) debrief
       [optional] (int) num_tries
-
-    Expected output:
-      if error:
-        return (JSON) '{}', (bool) False, (str) error_str
-      else:
-        return (JSON) '{}', (bool) True,''
-
-    Usage:
-      initExp_response_json,didSucceed,message = app.initExp(db_API,exp_uid,initExp_args_json)
-
-    Example input:
-      initExp_args_json = {"alg_list": [{"alg_label": "Test", "alg_id": "RandomSampling", "params": {}, "test_alg_label": "Test"}, {"alg_label": "Random", "alg_id": "RandomSampling", "params": {}, "test_alg_label": "Test"}, {"alg_label": "Uncertainty Sampling", "alg_id": "UncertaintySampling", "params": {}, "test_alg_label": "Test"}], "failure_probability": 0.01, "n": 20, "participant_to_algorithm_management": "one_to_one", "algorithm_management_settings": {"params": {"proportions": [{"alg_label": "Test", "proportion": 0.2}, {"alg_label": "Random", "proportion": 0.4}, {"alg_label": "Uncertainty Sampling", "proportion": 0.4}]}, "mode": "fixed_proportions"}, "d": 2}
-
-    Example output:
-      initExp_response_json = {}
     """
 
     try:
@@ -205,7 +185,7 @@ class PoolBasedTripletMDS(AppPrototype):
         supportedAlgs = utils.get_app_supported_algs(self.app_id)
         for algorithm in alg_list:
           if algorithm['alg_id'] not in supportedAlgs:
-            error = "%s.initExp unsupported algorithm '%s' in alg_list" % (self.app_id,alg_id)
+            error = "%s.initExp unsupported algorithm '%s' in alg_list" % (self.app_id,algorithm['alg_id'])
             return '{}',False,error
       else:
         alg_list = utils.get_app_default_alg_list(self.app_id)
@@ -353,17 +333,7 @@ class PoolBasedTripletMDS(AppPrototype):
               (int) flag : integer for algorithm's use
             }
       (str) query_uid : unique identifier of query (used to look up for processAnswer)
-      
-
-    Usage: 
-      getQuery_response_json,didSucceed,message = app.getQuery(db_API,exp_uid,getQuery_args_json)
-
-    Example input:
-      getQuery_args_json = {"participant_uid": "ecaf1d60ab995b3c57afb3a1f3f288f0"}
-
-    Example output:
-      getQuery_response_json = {"query_uid": "a061ce00742603afc540d23e08ab77b3", "target_indices": [{"index": 19, "flag": 0, "label": "center"}, {"index": 8, "flag": 0, "label": "left"}, {"index": 15, "flag": 0, "label": "right"}]}
-    """
+   """
 
     try: 
       app_id = self.app_id
@@ -482,15 +452,6 @@ class PoolBasedTripletMDS(AppPrototype):
         return (JSON) '{}', (bool) False, (str) error
       else:
         return (JSON) '{}', (bool) True,''
-
-    Usage:
-      processAnswer_args_json,didSucceed,message = app.processAnswer(db_API,exp_uid,processAnswer_args_json)
-
-    Example input:
-      processAnswer_args_json = {"query_uid": "a061ce00742603afc540d23e08ab77b3", "index_winner": 15}
-
-    Example output:
-      processAnswer_response_json = {}
     """
 
     try:
@@ -793,10 +754,11 @@ class PoolBasedTripletMDS(AppPrototype):
         network_delay_stats = dashboard.network_delay_histogram(self.app_id,exp_uid,alg_label)
         stats = network_delay_stats
 
-
+      # input None
       elif stat_id == "test_error_multiline_plot":
         stats = dashboard.test_error_multiline_plot(self.app_id,exp_uid)
 
+      # input alg_label
       elif stat_id == "most_current_embedding":
         alg_label = params['alg_label']
         stats = dashboard.most_current_embedding(self.app_id,exp_uid,alg_label)
@@ -817,13 +779,3 @@ class PoolBasedTripletMDS(AppPrototype):
       log_entry = { 'exp_uid':exp_uid,'task':'getStats','error':error,'timestamp':utils.datetimeNow() } 
       ell.log( app_id+':APP-EXCEPTION', log_entry  )
       return '{}',False,error
-
-
-# >>> app_id = 'PoolBasedTripletMDS'
-# >>> from next.utils import utils
-# >>> app = utils.get_app(app_id)
-# >>> getStats_dict = {'stat_id':"compute_duration_multiline_plot","params"  : {"task": "predict" }}
-# >>> import json
-# >>> getStats_json =json.dumps(getStats_dict)
-# >>> exp_uid = '5647ba5617ea27fd5e886877e7ccdf'
-# >>> app.getStats(exp_uid,getStats_json)
