@@ -1,16 +1,3 @@
-"""
-PoolBasedBinaryClassification app of the Online Learning Library for Next.Discovery
-author: Kevin Jamieson, kevin.g.jamieson@gmail.com
-last updated: 11/13/2015
-
-######################################
-PoolBasedBinaryClassification
-
-This module manages the execution of different algorithms implemented to solve the 
-problem described in PoolBasedBinaryClassificationPrototype.py. See this file for
-more info.
-"""
-
 import numpy
 import json
 import time
@@ -200,7 +187,7 @@ class PoolBasedBinaryClassification(AppPrototype):
         supportedAlgs = utils.get_app_supported_algs(self.app_id)
         for algorithm in alg_list:
           if algorithm['alg_id'] not in supportedAlgs:
-            error = "%s.initExp unsupported algorithm '%s' in alg_list" % (self.app_id,alg_id)
+            error = "%s.initExp unsupported algorithm '%s' in alg_list" % (self.app_id,algorithm['alg_id'])
             return '{}',False,error
       else:
         alg_list = utils.get_app_default_alg_list(self.app_id)
@@ -750,19 +737,19 @@ class PoolBasedBinaryClassification(AppPrototype):
         compute_detailed_stats = dashboard.compute_duration_detailed_stacked_area_plot(self.app_id,exp_uid,task,alg_label)
         stats = compute_detailed_stats
 
-              # input alg_label
+      # input alg_label
       elif stat_id == "response_time_histogram":
         alg_label = params['alg_label']
         response_time_stats = dashboard.response_time_histogram(self.app_id,exp_uid,alg_label)
         stats = response_time_stats
         
-   # input alg_label
+      # input alg_label
       elif stat_id == "network_delay_histogram":
         alg_label = params['alg_label']
         network_delay_stats = dashboard.network_delay_histogram(self.app_id,exp_uid,alg_label)
         stats = network_delay_stats
 
-
+      # input None
       elif stat_id == "test_error_multiline_plot":
         stats = dashboard.test_error_multiline_plot(self.app_id,exp_uid)
 

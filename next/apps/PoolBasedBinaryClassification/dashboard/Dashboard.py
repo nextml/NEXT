@@ -1,12 +1,3 @@
-"""
-PoolBasedBinaryClassificationDashboard 
-
-######################################
-PoolBasedBinaryClassificationDashboard
-
-"""
-
-
 import json
 import numpy
 from datetime import datetime
@@ -33,7 +24,7 @@ class PoolBasedBinaryClassificationDashboard(AppDashboard):
 
         stat = {}
         stat['stat_id'] = 'test_error_multiline_plot'
-        stat['description'] = self.most_current_ranking.__doc__
+        stat['description'] = self.test_error_multiline_plot.__doc__
         stat['necessary_params'] = ['alg_label']
         stat_list.append(stat)
         
@@ -92,18 +83,6 @@ class PoolBasedBinaryClassificationDashboard(AppDashboard):
 
             list_of_alg_dicts.append(alg_dict)
 
-        return_dict = {}
-        return_dict['data'] = list_of_alg_dicts
-        return_dict['plot_type'] = 'multi_line_plot'
-        return_dict['x_label'] = 'Number of answered triplets'
-        return_dict['x_min'] = x_min
-        return_dict['x_max'] = x_max
-        return_dict['y_label'] = 'Error on hold-out set'
-        return_dict['y_min'] = y_min
-        return_dict['y_max'] = y_max
-
-        # return return_dict
-
         import matplotlib.pyplot as plt
         import mpld3
         fig, ax = plt.subplots(subplot_kw=dict(axisbg='#EEEEEE'))
@@ -120,11 +99,4 @@ class PoolBasedBinaryClassificationDashboard(AppDashboard):
           label.set_fontsize('small')
         plot_dict = mpld3.fig_to_dict(fig)
 
-
         return plot_dict
-
-
-
-        
-
-
