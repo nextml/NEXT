@@ -1,9 +1,4 @@
 """
-DuelingBanditsPureExploration app of the Online Learning Library for Next.Discovery
-author: Kevin Jamieson, kevin.g.jamieson@gmail.com
-last updated: 1/11/2015
-
-######################################
 DuelingBanditsPureExploration
 
 This module manages the execution of different algorithms implemented to solve the 
@@ -105,15 +100,6 @@ class DuelingBanditsPureExploration(AppPrototype):
         return (JSON) '{}', (bool) False, (str) error_str
       else:
         return (JSON) '{}', (bool) True,''
-
-    Usage:
-      initExp_response_json,didSucceed,message = app.initExp(db_API,exp_uid,initExp_args_json)
-
-    Example input:
-      initExp_args_json = {"participant_to_algorithm_management": "one_to_many", "alg_list": [{"alg_label": "BR_LilUCB", "alg_id": "BR_LilUCB", "params": {}}], "algorithm_management_settings": {"params": {"proportions": [{"alg_label": "BR_LilUCB", "proportion": 1.0}]}, "mode": "fixed_proportions"}, "failure_probability": 0.01, "n": 10}
-
-    Example output:
-      initExp_response_json = {}
     """
 
     try:
@@ -201,7 +187,7 @@ class DuelingBanditsPureExploration(AppPrototype):
         supportedAlgs = utils.get_app_supported_algs(self.app_id)
         for algorithm in alg_list:
           if algorithm['alg_id'] not in supportedAlgs:
-            error = "%s.initExp unsupported algorithm '%s' in alg_list" % (self.app_id,alg_id)
+            error = "%s.initExp unsupported algorithm '%s' in alg_list" % (self.app_id,algorithm['alg_id'])
             return '{}',False,error
       else:
         alg_list = utils.get_app_default_alg_list(self.app_id)
@@ -361,16 +347,6 @@ class DuelingBanditsPureExploration(AppPrototype):
               (int) flag : integer for algorithm's use
             }
       (str) query_uid : unique identifier of query (used to look up for processAnswer)
-
-    Usage: 
-      getQuery_response_json,didSucceed,message = app.getQuery(db_API,exp_uid,getQuery_args_json)
-
-    Example input:
-      getQuery_args_json = {"participant_uid": "0077110d03cf06b8f77d11acc399e8a7"}
-
-    Example output:
-      getQuery_response_json = {"query_uid": "4d02a9924f92138287edd17ca5feb6e1", "target_indices": [{"index": 9, "flag": 0, "label": "left"}, {"index": 8, "flag": 1, "label": "right"}]}
-
     """
     try: 
       app_id = self.app_id
@@ -500,15 +476,6 @@ class DuelingBanditsPureExploration(AppPrototype):
         return (JSON) '{}', (bool) False, (str) error
       else:
         return (JSON) '{}', (bool) True,''
-
-    Usage:
-      processAnswer_args_json,didSucceed,message = app.processAnswer(db_API,exp_uid,processAnswer_args_json)
-
-    Example input:
-      processAnswer_args_json = {"query_uid": "4d02a9924f92138287edd17ca5feb6e1", "index_winner": 8}
-
-    Example output:
-      processAnswer_response_json = {}
     """
 
     try:
@@ -793,13 +760,13 @@ class DuelingBanditsPureExploration(AppPrototype):
         response_time_stats = dashboard.response_time_histogram(self.app_id,exp_uid,alg_label)
         stats = response_time_stats
 
-           # input alg_label
+      # input alg_label
       elif stat_id == "network_delay_histogram":
         alg_label = params['alg_label']
         network_delay_stats = dashboard.network_delay_histogram(self.app_id,exp_uid,alg_label)
         stats = network_delay_stats
 
-
+      # input alg_label
       elif stat_id == "most_current_ranking":
         alg_label = params['alg_label']
         stats = dashboard.most_current_ranking(self.app_id,exp_uid,alg_label)

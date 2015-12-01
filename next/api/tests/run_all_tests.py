@@ -1,7 +1,4 @@
 #!/usr/bin/python
-import test_api_triplet
-import test_api_dueling
-import test_api_tuple
 import test_api_bad_inputs
 import test_conn
 
@@ -33,7 +30,7 @@ if __name__ == '__main__':
 	num_clients = 1
 	# test_conn.run_all()
 	# test_api_bad_inputs.run_all(assert_200, num_clients)
-	test_api_dueling.run_all(assert_200)
-	test_api_triplet.run_all(assert_200, num_clients)
-	test_api_tuple.run_all(assert_200)
+	# test_api_dueling.run_all(assert_200)
+	# test_api_triplet.run_all(assert_200, num_clients)
+	# test_api_tuple.run_all(assert_200)
 	# add subsequent tests here
