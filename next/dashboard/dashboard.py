@@ -73,7 +73,7 @@ def experiment_dashboard(exp_uid, app_id, exp_key):
     Inputs: ::\n
     	(string) exp_uid, exp_uid for a current experiment.
     """
-    simple_flag = request.args.get('simple',0)
+    simple_flag = int(request.args.get('simple',0))
 
     if simple_flag<2:
       git_hash = rm.get_git_hash_for_exp_uid(exp_uid)
