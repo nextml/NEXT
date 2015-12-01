@@ -75,18 +75,23 @@ def experiment_dashboard(exp_uid, app_id, exp_key):
     """
     simple_flag = request.args.get('simple',0)
 
-    git_hash = rm.get_git_hash_for_exp_uid(exp_uid)
+    if simple_flag<2:
+      git_hash = rm.get_git_hash_for_exp_uid(exp_uid)
+      exp_start_data = rm.get_app_exp_uid_start_date(exp_uid)+' UTC'
+      participant_uids = rm.get_participant_uids(exp_uid)
+      num_participants = len(participant_uids)
+      num_queries = 0
+      for participant_uid in participant_uids:
+        queries = rm.get_participant_data(participant_uid, exp_uid)
+        num_queries += len(queries)
+    else:
+      git_hash = ''
+      exp_start_data = ''
+      num_participants = -1
+      num_queries = -1
 
     # Not a particularly good way to do this. 
     alg_label_list = rm.get_algs_for_exp_uid(exp_uid)
-
-    exp_start_data = rm.get_app_exp_uid_start_date(exp_uid)+' UTC'
-    participant_uids = rm.get_participant_uids(exp_uid)
-    num_participants = len(participant_uids)
-    num_queries = 0
-    for participant_uid in participant_uids:
-      queries = rm.get_participant_data(participant_uid, exp_uid)
-      num_queries += len(queries)
 
     # Migrate this code to use keychain
     docs,didSucceed,message = db.getDocsByPattern('next_frontend_base',

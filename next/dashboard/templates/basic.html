@@ -27,6 +27,7 @@ popup_alert = function(text){
 </div>
 
 
+{% if simple_flag<2 %}
 <!--################## activity #################### -->
 <div class="container-fluid" style ='background-color: #FFFFFF; padding-bottom: 1cm; text-align: center'>
     <h2 id="header">Experiment Dashboard: {{ exp_uid }}</h2>
@@ -81,8 +82,9 @@ popup_alert = function(text){
         </div>
     </div>
 </div>
+{% endif %}
 
-{% if simple_flag is equalto 0 %}
+{% if simple_flag<1 %}
 <!--################## compute_duration_multiline_plot #################### -->
 <div class="container-fluid" style ='background-color: #FFFFFF; padding-bottom: 1cm'>
     <div class="col-lg-10 col-lg-offset-1">
