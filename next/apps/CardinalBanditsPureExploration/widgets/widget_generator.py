@@ -49,20 +49,20 @@ class WidgetGenerator():
 
         rating_options = []
         rating_options.append({'target_id':1,
-                                   'primary_description':"unfunny",
-                                   'primary_type':'text',
-                                   'alt_description':1,
-                                   'alt_type':'text'})
+                               'primary_description':"unfunny",
+                               'primary_type':'text',
+                               'alt_description':1,
+                               'alt_type':'text'})
         rating_options.append({'target_id':2,
-                                   'primary_description':"somewhat funny",
-                                   'primary_type':'text',
-                                   'alt_description':2,
-                                   'alt_type':'text'})
+                               'primary_description':"somewhat funny",
+                               'primary_type':'text',
+                               'alt_description':2,
+                               'alt_type':'text'})
         rating_options.append({'target_id':3,
-                                   'primary_description':"funny",
-                                   'primary_type':'text',
-                                   'alt_description':3,
-                                   'alt_type':'text'})
+                               'primary_description':"funny",
+                               'primary_type':'text',
+                               'alt_description':3,
+                               'alt_type':'text'})
             
         return {'html': template.render(query = query,
                                         rating_options = rating_options),
