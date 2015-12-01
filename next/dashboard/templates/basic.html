@@ -82,6 +82,7 @@ popup_alert = function(text){
     </div>
 </div>
 
+{% if simple_flag is equalto 0 %}
 <!--################## compute_duration_multiline_plot #################### -->
 <div class="container-fluid" style ='background-color: #FFFFFF; padding-bottom: 1cm'>
     <div class="col-lg-10 col-lg-offset-1">
@@ -430,7 +431,7 @@ popup_alert = function(text){
 
     </div>
 </div>
-
+{% endif %}
 
 {% block custom_dashboard %}{% endblock %} 
 

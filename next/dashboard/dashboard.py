@@ -65,8 +65,9 @@ def system_monitor():
                            cadvisor_url=cadvisor_url, 
                            mongodb_url=mongodb_url)
 
-@dashboard.route('/experiment_dashboard/<exp_uid>/<app_id>/<exp_key>')
-def experiment_dashboard(exp_uid, app_id, exp_key):
+@dashboard.route('/experiment_dashboard/<exp_uid>/<app_id>/<exp_key>/<simple_flag>', strict_slashes=False)
+@dashboard.route('/experiment_dashboard/<exp_uid>/<app_id>/<exp_key>/', defaults={'simple_flag': 0}, strict_slashes=False)
+def experiment_dashboard(exp_uid, app_id, exp_key, simple_flag):
     """
     Endpoint that renders the experiment dashboard.
 
@@ -121,6 +122,7 @@ def experiment_dashboard(exp_uid, app_id, exp_key):
                            exp_start_data=exp_start_data,
                            num_participants=num_participants,
                            num_queries=num_queries,
+                           simple_flag=int(simple_flag)
                            )
 
 
