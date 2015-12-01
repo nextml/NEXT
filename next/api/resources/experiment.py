@@ -175,8 +175,12 @@ class Experiment(Resource):
 
         # Parse out targets 
         targets = args_data['args'].pop('targets',None)
-        if targets:
-            args_data['args']['n'] = len(targets)
+
+        if n in targets.keys():
+            args_data['args']['n'] = n
+        else:
+            args_data['args']['n'] = len(targets['targets'])
+            targets = targets['targets']
             
         app_id = args_data["app_id"]
         site_id = args_data.get('site_id', None)
