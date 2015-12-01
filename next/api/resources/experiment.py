@@ -176,7 +176,7 @@ class Experiment(Resource):
         # Parse out targets 
         targets = args_data['args'].pop('targets',None)
 
-        if n in targets.keys():
+        if 'n' in targets.keys():
             args_data['args']['n'] = n
         else:
             args_data['args']['n'] = len(targets['targets'])
