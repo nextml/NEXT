@@ -5,7 +5,7 @@ last updated: 9/16/15
 
 Flask controller for dashboards. 
 """
-from flask import Blueprint, render_template, url_for
+from flask import Blueprint, render_template, url_for, request
 from jinja2 import Environment, PackageLoader, ChoiceLoader
 
 import next.constants as constants
@@ -65,15 +65,16 @@ def system_monitor():
                            cadvisor_url=cadvisor_url, 
                            mongodb_url=mongodb_url)
 
-@dashboard.route('/experiment_dashboard/<exp_uid>/<app_id>/<exp_key>/<simple_flag>', strict_slashes=False)
-@dashboard.route('/experiment_dashboard/<exp_uid>/<app_id>/<exp_key>/', defaults={'simple_flag': 0}, strict_slashes=False)
-def experiment_dashboard(exp_uid, app_id, exp_key, simple_flag):
+@dashboard.route('/experiment_dashboard/<exp_uid>/<app_id>/<exp_key>')
+def experiment_dashboard(exp_uid, app_id, exp_key):
     """
     Endpoint that renders the experiment dashboard.
 
     Inputs: ::\n
     	(string) exp_uid, exp_uid for a current experiment.
     """
+    simple_flag = request.args.get('simple',0)
+
     git_hash = rm.get_git_hash_for_exp_uid(exp_uid)
 
     # Not a particularly good way to do this. 
