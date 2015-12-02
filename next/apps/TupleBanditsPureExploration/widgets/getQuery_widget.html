@@ -17,30 +17,64 @@
   }
 
   div.row > div.col-xs-12 {
-    height:100%;
+  height:100%;
+  padding:10px;
+    text-align:center;
     outline: 1px solid black;
   }
 
+  div.option{
+  outline: 1px solid black;
+  padding:5px;
+  }
+  
   #wrapper > div.row {
     height:50%;
   }
 
+  .image_container{
+    display:inline-block;
+    width:100%;
+  height:100%;
+  }
+  
   #wrapper img{
+    vertical-align:middle;
     max-height:100%;
     max-width:100%;
     height:auto;
   }
-</style>
 
+  .text_container{
+  display:table;
+  width:100%;
+  height:100%;
+  }
+  
+  .text{
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+    word-wrap: break-word;
+    font-size: 1.5vw;
+    height:100%;
+    width:100%;
+  }
+</style>
+<br />
 {% if query.context_type != "none" %}
-<div class="target" id="center">
+<div class="row" id="center">
+  <div class="col-xs-12">
   {% if query.context_type == "text" %}
-  <div class="table-box">
+  <div class="text_container">
     <div class="text"> {{ query.context }} </div>
   </div>
   {% elif query.context_type == "image" or query.context_type == "img" %}
-  <img class="image" src='{{ query.context }}'> </img>
+  <div class="image_container">
+    <img src='{{ query.context }}'> </img>
+  </div>
   {% endif %}
+  </div>
 </div>
 
 <script>
@@ -48,33 +82,23 @@
 </script>
 {% endif %}
 
-<div id="query" style="align-self: flex-start;
-                        display: flex;
-                        flex-direction: row;
-                        align-items: stretch;
-                        flex-wrap: wrap;
-                        flex-grow: 1;
-                        -webkit-align-self: flex-start;
-                        display: -webkit-flex;
-                        -webkit-flex-direction: row;
-                        -webkit-align-items: stretch;
-                        -webkit-flex-wrap: wrap;
-                        -webkit-flex-grow: 1;
-                        padding-bottom: 5px">
+<div id="query" class="row">
   {% for t in query.targets %}
-    <div class="target" id="{{loop.index}}"
+    <div class="option" id="{{loop.index}}"
         onclick="next_widget.processAnswer(&quot;{{ t.target_id }}&quot;);
                   console.log('reporting answer!')
                   $('#'+{{loop.index}}).css({'border': '2px solid #FF0000'});">
       {% if t.primary_type == "image" or t.primary_type == "img"%}
-      <img class="image" src={{ t.primary_description }}> </img>
+      <div class="image_container">      
+	<img src={{ t.primary_description }}> </img>
+      </div>
       {% elif t.primary_type == "text"%}
-      <div class="table-box">
-        <div class="text">{{ t.primary_description }}</div>
+      <div class="text_container">
+	<div class="text"> {{ t.primary_description }} </div>
       </div>
       {% endif %}
     </div>
-  {% endfor %}
+    {% endfor %}
 </div>
 
 
