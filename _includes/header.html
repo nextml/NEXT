@@ -2,32 +2,22 @@
 <nav class="navbar navbar-default">
   <div class="container-fluid">
     <div class="navbar-header">
-      <a class="navbar-brand" href="#">WebSiteName</a>
+      <a class="navbar-brand" href="/">NEXT</a>
     </div>
     <div>
       <ul class="nav navbar-nav">
-        <li><a href="/">Team</a></li>
-        <li class="active"><a href="/blog/">Blog</a></li>
+        <li><a href="/">Home</a></li>
+        <li><a href="/blog/">Blog</a></li>
+        {% for my_page in site.pages %}
+          {% if my_page.title %}
+          <li><a class="page-link" href="{{ my_page.url | prepend: site.baseurl
+          }}">{{ my_page.title }}</a></li>
+          {% endif %}
+        {% endfor %}
       </ul>
     </div>
   </div>
 </nav>
 
-  <div class="wrapper">
-
-    <a class="site-title" href="{{ site.baseurl }}/">{{ site.title }}</a>
-
-      <div class="trigger">
-        {% for my_page in site.pages %}
-          {% if my_page.title %}
-          <a class="page-link" href="{{ my_page.url | prepend: site.baseurl }}">{{ my_page.title }}</a>
-          {% endif %}
-        {% endfor %}
-      </div>
-    </nav>
-
-
-
-  </div>
 
 </header>
