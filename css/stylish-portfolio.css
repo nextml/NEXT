@@ -12,8 +12,21 @@ body {
     height: 100%;
 }
 
+body
+{
+   /*font-family: "Lato" !important;*/
+}
+
+h1, h2, h3 {
+    font-weight: 900 !important;
+    font-style: bold !important;
+    font-family: "Montserrat", sans-serif !important;
+}
+
 body {
-    font-family: "Source Sans Pro","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 16px !important;
+    font-weight: 200;
 }
 
 .bg-primary .link a {
