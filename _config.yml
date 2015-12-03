@@ -1,22 +1,22 @@
+# Welcome to Jekyll!
+#
+# This config file is meant for settings that affect your whole blog, values
+# which you are expected to set up once and rarely need to edit after that.
+# For technical reasons, this file is *NOT* reloaded automatically when you use
+# 'jekyll serve'. If you change this file, please restart the server process.
+
 # Site settings
 title: NEXT
 email: ljain@wisc.edu
 description: > # this means to ignore newlines until "baseurl:"
-  NEXT is a machine learning system that runs in the cloud and makes it easy to develop, evaluate, and apply active learning in the real-world. Ask better questions. Get better results. Faster. Automated.
-baseurl: "" # the subpath of your site, e.g. /blog/
+  NEXT is a machine learning system that runs in the cloud and makes it easy to
+  develop, evaluate, and apply active learning in the real-world. Ask better
+  questions. Get better results. Faster. Automated.
+baseurl: "" # the subpath of your site, e.g. /blog
 url: "http://nextml.org" # the base hostname & protocol for your site
+github_username:  nextml
 github: "https://github.com/nextml/next/"
-
+next_data: "https://github.com/nextml/NEXT-data/"
 
 # Build settings
 markdown: kramdown
-
-
-defaults:
-  -
-    scope:
-      path: ""      # empty string for all files
-      type: posts   # limit to posts
-    values:
-      is_post: true # automatically set is_post=true for all posts
-

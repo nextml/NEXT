@@ -1,20 +1,23 @@
-<nav class="navbar navbar-custom navbar-fixed-top top-nav-collapse" role="navigation">
-  <div class="container">
+<header class="site-header">
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
     <div class="navbar-header">
-      <a class="navbar-brand" href="#">
-        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-main-collapse">
-        <span style="color: #ffffff"><i class="fa fa-bars"></i></span>
-      </a>
+      <a class="navbar-brand" href="/">NEXT</a>
     </div>
-
-      <!-- Collect the nav links, forms, and other content for toggling -->
-  <div class="collapse navbar-collapse navbar-right navbar-main-collapse">
-	<ul class="nav navbar-nav">
-          <li class="active"><a href="{{site.url}}/index.html">Home</a></li>
-	  <li><a href="{{site.url}}/blog.html">Blog</a></li>
-          <li><a href="{{site.url}}/team.html">Team</a></li>
-	</ul>
-      </div>
+    <div>
+      <ul class="nav navbar-nav">
+        <li><a href="/">Home</a></li>
+        <li><a href="/blog/">Blog</a></li>
+        {% for my_page in site.pages %}
+          {% if my_page.title %}
+          <li><a class="page-link" href="{{ my_page.url | prepend: site.baseurl
+          }}">{{ my_page.title }}</a></li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    </div>
   </div>
-  </nav>
+</nav>
 
+
+</header>
