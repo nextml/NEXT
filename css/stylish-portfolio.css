@@ -66,15 +66,15 @@ body {
 
 .btn-light {
     border-radius: 0;
-    color: #333;
-    background-color: rgb(255,255,255);
+    color: #000;
+    background-color: rgba(255, 255, 255, 0.7);
 }
 
 .btn-light:hover,
 .btn-light:focus,
 .btn-light:active {
-    color: #333;
-    background-color: rgba(255,255,255,0.8);
+    color: #fff !important;
+    background-color: rgba(121,110,255, 0.7);
 }
 
 /* Custom Horizontal Rule */
