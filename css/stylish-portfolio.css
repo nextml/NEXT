@@ -175,7 +175,7 @@ hr.small {
     position: relative;
     width: 100%;
     height: 100%;
-    background: url(../assets/Idea_1_text.jpg) no-repeat center center scroll;
+    background: url(../assets/Idea_1.jpg) no-repeat center center scroll;
     color: #fff;
     -webkit-background-size: cover;
     -moz-background-size: cover;
@@ -205,7 +205,7 @@ hr.small {
     width: 100%;
     height: 400px;
     color: #fff;
-    background: url(../img/callout.jpg) no-repeat center center scroll;
+    background: url(../assets/Idea_1.jpg) no-repeat center center scroll;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     background-size: cover;
