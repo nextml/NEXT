@@ -74,7 +74,8 @@ body {
 .btn-light:focus,
 .btn-light:active {
     color: #fff !important;
-    background-color: rgba(121,110,255, 0.7);
+    /* background-color: rgba(121,110,255, 0.7); */
+    background-color: #FF7B00; 
 }
 
 /* Custom Horizontal Rule */
