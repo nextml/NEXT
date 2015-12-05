@@ -6,14 +6,8 @@ permalink: /
 <!-- About -->
 <section id="about" class="text-center">
   <div class="heading-about">
-    <div class="container">
-      <div class="row">
-        <div class="col-lg-8 col-lg-offset-2">
-    	    <div class="section-heading">
-    	      <h2>About NEXT</h2>
-    	    </div>
-        </div>
-      </div>
+    <div class="section-heading">
+      <h2>About NEXT</h2>
     </div>
   </div>
 
@@ -42,13 +36,13 @@ permalink: /
     </div>
 
     <div class ="row">
-      <div class="col-md-1"></div>
-      <div class="col-md-10">
+      <div class="col-md-2"></div>
+      <div class="col-md-8">
       <h3>
         NEXT makes deploying your algorithm on the web as easy as coding it up.
       </h3>
       </div>
-      <div class="col-md-1"></div>
+      <div class="col-md-2"></div>
     </div>
 
     <br>
@@ -58,12 +52,12 @@ permalink: /
 
 
 
-<section id="about" class="text-center bg-info">
+<section style="background: rgba(255, 101, 1, 0.075)">
   <div class="heading-about">
     <div class="container">
       <div class="row">
         <div class="col-lg-8 col-lg-offset-2">
-          <div class="section-heading">
+          <div class="section-heading text-center">
             <h2>Who is NEXT for?</h2>
           </div>
         </div>
@@ -76,26 +70,15 @@ permalink: /
     <div class ="row">
       <div class="col-md-1"></div>
       <div class="col-md-10">
-      <p class="lead">
-        Machine learning researchers
-      </p>
-      Lower the barrier to perform real-world empirical evaluation of active learning algorithms.
-With few exceptions, real-time active learning empirical studies in the literature are done by Yahoo Research, Microsoft Research, Google Research. NEXT democratizes active learning research.
+      <h4>Machine learning researchers</h4>
+      <p>NEXT lowers the barrier to perform real-world empirical evaluation of active learning algorithms.</p>
+      <p>With few exceptions, real-time active learning empirical studies in the literature are done by Yahoo Research, Microsoft Research, Google Research. NEXT democratizes active learning research.</p>
+      <h4>Experimentalists and Practitioners</h4>
+      <p>NEXT puts state-of-the-art active learning tools in the hands of applied scientists and novice users..</p>
+      <p>Research to aids practice, and practice informs new research directions.</p>
       </div>
       <div class="col-md-1"></div>
     </div>
-    
-
-    <div class ="row">
-      <div class="col-md-1"></div>
-      <div class="col-md-10">
-      <h3>
-        NEXT makes deploying your algorithm on the web as easy as coding it up.
-      </h3>
-      </div>
-      <div class="col-md-1"></div>
-    </div>
-
     <br>
     
   </div>
@@ -103,73 +86,105 @@ With few exceptions, real-time active learning empirical studies in the literatu
 
 
 
-
-<section class='bg-info'>
+<section>
   <div class="container">
+    
+    <div class ="row">
+      <div class="col-md-1"></div>
+      <div class="col-md-10">
+      
+      <h3>Develop</h3>
+      <div class ="row">
+        <div class="col-md-4">
+          <p class="lead"> Implementing an algorithm is as simple as writing a few functions. </p>
+          <p class="lead"> Interfaces required by active learning applications are also easily added to the system. </p>
+        </div>
+        <div class="col-md-8">
+          <img src="assets/develop.png"/ width="75%">
+        </div>
+      </div>
+      
+      <h3>Evaluate</h3>
+      <div class ="row">
+        <div class="col-md-4">
+          <p class="lead"> Implement multiple algorithms and evaluate or A/B test them simultaneously in real-time. </p>
+          <p class="lead"> Computational (timing) performance alongside prediction performance. </p>
+        </div>
+        <div class="col-md-8">
+          <img src="assets/evaluate.png"/ width="60%">
+        </div>
+      </div>
+
+      <h3>Apply</h3>
+      <div class ="row">
+        <div class="col-md-4">
+          <p class="lead"> Deploy your active-learning algorithms for web-scale applications. The <i>New Yorker</i> <a href="http://www.newyorker.com/cartoons/bob-mankoff/cartoon-lounge-show-me-the-funny">uses NEXT</a> to help pick the cartoon caption contest winner. </p>
+          <p class="lead"> You only need to worry about your algorithms, not how to design a reliable server for your application. </p>
+        </div>
+        <div class="col-md-8">
+          <img src="assets/apply.png"/ width="75%">
+        </div>
+      </div>
+
+      <div class="col-md-1"></div>
+    </div>
+    <br>
+    
+  </div>
+</section>
+
+
+<!-- class="text-center" -->
+
+<section style="background: rgba(255, 101, 1, 0.075)">
+  <div class="text-center">
+    <br>
+    <div class="section-heading">
+      <h2>How does it work?</h2>
+    </div>
+  </div>
+
+  <div class="container">
+    
+    <div class ="row">
+      <div class="col-md-1"></div>
+      <div class="col-md-10">
+      
+      <div class ="row">
+        <div class="col-md-4">
+          <p class="lead"> An application defines the active learning problem to be solved and manages the data flow to different algorithms. </p>
+          <p class="lead"> Each algorithm shares the same inputs and outputs, but adaptively selects data according to its unique specifications. </p>
+        </div>
+        <div class="col-md-8">
+          <br>
+          <img src="assets/dataflow.png"/ width="75%">
+        </div>
+      </div>
+
+      <div class="col-md-1"></div>
+    </div>
+  </div>
+  <br>
+</section>
+
+
+
+<section style="background: rgba(255, 101, 1, 0.075)">
+  <div class="container" >
     <div class="row">
       <div class="col-md-4">
-          <div class="link">
-          <h2><center>
-               A System for <a
-           href="http://www.cs.berkeley.edu/~kjamieson/resources/next.pdf">Real-World</a> Active Learning</center></h2>
-          </div>
-        <br><p>
-	    Active learning methods automatically adapt data collection by selecting the most
-	    informative  samples  in  order  to  accelerate  machine  learning.   Because  of  this,
-	    real-world testing and comparing active learning algorithms requires collecting
-	    new datasets (adaptively), rather than simply applying algorithms to benchmark
-	    datasets, as is the norm in (passive) machine learning research.  <br><br>To facilitate the
-	    development, testing and deployment of active learning for real applications, we
-	    have built an open-source software system for large-scale active learning research
-	    and experimentation.  The system, called NEXT, provides a unique platform for
-	    real-world, reproducible active learning research. This paper details the challenges
-	    of building the system and demonstrates its capabilities with several experiments.
-	    The results show how experimentation can help expose strengths and weaknesses
-	    of active learning algorithms, in sometimes unexpected and enlightening ways.
-	</p>
         <center><p><a class="btn btn-default" href="http://www.cs.berkeley.edu/~kjamieson/resources/next.pdf" role="button">
           <i class="fa fa-book fa-2x"></i>
                 View our Paper »</a></p></center>
       </div>
 
       <div class="col-md-4">
-          <div class='link'>
-        <h2><center>
-                Fully <a href="{{site.github}}">Open Source</a> for Reproducible Research</center></h2>
-          </div>
-        <br><p>
-	    Publishing data and software needed to reproduce experimental results is
-	    essential to scientific progress in all fields.  <br><br>Due to the adaptive nature of data collection in active
-	    learning experiments, it is not enough to simply publish data gathered in a previous experiment. For
-	    other researchers to recreate the experiment, the must be able to also reconstruct the exact adaptive
-	    process that was used to collect the data.  This means that the complete system, including any web
-	    facing  crowd  sourcing  tools,  not  just  algorithm  code  and  data,  must  be  made  publicly  available
-	    and easy to use. <br><br> By leveraging cloud computing, NEXT abstracts away the difficulties of building
-	    a data collection system and lets the researcher focus on active learning algorithm design.   Any
-	    other researcher can replicate an experiment in under one hour by just using the same experiment
-	    initialization parameters.
-	</p>
         <center><p><a class="btn btn-default" href="{{site.github}}" role="button">
                 <i class="fa fa-github fa-2x"></i>
                 Check out our GitHub Repo »</a></p></center><p></p>
       </div>
 
       <div class="col-md-4">
-        <h2><center>
-                Built for Researchers <br>&amp; Practitioners</center></h2>
-        <br><p>
-	    NEXT puts state-of-the-art active learning algorithms
-	    in the hands of non-experts interested in collecting data in more efficient ways.  <br><br>This includes psy-
-	    chologists, social scientists, biologists, security analysts and researchers in any other field in which
-	    large amounts of data is collected, sometimes at a large dollar cost and time expense.  Choosing an
-	    appropriate active learning algorithm is perhaps an easier step for non-experts compared to data col-
-	    lection.<br><br>
-
-	    NEXT is accessible through a REST Web API and can be easily deployed in the cloud with minimal
-	    knowledge and expertise using automated scripts.   NEXT provides researchers a set of example
-	    templates and widgets that can be used as graphical user interfaces to collect data from participants
-	    (see supplementary materials for examples).
-	</p>
         <center><p><a class="btn btn-default" href="{{site.github}}/wiki" role="button">
                 <i class="fa fa-question-circle fa-2x"></i>
                 Access NEXT wiki Docs »</a></p></center><p></p>
@@ -177,6 +192,7 @@ With few exceptions, real-time active learning empirical studies in the literatu
 
     </div>
   </div>
+  <br>
 </section>
 <section >
 <div class="container">
