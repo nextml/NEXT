@@ -45,19 +45,31 @@ algorithm_management_settings['params'] = params
 # Create experiment dictionary
 initExp = {}
 initExp['args'] = {}
-initExp['args']['n'] = 30
+initExp['args']['n'] = 30 # how many targets? (/number of fruits?)
+
+# how many dimensions should we embed in? This is for the final results
 initExp['args']['d'] = 2
+
+# probability of error. similar to "significant because p < 0.05"
 initExp['args']['failure_probability'] = .01
+
+# one parcipant sees many algorithms? 'one_to_many' means one participant
+# will see many algorithms. 'one_to_many' is the other option
 initExp['args']['participant_to_algorithm_management'] = 'one_to_many'
+
 initExp['args']['algorithm_management_settings'] = algorithm_management_settings
 initExp['args']['alg_list'] = alg_list
+
+# What does the user see at start and finish? These are the instructions/debreif
+# (they have default values)
 initExp['args']['instructions'] = 'Test instructions'
 initExp['args']['debrief'] = 'Test debrief'
 
+# Which app are we running? (examples of other algorithms are in examples/
 initExp['app_id'] = 'PoolBasedTripletMDS'
-initExp['site_id'] = 'replace this with working site id'
-initExp['site_key'] = 'replace this with working site key'
 
+initExp['site_id'] = 'replace this with working site id' # TODO: remove
+initExp['site_key'] = 'replace this with working site key' # TODO: remove
 
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 experiment = {}

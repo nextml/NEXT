@@ -57,37 +57,24 @@ algorithm_management_settings['params'] = params
 # Create experiment dictionary
 initExp = {}
 initExp['args'] = {}
-initExp['args']['n'] = 25
+initExp['args']['n'] = 25 # number of targets
+
+# probability of error. similar to "significant because p < 0.05"
 initExp['args']['failure_probability'] = .01
+
+# one parcipant sees many algorithms? 'one_to_many' means one participant will
+# see many algorithms
 initExp['args']['participant_to_algorithm_management'] = 'one_to_many'
 initExp['args']['algorithm_management_settings'] = algorithm_management_settings
 initExp['args']['alg_list'] = alg_list
 # initExp['args']['instructions'] = ''
 # initExp['args']['debrief'] = ''
-initExp['args']['num_tries'] = 50
+initExp['args']['num_tries'] = 50 # How many tries does each user see?
+
+# Which app are we running? (examples of other algorithms are in examples/
 initExp['app_id'] = 'DuelingBanditsPureExploration'
-initExp['site_id'] = 'replace this with working site id'
-initExp['site_key'] = 'replace this with working site key'
-
-initExp = {'site_key': 'replace this with working site key',
-           'site_id': 'replace this with working site id',
-           'app_id': 'DuelingBanditsPureExploration',
-            }
-
-initExp['args'] = { 'failure_probability': 0.01, # probability of error
-                    'n': 25, # number of targets
-                    'participant_to_algorithm_management': 'one_to_many',
-                                    # one participant sees how many algorithms?
-                    'num_tries': 50, # how many queries does one participant see?
-                    'algorithm_management_settings': {'params':
-                        # how often does one algorithm get used?
-                        {'proportions': [{'alg_label': 'BR_LilUCB', 'proportion': 0.2},
-                            {'alg_label': 'BR_Random', 'proportion': 0.2},
-                            {'alg_label': 'BR_SuccElim', 'proportion': 0.2},
-                            {'alg_label': 'BeatTheMean', 'proportion': 0.2},
-                            {'alg_label': 'BR_Thompson', 'proportion': 0.2}]},
-                    'mode': 'fixed_proportions'}
-                    }
+initExp['site_id'] = 'replace this with working site id' # TODO: remove
+initExp['site_key'] = 'replace this with working site key' # TODO: remove
 
 # which algorithms can be used? BR_LilUCB does some adaptive sampling to only
 # sample the funniest captions, etc.

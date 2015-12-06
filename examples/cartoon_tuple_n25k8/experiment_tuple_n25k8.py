@@ -58,16 +58,26 @@ for cap in cap_list:
     #   initExp['args']['n'] = 25
     # else:
     #   initExp['args']['n'] = 8
-    initExp['args']['n'] = 25
-    initExp['args']['k'] = 8
+    initExp['args']['n'] = 25 # number of targets
+    initExp['args']['k'] = 8 # how many choices does the user have to choose among?
+
+    # probability of error. similar to "significant because p < 0.05"
     initExp['args']['failure_probability'] = .01
-    initExp['args']['participant_to_algorithm_management'] = 'one_to_many' # 'one_to_one'
+
+    # one parcipant sees many algorithms? 'one_to_many' means one participant
+    # will see many algorithms
+    initExp['args']['participant_to_algorithm_management'] = 'one_to_many'
     initExp['args']['algorithm_management_settings'] = algorithm_management_settings
     initExp['args']['alg_list'] = alg_list
+
+    # What does the user see at start and finish? These are the
+    # instructions/debreif (by default they have default values)
     # initExp['args']['instructions'] = ''
     # initExp['args']['debrief'] =''
-    # initExp['args']['num_tries'] = 3
-    initExp['args']['num_tries'] = 1
+    initExp['args']['num_tries'] = 1 # how many questions does the user see?
+
+    # Which app are we running? (examples of other algorithms are in examples/
+    # (this is another TupleBandits example)
     initExp['app_id'] = 'TupleBanditsPureExploration'
     initExp['site_id'] = 'replace this with working site id'
     initExp['site_key'] = 'replace this with working site key'
