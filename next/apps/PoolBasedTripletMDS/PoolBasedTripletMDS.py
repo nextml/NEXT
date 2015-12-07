@@ -6,7 +6,7 @@ last updated: 1/28/2015
 ######################################
 PoolBasedTripletMDS
 
-This module manages the execution of different algorithms implemented to solve the 
+This module manages the execution of different algorithms implemented to solve the
 problem described in PoolBasedTripletMDSPrototype.py. See this file for
 more info.
 """
@@ -24,7 +24,7 @@ from next.apps.PoolBasedTripletMDS.dashboard.Dashboard import PoolBasedTripletMD
 
 class PoolBasedTripletMDS(AppPrototype):
 
-  def __init__(self): 
+  def __init__(self):
     self.app_id = 'PoolBasedTripletMDS'
 
   def daemonProcess(self,exp_uid,args_json,db,ell):
@@ -32,7 +32,7 @@ class PoolBasedTripletMDS(AppPrototype):
 
       app_id = self.app_id
 
-      log_entry = { 'exp_uid':exp_uid,'task':'daemonProcess','json':args_json,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'daemonProcess','json':args_json,'timestamp':utils.datetimeNow() }
       ell.log( app_id+':APP-CALL', log_entry  )
 
       # convert args_json to args_dict
@@ -48,7 +48,7 @@ class PoolBasedTripletMDS(AppPrototype):
         try:
           args_dict[field]
         except KeyError:
-          error = "%s.daemonProcess input arguments missing field: %s" % (self.app_id,str(field)) 
+          error = "%s.daemonProcess input arguments missing field: %s" % (self.app_id,str(field))
           return '{}',False,error
 
 
@@ -59,13 +59,13 @@ class PoolBasedTripletMDS(AppPrototype):
       # get sandboxed database for the specific app_id,alg_id,exp_uid - closing off the rest of the database to the algorithm
       rc = ResourceClient(app_id,exp_uid,alg_uid,db)
 
-      # get specific algorithm to make calls to 
+      # get specific algorithm to make calls to
       alg = utils.get_app_alg(self.app_id,alg_id)
 
       didSucceed,dt = utils.timeit(alg.daemonProcess)(resource=rc,daemon_args_dict=alg_daemon_args)
-      
-      log_entry = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'daemonProcess','duration':dt,'timestamp':utils.datetimeNow() } 
-      log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'daemonProcess','duration':dt } 
+
+      log_entry = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'daemonProcess','duration':dt,'timestamp':utils.datetimeNow() }
+      log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'daemonProcess','duration':dt }
       log_entry_durations.update( rc.getDurations() )
       meta = {'log_entry_durations':log_entry_durations}
 
@@ -73,31 +73,31 @@ class PoolBasedTripletMDS(AppPrototype):
       args_out = {'args':daemon_message,'meta':meta}
       response_json = json.dumps(args_out)
 
-      log_entry = { 'exp_uid':exp_uid,'task':'daemonProcess','json':response_json,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'daemonProcess','json':response_json,'timestamp':utils.datetimeNow() }
       ell.log( app_id+':APP-RESPONSE', log_entry  )
 
       return response_json,True,''
 
     except Exception, err:
       error = traceback.format_exc()
-      log_entry = { 'exp_uid':exp_uid,'task':'daemonProcess','error':error,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'daemonProcess','error':error,'timestamp':utils.datetimeNow() }
       ell.log( app_id+':APP-EXCEPTION', log_entry  )
       return '{}',False,error
 
 
   def initExp(self,exp_uid,args_json,db,ell):
     """
-    initialize the project and necessary experiments 
+    initialize the project and necessary experiments
 
     Expected input (in json structure with string keys):
       (int) n : number of objects
-      (int) d : desired dimension (can be changed later) 
+      (int) d : desired dimension (can be changed later)
       (float) failure_probability : confidence
       [optional] (list of dicts) alg_list : with fields (Defaults given by Info.get_app_default_alg_list)
             (string) alg_id : valid alg_id for this app_id
             (string) alg_label : unique identifier for algorithm (e.g. may have experiment with repeated alg_id's, but alg_labels must be unqiue, will also be used for plot legends
             [optional] (string) test_alg_label : must be one of the alg_label's in alg_list (Default is self)
-      [optional] (dict) algorithm_management_settings : dictionary with fields (string) 'mode' and (dict) 'params'. mode in {'pure_exploration','explore_exploit','fixed_proportions'}. Default is 'fixed_proportions' and allocates uniform probability to each algorithm. If mode=fixed_proportions then params is a dictionary that contains the field 'proportions' which is a list of dictionaries with fields 'alg_label' and 'proportion' for all algorithms in alg_list. All proportions must be positive and sum to 1 over all algs in alg_list 
+      [optional] (dict) algorithm_management_settings : dictionary with fields (string) 'mode' and (dict) 'params'. mode in {'pure_exploration','explore_exploit','fixed_proportions'}. Default is 'fixed_proportions' and allocates uniform probability to each algorithm. If mode=fixed_proportions then params is a dictionary that contains the field 'proportions' which is a list of dictionaries with fields 'alg_label' and 'proportion' for all algorithms in alg_list. All proportions must be positive and sum to 1 over all algs in alg_list
       [optional] (string) participant_to_algorithm_management : in {'one_to_one','one_to_many'}. Default is 'one_to_many'.
       [optional] (string) instructions
       [optional] (string) debrief
@@ -128,7 +128,7 @@ class PoolBasedTripletMDS(AppPrototype):
       didSucceed,message = db.delete_docs_with_filter(app_id+':queries',{'exp_uid':exp_uid})
       didSucceed,message = db.delete_docs_with_filter(app_id+':participants',{'exp_uid':exp_uid})
       didSucceed,message = db.delete_docs_with_filter(app_id+':algorithms',{'exp_uid':exp_uid})
-      
+
       didSucceed,message = ell.delete_logs_with_filter(app_id+':APP-CALL',{'exp_uid':exp_uid})
       didSucceed,message = ell.delete_logs_with_filter(app_id+':APP-RESPONSE',{'exp_uid':exp_uid})
       didSucceed,message = ell.delete_logs_with_filter(app_id+':APP-EXCEPTION',{'exp_uid':exp_uid})
@@ -176,7 +176,7 @@ class PoolBasedTripletMDS(AppPrototype):
       db.set('experiments_admin',exp_uid,'app_id',app_id)
       db.set('experiments_admin',exp_uid,'start_date',utils.datetime2str(utils.datetimeNow()))
 
-      log_entry = { 'exp_uid':exp_uid,'task':'initExp','json':args_json,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'initExp','json':args_json,'timestamp':utils.datetimeNow() }
       ell.log( app_id+':APP-CALL', log_entry  )
 
       # convert args_json to args_dict
@@ -192,7 +192,7 @@ class PoolBasedTripletMDS(AppPrototype):
         try:
           args_dict[field]
         except KeyError:
-          error = "%s.initExp input arguments missing field: %s" % (self.app_id,str(field)) 
+          error = "%s.initExp input arguments missing field: %s" % (self.app_id,str(field))
           return '{}',False,error
 
       n = args_dict['n']
@@ -285,14 +285,14 @@ class PoolBasedTripletMDS(AppPrototype):
 
       # assign uid to each algorithm and save it
       for algorithm in alg_list:
-        alg_id = algorithm['alg_id'] 
+        alg_id = algorithm['alg_id']
         alg_uid = utils.getNewUID()
         algorithm['alg_uid'] = alg_uid
 
         db.set(app_id+':algorithms',alg_uid,'alg_id',alg_id)
         db.set(app_id+':algorithms',alg_uid,'alg_uid',alg_uid)
         db.set(app_id+':algorithms',alg_uid,'exp_uid',exp_uid)
-      
+
       db.set(app_id+':experiments',exp_uid,'exp_uid',exp_uid)
       db.set(app_id+':experiments',exp_uid,'app_id',app_id)
       db.set(app_id+':experiments',exp_uid,'n',n)
@@ -305,34 +305,34 @@ class PoolBasedTripletMDS(AppPrototype):
       db.set(app_id+':experiments',exp_uid,'debrief',debrief)
       db.set(app_id+':experiments',exp_uid,'num_tries',num_tries)
       db.set(app_id+':experiments',exp_uid,'git_hash',git_hash)
-      
+
       # now create intitialize each algorithm
       for algorithm in alg_list:
-        alg_id = algorithm['alg_id'] 
+        alg_id = algorithm['alg_id']
         alg_uid = algorithm['alg_uid']
 
         # get sandboxed database for the specific app_id,alg_uid,exp_uid - closing off the rest of the database to the algorithm
         rc = ResourceClient(app_id,exp_uid,alg_uid,db)
 
-        # get specific algorithm to make calls to 
+        # get specific algorithm to make calls to
         alg = utils.get_app_alg(self.app_id,alg_id)
 
         # call initExp
         didSucceed,dt = utils.timeit(alg.initExp)(resource=rc,n=n,d=d,failure_probability=delta)
 
-        log_entry = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'initExp','duration':dt,'timestamp':utils.datetimeNow() } 
+        log_entry = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'initExp','duration':dt,'timestamp':utils.datetimeNow() }
         ell.log( app_id+':ALG-DURATION', log_entry  )
 
       response_json = '{}'
 
-      log_entry = { 'exp_uid':exp_uid,'task':'initExp','json':response_json,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'initExp','json':response_json,'timestamp':utils.datetimeNow() }
       ell.log( app_id+':APP-RESPONSE', log_entry  )
 
       return response_json,True,''
 
     except Exception, err:
       error = traceback.format_exc()
-      log_entry = { 'exp_uid':exp_uid,'task':'initExp','error':error,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'initExp','error':error,'timestamp':utils.datetimeNow() }
       print log_entry
       ell.log( app_id+':APP-EXCEPTION', log_entry  )
       return '{}',False,error
@@ -343,19 +343,19 @@ class PoolBasedTripletMDS(AppPrototype):
     A request to ask the query: "is {center} more similar to {left} or {right}?"
 
     Expected input (in jsonstructure with string keys):
-      [optional] (string) participant_uid :  unique identifier of session for a participant answering questions (that is, an email address is not good enough as the participant could participate in multiple exp_uids so it would not be unique against all experiments), if key non-existant particpant_uid is assigned as exp_uid. 
-    
-    Expected output (in json structure with string keys): 
+      [optional] (string) participant_uid :  unique identifier of session for a participant answering questions (that is, an email address is not good enough as the participant could participate in multiple exp_uids so it would not be unique against all experiments), if key non-existant particpant_uid is assigned as exp_uid.
+
+    Expected output (in json structure with string keys):
       (list) target_indices : list that stores dictionary of targets with fields:
-            { 
+            {
               (int) index : the index of the target of relevance
-              (str) label : in {'left','right','center'} 
+              (str) label : in {'left','right','center'}
               (int) flag : integer for algorithm's use
             }
       (str) query_uid : unique identifier of query (used to look up for processAnswer)
-      
 
-    Usage: 
+
+    Usage:
       getQuery_response_json,didSucceed,message = app.getQuery(db_API,exp_uid,getQuery_args_json)
 
     Example input:
@@ -365,10 +365,10 @@ class PoolBasedTripletMDS(AppPrototype):
       getQuery_response_json = {"query_uid": "a061ce00742603afc540d23e08ab77b3", "target_indices": [{"index": 19, "flag": 0, "label": "center"}, {"index": 8, "flag": 0, "label": "left"}, {"index": 15, "flag": 0, "label": "right"}]}
     """
 
-    try: 
+    try:
       app_id = self.app_id
 
-      log_entry = { 'exp_uid':exp_uid,'task':'getQuery','json':args_json,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'getQuery','json':args_json,'timestamp':utils.datetimeNow() }
       ell.log( app_id+':APP-CALL', log_entry  )
 
       # convert args_json to args_dict
@@ -410,10 +410,10 @@ class PoolBasedTripletMDS(AppPrototype):
         else:
           raise Exception('algorithm_management_mode : '+algorithm_management_settings['mode']+' not implemented')
 
-        alg_id = alg_label_to_alg_id[ prop_item['alg_label'] ] 
+        alg_id = alg_label_to_alg_id[ prop_item['alg_label'] ]
         alg_uid = alg_label_to_alg_uid[ prop_item['alg_label'] ]
         alg_label = prop_item['alg_label']
-        
+
         if (first_participant_query) and (participant_to_algorithm_management=='one_to_one'):
           db.set(app_id+':participants',participant_uid,'alg_id',alg_id)
           db.set(app_id+':participants',participant_uid,'alg_uid',alg_uid)
@@ -428,13 +428,13 @@ class PoolBasedTripletMDS(AppPrototype):
       # get sandboxed database for the specific app_id,alg_id,exp_uid - closing off the rest of the database to the algorithm
       rc = ResourceClient(app_id,exp_uid,alg_uid,db)
 
-      # get specific algorithm to make calls to 
+      # get specific algorithm to make calls to
       alg = utils.get_app_alg(self.app_id,alg_id)
 
       # call getQuery
       index_center,index_left,index_right,dt = utils.timeit(alg.getQuery)(resource=rc)
 
-      log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'getQuery','duration':dt } 
+      log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'getQuery','duration':dt }
       log_entry_durations.update( rc.getDurations() )
       meta = {'log_entry_durations':log_entry_durations}
 
@@ -459,13 +459,13 @@ class PoolBasedTripletMDS(AppPrototype):
       args_out = {'args':query,'meta':meta}
       response_json = json.dumps(args_out)
 
-      log_entry = { 'exp_uid':exp_uid,'task':'getQuery','json':response_json,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'getQuery','json':response_json,'timestamp':utils.datetimeNow() }
       ell.log( app_id+':APP-RESPONSE', log_entry  )
 
       return response_json,True,''
     except Exception, err:
       error = traceback.format_exc()
-      log_entry = { 'exp_uid':exp_uid,'task':'getQuery','error':error,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'getQuery','error':error,'timestamp':utils.datetimeNow() }
       ell.log( app_id+':APP-EXCEPTION', log_entry  )
       return '{}',False,error
 
@@ -477,7 +477,7 @@ class PoolBasedTripletMDS(AppPrototype):
       (index) index_winner : index of the winner in (must be index of left or right target in target_indices)
       (str) query_uid : unique identifier of query
 
-    Expected output (comma separated): 
+    Expected output (comma separated):
       if error:
         return (JSON) '{}', (bool) False, (str) error
       else:
@@ -496,7 +496,7 @@ class PoolBasedTripletMDS(AppPrototype):
     try:
       app_id = self.app_id
 
-      log_entry = { 'exp_uid':exp_uid,'task':'processAnswer','json':args_json,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'processAnswer','json':args_json,'timestamp':utils.datetimeNow() }
       ell.log( app_id+':APP-CALL', log_entry  )
 
       # convert args_json to args_dict
@@ -512,7 +512,7 @@ class PoolBasedTripletMDS(AppPrototype):
         try:
           args_dict[field]
         except KeyError:
-          error = "%s.processAnswer input arguments missing field: %s" % (self.app_id,str(field)) 
+          error = "%s.processAnswer input arguments missing field: %s" % (self.app_id,str(field))
           return '{}',False,error
 
       # get list of algorithms associated with project
@@ -533,7 +533,7 @@ class PoolBasedTripletMDS(AppPrototype):
       # get sandboxed database for the specific app_id,alg_id,exp_uid - closing off the rest of the database to the algorithm
       rc = ResourceClient(app_id,exp_uid,alg_uid,db)
 
-      # get specific algorithm to make calls to 
+      # get specific algorithm to make calls to
       alg = utils.get_app_alg(self.app_id,alg_id)
 
       targets,didSucceed,message = db.get(app_id+':queries',query_uid,'target_indices')
@@ -569,14 +569,14 @@ class PoolBasedTripletMDS(AppPrototype):
       # call processAnswer
       didSucceed,dt = utils.timeit(alg.processAnswer)(resource=rc,index_center=index_center,index_left=index_left,index_right=index_right,index_winner=index_winner)
 
-      log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'processAnswer','duration':dt } 
+      log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'processAnswer','duration':dt }
       log_entry_durations.update( rc.getDurations() )
       meta = {'log_entry_durations':log_entry_durations}
 
-      
+
       # check if we're going to evaluate this loss
       n,didSucceed,message = db.get(app_id+':experiments',exp_uid,'n')
-      
+
       if num_reported_answers % ((n+4)/4) == 0:
         predict_id = 'get_embedding'
         params = {'alg_label':alg_label}
@@ -590,20 +590,20 @@ class PoolBasedTripletMDS(AppPrototype):
       args_out = {'args':response_args_dict,'meta':meta}
       response_json = json.dumps(args_out)
 
-      log_entry = { 'exp_uid':exp_uid,'task':'processAnswer','json':response_json,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'processAnswer','json':response_json,'timestamp':utils.datetimeNow() }
       ell.log( app_id+':APP-RESPONSE', log_entry  )
 
       return response_json,True,""
     except Exception, err:
       error = traceback.format_exc()
-      log_entry = { 'exp_uid':exp_uid,'task':'processAnswer','error':error,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'processAnswer','error':error,'timestamp':utils.datetimeNow() }
       ell.log( app_id+':APP-EXCEPTION', log_entry  )
       return '{}',False,error
 
 
   def predict(self,exp_uid,args_json,db,ell):
     """
-    Have the model learned by some particular algorithm predict a variety of stuff 
+    Have the model learned by some particular algorithm predict a variety of stuff
 
     Expected input (in json structure with string keys):
       (string) predict_id : identifier for the desired prediction
@@ -611,7 +611,7 @@ class PoolBasedTripletMDS(AppPrototype):
 
 
     ##########
-    Description: Each algorithm (with an associated alg_label) has a test_alg_label associated with it. 
+    Description: Each algorithm (with an associated alg_label) has a test_alg_label associated with it.
 
     Expected input:
       (string) predict_id : 'evaluate_on_test'
@@ -627,7 +627,7 @@ class PoolBasedTripletMDS(AppPrototype):
     try:
       app_id = self.app_id
 
-      log_entry = { 'exp_uid':exp_uid,'task':'predict','json':args_json,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'predict','json':args_json,'timestamp':utils.datetimeNow() }
       ell.log( app_id+':APP-CALL', log_entry  )
 
       # convert args_json to args_dict
@@ -643,7 +643,7 @@ class PoolBasedTripletMDS(AppPrototype):
         try:
           args_dict[field]
         except KeyError:
-          error = "%s.predict input arguments missing field: %s" % (self.app_id,str(field)) 
+          error = "%s.predict input arguments missing field: %s" % (self.app_id,str(field))
           return '{}',False,error
 
       predict_id = args_dict['predict_id']
@@ -653,7 +653,7 @@ class PoolBasedTripletMDS(AppPrototype):
 
       # get list of algorithms associated with project
       alg_list,didSucceed,message = db.get(app_id+':experiments',exp_uid,'alg_list')
-      
+
       # get alg_id
       for algorithm in alg_list:
         if alg_label == algorithm['alg_label']:
@@ -666,20 +666,20 @@ class PoolBasedTripletMDS(AppPrototype):
         # get sandboxed database for the specific app_id,alg_id,exp_uid - closing off the rest of the database to the algorithm
         rc = ResourceClient(app_id,exp_uid,alg_uid,db)
 
-        # get specific algorithm to make calls to 
+        # get specific algorithm to make calls to
         alg = utils.get_app_alg(self.app_id,alg_id)
 
         ##### Get Embedding #####
         Xd,num_reported_answers,dt = utils.timeit(alg.predict)(rc)
 
-        log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'predict','duration':dt } 
+        log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'predict','duration':dt }
         log_entry_durations.update( rc.getDurations() )
         meta = {'log_entry_durations':log_entry_durations}
 
         params['Xd'] = Xd
         params['num_reported_answers'] = num_reported_answers
 
-        log_entry = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'timestamp':utils.datetimeNow() } 
+        log_entry = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'timestamp':utils.datetimeNow() }
         log_entry.update( params )
 
         ell.log( app_id+':ALG-EVALUATION', log_entry  )
@@ -706,17 +706,17 @@ class PoolBasedTripletMDS(AppPrototype):
       args_out = {'args':response_args_dict,'meta':meta}
       predict_json = json.dumps(args_out)
 
-      log_entry = { 'exp_uid':exp_uid,'task':'predict','json':predict_json,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'predict','json':predict_json,'timestamp':utils.datetimeNow() }
       ell.log( app_id+':APP-RESPONSE', log_entry  )
 
       return predict_json,True,''
     except Exception, err:
       error = traceback.format_exc()
-      log_entry = { 'exp_uid':exp_uid,'task':'predict','error':str(error),'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'predict','error':str(error),'timestamp':utils.datetimeNow() }
       didSucceed,message = ell.log( app_id+':APP-EXCEPTION', log_entry  )
       return '{}',False,error
 
-    
+
 
   def getStats(self,exp_uid,args_json,db,ell):
     """
@@ -733,7 +733,7 @@ class PoolBasedTripletMDS(AppPrototype):
     try:
       app_id = self.app_id
 
-      log_entry = { 'exp_uid':exp_uid,'task':'getStats','json':args_json,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'getStats','json':args_json,'timestamp':utils.datetimeNow() }
       ell.log( app_id+':APP-CALL', log_entry  )
 
       # convert args_json to args_dict
@@ -749,7 +749,7 @@ class PoolBasedTripletMDS(AppPrototype):
         try:
           args_dict[field]
         except KeyError:
-          error = "%s.getStats input arguments missing field: %s" % (self.app_id,str(field)) 
+          error = "%s.getStats input arguments missing field: %s" % (self.app_id,str(field))
           return '{}',False,error
 
       stat_id = args_dict['stat_id']
@@ -807,14 +807,14 @@ class PoolBasedTripletMDS(AppPrototype):
 
       response_json = json.dumps(stats)
 
-      log_entry = { 'exp_uid':exp_uid,'task':'getStats','json':response_json,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'getStats','json':response_json,'timestamp':utils.datetimeNow() }
       ell.log( app_id+':APP-RESPONSE', log_entry  )
 
 
       return response_json,True,''
     except Exception, err:
       error = traceback.format_exc()
-      log_entry = { 'exp_uid':exp_uid,'task':'getStats','error':error,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'getStats','error':error,'timestamp':utils.datetimeNow() }
       ell.log( app_id+':APP-EXCEPTION', log_entry  )
       return '{}',False,error
 

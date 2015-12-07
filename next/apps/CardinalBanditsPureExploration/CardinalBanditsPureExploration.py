@@ -6,7 +6,7 @@ last updated: 11/13/2015
 ######################################
 CardinalBanditsPureExploration
 
-This module manages the execution of different algorithms implemented to solve the 
+This module manages the execution of different algorithms implemented to solve the
 problem described in CardinalBanditsPureExplorationPrototype.py. See this file for
 more info.
 """
@@ -24,7 +24,7 @@ from next.apps.CardinalBanditsPureExploration.dashboard.Dashboard import Cardina
 
 class CardinalBanditsPureExploration(AppPrototype):
 
-  def __init__(self): 
+  def __init__(self):
     self.app_id = 'CardinalBanditsPureExploration'
 
   def daemonProcess(self,exp_uid,args_json,db,ell):
@@ -32,7 +32,7 @@ class CardinalBanditsPureExploration(AppPrototype):
 
       app_id = self.app_id
 
-      log_entry = { 'exp_uid':exp_uid,'task':'daemonProcess','json':args_json,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'daemonProcess','json':args_json,'timestamp':utils.datetimeNow() }
       ell.log( app_id+':APP-CALL', log_entry  )
 
       # convert args_json to args_dict
@@ -48,7 +48,7 @@ class CardinalBanditsPureExploration(AppPrototype):
         try:
           args_dict[field]
         except KeyError:
-          error = "%s.daemonProcess input arguments missing field: %s" % (self.app_id,str(field)) 
+          error = "%s.daemonProcess input arguments missing field: %s" % (self.app_id,str(field))
           return '{}',False,error
 
 
@@ -59,12 +59,12 @@ class CardinalBanditsPureExploration(AppPrototype):
       # get sandboxed database for the specific app_id,alg_id,exp_uid - closing off the rest of the database to the algorithm
       rc = ResourceClient(app_id,exp_uid,alg_uid,db)
 
-      # get specific algorithm to make calls to 
+      # get specific algorithm to make calls to
       alg = utils.get_app_alg(self.app_id,alg_id)
 
       didSucceed,dt = utils.timeit(alg.daemonProcess)(resource=rc,daemon_args_dict=alg_daemon_args)
-      
-      log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'daemonProcess','duration':dt } 
+
+      log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'daemonProcess','duration':dt }
       log_entry_durations.update( rc.getDurations() )
       meta = {'log_entry_durations':log_entry_durations}
 
@@ -72,20 +72,20 @@ class CardinalBanditsPureExploration(AppPrototype):
       args_out = {'args':daemon_message,'meta':meta}
       response_json = json.dumps(args_out)
 
-      log_entry = { 'exp_uid':exp_uid,'task':'daemonProcess','json':response_json,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'daemonProcess','json':response_json,'timestamp':utils.datetimeNow() }
       ell.log( app_id+':APP-RESPONSE', log_entry  )
 
       return response_json,True,''
 
     except Exception, err:
       error = traceback.format_exc()
-      log_entry = { 'exp_uid':exp_uid,'task':'daemonProcess','error':error,'timestamp':utils.datetimeNow(),'args_json':args_json } 
+      log_entry = { 'exp_uid':exp_uid,'task':'daemonProcess','error':error,'timestamp':utils.datetimeNow(),'args_json':args_json }
       ell.log( app_id+':APP-EXCEPTION', log_entry  )
       return '{}',False,error
 
   def initExp(self,exp_uid,args_json,db,ell):
     """
-    initialize the project and necessary experiments 
+    initialize the project and necessary experiments
 
     Expected input (in json structure with string keys):
       (int) n: number of arms
@@ -94,10 +94,10 @@ class CardinalBanditsPureExploration(AppPrototype):
       [optional] (list of dicts) alg_list : with fields (Defaults given by Info.get_app_default_alg_list)
             (string) alg_id : valid alg_id for this app_id
             (string) alg_label : unique identifier for algorithm (e.g. may have experiment with repeated alg_id's, but alg_labels must be unqiue, will also be used for plot legends
-      [optional] (dict) algorithm_management_settings : dictionary with fields (string) 'mode' and (dict) 'params'. mode in {'pure_exploration','explore_exploit','fixed_proportions'}. Default is 'fixed_proportions' and allocates uniform probability to each algorithm. If mode=fixed_proportions then params is a dictionary that contains the field 'proportions' which is a list of dictionaries with fields 'alg_label' and 'proportion' for all algorithms in alg_list. All proportions must be positive and sum to 1 over all algs in alg_list 
+      [optional] (dict) algorithm_management_settings : dictionary with fields (string) 'mode' and (dict) 'params'. mode in {'pure_exploration','explore_exploit','fixed_proportions'}. Default is 'fixed_proportions' and allocates uniform probability to each algorithm. If mode=fixed_proportions then params is a dictionary that contains the field 'proportions' which is a list of dictionaries with fields 'alg_label' and 'proportion' for all algorithms in alg_list. All proportions must be positive and sum to 1 over all algs in alg_list
       [optional] (string) participant_to_algorithm_management : in {'one_to_one','one_to_many'}. Default is 'one_to_many'.
       [optional] (int) num_tries
-    
+
     Expected output:
       if error:
         return (JSON) '{}', (bool) False, (str) error_str
@@ -108,7 +108,7 @@ class CardinalBanditsPureExploration(AppPrototype):
       initExp_response_json,didSucceed,message = app.initExp(exp_uid,initExp_args_json)
 
     Example input:
-      initExp_args_json = 
+      initExp_args_json =
 
     Example output:
       initExp_response_json = {}
@@ -123,7 +123,7 @@ class CardinalBanditsPureExploration(AppPrototype):
       didSucceed,message = db.delete_docs_with_filter(app_id+':queries',{'exp_uid':exp_uid})
       didSucceed,message = db.delete_docs_with_filter(app_id+':participants',{'exp_uid':exp_uid})
       didSucceed,message = db.delete_docs_with_filter(app_id+':algorithms',{'exp_uid':exp_uid})
-      
+
       didSucceed,message = ell.delete_logs_with_filter(app_id+':APP-CALL',{'exp_uid':exp_uid})
       didSucceed,message = ell.delete_logs_with_filter(app_id+':APP-RESPONSE',{'exp_uid':exp_uid})
       didSucceed,message = ell.delete_logs_with_filter(app_id+':APP-EXCEPTION',{'exp_uid':exp_uid})
@@ -163,7 +163,7 @@ class CardinalBanditsPureExploration(AppPrototype):
       didSucceed,message = ell.ensure_index(app_id+':ALG-EVALUATION',{'alg_uid':1})
       didSucceed,message = ell.ensure_index(app_id+':ALG-EVALUATION',{'timestamp':1})
       didSucceed,message = ell.ensure_index(app_id+':ALG-EVALUATION',{'exp_uid':1,'timestamp':1})
-      
+
       import next.constants
       git_hash = next.constants.GIT_HASH
 
@@ -171,7 +171,7 @@ class CardinalBanditsPureExploration(AppPrototype):
       db.set('experiments_admin',exp_uid,'app_id',app_id)
       db.set('experiments_admin',exp_uid,'start_date',utils.datetime2str(utils.datetimeNow()))
 
-      log_entry = { 'exp_uid':exp_uid,'task':'initExp','json':args_json,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'initExp','json':args_json,'timestamp':utils.datetimeNow() }
       ell.log( app_id+':APP-CALL', log_entry  )
 
       # convert args_json to args_dict
@@ -188,7 +188,7 @@ class CardinalBanditsPureExploration(AppPrototype):
           args_dict[field]
 
         except KeyError:
-          error = "%s.initExp input arguments missing field: %s" % (self.app_id,str(field)) 
+          error = "%s.initExp input arguments missing field: %s" % (self.app_id,str(field))
           return '{}',False,error
 
       n = args_dict['n']
@@ -313,7 +313,7 @@ class CardinalBanditsPureExploration(AppPrototype):
 
       # now create intitialize each algorithm
       for algorithm in alg_list:
-        alg_id = algorithm['alg_id'] 
+        alg_id = algorithm['alg_id']
         alg_uid = algorithm['alg_uid']
 
         db.set(app_id+':algorithms',alg_uid,'alg_id',alg_id)
@@ -323,25 +323,25 @@ class CardinalBanditsPureExploration(AppPrototype):
         # get sandboxed database for the specific app_id,alg_id,exp_uid - closing off the rest of the database to the algorithm
         rc = ResourceClient(app_id,exp_uid,alg_uid,db)
 
-        # get specific algorithm to make calls to 
+        # get specific algorithm to make calls to
         alg = utils.get_app_alg(self.app_id,alg_id)
 
         # call initExp
         didSucceed,dt = utils.timeit(alg.initExp)(resource=rc,n=n,R=R,failure_probability=delta)
 
-        log_entry = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'initExp','duration':dt,'timestamp':utils.datetimeNow() } 
+        log_entry = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'initExp','duration':dt,'timestamp':utils.datetimeNow() }
         ell.log( app_id+':ALG-DURATION', log_entry  )
 
       response_json = '{}'
 
-      log_entry = { 'exp_uid':exp_uid,'task':'initExp','json':response_json,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'initExp','json':response_json,'timestamp':utils.datetimeNow() }
       ell.log( app_id+':APP-RESPONSE', log_entry  )
 
       return response_json,True,''
 
     except Exception, err:
       error = traceback.format_exc()
-      log_entry = { 'exp_uid':exp_uid,'task':'initExp','error':error,'timestamp':utils.datetimeNow(),'args_json':args_json } 
+      log_entry = { 'exp_uid':exp_uid,'task':'initExp','error':error,'timestamp':utils.datetimeNow(),'args_json':args_json }
       ell.log( app_id+':APP-EXCEPTION', log_entry  )
       return '{}',False,error
 
@@ -350,13 +350,13 @@ class CardinalBanditsPureExploration(AppPrototype):
     A request to ask which k arms to duel next
 
     Expected input (in jsonstructure with string keys):
-      [optional] (string) participant_uid :  unique identifier of session for a participant answering questions (that is, an email address is not good enough as the participant could participate in multiple exp_uids so it would not be unique against all experiments), if key non-existant particpant_uid is assigned as exp_uid. 
+      [optional] (string) participant_uid :  unique identifier of session for a participant answering questions (that is, an email address is not good enough as the participant could participate in multiple exp_uids so it would not be unique against all experiments), if key non-existant particpant_uid is assigned as exp_uid.
 
     Expected output (in json structure with string keys):
       (int) target_index : target index
       (str) query_uid : unique identifier of query (used to look up for processAnswer)
 
-    Usage: 
+    Usage:
       getQuery_response_json,didSucceed,message = app.getQuery(exp_uid,getQuery_args_json)
 
     Example input:
@@ -366,10 +366,10 @@ class CardinalBanditsPureExploration(AppPrototype):
       getQuery_response_json = {"query_uid": "4d02a9924f92138287edd17ca5feb6e1", "target_indices": [ 3, 6, 9 ]
 
     """
-    try: 
+    try:
       app_id = self.app_id
 
-      log_entry = { 'exp_uid':exp_uid,'task':'getQuery','json':args_json,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'getQuery','json':args_json,'timestamp':utils.datetimeNow() }
       ell.log( app_id+':APP-CALL', log_entry  )
 
       # convert args_json to args_dict
@@ -410,10 +410,10 @@ class CardinalBanditsPureExploration(AppPrototype):
           prop_item = numpy.random.choice(alg_list,p=prop)
         else:
           raise Exception('algorithm_management_mode : '+algorithm_management_settings['mode']+' not implemented')
-        alg_id = alg_label_to_alg_id[ prop_item['alg_label'] ] 
+        alg_id = alg_label_to_alg_id[ prop_item['alg_label'] ]
         alg_uid = alg_label_to_alg_uid[ prop_item['alg_label'] ]
         alg_label = prop_item['alg_label']
-        
+
         if (first_participant_query) and (participant_to_algorithm_management=='one_to_one'):
           db.set(app_id+':participants',participant_uid,'alg_id',alg_id)
           db.set(app_id+':participants',participant_uid,'alg_uid',alg_uid)
@@ -436,7 +436,7 @@ class CardinalBanditsPureExploration(AppPrototype):
       # get sandboxed database for the specific app_id,alg_id,exp_uid - closing off the rest of the database to the algorithm
       rc = ResourceClient(app_id,exp_uid,alg_uid,db)
 
-      # get specific algorithm to make calls to 
+      # get specific algorithm to make calls to
       alg = utils.get_app_alg(self.app_id,alg_id)
 
       # call getQuery
@@ -448,18 +448,18 @@ class CardinalBanditsPureExploration(AppPrototype):
       context,didSucceed,message = db.get(app_id+':experiments',exp_uid,'context')
 
       # log
-      log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'getQuery','duration':dt } 
+      log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'getQuery','duration':dt }
       log_entry_durations.update( rc.getDurations() )
       meta = {'log_entry_durations':log_entry_durations}
 
-      # create JSON query payload    
+      # create JSON query payload
       timestamp = str(utils.datetimeNow())
       query_uid = utils.getNewUID()
       query = {}
       query['query_uid'] = query_uid
       query['target_indices'] = targets
 
-      
+
       # save query data to database
       query_doc = {}
       query_doc.update(query)
@@ -474,17 +474,17 @@ class CardinalBanditsPureExploration(AppPrototype):
       # add context after updating query doc to avoid redundant information
       query['context'] = context
       query['context_type'] = context_type
-        
+
       args_out = {'args':query,'meta':meta}
       response_json = json.dumps(args_out)
 
-      log_entry = { 'exp_uid':exp_uid,'task':'getQuery','json':response_json,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'getQuery','json':response_json,'timestamp':utils.datetimeNow() }
       ell.log( app_id+':APP-RESPONSE', log_entry  )
 
       return response_json, True,''
     except Exception, err:
       error = traceback.format_exc()
-      log_entry = { 'exp_uid':exp_uid,'task':'getQuery','error':error,'timestamp':utils.datetimeNow(),'args_json':args_json }  
+      log_entry = { 'exp_uid':exp_uid,'task':'getQuery','error':error,'timestamp':utils.datetimeNow(),'args_json':args_json }
       ell.log( app_id+':APP-EXCEPTION', log_entry  )
       return '{}',False,error
 
@@ -494,9 +494,9 @@ class CardinalBanditsPureExploration(AppPrototype):
 
     Expected input:
       (str) query_uid : unique identifier of query
-      (int) target_reward : reward of arm is a real random variable X satisfying E[exp(t*X)]<=exp(t^2 R^2/2) 
+      (int) target_reward : reward of arm is a real random variable X satisfying E[exp(t*X)]<=exp(t^2 R^2/2)
 
-    Expected output (comma separated): 
+    Expected output (comma separated):
       if error:
         return (JSON) '{}', (bool) False, (str) error
       else:
@@ -506,7 +506,7 @@ class CardinalBanditsPureExploration(AppPrototype):
       processAnswer_args_json,didSucceed,message = app.processAnswer(exp_uid,processAnswer_args_json)
 
     Example input:
-      processAnswer_args_json = 
+      processAnswer_args_json =
 
     Example output:
       processAnswer_response_json = {}
@@ -515,7 +515,7 @@ class CardinalBanditsPureExploration(AppPrototype):
     try:
       app_id = self.app_id
 
-      log_entry = { 'exp_uid':exp_uid,'task':'processAnswer','json':args_json,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'processAnswer','json':args_json,'timestamp':utils.datetimeNow() }
       ell.log( app_id+':APP-CALL', log_entry  )
 
       # convert args_json to args_dict
@@ -531,7 +531,7 @@ class CardinalBanditsPureExploration(AppPrototype):
         try:
           args_dict[field]
         except KeyError:
-          error = "%s.processAnswer input arguments missing field: %s" % (self.app_id,str(field)) 
+          error = "%s.processAnswer input arguments missing field: %s" % (self.app_id,str(field))
           return '{}',False,error
 
       # get list of algorithms associated with project
@@ -549,7 +549,7 @@ class CardinalBanditsPureExploration(AppPrototype):
       # get sandboxed database for the specific app_id,alg_id,exp_uid - closing off the rest of the database to the algorithm
       rc = ResourceClient(app_id,exp_uid,alg_uid,db)
 
-      # get specific algorithm to make calls to 
+      # get specific algorithm to make calls to
       alg = utils.get_app_alg(self.app_id,alg_id)
 
       # get targets associated with the specific query
@@ -578,18 +578,18 @@ class CardinalBanditsPureExploration(AppPrototype):
       # call processAnswer
       didSucceed,dt = utils.timeit(alg.processAnswer)(resource=rc,target_index=target_index,target_reward=target_reward)
 
-      log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'processAnswer','duration':dt } 
+      log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'processAnswer','duration':dt }
       log_entry_durations.update( rc.getDurations() )
       meta = {'log_entry_durations':log_entry_durations}
 
-      # calling predict 
+      # calling predict
       ###############
       if (num_reported_answers<10*n and num_reported_answers % 4 ==0) or num_reported_answers % ((n+4)/4) == 0:
         predict_id = 'arm_ranking'
         params = {'alg_label':alg_label}
         predict_args_dict = {'predict_id':predict_id,'params':params}
         predict_args_json = json.dumps(predict_args_dict)
-        
+
         db.submit_job(app_id,exp_uid,'predict',predict_args_json,ignore_result=True)
       ###############
 
@@ -597,13 +597,13 @@ class CardinalBanditsPureExploration(AppPrototype):
       args_out = {'args':response_args_dict,'meta':meta}
       response_json = json.dumps(args_out)
 
-      log_entry = { 'exp_uid':exp_uid,'task':'processAnswer','json':response_json,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'processAnswer','json':response_json,'timestamp':utils.datetimeNow() }
       ell.log( app_id+':APP-RESPONSE', log_entry  )
 
       return response_json,True,""
     except Exception, err:
       error = traceback.format_exc()
-      log_entry = { 'exp_uid':exp_uid,'task':'processAnswer','error':error,'timestamp':utils.datetimeNow(),'args_json':args_json }  
+      log_entry = { 'exp_uid':exp_uid,'task':'processAnswer','error':error,'timestamp':utils.datetimeNow(),'args_json':args_json }
       ell.log( app_id+':APP-EXCEPTION', log_entry  )
       return '{}',False,error
 
@@ -626,14 +626,14 @@ class CardinalBanditsPureExploration(AppPrototype):
     try:
       app_id = self.app_id
 
-      log_entry = { 'exp_uid':exp_uid,'task':'predict','json':args_json,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'predict','json':args_json,'timestamp':utils.datetimeNow() }
       ell.log( app_id+':APP-CALL', log_entry  )
 
       # convert args_json to args_dict
       try:
         args_dict = json.loads(args_json)
       except:
-        error = "%s.predict failed to convert input args_json due to improper format" %(self.app_id) 
+        error = "%s.predict failed to convert input args_json due to improper format" %(self.app_id)
         return '{}',False,error
 
       # check for the fields that must be contained in args or error occurs
@@ -642,7 +642,7 @@ class CardinalBanditsPureExploration(AppPrototype):
         try:
           args_dict[field]
         except KeyError:
-          error = "%s.predict input arguments missing field: %s" % (self.app_id,str(field)) 
+          error = "%s.predict input arguments missing field: %s" % (self.app_id,str(field))
           return '{}',False,error
 
       predict_id = args_dict['predict_id']
@@ -668,13 +668,13 @@ class CardinalBanditsPureExploration(AppPrototype):
         # get sandboxed database for the specific app_id,alg_id,exp_uid - closing off the rest of the database to the algorithm
         rc = ResourceClient(app_id,exp_uid,alg_uid,db)
 
-        # get specific algorithm to make calls to 
+        # get specific algorithm to make calls to
         alg = utils.get_app_alg(self.app_id,alg_id)
 
         # call getQuery
         scores,precisions,dt = utils.timeit(alg.predict)(resource=rc)
 
-        log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'predict','duration':dt } 
+        log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'predict','duration':dt }
         log_entry_durations.update( rc.getDurations() )
         meta = {'log_entry_durations':log_entry_durations}
 
@@ -691,7 +691,7 @@ class CardinalBanditsPureExploration(AppPrototype):
         for index in range(n):
           targets.append( {'index':indexes[index],'rank':ranks[index],'score':scores[index],'precision':precisions[index]} )
 
-        log_entry = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'timestamp':utils.datetimeNow() } 
+        log_entry = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'timestamp':utils.datetimeNow() }
         log_entry.update( {'targets':targets,'num_reported_answers':num_reported_answers} )
 
         ell.log( app_id+':ALG-EVALUATION', log_entry  )
@@ -701,16 +701,16 @@ class CardinalBanditsPureExploration(AppPrototype):
       args_out = {'args':response_args_dict,'meta':meta}
       predict_json = json.dumps(args_out)
 
-      log_entry = { 'exp_uid':exp_uid,'task':'predict','json':predict_json,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'predict','json':predict_json,'timestamp':utils.datetimeNow() }
       ell.log( app_id+':APP-RESPONSE', log_entry  )
 
       return predict_json,True,''
     except Exception, err:
       error = traceback.format_exc()
-      log_entry = { 'exp_uid':exp_uid,'task':'predict','error':str(error),'timestamp':utils.datetimeNow(),'args_json':args_json }  
+      log_entry = { 'exp_uid':exp_uid,'task':'predict','error':str(error),'timestamp':utils.datetimeNow(),'args_json':args_json }
       didSucceed,message = ell.log( app_id+':APP-EXCEPTION', log_entry  )
       return '{}',False,error
-    
+
 
   def getStats(self,exp_uid,args_json,db,ell):
     """
@@ -727,7 +727,7 @@ class CardinalBanditsPureExploration(AppPrototype):
     try:
       app_id = self.app_id
 
-      log_entry = { 'exp_uid':exp_uid,'task':'getStats','json':args_json,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'getStats','json':args_json,'timestamp':utils.datetimeNow() }
       ell.log( app_id+':APP-CALL', log_entry  )
 
       # convert args_json to args_dict
@@ -743,7 +743,7 @@ class CardinalBanditsPureExploration(AppPrototype):
         try:
           args_dict[field]
         except KeyError:
-          error = "%s.getStats input arguments missing field: %s" % (self.app_id,str(field)) 
+          error = "%s.getStats input arguments missing field: %s" % (self.app_id,str(field))
           return '{}',False,error
 
       stat_id = args_dict['stat_id']
@@ -780,7 +780,7 @@ class CardinalBanditsPureExploration(AppPrototype):
         alg_label = params['alg_label']
         response_time_stats = dashboard.response_time_histogram(self.app_id,exp_uid,alg_label)
         stats = response_time_stats
-        
+
    # input alg_label
       elif stat_id == "network_delay_histogram":
         alg_label = params['alg_label']
@@ -794,13 +794,13 @@ class CardinalBanditsPureExploration(AppPrototype):
 
       response_json = json.dumps(stats)
 
-      log_entry = { 'exp_uid':exp_uid,'task':'getStats','json':response_json,'timestamp':utils.datetimeNow() } 
+      log_entry = { 'exp_uid':exp_uid,'task':'getStats','json':response_json,'timestamp':utils.datetimeNow() }
       ell.log( app_id+':APP-RESPONSE', log_entry  )
 
       return response_json,True,''
     except Exception, err:
       error = traceback.format_exc()
-      log_entry = { 'exp_uid':exp_uid,'task':'getStats','error':error,'timestamp':utils.datetimeNow(),'args_json':args_json } 
+      log_entry = { 'exp_uid':exp_uid,'task':'getStats','error':error,'timestamp':utils.datetimeNow(),'args_json':args_json }
       ell.log( app_id+':APP-EXCEPTION', log_entry  )
       return '{}',False,error
 

@@ -1,16 +1,16 @@
 def get_info_object(get_implemented_algs):
     info = {}
-    
+
     info['initExp'] = {'description': 'Dictionary for initialization of experiment.',
                                  'type': 'dict',
                                  'values': {}}
     initExp = info['initExp']['values']
-    
+
     # app_id
     initExp['app_id'] = {'description':'PoolBasedTripletMDS',
                          'type':'string',
                          'values':['PoolBasedTripletMDS']}
-    
+
     # Top level args
     initExp['args'] = {'description':'Arguments for initExp' ,
                        'type':'dict',
@@ -18,7 +18,7 @@ def get_info_object(get_implemented_algs):
     args =  initExp['args']['values']
     args['n'] = {'description':'Number of items.',
                  'type':'num'}
-    
+
     args['participant_to_algorithm_management'] = {'description':'How particpants are routed to algorithms.',
                                                    'type':'string',
                                                    'values':['one-to-one', 'one-to-many']}
@@ -26,7 +26,7 @@ def get_info_object(get_implemented_algs):
     args['alg_list'] = {'description':'A list of algorithms you plan to use in this experiment.',
                         'type':'list',
                         'values':{'type':'dict','values':{}}}
-    
+
     alg_list = args['alg_list']['values']['values']
     alg_list['alg_label'] = {'description':'A name for this algorithm of your choosing.',
                              'type':'string'}
@@ -34,15 +34,15 @@ def get_info_object(get_implemented_algs):
     alg_list['alg_id'] = {'description':'A supported algorithm type in the system.',
                           'type':'string',
                           'values':get_implemented_algs()}
-    
+
     alg_list['test_alg_label'] = {'description':'Which algorithm to test against.',
                                   'type':'string'}
-    
+
     # algorithm management settings
     args['algorithm_management_settings'] = {'description':'',
                                              'type':'dict',
                                              'values':{}}
-    
+
     algorithm_management_settings = args['algorithm_management_settings']['values']
     algorithm_management_settings['mode'] = {'description':'',
                                              'type':'string',
@@ -59,3 +59,58 @@ def get_info_object(get_implemented_algs):
     params['proportions']['values']['values']['proportion'] = {'description':'Proportion of queries to give to this algorithm.',
                                                      'type':'num'}
     return info
+
+def get_getquery_input():
+    """"
+    Pulled info from getQuery's docstring (docstring in PoolBasedTripletMDS.py
+    but common to all app types)
+    """
+    info = {}
+
+    info['getQuery'] = {'description':'[optional] A request to determine which query to pose to the user'
+            'type': 'dict',
+            'values':{}
+            }
+
+    getQuery = info['getQuery']['values']
+    getQuery['args'] = {'description': 'Arguments to pass getQuery',
+                        'type': 'dict',
+                        'values': {}}
+
+    args = getQuery['args']['values']
+
+    args['participant_uid'] = {'description':"""unique identifier of session for
+                                a participant answering questions (that is, an
+                                email address is not good enough as the participant
+                                could participate in multiple exp_uids so it would
+                                not be unique against all experiments), if key
+                                non-existant particpant_uid is assigned as exp_uid."""
+                                'type':'string',
+                                'values':[]
+                                }
+
+    return info
+
+def get_processAnswer_info():
+    """"
+    Pulled info from getQuery's docstring (docstring in PoolBasedTripletMDS.py
+    but common to all app types)
+    """
+    info = {}
+    info['processAnswer'] = {'description':'Report back the reward of pulling the arm suggested by getQuery'
+                             'type':'dict'
+                             'values':{}
+                             }
+
+    processAnswer = info['processAnswer']['values']
+    processAnswer['args'] = {'description':'Arguments to pass processAnswer',
+                             'type':'dict',
+                             'values':{}}
+
+    args = processAnswer['args']['values']
+    args['index_winner'] = {'description':'index of the winner in target_indices'
+                            'type':'num'}
+
+    args['query_uid'] = {'description': 'Unique identifier of query',
+                         'type':'string',
+                         'values':[]}
