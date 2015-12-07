@@ -69,8 +69,6 @@ initExp['args']['debrief'] = 'Thanks for participating!'
 
 # what app are we running?
 initExp['app_id'] = 'PoolBasedTripletMDS'
-# initExp['site_id'] = 'replace this with working site id' # TODO: remove
-# initExp['site_key'] = 'replace this with working site key' # TODO: remove
 initExp['args']['num_tries'] = 50 # how many questions does one use see?
 
 experiment = {}

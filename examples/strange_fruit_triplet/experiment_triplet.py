@@ -68,9 +68,6 @@ initExp['args']['debrief'] = 'Test debrief'
 # Which app are we running? (examples of other algorithms are in examples/
 initExp['app_id'] = 'PoolBasedTripletMDS'
 
-initExp['site_id'] = 'replace this with working site id' # TODO: remove
-initExp['site_key'] = 'replace this with working site key' # TODO: remove
-
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 experiment = {}
 experiment['initExp'] = initExp

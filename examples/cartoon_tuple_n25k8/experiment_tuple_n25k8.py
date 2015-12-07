@@ -79,8 +79,6 @@ for cap in cap_list:
     # Which app are we running? (examples of other algorithms are in examples/
     # (this is another TupleBandits example)
     initExp['app_id'] = 'TupleBanditsPureExploration'
-    initExp['site_id'] = 'replace this with working site id'
-    initExp['site_key'] = 'replace this with working site key'
 
     # Set the context
     experiment = {}

@@ -73,8 +73,6 @@ initExp['args']['num_tries'] = 50 # How many tries does each user see?
 
 # Which app are we running? (examples of other algorithms are in examples/
 initExp['app_id'] = 'DuelingBanditsPureExploration'
-initExp['site_id'] = 'replace this with working site id' # TODO: remove
-initExp['site_key'] = 'replace this with working site key' # TODO: remove
 
 # which algorithms can be used? BR_LilUCB does some adaptive sampling to only
 # sample the funniest captions, etc.

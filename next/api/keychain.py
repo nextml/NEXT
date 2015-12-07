@@ -10,16 +10,22 @@ Philosophy
 
 Three levels of keys
 
-site_key: 1 to 1 mapping. Strongest key level. Created at time of site creation.
+exp_key: 1 to 1 mapping. Created from xp_uid. Required to access any 
+(backend and maybe frontend) API call related to an experiment. Can be safely 
+given to users of a client site (embedded in html for example).
 
-exp_key: 1 to 1 mapping. Created from site_id+site_key+exp_uid. Required to access any (backend and maybe frontend) API call related to an experiment. Can be safely given to users of a client site (embedded in html for example).
+perm_key: 1 to 1 mapping. Created from an exp_key+exp_uid. Permanent key 
+access on a Widget only! If this key is leaked, your widget is effectively public. 
 
-perm_key: 1 to 1 mapping. Created from an exp_key+exp_uid. Permanent key access on a Widget only! If this key is leaked, your widget is effectively public. 
-
-temp_key: many to 1 mapping. Created from an exp_key+exp_uid. One time use only key with a short expiration. A temp_key can have an access life - i.e. you can specify a time of expiration and a number of uses. 
+temp_key: many to 1 mapping. Created from an exp_key+exp_uid. One time use 
+only key with a short expiration. A temp_key can have an access life - 
+i.e. you can specify a time of expiration and a number of uses. 
 
 A key is a dictionary with the following fields:
-{'object_id': site_id or exp_uid, 'type': site or exp or perm or temp, 'tries: number of tries - 0 means infinite,  duration: time in seconds that key is valid - 0 is infinite}
+{'object_id': exp_uid, 
+'type': exp or perm or temp, 
+'tries': number of tries - 0 means infinite,  
+duration: time in seconds that key is valid - 0 is infinite}
 
 Usage:
 ###############################
@@ -36,7 +42,7 @@ import time
 db = PermStore()
 class KeyChain:
     """
-    Provides and verifies keys for site, experiment, and widget access.
+    Provides and verifies keys for experiment, and widget access.
     
     Attributes: ::\n
     	database_id (defaulted to "next_frontend_base")
@@ -45,84 +51,43 @@ class KeyChain:
     """
 
     def __init__(self):
-        self.database_id = "next_frontend_base"
+        self.database_id = "next_frontent_base"
         self.bucket_id = "keys"
         return
 
-
-    def create_site_key(self, site_id):
-        """
-        Create a site key. 
-
-        Inputs: 
-            (string) site_id
-
-        Outputs:
-            (string) site_key
-
-        Usage: ::\n
-        site_key = keychain.create_site_key(site_id)
-        """
-        
-        site_key = '%030x' % random.randrange(16**30)
-        doc = {'object_id':site_id , 'type':'site', 'duration':0, 'tries':0}
-
-        didSucceed,message = db.setDoc(self.database_id, self.bucket_id, site_key, doc)
-        if not didSucceed:
-            raise DatabaseException("Failed to access database in the keychain. %s"%(message))
-        
-        return site_key
-
     ###################################### HOW IS THIS USED? #####################################
-    def get_exp_key(self, site_id, site_key, exp_uid):
+    def get_exp_key(self, exp_uid):
         """
-        Get the key associated to an experiment. Verifies the site and that the experiment belongs to this site.
+        Get the key associated to an experiment.
         
         Inputs: 
-            (string) site_id, (string) site_key, (string) exp_uid
+            (string) exp_uid
 
         Outputs:
             (string) exp_key
 
         Usage: ::\n
-        exp_key = keychain.get_exp_key(site_id, site_key, exp_uid)
+        exp_key = keychain.get_exp_key(exp_uid)
         """
-        #Verify that these are proper credentials for this site
-        if not self.verify_site_key(site_id, site_key):
-            return "Invalid Credentials"
-
-        # Verify that the experiment actually belongs to this site
-        if not self.verify_site_exp_ownership(site_id, exp_uid):
-            return "This experiment does not belong to this site or does not exist."
-
         docs, didSucceed, message = db.getDocsByPattern(self.database_id, self.bucket_id, {'object_id': exp_uid})
         if not didSucceed:
             raise DatabaseException("Failed to access database in the keychain. %s"%(message))
         return docs[0]["_id"]
 
     
-    def create_exp_key(self, site_id, site_key, exp_uid):
+    def create_exp_key(self, exp_uid):
         """
         Create an experiment key given a site_key. Verifies the site and that the experiment belongs to this site. 
 
         Inputs: 
-            (string) site_id, (string) site_key, (string) exp_uid
+            (string) exp_uid
 
         Outputs:
             (string) exp_key
 
         Usage: ::\n
-        exp_key = keychain.create_exp_key(site_id, site_key, exp_uid)
+        exp_key = keychain.create_exp_key(exp_uid)
         """
-        
-        # Verify that these are proper credentials for this site
-        if not self.verify_site_key(site_id, site_key):
-            return "Invalid credentials"
-
-        # Verify that the experiment actually belongs to this site
-        if not self.verify_site_exp_ownership(site_id, exp_uid):
-            return "This experiment does not belong to this site or does not exist."
-
         exp_key = '%030x' % random.randrange(16**30)
         doc = {'object_id': exp_uid, 'type':'exp', 'duration':0, 'tries':0}
         didSucceed, message = db.setDoc(self.database_id, self.bucket_id, exp_key, doc)
@@ -159,7 +124,8 @@ class KeyChain:
 
     def create_perm_key(self, exp_uid, exp_key):
         """
-        Create a permanent key associated to an experiment for a widget. Verifies the experiment id and key. 
+        Create a permanent key associated to an experiment for a widget. 
+        Verifies the experiment id and key. 
         
         
         Inputs: 
@@ -215,59 +181,6 @@ class KeyChain:
         return temp_keys
 
     ################################## Verification Methods ################################
-
-    
-        
-
-    def verify_site_exp_ownership(self, site_id, exp_uid):
-        """
-        Verify that a site owns an experiment.
-
-        Inputs: 
-        	(string) client_id, (string) site_id
-        
-        Outputs:
-        	(bool)
-        
-        Usage: ::\n
-        	keychain.verify_client_site_ownership(client_id, site_id)
-        """
-        # Verify that the experiment actually belongs to this site
-        value,didSucceed, message = db.get(self.database_id, "experiments", exp_uid, "site_id")
-        if not didSucceed:
-            raise DatabaseException("Failed to access database in the keychain. %s"%(message))
-        
-        if value == site_id:
-            return True
-        return False
-
-
-    
-    def verify_site_key(self, site_id, site_key):
-        """
-        Verify a key belongs to a site. 
-
-        Inputs:
-	    (string) site_key, (string) site_id
-
-        Outputs:
-            (bool)
-
-        Usage: ::\n
-        	if not verify_site_key(exp_uid, exp_key):
-            		return "Invalid Credentials"
-
-        """
-        value, didSucceed, message = db.get(self.database_id, self.bucket_id, site_key, 'object_id')
-        if not didSucceed:
-            return True
-            #raise DatabaseException("Failed to access database in the keychain. %s"%(message))
-        return True
-
-# if value == site_id:
-        #     return True
-        # return False
-
     def verify_exp_key(self, exp_uid, exp_key):
         """
         Verify a key belongs to an experiment. 
@@ -296,7 +209,9 @@ class KeyChain:
         
         If the key is permanent, it is just verified. 
 
-        If the key is temporary, the number of tries is decreased by 1, and the "access_time" is adjusted. If this causes the key to expire, the key is deleted from the database.
+        If the key is temporary, the number of tries is decreased by 1, 
+        and the "access_time" is adjusted. If this causes the key to expire, 
+        the key is deleted from the database.
         
         Inputs:
         	(string) key, (string) exp_uid

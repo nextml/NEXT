@@ -167,31 +167,29 @@ class Experiment(Resource):
         
         # Validate args with post_parser
         args_data = post_parser.parse_args()
-        app_id = args_data["app_id"]
-        site_id = args_data.get('site_id', None)
-        site_key = args_data.get('site_key', None )
-    
-        if not keychain.verify_site_key(site_id, site_key):
-            return api_util.attach_meta({}, api_util.verification_error), 401
-        
+        app_id = args_data['app_id']
+            
         # Create and set exp_uid
         exp_uid = '%030x' % random.randrange(16**30)
         # Args from dict to json type             
         args_json = json.dumps(args_data["args"])
         # Execute initExp through the broker 
-        response_json,didSucceed,message = broker.applyAsync(app_id,exp_uid,"initExp",args_json)
+        response_json,didSucceed,message = broker.applyAsync(app_id,
+                                                             exp_uid,
+                                                             'initExp',
+                                                             args_json)
 
         if not didSucceed:
-            return attach_meta({}, meta_error['InitExpError'] ,backend_error=message), 400
+            return attach_meta({}, meta_error['InitExpError'], backend_error=message), 400
         
         # Add experiment to experiments bucket
-        didSucceed, message = resource_manager.set_experiment(site_id, exp_uid)
+        didSucceed, message = resource_manager.set_experiment(exp_uid)
         
         if not didSucceed:
             raise DatabaseException("Failed to create experiment in database: %s"%(message))
         
         # Create an experiment key and a perm key
-        exp_key = keychain.create_exp_key(site_id, site_key, exp_uid)
+        exp_key = keychain.create_exp_key(exp_uid)
         perm_key = keychain.create_perm_key(exp_uid, exp_key)
     
         return attach_meta({'exp_uid':exp_uid, 'exp_key':exp_key, 'perm_key':perm_key}, meta_success), 200

@@ -78,8 +78,6 @@ initExp['args']['num_tries'] = 50 # How many tries does each user see?
 
 # Which app are we running? (examples of other algorithms are in examples/
 initExp['app_id'] = 'CardinalBanditsPureExploration'
-initExp['site_id'] = 'replace this with working site id' # TODO: remove
-initExp['site_key'] = 'replace this with working site key' # TODO: remove
 
 experiment = {}
 experiment['initExp'] = initExp
