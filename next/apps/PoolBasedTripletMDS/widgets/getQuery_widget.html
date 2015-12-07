@@ -88,15 +88,14 @@
   document.onkeydown = checkKey;
 
   var submit_right = function() {
-  	next_widget.processAnswer("{{ query.right.target_id }}")
-  	$('#right').css({'outline': '2px solid #FF0000'})
+  	next_widget.processAnswer({"target_winner": "{{ query.right.target_id }}"});
+  	$('#right').css({'outline': '2px solid #FF0000'});
   }
 
   var submit_left = function() {
-  	next_widget.processAnswer("{{ query.left.target_id }}")
-  	$('#left').css({'outline': '2px solid #FF0000'})
+  	next_widget.processAnswer({"target_winner":"{{ query.left.target_id }}"});
+  	$('#left').css({'outline': '2px solid #FF0000'});
   }
-
 
   function checkKey(e) {
       e = e || window.event;

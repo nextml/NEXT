@@ -1,36 +1,27 @@
-<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <title>NEXT - {{exp_uid}}</title>
-
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
     <script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="{{ url_for('query_page.static', filename='js/next_widget.js' )}}"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
   </head>
-
-
   <script>
     $(window).load(function() {
-    // Set a timeout...
-    setTimeout(function(){
-    // Hide the address bar!
-    	window.scrollTo(0, 1);
-    }, 0);
-        $('#directions').modal('show');
-        $('#directions').modal({backdrop: 'static'});
+      // Set a timeout...
+      setTimeout(function(){
+        // Hide the address bar!
+        window.scrollTo(0, 1);
+      }, 0);
+      $('#directions').modal('show');
+      $('#directions').modal({backdrop: 'static'});
     });
   </script>
-
-
   <body style="height:100%;">
-
     <!-- debrief Modal -->
-    <div class="modal fade" id="debrief" tabindex="-1" role="dialog"
-          aria-labelledby="debrief" aria-hidden="true" data-backdrop="static" data-keyboard="false" href="#">
+    <div id="debrief" class="modal fade" tabindex="-1" role="dialog" href="#">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
@@ -42,42 +33,37 @@
         </div>
       </div>
     </div>
-
     <!-- instructions Modal -->
-    <div class="modal fade" id="directions" tabindex="-1" role="dialog" aria-labelledby="directions" aria-hidden="true" data-keyboard="false">
+    <div class="modal fade" id="directions" role="dialog" tabindex="-1">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
             <h1 class="modal-title" id="modal-title">Instructions</h1>
           </div>
           <div class="modal-body">
-              <p>
+            <p>
               <center><p id="directions_text"></p></center>
-              </p>
+            </p>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="">Dismiss</button>
+            <button type="button" class="btn btn-danger"
+                    data-dismiss="modal" onclick="">Dismiss</button>
           </div>
         </div>
       </div>
     </div>
-
-
-    
     <div class="container" style="height:90%">
       <!-- widget wrapper -->
       <div id="wrapper" style="height:90%;">
-	<center><h1>Loading...</h1></center>
+        <center><h1>Loading...</h1></center>
       </div>
-
-      <!-- instructions in new modal/popup -->
-      <div id="top_instructions" align="right" style="padding-right: 15px; padding-bottom: 10px;">
-	<button type="button" class="btn btn-info" onclick="load_instructions();">
+      <!-- button for instructions -->
+      <div align="right" id="top_instructions" style="padding-right: 15px; padding-bottom: 10px;">
+        <button type="button" class="btn btn-info" onclick="load_instructions();">
           Directions
-	</button>
+        </button>
       </div>
     </div>
-    
     <script>
       next_widget.setUrl("");
       var tries =  {{num_tries}};
@@ -85,59 +71,50 @@
       var exp_uid = "{{exp_uid}}";
       var widget_key = "{{widget_key}}";
       var participant_uid = next_widget.makeRandomString(30);
-
-      // get info widget
       var info_args = {
-          name: "getInfo",
-          exp_uid: exp_uid,
-          widget_key: widget_key,
-          args: {}
+        name: "getInfo",
+        exp_uid: exp_uid,
+        widget_key: widget_key,
+        args: {}
       };
-
-      // args for getQuery
       var args = {
-          name: "getQuery",
-          exp_uid: exp_uid,
-          widget_key: widget_key,
-          args: { participant_uid: participant_uid }
+        name: "getQuery",
+        exp_uid: exp_uid,
+        widget_key: widget_key,
+        args: { participant_uid: participant_uid }
       };
-
       var callbacks = {
         processAnswer_success: function() {
-      	if(tries > 1){
-                  tries -=1;
-                  next_widget.getQuery(div_id, args, callbacks);
-              } else{
-                $('#instructions').hide()
-                $('#wrapper').hide()
-                $('#debrief').show()
-                $('#debrief').modal('show');
-              }
-          },
-
-      	getQuery_success: function(){
-      				console.log("success")
-         },
-
-        getInfo_success: function(response){
-          instructions = response.response["instructions"];
-      		$('#directions_text').html(instructions);
-      debrief = response.response["debrief"]+" "+participant_uid;
-          $('#debrief_text').html(debrief);
-          tries = response.response["num_tries"];
-          },
-
-         widget_failure: function(){
-            $('#instructions').hide()
-            $('#query').hide()
-            $('#debrief').show()
+          if(tries > 1){
+            tries -=1;
+            next_widget.getQuery(div_id, args, callbacks);
+          } else{
+            $('#instructions').hide();
+            $('#wrapper').hide();
+            $('#debrief').show();
             $('#debrief').modal('show');
           }
-      }
-    var load_instructions = function(){
+        },
+        getQuery_success: function(){
+          console.log("success");
+        },
+        getInfo_success: function(response){
+          instructions = response.response["instructions"];
+          $('#directions_text').html(instructions);
+          debrief = response.response["debrief"]+" "+participant_uid;
+          $('#debrief_text').html(debrief);
+          tries = response.response["num_tries"];
+        },
+        widget_failure: function(){
+          $('#instructions').hide();
+          $('#query').hide();
+          $('#debrief').show();
+          $('#debrief').modal('show');
+        }
+      };
+      var load_instructions = function(){
         $('#directions').modal({backdrop:'static'});
-    }
-
+      }
       next_widget.getInfo(info_args, callbacks);
       next_widget.getQuery(div_id, args, callbacks);
     </script>

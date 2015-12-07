@@ -53,12 +53,10 @@
   }
   
 </style>
-<br />
+<br>
 {% if query.context_type != "none" %}
 <div class="row" id="center">
-
-  <div class="col-xs-12">
-    
+  <div class="col-xs-12"> 
       {% if query.context_type == "text" %}
       <div style="display:table;height:100%;width:100%;">
 	<div class="center-block text"> 
@@ -66,7 +64,6 @@
 	</div>
       </div>
       {% elif query.context_type == "image" or query.context_type == "img" %}
-      
       <div style="display:inline-block;height:100%;width:100%;">
 	<img src='{{ query.context }}'> </img>
       </div>
@@ -80,15 +77,12 @@
 {% endif %}
 
 <div id="query" class="row">
+
   <!-- Left Target -->
-  <div class="col-xs-6" id="left" onclick="next_widget.processAnswer(&quot;{{ query.left.target_id }}&quot;);
-                                          console.log('reporting answer!')
-                                          $('#left').css({'border':
-                                          '2px solid #FF0000'});">
+  <div class="col-xs-6" id="left">
 	{% if query.left.primary_type == "image" or query.left.primary_type == "img"%}
 	<img class="center-block" src={{ query.left.primary_description }}> </img>
 	{% elif query.left.primary_type == "text"%}
-	
 	<div style="display:table;height:100%;width:100%;">
 	  <div class="center-block text">
 	    {{ query.left.primary_description }}
@@ -98,15 +92,10 @@
   </div>
 
   <!-- Right Target -->
-  <div class="col-xs-6" id="right" onclick="next_widget.processAnswer(&quot;{{ query.right.target_id }}&quot;)
-                                          console.log('reporting answer!')
-                                          $('#right').css({'border':
-                                          '2px solid #FF0000'});">
-    
+  <div class="col-xs-6" id="right">
 	{% if query.right.primary_type == "image" or query.right.primary_type == "img" %}
 	<img class="center-block" src={{ query.right.primary_description }}> </img>
 	{% elif query.right.primary_type == "text" %}
-	
 	<div style="display:table;height:100%;width:100%;">
 	  <div class="center-block text">
 	    {{ query.right.primary_description }}
@@ -121,6 +110,24 @@
   console.log()
 
   document.onkeydown = checkKey;
+
+  var submit_right = function() {
+      next_widget.processAnswer({"target_winner": "{{ query.right.target_id }}"});
+      $('#right').css({'outline': '2px solid #FF0000'});
+  }
+
+  var submit_left = function() {
+      next_widget.processAnswer({"target_winner":"{{ query.left.target_id }}"});
+      $('#left').css({'outline': '2px solid #FF0000'})
+  }
+
+  $('#right').click(function() {
+      submit_right();
+  });
+
+  $('#left').click(function() {
+      submit_left();
+  });
 
   function checkKey(e) {
 
