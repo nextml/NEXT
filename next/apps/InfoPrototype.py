@@ -1,9 +1,9 @@
-def get_info_object(get_implemented_algs):
+def get_initExp_spec(get_implemented_algs):
     info = {}
 
     info['initExp'] = {'description': 'Dictionary for initialization of experiment.',
-                                 'type': 'dict',
-                                 'values': {}}
+                       'type': 'dict',
+                       'values': {}}
     initExp = info['initExp']['values']
 
     # app_id
@@ -50,29 +50,35 @@ def get_info_object(get_implemented_algs):
     algorithm_management_settings['params'] = {'description':'',
                                                'type':'dict',
                                                'values':{}}
+    
     params = algorithm_management_settings['params']['values']
     params['proportions'] = {'description':'List of proportions per app type.',
                              'type':'list',
                              'values':{'type':'dict','values':{}}}
     params['proportions']['values']['values']['alg_label'] = {'description':'An alg label, matching one of the ones declared in alg_list.',
-                                                    'type':'string'}
+                                                              'type':'string'}
     params['proportions']['values']['values']['proportion'] = {'description':'Proportion of queries to give to this algorithm.',
-                                                     'type':'num'}
+                                                               'type':'num'}
     return info
 
-def get_getquery_input():
+def get_getQuery_spec():
     """"
     Pulled info from getQuery's docstring (docstring in PoolBasedTripletMDS.py
     but common to all app types)
     """
     info = {}
 
-    info['getQuery'] = {'description':'[optional] A request to determine which query to pose to the user'
-            'type': 'dict',
-            'values':{}
-            }
-
+    info['getQuery'] = {'description':'[optional] A request to determine which query to pose to the user',
+                        'type': 'dict',
+                        'values':{}}
+    
     getQuery = info['getQuery']['values']
+    getQuery['exp_uid'] = {'description':'Experiment uid.',
+                         'type':'string'}
+    
+    getQuery['exp_key'] = {'description':'Experiment key.',
+                           'type':'string'}
+
     getQuery['args'] = {'description': 'Arguments to pass getQuery',
                         'type': 'dict',
                         'values': {}}
@@ -80,37 +86,46 @@ def get_getquery_input():
     args = getQuery['args']['values']
 
     args['participant_uid'] = {'description':"""unique identifier of session for
-                                a participant answering questions (that is, an
-                                email address is not good enough as the participant
-                                could participate in multiple exp_uids so it would
-                                not be unique against all experiments), if key
-                                non-existant particpant_uid is assigned as exp_uid."""
-                                'type':'string',
-                                'values':[]
-                                }
-
+                                a participant answering questions, if key
+                                non-existant particpant_uid is assigned as exp_uid.""",
+                               'type':'string',
+                               'values':[]}
     return info
 
-def get_processAnswer_info():
+def get_processAnswer_spec():
     """"
     Pulled info from getQuery's docstring (docstring in PoolBasedTripletMDS.py
     but common to all app types)
     """
     info = {}
-    info['processAnswer'] = {'description':'Report back the reward of pulling the arm suggested by getQuery'
-                             'type':'dict'
-                             'values':{}
-                             }
-
+    info['processAnswer'] = {'description':'Report back the reward of pulling the arm suggested by getQuery',
+                             'type':'dict',
+                             'values':{}}
+    
     processAnswer = info['processAnswer']['values']
+    processAnswer['exp_uid'] = {'description':'Experiment uid.',
+                                'type':'string'}
+    
+    processAnswer['exp_key'] = {'description':'Experiment key.',
+                                'type':'string'}
+
     processAnswer['args'] = {'description':'Arguments to pass processAnswer',
                              'type':'dict',
                              'values':{}}
 
     args = processAnswer['args']['values']
-    args['index_winner'] = {'description':'index of the winner in target_indices'
-                            'type':'num'}
-
     args['query_uid'] = {'description': 'Unique identifier of query',
                          'type':'string',
                          'values':[]}
+    return info
+
+def get_info_object(get_implemented_algs):
+    initExp = get_initExp_spec(get_implemented_algs)
+    getQuery = get_getQuery_spec()
+    processAnswer = get_processAnswer_spec()
+    info = {}
+    info.update(initExp)
+    info.update(getQuery)
+    info.update(processAnswer)
+    return info
+    

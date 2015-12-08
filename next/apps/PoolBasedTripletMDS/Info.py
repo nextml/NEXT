@@ -29,10 +29,9 @@ def get_about():
 
 def get_info_object():
     info = InfoPrototype.get_info_object(get_implemented_algs)
-    args =  info['values']['initExp']['values']['args']['values'] 
+    args =  info['initExp']['values']['args']['values']
     args['d'] = {'description':'Dimension of embedding.',
-                 'type':'num',
-                 'values':[]}
+                 'type':'num'}
     return info
 
 def get_default_instructions():
