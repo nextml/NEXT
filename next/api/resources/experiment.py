@@ -7,7 +7,8 @@ from flask import Flask
 from flask.ext import restful
 from flask.ext.restful import Resource, reqparse, request
 
-import json, random
+import json
+import random
 import next.utils
 import next.broker.broker
 from next.api.resource_manager import ResourceManager
@@ -172,7 +173,7 @@ class Experiment(Resource):
         # Create and set exp_uid
         exp_uid = '%030x' % random.randrange(16**30)
         # Args from dict to json type             
-        args_json = json.dumps(args_data["args"])
+        args_json = json.dumps(args_data['args'])
         # Execute initExp through the broker 
         response_json,didSucceed,message = broker.applyAsync(app_id,
                                                              exp_uid,

@@ -8,12 +8,19 @@ An script that can be used to create and launch all example NEXT experiments fro
 Usage from Command line:
 python run_examples.py
 """
-import os, sys
+import os
+
 
 # List of example experiment directories
-curr_examples = ['cartoon_tuple_n25k8/', 'cartoon_dueling/', 'strange_fruit_triplet/']
+curr_examples = ['cartoon_tuple/',
+                 'cartoon_dueling/',
+                 'strange_fruit_triplet/',
+                 'cartoon_cardinal/']
 # List of example experiment launchers
-curr_experiments = ['experiment_tuple_n25k8.py', 'experiment_dueling.py', 'experiment_triplet.py']
+curr_experiments = ['experiment_tuple.py',
+                    'experiment_dueling.py',
+                    'experiment_triplet.py',
+                    'experiment_cardinal.py']
 # Save the absolute path to the current directory
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 

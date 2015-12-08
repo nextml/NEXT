@@ -11,6 +11,8 @@ import numpy.random
 import json
 import time
 import traceback
+from collections import OrderedDict
+
 
 from next.resource_client.ResourceClient import ResourceClient
 import next.utils as utils
@@ -85,7 +87,7 @@ class CardinalBanditsPureExploration(AppPrototype):
     Expected input (in json structure with string keys):
       (int) n: number of arms
       [optional] (float) R: sub-Gaussian parameter, e.g. E[exp(t*X)]<=exp(t^2 R^2/2), defaults to R=0.5 (satisfies X \in [0,1])
-      [optional] (dict) labels: Dictionary mapping on screen experiment labels to values.
+      [optional] (dict) labels: List of dictionaries with label and reward keys.
       (float) failure_probability : confidence
       [optional] (list of dicts) alg_list : with fields (Defaults given by Info.get_app_default_alg_list)
             (string) alg_id : valid alg_id for this app_id
@@ -604,7 +606,7 @@ class CardinalBanditsPureExploration(AppPrototype):
 
       # convert args_json to args_dict
       try:
-        args_dict = json.loads(args_json)
+        args_dict = json.loads(args_json, object_pairs_hook=OrderedDict)
       except:
         error = "%s.predict failed to convert input args_json due to improper format" %(self.app_id) 
         return '{}',False,error

@@ -110,12 +110,12 @@ div.option{
 
 <!-- labels -->
 <div id="query" class="row">
-  {% for label, reward in query.labels.iteritems() %}
+  {% for label in query.labels %}
   <div class="option"
 	  id="{{loop.index}}"
-	  onclick="submit(&quot;{{ reward }}&quot;, {{loop.index}})">
+	  onclick="submit(&quot;{{ label.reward }}&quot;, {{loop.index}})">
     <div class="text_container">
-      <div class="text">{{ label }}</div>
+      <div class="text">{{ label.label }}</div>
     </div>
   </div>
   {% endfor %}

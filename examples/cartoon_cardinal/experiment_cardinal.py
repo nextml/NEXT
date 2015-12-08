@@ -12,6 +12,7 @@ python experiment_dueling.py
 """
 
 import os, sys
+from collections import OrderedDict
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 
@@ -67,7 +68,9 @@ initExp['args']['n'] = 25 # items in target set
 # What's the probabiity of error? Similar to "similar because p < 0.05"
 initExp['args']['failure_probability'] = .05
 initExp['args']['R'] = .5
-initExp['args']['labels'] = {'unfunny':1,'somewhat funny':2,'funny':3}
+initExp['args']['labels'] =[{'label':'unfunny', 'reward':1},
+                            {'label':'somewhat funny', 'reward':2},
+                            {'label':'funny', 'reward':3}]
 
 # one parcipant sees many algorithms? 'one_to_many' means one participant will
 # see many algorithms
