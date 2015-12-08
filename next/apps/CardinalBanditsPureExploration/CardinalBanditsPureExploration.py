@@ -85,6 +85,7 @@ class CardinalBanditsPureExploration(AppPrototype):
     Expected input (in json structure with string keys):
       (int) n: number of arms
       [optional] (float) R: sub-Gaussian parameter, e.g. E[exp(t*X)]<=exp(t^2 R^2/2), defaults to R=0.5 (satisfies X \in [0,1])
+      [optional] (dict) labels: Dictionary mapping on screen experiment labels to values.
       (float) failure_probability : confidence
       [optional] (list of dicts) alg_list : with fields (Defaults given by Info.get_app_default_alg_list)
             (string) alg_id : valid alg_id for this app_id
@@ -179,6 +180,7 @@ class CardinalBanditsPureExploration(AppPrototype):
 
       n = args_dict['n']
       R = args_dict.get('R',2) # default sufficient for scores in range [1,5]
+      labels = args_dict.get('labels', None) 
       delta = args_dict['failure_probability']
 
       if 'alg_list' in args_dict:
@@ -286,6 +288,7 @@ class CardinalBanditsPureExploration(AppPrototype):
       db.set(app_id+':experiments',exp_uid,'app_id',app_id)
       db.set(app_id+':experiments',exp_uid,'n',n)
       db.set(app_id+':experiments',exp_uid,'R',R)
+      db.set(app_id+':experiments',exp_uid,'labels',labels)
       db.set(app_id+':experiments',exp_uid,'failure_probability',delta)
       db.set(app_id+':experiments',exp_uid,'alg_list',alg_list)
       db.set(app_id+':experiments',exp_uid,'algorithm_management_settings',algorithm_management_settings)
@@ -423,6 +426,9 @@ class CardinalBanditsPureExploration(AppPrototype):
       context_type,didSucceed,message = db.get(app_id+':experiments',exp_uid,'context_type')
       context,didSucceed,message = db.get(app_id+':experiments',exp_uid,'context')
 
+      # check for labels
+      labels,didSucceed,message = db.get(app_id+':experiments',exp_uid,'labels')
+      
       # log
       log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'getQuery','duration':dt } 
       log_entry_durations.update( rc.getDurations() )
@@ -447,10 +453,10 @@ class CardinalBanditsPureExploration(AppPrototype):
       for field in query_doc:
         db.set(app_id+':queries', query_uid, field, query_doc[field])
 
-      # add context after updating query doc to avoid redundant information
+      # add context and labels after updating query doc to avoid redundant information
       query['context'] = context
       query['context_type'] = context_type
-        
+      query['labels'] = labels
       args_out = {'args':query,'meta':meta}
       response_json = json.dumps(args_out)
 

@@ -162,13 +162,12 @@ class ResourceManager:
         else:
             return None
 
-    def set_experiment(self,site_id,exp_uid):
+    def set_experiment(self,exp_uid):
         """
-        Sets an experiment from an exp_uid and site_id. Returns didSucceed and message. 
+        Sets an experiment from an exp_uid. Returns didSucceed and message. 
         
         Inputs: ::\n
             (string) exp_uid : unique experiment identifier
-            (string) site_id : unique site identifier
 
         Outputs: ::\n
             (boolean) didSucceed : toggles whether experiment was successfully set in db
@@ -177,8 +176,8 @@ class ResourceManager:
         Usage: ::\n
             didSucceed, message = rm.set_experiment('b5242319c78df48f4ff31e78de5857,dsaf56asdf8a1sd56ds8ds56')
         """
-        doc = {'site_id':site_id, 'exp_uid':exp_uid}    
-        didSucceed, message = db.set("next_frontend_base", "experiments", exp_uid, doc)
+        doc = {'exp_uid':exp_uid}    
+        didSucceed, message = db.set('next_frontend_base', 'experiments', exp_uid, doc)
         
         return didSucceed, message
 

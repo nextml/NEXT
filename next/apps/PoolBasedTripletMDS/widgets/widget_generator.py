@@ -72,13 +72,13 @@ class WidgetGenerator():
         index_winner = int(targetmapper.get_index_given_targetID(exp_uid, target_winner))
         
         # Set the index winner.
-        args['args']["index_winner"] = index_winner
-
+        args['args']['index_winner'] = index_winner
+        print args
         # Args from dict to json type
         args_json = json.dumps(args["args"]) 
         # Execute processAnswer 
         response_json,didSucceed,message = broker.applyAsync(app_id,exp_uid,"processAnswer",args_json)
-
+        print response_json, didSucceed, message
         return { 'html':"success"}
 
 

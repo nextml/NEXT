@@ -86,8 +86,8 @@ class WidgetGenerator():
                                                                  target_winner))
         
         # Set the index winner.
-        args['args']["index_winner"] = index_winner
-
+        args['args']['index_winner'] = index_winner
+        print 'backend args dictionary', args
         # Args from dict to json type
         args_json = json.dumps(args["args"]) 
         # Execute processAnswer 

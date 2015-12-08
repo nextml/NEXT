@@ -51,7 +51,7 @@ class KeyChain:
     """
 
     def __init__(self):
-        self.database_id = "next_frontent_base"
+        self.database_id = "next_frontend_base"
         self.bucket_id = "keys"
         return
 
@@ -138,7 +138,7 @@ class KeyChain:
         perm_key = keychain.get_perm_key(exp_uid, exp_key)
         """
         #Verify that these are proper credentials for this experiment
-        if not self.verify_site_key(exp_uid, exp_key):
+        if not self.verify_exp_key(exp_uid, exp_key):
             return "Invalid Credentials"
 
         perm_key = '%030x' % random.randrange(16**30)

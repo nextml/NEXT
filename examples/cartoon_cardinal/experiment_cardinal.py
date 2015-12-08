@@ -67,6 +67,7 @@ initExp['args']['n'] = 25 # items in target set
 # What's the probabiity of error? Similar to "similar because p < 0.05"
 initExp['args']['failure_probability'] = .05
 initExp['args']['R'] = .5
+initExp['args']['labels'] = {'unfunny':1,'somewhat funny':2,'funny':3}
 
 # one parcipant sees many algorithms? 'one_to_many' means one participant will
 # see many algorithms

@@ -65,9 +65,8 @@ def run_all(assert_200):
   initExp_args_dict['args']['alg_list'] = alg_list #optional field
   initExp_args_dict['args']['instructions'] = 'You want instructions, here are your test instructions'
   initExp_args_dict['args']['debrief'] = 'You want a debrief, here is your test debrief'
+  initExp_args_dict['args']['labels'] = {'1':1, '2':2, '3':3}
   initExp_args_dict['app_id'] = app_id
-  initExp_args_dict['site_id'] = 'replace this with working site id'
-  initExp_args_dict['site_key'] = 'replace this with working site key'
 
   exp_info = []
   for ell in range(num_experiments):

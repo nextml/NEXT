@@ -44,28 +44,12 @@ class WidgetGenerator():
         query = {}
         query['context'] = response_dict['context']
         query['context_type'] = response_dict['context_type']
-        query['target'] = targetmapper.get_target_data(exp_uid, index)                                                       
+        query['target'] = targetmapper.get_target_data(exp_uid, index)
+        query['labels'] = response_dict['labels']
         template = env.get_template('getQuery_widget.html')
 
-        rating_options = []
-        rating_options.append({'target_id':1,
-                               'primary_description':"unfunny",
-                               'primary_type':'text',
-                               'alt_description':1,
-                               'alt_type':'text'})
-        rating_options.append({'target_id':2,
-                               'primary_description':"somewhat funny",
-                               'primary_type':'text',
-                               'alt_description':2,
-                               'alt_type':'text'})
-        rating_options.append({'target_id':3,
-                               'primary_description':"funny",
-                               'primary_type':'text',
-                               'alt_description':3,
-                               'alt_type':'text'})
             
-        return {'html': template.render(query = query,
-                                        rating_options = rating_options),
+        return {'html': template.render(query = query),
                 'args': response_dict }
 
 
@@ -82,17 +66,16 @@ class WidgetGenerator():
         app_id = resource_manager.get_app_id(exp_uid)
         
         try:
-            target_winner = args['args']['target_winner']
+            target_reward = args['args']['target_reward']
         except:
             return {'message':('Failed to specify all arguments '
                                'or misformed arguments'),
                     'code':400,
                     'status':'FAIL',
-                    'base_error':('[target_winner]. Missing required parameter'
+                    'base_error':('[target_reward]. Missing required parameter'
                                   'in the JSON body or the post body'
                                   'or the query string')}, 400
         
-        target_reward = int(target_winner)
         # Set the index winner.
         args['args']['target_reward'] = target_reward
 

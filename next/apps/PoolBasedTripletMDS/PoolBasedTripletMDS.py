@@ -414,7 +414,7 @@ class PoolBasedTripletMDS(AppPrototype):
       query = {}
       query['query_uid'] = query_uid
       query['target_indices'] = [ {'index':index_center,'label':'center','flag':0},{'index':index_left,'label':'left','flag':0},{'index':index_right,'label':'right','flag':0} ]
-
+  
       # save query data to database
       query_doc = {}
       query_doc.update(query)

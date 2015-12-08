@@ -77,7 +77,6 @@
 {% endif %}
 
 <div id="query" class="row">
-
   <!-- Left Target -->
   <div class="col-xs-6" id="left">
 	{% if query.left.primary_type == "image" or query.left.primary_type == "img"%}
@@ -90,7 +89,6 @@
 	</div>
 	{% endif %}
   </div>
-
   <!-- Right Target -->
   <div class="col-xs-6" id="right">
 	{% if query.right.primary_type == "image" or query.right.primary_type == "img" %}
@@ -103,12 +101,10 @@
 	</div>
 	{% endif %}
   </div>
-  
 </div>
 
 <script>
   console.log()
-
   document.onkeydown = checkKey;
 
   var submit_right = function() {
@@ -130,18 +126,12 @@
   });
 
   function checkKey(e) {
-
       e = e || window.event;
-
       if (e.keyCode == '37') {
-         // left arrow
-         $('#left').css({'border': '2px solid #FF0000'})
-         next_widget.processAnswer("{{ query.left.target_id }}")
+	  submit_left();
       }
       else if (e.keyCode == '39') {
-         // right arrow
-        $('#right').css({'border': '2px solid #FF0000'})
-        next_widget.processAnswer("{{ query.right.target_id }}")
+	  submit_right();
       }
   }
 </script>

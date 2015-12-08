@@ -31,7 +31,9 @@ def experiment_list():
     # Experiments set
     experiments = []
     for app_id in rm.get_app_ids():
+        print "app_id", app_id
         for exp_uid in rm.get_app_exp_uids(app_id):
+            print "exp_uid", exp_uid
             start_date = rm.get_app_exp_uid_start_date(exp_uid)
             docs,didSucceed,message = db.getDocsByPattern('next_frontend_base',
                                                           'keys',
@@ -43,7 +45,8 @@ def experiment_list():
                                     'app_id': app_id, 
                                     'start_date': start_date, 
                                     'exp_key': exp_key})
-            except IndexError:
+            except IndexError as e:
+                print e
                 pass
 
     return render_template('experiment_list.html', 

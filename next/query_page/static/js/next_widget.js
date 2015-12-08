@@ -62,11 +62,9 @@ var next_widget = (function($){
 
 	processAnswer: function(args, query_meta) {
 	    _args["name"] = "processAnswer";
-//	    _args["args"]["target_winner"] = target_id;
-	    _args["args"] = args;
+	    $.extend(_args["args"], args);
 	    currTime = new Date().getTime();
 	    _args["args"]["response_time"] = (currTime -  _queryTime)/1000.;
-	    /* 	    _args["args"]["target_reward"] = target_id; // hack so cardinal bandits works */
 	    
 	    console.log(_args);
 	    if (typeof query_meta !== "undefined") {

@@ -108,25 +108,15 @@ div.option{
   </div>
 </div>
 
-<script>
-  $('#query').css({'-webkit-align-self':'flex-start','align-self':'flex-start'});
-</script>
-
 <!-- labels -->
 <div id="query" class="row">
-  {% for t in rating_options %}
+  {% for label, reward in query.labels.iteritems() %}
   <div class="option"
 	  id="{{loop.index}}"
-	  onclick="submit(&quot;{{ t.target_reward }}&quot;">
-    {% if t.primary_type == "image" or t.primary_type == "img"%}
-    <div class="image_container">
-      <img src={{ t.primary_description }}> </img>
-    </div>
-    {% elif t.primary_type == "text"%}
+	  onclick="submit(&quot;{{ reward }}&quot;, {{loop.index}})">
     <div class="text_container">
-      <div class="text">{{ t.primary_description }}</div>
+      <div class="text">{{ label }}</div>
     </div>
-    {% endif %}
   </div>
   {% endfor %}
 </div>
@@ -134,7 +124,7 @@ div.option{
 
 <script>
   var submit = function(reward, index) {
-      next_widget.processAnswer({"target_reward": id});
+      next_widget.processAnswer({"target_reward": reward});
       $("#"+index).css({'outline': '2px solid #FF0000'});
   }
 </script>
