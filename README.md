@@ -6,6 +6,8 @@ This readme contains a quick start to launch the NEXT system on EC2, and to repl
 
 For more information, in-depth tutorials, and API docs, we recommend visiting our GitHub wiki [here](https://github.com/nextml/NEXT/wiki). You can contact us at contact@nextml.org
 
+We have an experimental AMI that can be used to run NEXT in a purely application based rather than development environment. Included in the AMI is a basic version of our frontend. The AMI is still highly experimental and we give no guarantees on it being up to date with the current code.  For more info please visit [here](https://github.com/kgjamieson/NEXT-psych).
+
 ### Getting the code
 
 You can download the latest version of NEXT from github with the following clone command:
