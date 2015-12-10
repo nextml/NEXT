@@ -14,7 +14,7 @@ class CardinalBanditsPureExplorationPrototype(object):
   def __init__(self): 
     self.app_id = 'CardinalBanditsPureExploration'
 
-  def initExp(self,resource,n,R,failure_probability):
+  def initExp(self,resource,n,R,failure_probability,params):
     """
     initialize the experiment 
 
@@ -23,6 +23,7 @@ class CardinalBanditsPureExplorationPrototype(object):
       (int) n : number of arms
       (float) R : sub-Gaussian parameter, e.g. E[exp(t*X)]<=exp(t^2 R^2/2), defaults to R=0.5 (satisfies X \in [0,1])
       (float) failure_probability : confidence
+      (dict) params : algorithm-specific parameters (if none provided in alg_list of init experiment, params=None)
 
     Expected output (comma separated):
       (boolean) didSucceed : did everything execute correctly

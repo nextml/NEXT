@@ -306,6 +306,7 @@ class CardinalBanditsPureExploration(AppPrototype):
       for algorithm in alg_list:
         alg_id = algorithm['alg_id'] 
         alg_uid = algorithm['alg_uid']
+        params = algorithm.get('params',None)
 
         db.set(app_id+':algorithms',alg_uid,'alg_id',alg_id)
         db.set(app_id+':algorithms',alg_uid,'alg_uid',alg_uid)
@@ -318,7 +319,7 @@ class CardinalBanditsPureExploration(AppPrototype):
         alg = utils.get_app_alg(self.app_id,alg_id)
 
         # call initExp
-        didSucceed,dt = utils.timeit(alg.initExp)(resource=rc,n=n,R=R,failure_probability=delta)
+        didSucceed,dt = utils.timeit(alg.initExp)(resource=rc,n=n,R=R,failure_probability=delta,params=params)
 
         log_entry = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'initExp','duration':dt,'timestamp':utils.datetimeNow() } 
         ell.log( app_id+':ALG-DURATION', log_entry  )

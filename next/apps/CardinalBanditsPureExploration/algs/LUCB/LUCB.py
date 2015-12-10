@@ -10,7 +10,7 @@ from next.apps.CardinalBanditsPureExploration.Prototype import CardinalBanditsPu
 
 class LUCB(CardinalBanditsPureExplorationPrototype):
 
-  def initExp(self,resource,n,R,failure_probability):
+  def initExp(self,resource,n,R,failure_probability,params):
     resource.set('n',n)
     resource.set('failure_probability',failure_probability)
     resource.set('R',R)
