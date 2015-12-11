@@ -14,7 +14,7 @@ class DuelingBanditsPureExplorationPrototype(object):
   def __init__(self): 
     self.app_id = 'DuelingBanditsPureExploration'
 
-  def initExp(self,resource,n=0,failure_probability=0.05):
+  def initExp(self,resource,n,failure_probability,params):
     """
     initialize the experiment 
 
@@ -22,6 +22,8 @@ class DuelingBanditsPureExplorationPrototype(object):
       (next.resource_client.ResourceClient) resource : resource client, can cell resource.set(key,value), value=resource.get(key) 
       (int) n : number of arms
       (float) failure_probability : confidence
+      (dict) params : algorithm-specific parameters (if none provided in alg_list of init experiment, params=None)
+
 
     Expected output (comma separated):
       (boolean) didSucceed : did everything execute correctly

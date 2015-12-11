@@ -28,7 +28,7 @@ class BR_Thompson(DuelingBanditsPureExplorationPrototype):
     return True
   
 
-  def initExp(self,resource,n=0,failure_probability=0.05):
+  def initExp(self,resource,n=0,failure_probability=0.05,params):
     resource.set('n',n)
     resource.increment('total_pulls',0)
     for i in range(n):

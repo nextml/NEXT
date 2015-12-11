@@ -29,7 +29,7 @@ class BeatTheMean(DuelingBanditsPureExplorationPrototype):
 
     return True
   
-  def initExp(self,resource,n=0,failure_probability=0.05):
+  def initExp(self,resource,n=0,failure_probability=0.05,params):
     running_sum_vec = numpy.zeros(n).tolist()
     num_pulls_vec = numpy.zeros(n).tolist()
     resource.set('n',n)
