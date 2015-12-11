@@ -92,6 +92,7 @@ class CardinalBanditsPureExploration(AppPrototype):
       [optional] (list of dicts) alg_list : with fields (Defaults given by Info.get_app_default_alg_list)
             (string) alg_id : valid alg_id for this app_id
             (string) alg_label : unique identifier for algorithm (e.g. may have experiment with repeated alg_id's, but alg_labels must be unqiue, will also be used for plot legends
+            [optional] (dict) params : algorithm-specific parameters
       [optional] (dict) algorithm_management_settings : dictionary with fields (string) 'mode' and (dict) 'params'. mode in {'pure_exploration','explore_exploit','fixed_proportions'}. Default is 'fixed_proportions' and allocates uniform probability to each algorithm. If mode=fixed_proportions then params is a dictionary that contains the field 'proportions' which is a list of dictionaries with fields 'alg_label' and 'proportion' for all algorithms in alg_list. All proportions must be positive and sum to 1 over all algs in alg_list 
       [optional] (string) participant_to_algorithm_management : in {'one_to_one','one_to_many'}. Default is 'one_to_many'.
       [optional] (int) num_tries

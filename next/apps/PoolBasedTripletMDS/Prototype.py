@@ -13,7 +13,7 @@ class PoolBasedTripletMDSPrototype(object):
   def __init__(self): 
     self.app_id = 'PoolBasedTripletMDS'
 
-  def initExp(self,resource,n,d,failure_probability):
+  def initExp(self,resource,n,d,failure_probability,params):
     """
     initialize the experiment 
 
@@ -22,6 +22,8 @@ class PoolBasedTripletMDSPrototype(object):
       (int) n : number of objects
       (int) d : desired dimension
       (float) failure_probability : confidence
+      (dict) params : algorithm-specific parameters (if none provided in alg_list of init experiment, params=None)
+
 
     Expected output (comma separated):
       (boolean) didSucceed : did everything execute correctly

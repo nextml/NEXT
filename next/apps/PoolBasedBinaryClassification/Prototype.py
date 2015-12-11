@@ -14,7 +14,7 @@ class PoolBasedBinaryClassificationPrototype(object):
   def __init__(self): 
     self.app_id = 'PoolBasedBinaryClassification'
 
-  def initExp(self,resource,example_pool,failure_probability):
+  def initExp(self,resource,example_pool,failure_probability,params):
     """ 
     initialize the experiment 
 
@@ -22,6 +22,7 @@ class PoolBasedBinaryClassificationPrototype(object):
       (next.resource_client.ResourceClient) resource : resource client, can cell resource.set(key,value), value=resource.get(key) 
       (float[n][d]) example_pool : n-by-d Python list of lists of floats describing the n examples from which the algorithm can choose to show the the participant 
       (float) failure_probability : confidence parameter
+      (dict) params : algorithm-specific parameters (if none provided in alg_list of init experiment, params=None)
 
     Expected output (comma separated):
       (boolean) didSucceed : did everything execute correctly

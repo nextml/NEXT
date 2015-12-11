@@ -3,7 +3,7 @@ from next.apps.PoolBasedBinaryClassification.Prototype import PoolBasedBinaryCla
 
 class RandomSamplingLinearLeastSquares(PoolBasedBinaryClassificationPrototype):
 
-  def initExp(self,resource,example_pool,failure_probability):
+  def initExp(self,resource,example_pool,failure_probability,params):
     """
     Begin by normalizing examples so that they are zero mean and variance 1. If A is this normalized example example_pool 
     then let X = [A, ones(n,1)] be the matrix appended with a row of ones. 
