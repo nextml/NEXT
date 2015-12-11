@@ -14,7 +14,7 @@ class TupleBanditsPureExplorationPrototype(object):
   def __init__(self): 
     self.app_id = 'TupleBanditsPureExploration'
 
-  def initExp(self,resource,n,k,failure_probability):
+  def initExp(self,resource,n,k,failure_probability,params):
     """
     initialize the experiment 
 
@@ -23,6 +23,7 @@ class TupleBanditsPureExplorationPrototype(object):
       (int) n : number of arms
       (int) k : number of objects to display
       (float) failure_probability : confidence
+      (dict) params : algorithm-specific parameters (if none provided in alg_list of init experiment, params=None)
 
     Expected output (comma separated):
       (boolean) didSucceed : did everything execute correctly

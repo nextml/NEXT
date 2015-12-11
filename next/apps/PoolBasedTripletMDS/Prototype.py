@@ -24,7 +24,6 @@ class PoolBasedTripletMDSPrototype(object):
       (float) failure_probability : confidence
       (dict) params : algorithm-specific parameters (if none provided in alg_list of init experiment, params=None)
 
-
     Expected output (comma separated):
       (boolean) didSucceed : did everything execute correctly
     """

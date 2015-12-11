@@ -22,7 +22,7 @@ class RandomSampling(TupleBanditsPureExplorationPrototype):
 
     return True
   
-  def initExp(self,resource,n=0,k=0,failure_probability=0.05):
+  def initExp(self,resource,n=0,k=0,failure_probability=0.05,params):
     running_wins_vec = numpy.zeros(n).tolist()
     num_pulls_vec = numpy.zeros(n).tolist()
 
