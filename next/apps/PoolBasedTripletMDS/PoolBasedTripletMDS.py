@@ -92,6 +92,7 @@ class PoolBasedTripletMDS(AppPrototype):
             (string) alg_id : valid alg_id for this app_id
             (string) alg_label : unique identifier for algorithm (e.g. may have experiment with repeated alg_id's, but alg_labels must be unqiue, will also be used for plot legends
             [optional] (string) test_alg_label : must be one of the alg_label's in alg_list (Default is self)
+            [optional] (dict) params : algorithm-specific parameters
       [optional] (dict) algorithm_management_settings : dictionary with fields (string) 'mode' and (dict) 'params'. mode in {'pure_exploration','explore_exploit','fixed_proportions'}. Default is 'fixed_proportions' and allocates uniform probability to each algorithm. If mode=fixed_proportions then params is a dictionary that contains the field 'proportions' which is a list of dictionaries with fields 'alg_label' and 'proportion' for all algorithms in alg_list. All proportions must be positive and sum to 1 over all algs in alg_list 
       [optional] (string) participant_to_algorithm_management : in {'one_to_one','one_to_many'}. Default is 'one_to_many'.
       [optional] (string) instructions
@@ -290,6 +291,7 @@ class PoolBasedTripletMDS(AppPrototype):
       for algorithm in alg_list:
         alg_id = algorithm['alg_id'] 
         alg_uid = algorithm['alg_uid']
+        params = algorithm.get('params',None)
 
         # get sandboxed database for the specific app_id,alg_uid,exp_uid - closing off the rest of the database to the algorithm
         rc = ResourceClient(app_id,exp_uid,alg_uid,db)
@@ -298,7 +300,7 @@ class PoolBasedTripletMDS(AppPrototype):
         alg = utils.get_app_alg(self.app_id,alg_id)
 
         # call initExp
-        didSucceed,dt = utils.timeit(alg.initExp)(resource=rc,n=n,d=d,failure_probability=delta)
+        didSucceed,dt = utils.timeit(alg.initExp)(resource=rc,n=n,d=d,failure_probability=delta,params=params)
 
         log_entry = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'initExp','duration':dt,'timestamp':utils.datetimeNow() } 
         ell.log( app_id+':ALG-DURATION', log_entry  )
