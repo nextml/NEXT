@@ -262,13 +262,20 @@ class AppDashboard(object):
       dbGet.append(_alg_duration_dbGet)
       compute.append( _alg_duration - _alg_duration_dbSet - _alg_duration_dbGet )
 
+    try:
+      min_x = min(x)
+      max_x = max(x)
+    except:
+      min_x = 0.
+      max_x = 0.
+
     import matplotlib.pyplot as plt
     import mpld3
     fig, ax = plt.subplots(subplot_kw=dict(axisbg='#EEEEEE'))
     stack_coll = ax.stackplot(x,compute,dbGet,dbSet,admin,enqueued, alpha=.5)
     ax.set_xlabel('API Call')
     ax.set_ylabel('Duration (s)')
-    ax.set_xlim([min(x),max(x)])
+    ax.set_xlim([min_x,max_x])
     ax.set_ylim([0.,max_y_value])
     ax.grid(color='white', linestyle='solid')
     ax.set_title(alg_label+' - '+task, size=14)

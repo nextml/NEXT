@@ -11,6 +11,7 @@ from flask.ext.restful import Resource, reqparse
 import json
 import next.utils
 import next.broker.broker
+import next.api.api_util as api_util
 from next.api.api_util import *
 from next.api.api_util import APIArgument
 

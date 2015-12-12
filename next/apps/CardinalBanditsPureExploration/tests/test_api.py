@@ -117,6 +117,7 @@ def simulate_one_client( input_args ):
   exp_uid,exp_key,participant_uid,total_pulls,true_means,assert_200 = input_args
   avg_response_time = 1.
 
+  time.sleep(  5.*numpy.log(1./numpy.random.rand())  )
 
   getQuery_times = []
   processAnswer_times = []
@@ -153,7 +154,8 @@ def simulate_one_client( input_args ):
     # sleep for a bit to simulate response time
     ts = time.time()
 
-    time.sleep(  avg_response_time*numpy.random.rand()  )
+    # time.sleep(  avg_response_time*numpy.random.rand()  )
+    time.sleep(  avg_response_time*numpy.log(1./numpy.random.rand())  )
     # target_reward = true_means[target_index] + numpy.random.randn()*0.5
     target_reward = 1.+sum(numpy.random.rand(4)<true_means[target_index]) # in {1,2,3,4,5}
 
