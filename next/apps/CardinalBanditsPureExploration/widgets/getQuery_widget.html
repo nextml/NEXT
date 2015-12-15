@@ -118,7 +118,7 @@ div.option{
   {% for label in query.labels %}
   <div class="option"
 	  id="{{loop.index}}"
-	  onclick="submit(&quot;{{ label.reward }}&quot;, {{loop.index}})">
+	  onclick="submit({{ label.reward }}, {{loop.index}})">
     <div class="text_container">
       <div class="text">{{ label.label }}</div>
     </div>
