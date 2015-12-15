@@ -18,7 +18,7 @@ class BR_LilUCB_b2(DuelingBanditsPureExplorationPrototype):
   def daemonProcess(self,resource,daemon_args_dict):
     return True
   
-  def initExp(self,resource,n=0,failure_probability=0.05,params):
+  def initExp(self,resource,n,failure_probability,params):
     resource.set('n',n)
     resource.set('failure_probability',failure_probability)
     resource.increment('total_pulls',0)

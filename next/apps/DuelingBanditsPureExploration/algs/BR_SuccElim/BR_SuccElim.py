@@ -27,7 +27,7 @@ class BR_SuccElim(DuelingBanditsPureExplorationPrototype):
 
     return True
   
-  def initExp(self,resource,n=0,failure_probability=0.05,params):
+  def initExp(self,resource,n,failure_probability,params):
     running_sum_vec = numpy.zeros(n).tolist()
     num_pulls_vec = numpy.zeros(n).tolist()
     resource.set('n',n)
