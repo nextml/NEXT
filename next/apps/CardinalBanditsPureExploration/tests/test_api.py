@@ -33,7 +33,7 @@ def run_all(assert_200):
   delta = 0.05
   R = 2 # assumes scores in range [1,5]
   # supported_alg_ids = ['SimpleUCB','AlternativeUCB']
-  supported_alg_ids = ['RandomSampling','LUCB','LilUCB']
+  supported_alg_ids = ['RandomSampling','LUCB','LilUCB','RoundRobbin']
 
   alg_list = []
   for alg_id in supported_alg_ids:
