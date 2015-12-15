@@ -1,14 +1,14 @@
 """
-RandomSampling app implements CardinalBanditsPureExplorationPrototype
+RoundRobin app implements CardinalBanditsPureExplorationPrototype
 author: Kevin Jamieson
-last updated: 11/13/2015
+last updated: 12/15/2015
 """
 
 import numpy
 import numpy.random
 from next.apps.CardinalBanditsPureExploration.Prototype import CardinalBanditsPureExplorationPrototype
 
-class RoundRobbin(CardinalBanditsPureExplorationPrototype):
+class RoundRobin(CardinalBanditsPureExplorationPrototype):
 
   def initExp(self,resource,n,R,failure_probability,params):
     resource.set('n',n)
