@@ -65,7 +65,9 @@ def run_all(assert_200):
   initExp_args_dict['args']['alg_list'] = alg_list #optional field
   initExp_args_dict['args']['instructions'] = 'You want instructions, here are your test instructions'
   initExp_args_dict['args']['debrief'] = 'You want a debrief, here is your test debrief'
-  initExp_args_dict['args']['labels'] = {'1':1, '2':2, '3':3}
+  initExp_args_dict['args']['labels'] = [{'label':'1', 'reward':1},
+                                         {'label':'2', 'reward':2},
+                                         {'label':'3', 'reward':3}]
   initExp_args_dict['app_id'] = app_id
 
   exp_info = []
@@ -170,7 +172,6 @@ def simulate_one_client( input_args ):
     processAnswer_args_dict["exp_key"] = exp_key
     processAnswer_args_dict["args"] = {}
     processAnswer_args_dict["args"]["query_uid"] = query_uid
-    processAnswer_args_dict["args"]["target_winner"] = target_index
     processAnswer_args_dict["args"]['target_reward'] = target_reward
     processAnswer_args_dict["args"]['response_time'] = response_time
 
