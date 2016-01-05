@@ -133,6 +133,7 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
         for label in legend.get_texts():
           label.set_fontsize('small')
         plot_dict = mpld3.fig_to_dict(fig)
+        plt.close()
 
         return plot_dict
 
