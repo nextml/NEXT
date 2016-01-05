@@ -183,9 +183,6 @@ class Experiment(Resource):
         if not didSucceed:
             return attach_meta({}, meta_error['InitExpError'], backend_error=message), 400
         
-        # Add experiment to experiments bucket
-        didSucceed, message = resource_manager.set_experiment(exp_uid)
-        
         if not didSucceed:
             raise DatabaseException("Failed to create experiment in database: %s"%(message))
         
