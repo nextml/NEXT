@@ -134,18 +134,22 @@ class Stats(Resource):
         response_dict = json.loads(response_json,parse_float=lambda o:round(float(o),4))
 
         try:
-            for d in response_dict["data"]:
+            index_test = response_dict['data'][0]['index']
+            targetmapping = targetmapper.get_target_mapping(exp_uid)
+            for d in response_dict['data']:
                 try:
-                    # If a datapoint (d) has a key, attach a target to that datapoint.
-                    if 'index' in d.keys():
-                        try:
-                            d["target"] = targetmapper.get_target_data(exp_uid, d["index"])
-                        except:
-                            print "failed to get target"
+                    index = d['index']
+                    if len(targetmapping)==0:
+                        d['target'] = {'target_id':index,
+                                        'primary_description':index,
+                                        'primary_type':'text',
+                                        'alt_description':index,
+                                        'alt_type':'text'}
+                    else:
+                        d['target'] = targetmapping[index]
                 except:
                     pass
         except:
-            # e.g. response_dict does not contain key "data"
             pass
         
         if didSucceed and "data" in response_dict.keys():

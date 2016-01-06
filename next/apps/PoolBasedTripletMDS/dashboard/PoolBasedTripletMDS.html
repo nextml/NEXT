@@ -17,27 +17,34 @@
 </div>
 <script>
 
-  plot_response = function(data) {
-    data.json['width'] = 800
-    data.json['height'] = 350
-    mpld3.draw_figure("test_error_multiline_plot", data.json);
+  test_error_multiline_plot = function(data) {
+    data['width'] = 800
+    data['height'] = 350
+    mpld3.draw_figure("test_error_multiline_plot", data);
   }
 
+  $.ajax({
+    url: "{{ host_url }}/api/experiment/stats",
+    type: "POST",
+    contentType: "application/json",
+    data: JSON.stringify({  
+        'app_id': "{{ app_id }}",
+        'exp_uid': "{{ exp_uid }}",
+        'exp_key': "{{ exp_key }}",
+        'name': 'getStats',
+        'args':{
+            'stat_id' : 'test_error_multiline_plot',
+            'params'  : {'task':''}
+            }
+        }),
+    dataType: "json"
+    }).done( function(data,textStatus, jqXHR) {
+    delete data['meta']
+    test_error_multiline_plot(data)
+    }).fail( function(error){
+    console.log("Failed to get stats", error);
+    });
 
-
-  data = next_widget.getWidget(
-  {
-  'app_id': "{{ app_id }}",
-  'exp_uid': "{{ exp_uid }}",
-  'name': 'getStats',
-  'widget_key': "{{ perm_key }}",
-  'args':{
-  'stat_id' : 'test_error_multiline_plot',
-  'params'  : {'task':''}
-  }
-  },
-  plot_response
-  );
 </script>
 
 
@@ -79,9 +86,9 @@
 
 
             <script>
-              plot_response = function(data) {
-                var data_list = JSON.parse(JSON.stringify(data.json.data));
-                // var data_list = data.json.data.slice();
+              most_current_embedding_{{ alg.alg_label_clean }} = function(data) {
+                var data_list = JSON.parse(JSON.stringify(data.data));
+                // var data_list = data.data.slice();
                 for (var i = 0; i < data_list.length; i++) { 
                     delete data_list[i]['x'];
                     delete data_list[i]['y'];
@@ -91,27 +98,35 @@
                 var a = document.createElement('a');
                 a.href = 'data:' + tmp_data;
                 a.download = 'embedding.txt';
-                a.innerHTML = 'Download embedding (Generated '+ data.json.timestamp + ' UTC)';
+                a.innerHTML = 'Download embedding (Generated '+ data.timestamp + ' UTC)';
                 var container = document.getElementById("download_embedding_{{ alg.alg_label_clean }}");
                 container.appendChild(a);
 
-                charts.plotCurrentEmbedding(data.json.data,"most_current_embedding_{{ alg.alg_label_clean }}");
+                charts.plotCurrentEmbedding(data.data,"most_current_embedding_{{ alg.alg_label_clean }}");
               }
 
+              $.ajax({
+                url: "{{ host_url }}/api/experiment/stats",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({  
+                    'app_id': "{{ app_id }}",
+                    'exp_uid': "{{ exp_uid }}",
+                    'exp_key': "{{ exp_key }}",
+                    'name': 'getStats',
+                    'args':{
+                        'stat_id' : 'most_current_embedding',
+                        'params'  : {'alg_label': '{{ alg.alg_label }}' }
+                        }
+                    }),
+                dataType: "json"
+                }).done( function(data,textStatus, jqXHR) {
+                delete data['meta']
+                most_current_embedding_{{ alg.alg_label_clean }}(data)
+                }).fail( function(error){
+                console.log("Failed to get stats", error);
+                });
 
-              data = next_widget.getWidget(
-              {
-              'app_id': "{{ app_id }}",
-              'exp_uid': "{{ exp_uid }}",
-              'name': 'getStats',
-              'widget_key': "{{ perm_key }}",
-              'args':{
-              'stat_id' : 'most_current_embedding',
-              'params'  : {'alg_label': '{{ alg.alg_label }}' }
-              }
-              },
-              plot_response
-              );
             </script>
             {% endfor %}
         </div>

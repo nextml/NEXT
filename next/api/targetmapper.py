@@ -66,6 +66,11 @@ class TargetMapper:
         Usage: ::\n
         didSucceed = targetmapper.init_empty_target_mapping(exp_uid)
         """
+        didSucceed, message = db.create_index(self.database_id, self.bucket_id, {'exp_uid':1})
+        didSucceed, message = db.create_index(self.database_id, self.bucket_id, {'exp_uid':1,'index':1})
+        didSucceed, message = db.create_index(self.database_id, self.bucket_id, {'exp_uid':1,'target_id':1})
+        didSucceed, message = db.create_index(self.database_id, self.bucket_id, {'exp_uid':1,'targetless':1})
+
         # Initilize target document and insert into MongoDB
         doc = {'targetless': True, 'exp_uid': exp_uid}
         didSucceed, message = db.setDoc(self.database_id, self.bucket_id, None, doc)
@@ -175,7 +180,11 @@ class TargetMapper:
             if 'targetless' in mongotized_target_blob[i].keys():
                 mongotized_target_blob.pop(i)
                 break
-        
+        try:
+            mongotized_target_blob = sorted(mongotized_target_blob,key = lambda x: x.get('index',0))
+        except:
+            pass
+            
         target_blob_dict = mongotized_target_blob
         return target_blob_dict
 

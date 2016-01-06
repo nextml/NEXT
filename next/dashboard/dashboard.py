@@ -112,8 +112,6 @@ def experiment_dashboard(exp_uid, app_id, exp_key):
                                          constants.NEXT_BACKEND_GLOBAL_PORT)
     else:
         host_url = ''
-    print 'host_url', host_url
-    print constants.NEXT_BACKEND_GLOBAL_HOST, constants.NEXT_BACKEND_GLOBAL_PORT 
     env = Environment(loader=ChoiceLoader([PackageLoader('next.apps.{}'.format(app_id),
                                                          'dashboard'),
                                            PackageLoader('next.dashboard',

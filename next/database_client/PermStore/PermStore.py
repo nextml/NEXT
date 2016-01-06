@@ -674,7 +674,7 @@ class PermStore(object):
                 return False,message
 
         try:
-            dict_return = self.client[database_id][bucket_id].remove( filter_dict  )
+            dict_return = self.client[database_id][bucket_id].delete_one( filter_dict  )
             return True,str(dict_return)
         except Exception, err:
             error = traceback.format_exc()

@@ -13,7 +13,6 @@ var buttonsChart = [["#A9A9C6"]];
         //     {'plot_type': 'columnar_table', 'meta': {'status': 'OK', 'code': 200}, 'data': [{'index': 0, 'target': {'target_id': 0, 'alt_type': 'text', 'primary_type': 'text', 'primary_description': 0, 'alt_description': 0}, 'rank': 0}, {'index': 2, 'target': {'target_id': 2, 'alt_type': 'text', 'primary_type': 'text', 'primary_description': 2, 'alt_description': 2}, 'rank': 1}, {'index': 3, 'target': {'target_id': 3, 'alt_type': 'text', 'primary_type': 'text', 'primary_description': 3, 'alt_description': 3}, 'rank': 2}, {'index': 4, 'target': {'target_id': 4, 'alt_type': 'text', 'primary_type': 'text', 'primary_description': 4, 'alt_description': 4}, 'rank': 3}, {'index': 6, 'target': {'target_id': 6, 'alt_type': 'text', 'primary_type': 'text', 'primary_description': 6, 'alt_description': 6}, 'rank': 4}, {'index': 5, 'target': {'target_id': 5, 'alt_type': 'text', 'primary_type': 'text', 'primary_description': 5, 'alt_description': 5}, 'rank': 5}, {'index': 1, 'target': {'target_id': 1, 'alt_type': 'text', 'primary_type': 'text', 'primary_description': 1, 'alt_description': 1}, 'rank': 6}, {'index': 8, 'target': {'target_id': 8, 'alt_type': 'text', 'primary_type': 'text', 'primary_description': 8, 'alt_description': 8}, 'rank': 7}, {'index': 9, 'target': {'target_id': 9, 'alt_type': 'text', 'primary_type': 'text', 'primary_description': 9, 'alt_description': 9}, 'rank': 8}, {'index': 7, 'target': {'target_id': 7, 'alt_type': 'text', 'primary_type': 'text', 'primary_description': 7, 'alt_description': 7}, 'rank': 9}]}
         // """
 
-        console.log('got here');
         if(data.data.length == 0){
             $('#'+div_id).html("<h1 style='text-align:center'> No data to rank </h1>");
         }else if(data.plot_type == 'columnar_table'){
@@ -75,7 +74,6 @@ var buttonsChart = [["#A9A9C6"]];
          }
          */
         d3TripletPlot = function(data) {
-            console.log("in plot", data);
 
             if (data.length == 0){
                 $('#'+div_id).html("<h3>No data available to be plotted.<h3>");
@@ -83,14 +81,12 @@ var buttonsChart = [["#A9A9C6"]];
 
             image_data = [];
             text_data = [];
-	    console.log("targets");
             for(i=0; i < data.length; i++){
                 if(data[i].target.primary_type=="image" || data[i].target.primary_type=="img"){
                     image_data.push(data[i]);
                 } else if(data[i].target.primary_type=="text") {
                     text_data.push(data[i]);
                 } else if(data[i].target.primary_type=="video") {
-		    console.log(data[i].target)
 		    data[i].target.primary_description = data[i].target.alt_description;
 		    if(data[i].target.alt_type=="image"){
 			image_data.push(data[i]);
@@ -99,9 +95,6 @@ var buttonsChart = [["#A9A9C6"]];
 		    }
                 }
             }
-
-            console.log("image data", image_data);
-            console.log("text data", text_data);
 
             var min_x = data[0].x;
             var max_x = data[0].x;
@@ -196,7 +189,7 @@ var buttonsChart = [["#A9A9C6"]];
                 .attr("fill", "black")
                 .attr("text-anchor", "middle")
                 .attr("dominant-baseline","middle")
-                .text( function(d) { console.log("text", d.x, d.y, d.target.primary_description); return d.target.primary_description } )
+                .text( function(d) { return d.target.primary_description } )
                 .on("mouseover", function(d){ d3.select(this)
                     .attr("font-size", .75*dilation/zm.scale()*fontsize+"px")
                     .each( show_tooltip )

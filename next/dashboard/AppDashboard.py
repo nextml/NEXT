@@ -85,7 +85,7 @@ class AppDashboard(object):
     import matplotlib.pyplot as plt
     import mpld3
     fig, ax = plt.subplots(subplot_kw=dict(axisbg='#FFFFFF'),figsize=(12,1.5))
-    ax.hist(numerical_timestamps,int(1+4*numpy.sqrt(len(numerical_timestamps))),alpha=0.5,color='black')
+    ax.hist(numerical_timestamps,min(int(1+4*numpy.sqrt(len(numerical_timestamps))),300),alpha=0.5,color='black')
     ax.set_frame_on(False)
     ax.get_xaxis().set_ticks([])
     ax.get_yaxis().set_ticks([])
