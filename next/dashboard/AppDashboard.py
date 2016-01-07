@@ -85,13 +85,14 @@ class AppDashboard(object):
     import matplotlib.pyplot as plt
     import mpld3
     fig, ax = plt.subplots(subplot_kw=dict(axisbg='#FFFFFF'),figsize=(12,1.5))
-    ax.hist(numerical_timestamps,int(1+4*numpy.sqrt(len(numerical_timestamps))),alpha=0.5,color='black')
+    ax.hist(numerical_timestamps,min(int(1+4*numpy.sqrt(len(numerical_timestamps))),300),alpha=0.5,color='black')
     ax.set_frame_on(False)
     ax.get_xaxis().set_ticks([])
     ax.get_yaxis().set_ticks([])
     ax.get_yaxis().set_visible(False)
     ax.set_xlim(0, max(numerical_timestamps))
     plot_dict = mpld3.fig_to_dict(fig)
+    plt.close()
 
     
     return plot_dict
@@ -189,6 +190,7 @@ class AppDashboard(object):
     for label in legend.get_texts():
       label.set_fontsize('small')
     plot_dict = mpld3.fig_to_dict(fig)
+    plt.close()
 
 
     return plot_dict
@@ -284,6 +286,7 @@ class AppDashboard(object):
     for label in legend.get_texts():
       label.set_fontsize('small')
     plot_dict = mpld3.fig_to_dict(fig)
+    plt.close()
     
 
     return plot_dict
@@ -327,6 +330,7 @@ class AppDashboard(object):
     ax.set_ylabel('Count')
     ax.set_title(alg_label + " - response time", size=14)
     plot_dict = mpld3.fig_to_dict(fig)
+    plt.close()
 
     return plot_dict
 
@@ -367,6 +371,7 @@ class AppDashboard(object):
     ax.set_ylabel('Count')
     ax.set_title(alg_label + " - network delay", size=14)
     plot_dict = mpld3.fig_to_dict(fig)
+    plt.close()
 
     return plot_dict
 

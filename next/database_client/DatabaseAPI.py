@@ -24,7 +24,7 @@ Some common functions
 ###############################
 
 Initialization::\n
-    from next.database.DatabaseAPI import DatabaseAPI
+    from next.database_client.DatabaseAPI import DatabaseAPI
     db = DatabaseAPI()
 
 App data functions::\n

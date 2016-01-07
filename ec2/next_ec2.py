@@ -410,6 +410,7 @@ def launch_cluster(conn, opts, cluster_name):
     for i in range(opts.root_vol_num):
         dev = EBSBlockDeviceType()
         dev.size = opts.root_vol_size
+        dev.delete_on_termination = True
         # dev.ephemeral_name = 'ephemeral%d' % i
         # The first ephemeral drive is /dev/sda1.
         name = '/dev/sd' + string.letters[i] + str(i+1)

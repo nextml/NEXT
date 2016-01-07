@@ -37,23 +37,32 @@
             
 
             <script>
-            plot_response = function(data) {
-            charts.createDynamicTable(data.json, "most_current_ranking_{{ alg.alg_label_clean }}")
+            most_current_ranking_{{ alg.alg_label_clean }} = function(data) {
+            charts.createDynamicTable(data, "most_current_ranking_{{ alg.alg_label_clean }}")
             }
 
-            data = next_widget.getWidget(
-            {
-            'app_id': "{{ app_id }}",
-            'exp_uid': "{{ exp_uid }}",
-            'name': 'getStats',
-            'widget_key': "{{ perm_key }}",
-            'args':{
-            'stat_id' : 'most_current_ranking',
-            'params'  : {'alg_label': "{{ alg.alg_label }}" }
-            }
-            },
-            plot_response
-            );
+            $.ajax({
+                url: "{{ host_url }}/api/experiment/stats",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({  
+                    'app_id': "{{ app_id }}",
+                    'exp_uid': "{{ exp_uid }}",
+                    'exp_key': "{{ exp_key }}",
+                    'name': 'getStats',
+                    'args':{
+                        'stat_id' : 'most_current_ranking',
+                        'params'  : {'alg_label': "{{ alg.alg_label }}" }
+                        }
+                    }),
+                dataType: "json"
+                }).done( function(data,textStatus, jqXHR) {
+                delete data['meta']
+                most_current_ranking_{{ alg.alg_label_clean }}(data)
+                }).fail( function(error){
+                console.log("Failed to get stats", error);
+                });
+
           </script>
             {% endfor %}
         </div>

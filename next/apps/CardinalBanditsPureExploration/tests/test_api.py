@@ -16,7 +16,7 @@ HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')+':'+os.enviro
 def run_all(assert_200):
 
   app_id = 'CardinalBanditsPureExploration'
-  num_arms = 50
+  num_arms = 1000
   true_means = numpy.array(range(num_arms))/float(num_arms)
   total_pulls_per_client = 30
 
@@ -32,8 +32,8 @@ def run_all(assert_200):
   n = num_arms
   delta = 0.05
   R = 2 # assumes scores in range [1,5]
-  # supported_alg_ids = ['SimpleUCB','AlternativeUCB']
-  supported_alg_ids = ['RandomSampling','LUCB','LilUCB','RoundRobin']
+  supported_alg_ids = ['LilUCB']
+  # supported_alg_ids = ['RandomSampling','LUCB','LilUCB','RoundRobin']
 
   alg_list = []
   for alg_id in supported_alg_ids:

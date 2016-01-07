@@ -8,6 +8,21 @@
 
 {% block body %}
 <!-- <div class="col-lg-12 "> -->
+<script language="JavaScript">
+function toggle(source) {
+  checkboxes = document.getElementsByName('exp_check_boxes');
+  for(var i=0, n=checkboxes.length;i<n;i++) {
+    checkboxes[i].checked = source.checked;
+  }
+}
+function untoggle_parent(source) {
+  parent = document.getElementsByName('check_box_parent')[0]; 
+  if (parent.checked){
+  	parent.checked = source.checked
+  }
+}
+</script>
+
 <div class="row">
   <div class="col-lg-8 col-lg-offset-2">
     <h1 style="text-align:center;" class="page-header">Experiments</h1>
@@ -18,12 +33,16 @@
   <div class="col-sm-10 col-sm-offset-1">
     <table class="table table-bordered left">
       <thead>
+    <th> <input type="checkbox" name="check_box_parent" onClick="toggle(this)" /> </th> 
 	<th> Experiment ID </th>
 	<th> App ID </th>
 	<th> Date </th>
       </thead>
       {% for experiment in experiments %}
       <tr>
+    <td>
+      <input type="checkbox" name="exp_check_boxes"  onClick="untoggle_parent(this)" value="{{ experiment.exp_uid }}">
+    </td>
 	<td>
 	  <a href="{{ url_for('dashboard.experiment_dashboard', exp_uid = experiment.exp_uid, app_id = experiment.app_id, exp_key = experiment.exp_key) }}">{{ experiment.exp_uid }}</a>
 	</td>
@@ -39,23 +58,47 @@
   </div>
 </div>
 
-<div class="row">
-  <div class="col-md-6 center-block" style="border-right: 1px solid #ccc;">
+<script language="JavaScript">
+function backup_selected_experiments() {
+  checkboxes = document.getElementsByName('exp_check_boxes');
+  var url = '/api/database/databasebackup?';
+  var k=0
+  for(var i=0, n=checkboxes.length;i<n;i++) {
+    if (checkboxes[i].checked){
+    	if(k==0){
+    		url += 'exp_uid='+checkboxes[i].value;
+    		k+=1;
+    	}else{
+    		url += '&exp_uid='+checkboxes[i].value;
+    	}
+    }
+  }
+  if(k>0){
+  	window.open(url);
+  }
+  
+}
+</script>
+
+<div class="row col-md-offset-1">
+
+  <div class="col-md-5" style="border-right: 1px solid #ccc;">
     <div class="center-block">
     <!-- Backup button -->
     <label for="exampleInputFile">Backup Experiments</label>
-    <p class="help-block">Download Database Backup.</p>
-    <a class="btn btn-info" role="button" href="/api/database/databasebackup"> Download </a>
+    <p class="help-block">Download backup of experiments selected above.</p>
+    <a class="btn btn-info" role="button" onClick="backup_selected_experiments()"> Download</a>
+    <!-- <a class="btn btn-info" role="button" href="/api/database/databasebackup"> Download </a> -->
     </div>
   </div>
 
-  <div class="col-md-6">
+  <div class="col-md-5">
     <div class="center-block"
 	 <!-- Restore -->
 	 <form method="post" enctype="multipart/form-data" class="box" action="/api/database/databaserestore">
 	   <div class="form-group">
-	     <label for="exampleInputFile">Restore Zip File</label>
-	     <p>Select a database backup file for restoring.</p><p> <font color="red">Warning: This will delete any current data and experiments on this running instance of NEXT</font></p>
+	     <label for="exampleInputFile">Restore Experiments from Backup</label>
+	     <p>Select a database backup file for restoring.</p><p> <font color="red">Warning: Restoring is an "insert only" action meaning that no action is taken for those experiments that already exist in the system.</font></p>
 	     <input type="file" id="exampleInputFile" name="primary_file">
 	   </div>
 	   <script>
@@ -71,7 +114,7 @@
 	       <div class="modal-content">
 		 <div class="modal-body" id="question-info" style='text-align:center;'></div>
 		 <center>
-		   <img src="/static/img/waiting.gif" style="width:300px; height:75;" />
+		   <img src="/dashboard/static/img/loader.gif" style="width:300px; height:75;" />
 		   <br>
 		   Uploading...
 		 </center>

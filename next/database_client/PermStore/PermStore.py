@@ -461,7 +461,7 @@ class PermStore(object):
                 return False,message
 
         try:
-            self.client[database_id][bucket_id].update({"_id":doc_uid},{ '$inc': key_value_dict } )
+            self.client[database_id][bucket_id].update_one({"_id":doc_uid},{ '$inc': key_value_dict },upsert = True)
             return True,'From Mongo'
         except:
             raise
@@ -504,7 +504,7 @@ class PermStore(object):
         try:
             value = self.makeProperDatabaseFormat(value)
 
-            message = self.client[database_id][bucket_id].update( {"_id":doc_uid} , { '$push': {key:value} },upsert = True )
+            message = self.client[database_id][bucket_id].update_one( {"_id":doc_uid} , { '$push': {key:value} },upsert = True )
 
             return True,message
         except:
@@ -534,8 +534,8 @@ class PermStore(object):
             
             value_list = self.makeProperDatabaseFormat(value_list)
 
-            self.client[database_id][bucket_id].update( {"_id":doc_uid} , { '$unset': {key: '' } },upsert = True )
-            self.client[database_id][bucket_id].update( {"_id":doc_uid} , { '$push': {key: { '$each': value_list } } },upsert = True )
+            self.client[database_id][bucket_id].update_one( {"_id":doc_uid} , { '$unset': {key: '' } },upsert = True )
+            self.client[database_id][bucket_id].update_one( {"_id":doc_uid} , { '$push': {key: { '$each': value_list } } },upsert = True )
 
             return True,''
         except:
@@ -565,7 +565,7 @@ class PermStore(object):
             
             value = self.makeProperDatabaseFormat(value)
 
-            message = self.client[database_id][bucket_id].update( {"_id":doc_uid} , { '$set': {key:value} },upsert = True )
+            message = self.client[database_id][bucket_id].update_one( {"_id":doc_uid} , { '$set': {key:value} },upsert = True )
 
             return True,''
         except:
@@ -622,7 +622,7 @@ class PermStore(object):
                 return None,False,message
 
         try:
-            self.client[database_id][bucket_id].update( {"_id":doc_uid} , { '$unset': {key:1} })
+            self.client[database_id][bucket_id].update_one( {"_id":doc_uid} , { '$unset': {key:1} })
 
             return True,"MongoDB.delete"
         except:
@@ -674,7 +674,7 @@ class PermStore(object):
                 return False,message
 
         try:
-            dict_return = self.client[database_id][bucket_id].remove( filter_dict  )
+            dict_return = self.client[database_id][bucket_id].delete_one( filter_dict  )
             return True,str(dict_return)
         except Exception, err:
             error = traceback.format_exc()
