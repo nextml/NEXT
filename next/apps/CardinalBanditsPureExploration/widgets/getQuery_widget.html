@@ -115,6 +115,7 @@ div.option{
 
 <!-- labels -->
 <div id="query" class="row">
+  {% if query.labels %}
   {% for label in query.labels %}
   <div class="option"
 	  id="{{loop.index}}"
@@ -124,6 +125,7 @@ div.option{
     </div>
   </div>
   {% endfor %}
+  {% endif %}
 </div>
 
 

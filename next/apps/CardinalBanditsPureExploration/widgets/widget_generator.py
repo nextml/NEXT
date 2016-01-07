@@ -37,9 +37,8 @@ class WidgetGenerator():
                                                              exp_uid,
                                                              'getQuery',
                                                              args_json)        
-        response_dict = eval(response_json)
-        print 'response_dict', response_dict
 
+        response_dict = json.loads(response_json)
         index = response_dict['target_indices'][0]['index']
         query = {}
         query['context'] = response_dict['context']
@@ -47,7 +46,6 @@ class WidgetGenerator():
         query['target'] = targetmapper.get_target_data(exp_uid, index)
         query['labels'] = response_dict['labels']
         template = env.get_template('getQuery_widget.html')
-
             
         return {'html': template.render(query = query),
                 'args': response_dict }

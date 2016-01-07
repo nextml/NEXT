@@ -458,9 +458,11 @@ class CardinalBanditsPureExploration(AppPrototype):
         db.set(app_id+':queries', query_uid, field, query_doc[field])
 
       # add context and labels after updating query doc to avoid redundant information
-      query['context'] = context
-      query['context_type'] = context_type
-      query['labels'] = labels
+      if context:
+        query['context'] = context
+        query['context_type'] = context_type
+      if labels:
+        query['labels'] = labels
       args_out = {'args':query,'meta':meta}
       response_json = json.dumps(args_out)
 
