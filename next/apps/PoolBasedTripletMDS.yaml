@@ -14,18 +14,18 @@ initExp:
           description: Dimension of embedding.
           type: num
           values: []
-          
+
         n:
           description: Number of items.
           type: num
           values: []
-          
+
         context:
           description: Context for this experiment
           type: target
           values: []
           optional: true
-          
+
         alg_list:
           description: A list of algorithms you plan to use in this experiment.
           type: list
@@ -42,7 +42,7 @@ initExp:
               description: Which algorithm to test against.
               type: str
               values: []
-              
+
         algorithm_management_settings:
           description: ''
           type: dict
@@ -67,12 +67,12 @@ initExp:
                       description: Proportion of queries to give to this algorithm.
                       type: num
                       values: []
-                      
-            participant_to_algorithm_management:
-              description: How particpants are routed to algorithms.
-              type: str
-              values: [one-to-one, one-to-many]
 
-            targets:
-              description: targets
-              type: targetset
+        participant_to_algorithm_management:
+          description: How particpants are routed to algorithms.
+          type: str
+          values: [one-to-one, one-to-many]
+
+        targets:
+          description: targets
+          type: targetset
