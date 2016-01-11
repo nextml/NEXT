@@ -6,6 +6,7 @@ initExp:
       description: PoolBasedTripletMDS
       type: str
       values: [PoolBasedTripletMDS]
+
     args:
       description: Arguments for initExp
       type: dict
@@ -17,6 +18,11 @@ initExp:
 
         n:
           description: Number of items.
+          type: num
+          values: []
+
+        failure_probability:
+          description: Confidence of result.
           type: num
           values: []
 
@@ -43,20 +49,35 @@ initExp:
               type: str
               values: []
 
+        instructions:
+          description: The instructions the particpant will see when experiment first launched.
+          type: str
+          values: [Please select, using your mouse or left and right arrow keys, the item on the bottom that is closest to the top.]
+
+        debrief:
+          description: The message that the participant will see when done with the experiment.
+          type: str
+          values: [Thank you for participating]
+
+        num_tries:
+          description: The number of queries the participant will answer.
+          type: num
+          values: [100]
+
         algorithm_management_settings:
-          description: ''
+          description: How individual algorithms are selected.
           type: dict
           values:
             mode:
-              description: ''
+              description: How are the algorithms selected? Currently, 'fixed_proportions' is the only implement mode and a probability of an algorithm being drawn has to be selected.
               type: str
               values: [fixed_proportions]
             params:
-              description: ''
+              description: (note: documentation for 'mode=fixed_proportions'). Parameters to help select an algorithm.
               type: dict
               values:
                 proportions:
-                  description: List of proportions per app type.
+                  description: List of proportions per app type. Note: must be positive and the sum of 'proportions' must add up to 1.
                   type: list
                   values:
                     alg_label:
@@ -69,7 +90,7 @@ initExp:
                       values: []
 
         participant_to_algorithm_management:
-          description: How particpants are routed to algorithms.
+          description: How many algorithms does one participant see? (i.e., "one-to-many" means one participant sees many different algorithms).
           type: str
           values: [one-to-one, one-to-many]
 
