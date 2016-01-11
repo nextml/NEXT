@@ -1,0 +1,78 @@
+initExp:
+  description: Dictionary for initialization of experiment.
+  type: dict
+  values:
+    app_id:
+      description: PoolBasedTripletMDS
+      type: str
+      values: [PoolBasedTripletMDS]
+    args:
+      description: Arguments for initExp
+      type: dict
+      values:
+        d:
+          description: Dimension of embedding.
+          type: num
+          values: []
+          
+        n:
+          description: Number of items.
+          type: num
+          values: []
+          
+        context:
+          description: Context for this experiment
+          type: target
+          values: []
+          optional: true
+          
+        alg_list:
+          description: A list of algorithms you plan to use in this experiment.
+          type: list
+          values:
+            alg_id:
+              description: A supported algorithm type in the system.
+              type: str
+              values: [CrowdKernel, RandomSampling, STE, UncertaintySampling]
+            alg_label:
+              description: A name for this algorithm of your choosing.
+              type: str
+              values: []
+            test_alg_label:
+              description: Which algorithm to test against.
+              type: str
+              values: []
+              
+        algorithm_management_settings:
+          description: ''
+          type: dict
+          values:
+            mode:
+              description: ''
+              type: str
+              values: [fixed_proportions]
+            params:
+              description: ''
+              type: dict
+              values:
+                proportions:
+                  description: List of proportions per app type.
+                  type: list
+                  values:
+                    alg_label:
+                      description: An alg label, matching one of the ones declared in alg_list.
+                      type: str
+                      values: []
+                    proportion:
+                      description: Proportion of queries to give to this algorithm.
+                      type: num
+                      values: []
+                      
+            participant_to_algorithm_management:
+              description: How particpants are routed to algorithms.
+              type: str
+              values: [one-to-one, one-to-many]
+
+            targets:
+              description: targets
+              type: targetset

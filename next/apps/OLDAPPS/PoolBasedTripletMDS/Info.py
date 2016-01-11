@@ -7,7 +7,9 @@ edited: 2/17/15
 This file is used a resource the provides information like a description of this app, the
 supported algorithms and default parameters. This is NOT somewhere to retrieve experiment-specific information.
 """
-import next.apps.InfoPrototype as InfoPrototype
+import sys
+sys.path.append("../")
+import InfoPrototype as InfoPrototype
 
 def get_about():
     """
