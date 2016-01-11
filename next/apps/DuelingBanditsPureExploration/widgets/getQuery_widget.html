@@ -1,57 +1,76 @@
 <style>
-  html,body{
-  height:100%;
-  }
+html,body{
+	height:100%;
+}
 
-  div.container{
-  height:100%;
-  }
+div.container{
+	height:100%;
+}
 
-  #wrapper {
-    height:85%;
-  }
+#wrapper {
+	height:100%;
+}
 
-  div.row > div.col-xs-6 {
-    height:100%;
-    outline: 1px solid black;
-  }
+div.row > div.col-xs-6 {
+	height:100%;
+	outline: 1px solid black;
+}
 
-  div.row > div.col-xs-12 {
-    height:100%;
-    outline: 1px solid black;
-    padding:10px;
-    text-align:center;
-  }
+div.row > div.col-xs-12 {
+	outline: 1px solid black;
+	padding:10px;
+	text-align:center;
+}
 
-  #center {
-    height:75%;
-  }
-  
-  #query {
-    height:25%;
-  }
-  
-  #query > div{
-    cursor:pointer;
-  }
+#center {
+	height:50%;
+}
 
-  #wrapper img{
-    vertical-align:middle;
-    max-height:100%;
-    max-width:100%;
-    height:auto;
-  }
-  
-  .text{
-    display: table-cell;
-    text-align: center;
-    vertical-align: middle;
-    word-wrap: break-word;
-    font-size: 4vmin;
-    height:100%;
-    width:100%;
-  }
-  
+#center > div.col-xs-12 {
+	height:100%;
+}
+
+
+#center_text {
+	max-height:25%;
+	margin-top:10px;
+	margin-bottom:5px;
+}
+
+#query {
+	height:10%;
+	text-align:center;
+}
+
+
+
+.image_container{
+	display:inline-block;
+	width:100%;
+	height:100%;
+}
+
+
+#query > div{
+	cursor:pointer;
+}
+
+#wrapper img{
+	vertical-align:middle;
+	max-height:100%;
+	max-width:100%;
+	height:auto;
+}
+
+.text{
+	text-align: center;
+	vertical-align: middle;
+	word-wrap: break-word;
+	font-size: 3vmin;
+	width:100%;
+	height:auto;
+}
+
 </style>
 <br>
 {% if query.context_type != "none" %}
@@ -64,7 +83,7 @@
 	</div>
       </div>
       {% elif query.context_type == "image" or query.context_type == "img" %}
-      <div style="display:inline-block;height:100%;width:100%;">
+      <div class="image_container">
 	<img src='{{ query.context }}'> </img>
       </div>
       {% endif %}
@@ -78,11 +97,9 @@
 	{% if query.left.primary_type == "image" or query.left.primary_type == "img"%}
 	<img class="center-block" src={{ query.left.primary_description }}> </img>
 	{% elif query.left.primary_type == "text"%}
-	<div style="display:table;height:100%;width:100%;">
-	  <div class="center-block text">
+	  <div class="text">
 	    {{ query.left.primary_description }}
 	  </div>
-	</div>
 	{% endif %}
   </div>
   <!-- Right Target -->
@@ -90,11 +107,9 @@
 	{% if query.right.primary_type == "image" or query.right.primary_type == "img" %}
 	<img class="center-block" src={{ query.right.primary_description }}> </img>
 	{% elif query.right.primary_type == "text" %}
-	<div style="display:table;height:100%;width:100%;">
-	  <div class="center-block text">
+	  <div class="text">
 	    {{ query.right.primary_description }}
 	  </div>
-	</div>
 	{% endif %}
   </div>
 </div>
