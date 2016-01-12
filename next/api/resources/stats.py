@@ -11,11 +11,14 @@ curl -H "Content-Type: application/json" \
 -d '{"exp_uid": "DFPDISJFSA", "app_id": "PoolBasedTripletMDS", "args":{ "stat_id": "api_activity_histogram", "params": { "task": "getQuery"}}}' \
 -X POST http://localhost:8001/experiment/stats
 '''
-from flask import Flask
+from flask import Flask, Response, make_response
 from flask.ext import restful
 from flask.ext.restful import Resource, reqparse
 
 import json
+import time
+from cStringIO import StringIO
+import gzip
 import next.utils
 import next.broker.broker
 from next.api.api_util import *
@@ -153,7 +156,22 @@ class Stats(Resource):
             pass
         
         if didSucceed and "data" in response_dict.keys():
-            return attach_meta(response_dict,meta_success), 201
+            t = time.time()
+            json_response = json.dumps(attach_meta(response_dict,meta_success)) 
+            gzip_buffer = StringIO()
+            gzip_file = gzip.GzipFile(mode='wb', 
+                                      fileobj=gzip_buffer)
+            gzip_file.write(json_response)
+            gzip_file.close()
+            resp = make_response(gzip_buffer.getvalue())
+            print "time to zip", time.time() - t
+            resp.headers['Content-Encoding']='gzip'
+            resp.headers['Content-length']=len(json.dumps(attach_meta(response_dict,meta_success)))
+            resp.headers['Content-Type'] = 'application/json'
+            return resp
+            # return gzip_buffer.getvalue(), 200, {'Content-Encoding': 'gzip',
+            #                                      'Vary':'Accept-Encoding',
+            #                                      'Content-Type': 'application/json'}
         elif didSucceed and not "data" in response_dict.keys():
             return attach_meta({'data':[]},meta_error['StatsEmptyError']), 200
         else:

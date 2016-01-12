@@ -38,7 +38,9 @@
 
             <script>
                 most_current_ranking_{{ alg.alg_label_clean }} = function(data) {
-                    charts.createDynamicTable(data, "most_current_ranking_{{ alg.alg_label_clean }}")
+		    var t_begin = performance.now();
+                    charts.createDynamicTable(data, "most_current_ranking_{{ alg.alg_label_clean }}");
+		    console.log("time to create table", performance.now() - t_begin);
                 }
 
                 $.ajax({
