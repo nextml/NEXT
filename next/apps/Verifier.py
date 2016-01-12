@@ -1,17 +1,30 @@
 import yaml, json
 
 def verify(input_dict, reference_dict):
+    """
+    Returns: modified_input, success, list_of_errors
+
+    where: 
+    - modified_input is the input populated with default values where applicable
+    - success is a boolean true if there were no problems and false otherwise
+    - list_of_errors is as in verify_helper
+    """
     ans = []
     for k in reference_dict:
         input_dict, temp_ans = verify_helper(k, input_dict[k], reference_dict[k])
         ans += temp_ans
+
+    # Any further custom verification goes below this line, which may
+    # modify input_dict as needed and add any errors to ans as dicts
+    # with the format: {"name":problem_key, "message":"what is wrong"}
+    
     return input_dict, len(ans) == 0, ans
     
 def verify_helper(name, input_element, reference_dict):
     """
     Returns: modified_input,list_of_errors
 
-    where list of errors is: [{name: name, message: ..., 
+    where list of errors is: [{name: name, message: ...}, ...]
     """
     ans = []
     if reference_dict['type'] == 'dict':
