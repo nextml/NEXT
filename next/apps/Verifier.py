@@ -17,6 +17,8 @@ def verify(input_dict, reference_dict):
     # Any further custom verification goes below this line, which may
     # modify input_dict as needed and add any errors to ans as dicts
     # with the format: {"name":problem_key, "message":"what is wrong"}
+
+    
     
     return input_dict, len(ans) == 0, ans
     
@@ -24,7 +26,10 @@ def verify_helper(name, input_element, reference_dict):
     """
     Returns: modified_input,list_of_errors
 
-    where list of errors is: [{name: name, message: ...}, ...]
+    where:
+
+    - modified_input is the input populated with default values
+    - list_of_errors is: [{name: name, message: ...}, ...]
     """
     ans = []
     if reference_dict['type'] == 'dict':
@@ -34,9 +39,9 @@ def verify_helper(name, input_element, reference_dict):
         else:
             ok = True
             for k in l2:
-                if 'default' in reference_dict['values'][k]:
-                    input_element[k] = reference_dict['values'][k]['default']
-                elif not 'optional' in reference_dict['values'][k] or reference_dict['values'][k]['optional'] == False:
+                if 'set' in reference_dict['values'][k]:
+                    input_element[k] = reference_dict['values'][k]['set']
+                elif (not 'optional' in reference_dict['values'][k]) or reference_dict['values'][k]['optional'] == False:
                     ans += [{"name":name+'/'+k, "message":"required key is absent"}]
                     ok = False
             if(ok):
@@ -53,10 +58,23 @@ def verify_helper(name, input_element, reference_dict):
         if isinstance(input_element, (int, long, float)):
             ans += [{"name":name, "message":"invalid number"}]
 
-    elif reference_dict['type'] == 'str':
+    elif reference_dict['type'] == 'str' or reference_dict['type'] == 'multiline':
         if isinstance(input_element, str):
             ans += [{"name":name, "message":"invalid string"}]
 
+    elif reference_dict['type'] == 'oneof':
+        count = 0
+        for k in reference_dict['values']:
+            if k in input_element:
+                count += 1
+                if count > 1:
+                    ans += [{"name":name+"/"+k,"message":"More than one argument specified for 'oneof arg: " + name}]
+        if count == 0:
+            if 'set' in reference_dict:
+                input_element = reference_dict['set']
+            else:
+                ans += [{"name":name, "message":"no argument provided for 'oneof' arg"}]
+                
     elif reference_dict['type'] == 'target':
         pass
     elif reference_dict['type'] == 'targetset':
