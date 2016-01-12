@@ -36,7 +36,7 @@ def verify_helper(name, input_element, reference_dict):
             for k in l2:
                 if 'default' in reference_dict['values'][k]:
                     input_element[k] = reference_dict['values'][k]['default']
-                elif not 'required' in reference_dict['values'][k] or reference_dict['values'][k]['required'] == False:
+                elif not 'optional' in reference_dict['values'][k] or reference_dict['values'][k]['optional'] == False:
                     ans += [{"name":name+'/'+k, "message":"required key is absent"}]
                     ok = False
             if(ok):
