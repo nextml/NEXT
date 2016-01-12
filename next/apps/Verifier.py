@@ -55,12 +55,14 @@ def verify_helper(name, input_element, reference_dict):
             ans += temp_ans
                 
     elif reference_dict['type'] == 'num':
-        if isinstance(input_element, (int, long, float)):
+        if not isinstance(input_element, (int, long, float)):
             ans += [{"name":name, "message":"invalid number"}]
 
     elif reference_dict['type'] == 'str' or reference_dict['type'] == 'multiline':
-        if isinstance(input_element, str):
+        if not isinstance(input_element, str):
             ans += [{"name":name, "message":"invalid string"}]
+        if not input_element in reference_dict['values']:
+            ans += [{"name":name, "message":"argument must be one of the specified strings: "+", ".join(reference_dict['values'])}]
 
     elif reference_dict['type'] == 'oneof':
         count = 0
