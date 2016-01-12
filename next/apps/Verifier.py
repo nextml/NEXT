@@ -10,7 +10,7 @@ def verify(input_dict, reference_dict):
     - list_of_errors is as in verify_helper
     """
     ans = []
-    for k in reference_dict:
+    for k in input_dict:
         input_dict, temp_ans = verify_helper(k, input_dict[k], reference_dict[k])
         ans += temp_ans
 
