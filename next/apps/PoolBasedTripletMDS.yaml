@@ -73,11 +73,11 @@ initExp:
               type: str
               values: [fixed_proportions]
             params:
-              description: (note: documentation for 'mode=fixed_proportions'). Parameters to help select an algorithm.
+              description: (note; documentation for 'mode=fixed_proportions'). Parameters to help select an algorithm.
               type: dict
               values:
                 proportions:
-                  description: List of proportions per app type. Note: must be positive and the sum of 'proportions' must add up to 1.
+                  description: List of proportions per app type. Note; must be positive and the sum of 'proportions' must add up to 1.
                   type: list
                   values:
                     alg_label:
@@ -97,3 +97,55 @@ initExp:
         targets:
           description: targets
           type: targetset
+
+qetQuery:
+  description: 'A request to ask the query: "is {center} more similar to {left} or {right}?"'
+  type: dict
+  values:
+    exp_uid:
+      description: The experiment unique identifier.
+      type: str
+      values: []
+
+    exp_key:
+      description: The experiment access key.
+      type: str
+      values: []
+
+    args:
+      participant_uid:
+        description: unique identifier of session for a participant answering questions, if key non-existant particpant_uid is assigned as exp_uid.
+        type: str
+        optional: true
+        values: []
+
+processAnswer:
+  description: reporting back the reward of pulling the arm suggested by getQuery
+  type: dict
+  values:
+    exp_uid:
+      description: The experiment unique identifier.
+      type: str
+      values: []
+
+    exp_key:
+      description: The experiment access key.
+      type: str
+      values: []
+
+    args:
+      target_winner:
+        description: The target that won the given query.
+        type: str
+        values: []
+
+      query_uid:
+        description: The unique identifier for the query.
+        type: str
+        values: []
+
+      response_time:
+        description: The time taken for the participant to answer the query.
+        type: num
+        values: []
+
