@@ -94,18 +94,3 @@ def PoolBasedTripletMDS_dict():
     initExp_args_dict['args']['debrief'] = 'This is a debrief'
 
     return initExp_args_dict
-
-if __name__ == "__main__":
-    # the dictionary we're checking
-    d = PoolBasedTripletMDS_dict()
-
-    # ground truth; this dictionary is assumed to be right
-    with open("../PoolBasedTripletMDS.yaml") as f:
-        ref = yaml.load(f.read())
-
-    d= {'initExp':d}
-
-    filled, success, message = verify(d, ref)
-
-    if(not success):
-        print("\n".join([m['name'] + ": "+m['message'] for m in message]))

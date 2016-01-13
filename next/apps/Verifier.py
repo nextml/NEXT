@@ -2,6 +2,8 @@ import yaml, json
 import random
 import numpy
 
+import tests
+
 def verify(input_dict, reference_dict):
     """
     Returns: modified_input, success, list_of_errors
@@ -94,3 +96,31 @@ def compare_dict_keys(d1, d2):
     """
     return [k for k in d1 if not k in d2],[k for k in d2 if not k in d1]
 
+
+def description(filename):
+    """
+    Gets descriptions for a particular app.
+
+    :input filename: Filename of a .yaml descriptor of an app. For example,
+    `PoolBasedTripletMDS.yaml`.
+    :returns: The description, as specified by the YAML file but as a dict.
+    """
+    with open(filename) as f:
+        return yaml.load(f.read())
+
+
+if __name__ == "__main__":
+    # the dictionary we're checking
+    d = tests.PoolBasedTripletMDS_dict()
+
+    # ground truth; this dictionary is assumed to be right
+    filename = "PoolBasedTripletMDS.yaml"
+    with open(filename) as f:
+        ref = yaml.load(f.read())
+
+    d= {'initExp':d}
+
+    filled, success, message = verify(d, ref)
+
+    if(not success):
+        print("\n".join([m['name'] + ": "+m['message'] for m in message]))
