@@ -82,6 +82,10 @@ class PoolBasedTripletMDS(AppPrototype):
             db.set(app_id+':experiments', exp_uid, 'num_tries', args_json['num_tries'])
             db.set(app_id+':experiments', exp_uid, 'git_hash', git_hash)
 
+            # These are the arguments specfic to this particular app
+            for key in args_dict.keys():
+                db.set(app_id+':experiments', exp_uid, key, args_dict[key])
+
             # now create intitialize each algorithm
             for algorithm in alg_list:
                 alg_id = algorithm['alg_id']
@@ -96,6 +100,18 @@ class PoolBasedTripletMDS(AppPrototype):
 
                 # call initExp
                 didSucceed,dt = utils.timeit(alg.initExp)(resource=rc,n=n,d=d,failure_probability=delta,params=params)
+
+                # Check that all the algorithms in alg_list are also in
+                # algorithm_management_settings. Checks to see if alg_labels are
+                # properly labeled
+                # LALIT: this does the same thing as PoolBasedTripletMDS,
+                # correct? It checks to see if all of alg_list algorithms are
+                # found in algorithm_management_settings
+                algorithm_settings = args_dict['args']['algorithm_management_settings']['params']['proportions']
+                porportion_algorithms = [alg['alg_label'] for alg in algorithm_settings]
+                if algorithm not in porportion_algorithms:
+                    raise Exception('An algorithm in alg_list is not in in algorithm_management_settings (in the apprpriate place')
+                # TODO: make sure the proprotions sum to 1
 
                 log_entry = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'initExp','duration':dt,'timestamp':utils.datetimeNow() }
                 ell.log( app_id+':ALG-DURATION', log_entry  )
