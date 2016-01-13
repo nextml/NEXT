@@ -57,6 +57,7 @@ class App(AppPrototype):
             algorithm_settings = args_dict['args']['algorithm_management_settings']['params']['proportions']
 
             # Check to make sure the proportions add up to 1
+            # TODO: Check/move to verifier
             total_porportion = sum(alg['proportion'] for alg in algorithm_settings)
             if numpy.allclose(total_porportion, 1):
                 raise Exception('The algorithm porportions must add up to 1 (the currently add up to {})'.format(total_porportion))
@@ -71,9 +72,11 @@ class App(AppPrototype):
                 alg_uid = utils.getNewUID()
                 algorithm['alg_uid'] = alg_uid
 
+                # TODO: also verifier
                 if algorithm not in implemented_algs:
                     raise Exception('An algorithm in alg_list ({}) is not implemented. It must be one of {}.'.format(alg_list, implemented_algs))
 
+                # Verifier
                 porportion_algorithms = [alg['alg_label'] for alg in algorithm_settings]
                 if algorithm not in porportion_algorithms:
                     raise Exception('An algorithm in alg_list ({})is not in in algorithm_management_settings (in the apprpriate place'.format(algorithm))
@@ -83,19 +86,15 @@ class App(AppPrototype):
                 db.set(app_id+':algorithms',alg_uid,'exp_uid',exp_uid)
 
             # Setting experiment parameters in the database
-            # These parometers are global to all apps
-            # instructions, algorithm_management_settings, etc
-            # TODO: context isn't set in here. How can we set this for dueling
-            # bandits too? Maybe loop over keys in args_dict?
             db.set(app_id+':experiments', exp_uid, 'exp_uid', exp_uid)
             db.set(app_id+':experiments', exp_uid, 'app_id', app_id)
             db.set(app_id+':experiments', exp_uid, 'alg_list', alg_list)
-            db.set(app_id+':experiments', exp_uid, 'algorithm_management_settings', args_dict['algorithm_management_settings'])
-            db.set(app_id+':experiments', exp_uid, 'participant_to_algorithm_management', args_json['participant_to_algorithm_management'])
-            db.set(app_id+':experiments', exp_uid, 'instructions', args_json['instructions'])
-            db.set(app_id+':experiments', exp_uid, 'debrief', args_json['debrief'])
-            db.set(app_id+':experiments', exp_uid, 'num_tries', args_json['num_tries'])
             db.set(app_id+':experiments', exp_uid, 'git_hash', git_hash)
+
+            # Put the dictionary for the experiment in the database.
+            # These keys are more general and apply to both apps
+            for key in args_json.keys():
+                db.set(app_id+':experiments', exp_uid, key, args_json[key])
 
             # These are the arguments specfic to this particular app
             for key in args_dict.keys():
