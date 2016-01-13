@@ -70,11 +70,10 @@ class PoolBasedTripletMDS(AppPrototype):
                 db.set(app_id+':algorithms',alg_uid,'exp_uid',exp_uid)
 
             # Setting experiment parameters in the database
+            # These parometers are global to all apps
+            # instructions, algorithm_management_settings, etc
             db.set(app_id+':experiments', exp_uid, 'exp_uid', exp_uid)
             db.set(app_id+':experiments', exp_uid, 'app_id', app_id)
-            db.set(app_id+':experiments', exp_uid, 'n', args_dict['n'])
-            db.set(app_id+':experiments', exp_uid, 'd', args_dict['d'])
-            db.set(app_id+':experiments', exp_uid, 'failure_probability', args_dict['failure_probability'])
             db.set(app_id+':experiments', exp_uid, 'alg_list', alg_list)
             db.set(app_id+':experiments', exp_uid, 'algorithm_management_settings', args_dict['algorithm_management_settings'])
             db.set(app_id+':experiments', exp_uid, 'participant_to_algorithm_management', participant_to_algorithm_management)
@@ -106,9 +105,8 @@ class PoolBasedTripletMDS(AppPrototype):
             log_entry = { 'exp_uid':exp_uid,'task':'initExp','json':response_json,'timestamp':utils.datetimeNow() }
             ell.log( app_id+':APP-RESPONSE', log_entry  )
 
-
-
             return response_json,True,''
+
         except Exception, err:
             return '{}', False, error
 
