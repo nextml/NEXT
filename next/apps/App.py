@@ -29,15 +29,14 @@ class App(AppPrototype):
 
             args_json, success, messages = Verifier.verify(args_json):
             if not success:
-                # TODO: Turn this into an exception
-                return '{}', False, "Failed to verify: {}".format(" \n".join(messages))
+                raise Exception("Failed to verify: {}".format(" \n".join(messages)))
 
             # Convert the args JSON to an args dict
             try:
                 args_dict = json.loads(args_json)
             except:
                 error = "%s.initExp input args_json is in improper format" % self.app_id
-                return '{}', False, error
+                raise Exception(error)
 
             # remove any reminants of an experiment if it exists
             self.remove_experiment(app_id, exp_uid, db)
@@ -50,17 +49,24 @@ class App(AppPrototype):
             log_entry = { 'exp_uid':exp_uid,'task':'initExp','json':args_json,'timestamp':utils.datetimeNow() }
             ell.log(app_id+':APP-CALL', log_entry  )
 
-            # TODO: most of the for loop below has been written without testing.
-            # Debug it and make sure it works.
+            # TODO: most of the for code below (lines 52 through 85) has been
+            # written without testing.  Debug it and make sure it works.
+            default_args = self.description['initExp']['values']['args']['values']
+            implemented_algs = default_args['alg_list']['values']['alg_id']['values']
+
+            algorithm_settings = args_dict['args']['algorithm_management_settings']['params']['proportions']
+
+            # Check to make sure the proportions add up to 1
+            total_porportion = sum(alg['proportion'] for alg in algorithm_settings)
+            if numpy.allclose(total_porportion, 1):
+                raise Exception('The algorithm porportions must add up to 1 (the currently add up to {})'.format(total_porportion))
 
             # Perform checks on the algorithms then include those algs in the
             # experiment. It makes sure that a givn algorithm is implemented and
             # checks to make sure it's specified in
             # algorithm_management_settings
-            default_args = self.description['initExp']['values']['args']['values']
-            implemented_algs = default_args['alg_list']['values']['alg_id']['values']
             alg_list = args_dict['alg_list']
-            for algorithm in args_dict['alg_list']:
+            for algorithm in alg_list:
                 alg_id = algorithm['alg_id']
                 alg_uid = utils.getNewUID()
                 algorithm['alg_uid'] = alg_uid
@@ -68,12 +74,9 @@ class App(AppPrototype):
                 if algorithm not in implemented_algs:
                     raise Exception('An algorithm in alg_list ({}) is not implemented. It must be one of {}.'.format(alg_list, implemented_algs))
 
-                algorithm_settings = args_dict['args']['algorithm_management_settings']['params']['proportions']
                 porportion_algorithms = [alg['alg_label'] for alg in algorithm_settings]
                 if algorithm not in porportion_algorithms:
                     raise Exception('An algorithm in alg_list ({})is not in in algorithm_management_settings (in the apprpriate place'.format(algorithm))
-
-                # TODO: make sure the porportions add up to 1
 
                 db.set(app_id+':algorithms',alg_uid,'alg_id',alg_id)
                 db.set(app_id+':algorithms',alg_uid,'alg_uid',alg_uid)
@@ -83,7 +86,7 @@ class App(AppPrototype):
             # These parometers are global to all apps
             # instructions, algorithm_management_settings, etc
             # TODO: context isn't set in here. How can we set this for dueling
-            # bandits too?
+            # bandits too? Maybe loop over keys in args_dict?
             db.set(app_id+':experiments', exp_uid, 'exp_uid', exp_uid)
             db.set(app_id+':experiments', exp_uid, 'app_id', app_id)
             db.set(app_id+':experiments', exp_uid, 'alg_list', alg_list)
