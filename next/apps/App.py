@@ -9,11 +9,9 @@ import next.utils as utils
 from next.apps.AppPrototype import AppPrototype
 import next.apps.Verifier as Verifier
 from next.apps.PoolBasedTripletMDS.dashboard.Dashboard import PoolBasedTripletMDSDashboard
+
 import next.constants
 git_hash = next.constants.GIT_HASH
-
-# The directory where we store the .yaml files describing each app
-APPS_DIR = ''
 
 class App(AppPrototype):
     def __init__(self):
@@ -32,6 +30,80 @@ class App(AppPrototype):
         pass
 
 
+    def processAnswer(self,exp_uid,args_json,db,ell):
+        # modified PoolBasedTripletsMDS.py
+        try:
+            app_id = self.app_id
+
+            log_entry = { 'exp_uid':exp_uid,'task':'processAnswer','json':args_json,'timestamp':utils.datetimeNow() }
+            ell.log( app_id+':APP-CALL', log_entry  )
+
+            # convert args_json to args_dict
+            try:
+                args_dict = json.loads(args_json)
+            except:
+                error = "%s.processAnswer input args_json is in improper format" % self.app_id
+                raise Exception(error)
+
+            # check for the fields that must be contained in args or error occurs
+            necessary_fields = ['index_winner','query_uid']
+            for field in necessary_fields:
+                try:
+                    args_dict[field]
+                except KeyError:
+                    error = "%s.processAnswer input arguments missing field: %s" % (self.app_id,str(field))
+                    raise Exception(error)
+
+            # get list of algorithms associated with project
+            alg_list,didSucceed,message = db.get(app_id+':experiments',exp_uid,'alg_list')
+
+            # get alg_id
+            query_uid = args_dict['query_uid']
+            alg_uid,didSucceed,message = db.get(app_id+':queries',query_uid,'alg_uid')
+            if not didSucceed:
+                raise Exception("Failed to retrieve query with query_uid="+query_uid)
+
+            for algorithm in alg_list:
+                if alg_uid == algorithm['alg_uid']:
+                    alg_id = algorithm['alg_id']
+                    alg_label = algorithm['alg_label']
+                    test_alg_label = algorithm['test_alg_label']
+                    num_reported_answers,didSucceed,message = db.increment(app_id+':experiments',exp_uid,'num_reported_answers_for_'+alg_uid)
+
+            # get sandboxed database for the specific app_id,alg_id,exp_uid - closing off the rest of the database to the algorithm
+            rc = ResourceClient(app_id,exp_uid,alg_uid,db)
+
+            # get specific algorithm to make calls to
+            alg = utils.get_app_alg(self.app_id,alg_id)
+
+            app_response, meta = self.myApp.processAnswer()
+            # call processAnswer in the algorithm.
+            didSucceed, dt = utils.timeit(alg.processAnswer)(resource=rc,
+                                                            **app_response)
+
+            response_args_dict = {}
+            args_out = {'args':response_args_dict,'meta':meta}
+            response_json = json.dumps(args_out)
+
+            log_entry = { 'exp_uid':exp_uid, 'task':'processAnswer',
+                          'json':response_json, 'timestamp':utils.datetimeNow()}
+            ell.log( app_id+':APP-RESPONSE', log_entry  )
+
+            return response_json,True,""
+
+        except Exception, err:
+            error = traceback.format_exc()
+            log_entry = { 'exp_uid':exp_uid,'task':'processAnswer','error':error,'timestamp':utils.datetimeNow() }
+            ell.log( app_id+':APP-EXCEPTION', log_entry  )
+            return '{}', False, error
+
+    def predict(self,exp_uid,args_json,db,ell):
+        pass
+
+    def getStats(self,exp_uid,args_json,db,ell):
+        pass
+
+
     def getQuery(self,exp_uid,args_json,db,ell):
         try:
             app_id = self.app_id
@@ -43,6 +115,8 @@ class App(AppPrototype):
             args_dict = self.convert_json(args_json)
             alg_list = self.associated_algs(db)
 
+            # TODO: wrap all this choose_alg to a function. This function will
+            # look at all the if statements
             alg_label_to_alg_id = {}
             alg_label_to_alg_uid = {}
             for algorithm in alg_list:
@@ -101,6 +175,8 @@ class App(AppPrototype):
             alg_response = utils.timeit(alg.getQuery)(resource=rc)
 
             # call getQuery on myApp
+            # TODO: test! I haven't the three big lines below, not even the most
+            # basic tests
             app_response = self.myApp.getQuery(exp_uid, args_uid, alg_response)
             query, query_uid = app_response['query'], app_response['query_uid']
             timestamp = app_response['timestamp']
@@ -200,16 +276,6 @@ class App(AppPrototype):
 
         except Exception, err:
             return '{}', False, error
-
-
-    def processAnswer(self,exp_uid,args_json,db,ell):
-        pass
-
-    def predict(self,exp_uid,args_json,db,ell):
-        pass
-
-    def getStats(self,exp_uid,args_json,db,ell):
-        pass
 
     def remove_experiment(self, app_id, exp_uid, db):
         # remove any reminants of an experiment if it exists
