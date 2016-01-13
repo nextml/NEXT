@@ -18,7 +18,10 @@ APPS_DIR = ''
 class App(AppPrototype):
     def __init__(self):
         self.app_id = 'PoolBasedTripletMDS'
-        self.description = Verifier.description(APPS_DIR + self.app_id + '.yaml')
+        self.myApp = __import__('next.apps.Apps.'+self.app_id, fromlist=[''])
+
+        self.yaml_descriptor = 'Apps/' + self.app_id
+        self.description = Verifier.description(self.yaml_descriptor)
 
     def associated_algs(self, db):
         alg_list, _, _ = db.get(app_id+':experiments',exp_uid,'alg_list')
@@ -65,21 +68,21 @@ class App(AppPrototype):
                (participant_to_algorithm_management=='one_to_many') or \
                (first_participant_query):
 
-              if algorithm_management_settings['mode']=='fixed_proportions':
-                  proportions_list = algorithm_management_settings['params']['proportions']
-                  prop = [ prop_item['proportion'] for prop_item in proportions_list ]
-                  prop_item = numpy.random.choice(alg_list,p=prop)
-              else:
-                  raise Exception('algorithm_management_mode : '+algorithm_management_settings['mode']+' not implemented')
+                if algorithm_management_settings['mode']=='fixed_proportions':
+                    proportions_list = algorithm_management_settings['params']['proportions']
+                    prop = [ prop_item['proportion'] for prop_item in proportions_list ]
+                    prop_item = numpy.random.choice(alg_list,p=prop)
+                else:
+                    raise Exception('algorithm_management_mode : '+algorithm_management_settings['mode']+' not implemented')
 
-              alg_id = alg_label_to_alg_id[ prop_item['alg_label'] ]
-              alg_uid = alg_label_to_alg_uid[ prop_item['alg_label'] ]
-              alg_label = prop_item['alg_label']
+                alg_id = alg_label_to_alg_id[ prop_item['alg_label'] ]
+                alg_uid = alg_label_to_alg_uid[ prop_item['alg_label'] ]
+                alg_label = prop_item['alg_label']
 
-              if  (first_participant_query) and \
-                  (participant_to_algorithm_management=='one_to_one'):
-                db.set(app_id+':participants',participant_uid,'alg_id',alg_id)
-                db.set(app_id+':participants',participant_uid,'alg_uid',alg_uid)
+                if  (first_participant_query) and \
+                        (participant_to_algorithm_management=='one_to_one'):
+                    db.set(app_id+':participants',participant_uid,'alg_id',alg_id)
+                    db.set(app_id+':participants',participant_uid,'alg_uid',alg_uid)
 
             elif (participant_to_algorithm_management=='one_to_one'):
                 # If here, then alg_uid should already be assigned in participant doc
@@ -89,48 +92,28 @@ class App(AppPrototype):
                 raise Exception('participant_to_algorithm_management : '+participant_to_algorithm_management+' not implemented')
 
             # get sandboxed database for the specific app_id,alg_id,exp_uid - closing off the rest of the database to the algorithm
-            rc = ResourceClient(app_id,exp_uid,alg_uid,db)
+            rc = ResourceClient(app_id, exp_uid, alg_uid, db)
 
             # get specific algorithm to make calls to
-            alg = utils.get_app_alg(self.app_id,alg_id)
+            alg = utils.get_app_alg(self.app_id, alg_id)
 
-            # call getQuery
-            index_left,index_right,index_painted,dt = utils.timeit(alg.getQuery)(resource=rc)
+            # call getQuery on the algorithm
+            alg_response = utils.timeit(alg.getQuery)(resource=rc)
 
-            # check for context
-            # TODO: generalize
-            context_type,didSucceed,message = db.get(app_id+':experiments',exp_uid,'context_type')
-            context,didSucceed,message = db.get(app_id+':experiments',exp_uid,'context')
-
-            # log
-            log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'getQuery','duration':dt }
-            log_entry_durations.update( rc.getDurations() )
-            meta = {'log_entry_durations':log_entry_durations}
-
-            # create JSON query payload
-            if index_left==index_painted:
-                targets = [ {'index':index_left,'label':'left','flag':1}, {'index':index_right,'label':'right','flag':0} ]
-            else:
-                targets = [ {'index':index_left,'label':'left','flag':0}, {'index':index_right,'label':'right','flag':1} ]
-
-            timestamp = str(utils.datetimeNow())
-            query_uid = utils.getNewUID()
-            query = {'query_uid':query_uid, 'target_indices':targets}
+            # call getQuery on myApp
+            app_response = self.myApp.getQuery(exp_uid, args_uid, alg_response)
+            query, query_uid = app_response['query'], app_response['query_uid']
+            timestamp = app_response['timestamp']
 
             # save query data to database
             query_doc = {}
             query_doc.update(query)
-            query_doc['participant_uid'] = participant_uid
-            query_doc['alg_uid'] = alg_uid
-            query_doc['exp_uid'] = exp_uid
-            query_doc['alg_label'] = alg_label
-            query_doc['timestamp_query_generated'] = timestamp
-            db.set_doc(app_id+':queries',query_uid,query_doc)
+            query_doc.update({'participant_uid':participant_uid,
+                              'alg_uid':alg_uid, 'exp_uid':exp_uid,
+                              'alg_label':alg_label,
+                              'timestamp_query_generated':timestamp})
 
-            # add context after updating query doc to avoid redundant information
-            # TODO: generalize
-            query['context_type'] = context_type
-            query['context'] = context
+            db.set_doc(app_id+':queries', query_uid, query_doc)
 
             args_out = {'args':query,'meta':meta}
             response_json = json.dumps(args_out)
