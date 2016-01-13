@@ -91,16 +91,6 @@ class PoolBasedTripletMDS(AppPrototype):
                 alg_id = algorithm['alg_id']
                 alg_uid = algorithm['alg_uid']
                 params = algorithm.get('params',None)
-
-                # get sandboxed database for the specific app_id,alg_uid,exp_uid - closing off the rest of the database to the algorithm
-                rc = ResourceClient(app_id,exp_uid,alg_uid,db)
-
-                # get specific algorithm to make calls to
-                alg = utils.get_app_alg(self.app_id,alg_id)
-
-                # call initExp
-                didSucceed,dt = utils.timeit(alg.initExp)(resource=rc,n=n,d=d,failure_probability=delta,params=params)
-
                 # Check that all the algorithms in alg_list are also in
                 # algorithm_management_settings. Checks to see if alg_labels are
                 # properly labeled
@@ -112,6 +102,16 @@ class PoolBasedTripletMDS(AppPrototype):
                 if algorithm not in porportion_algorithms:
                     raise Exception('An algorithm in alg_list is not in in algorithm_management_settings (in the apprpriate place')
                 # TODO: make sure the proprotions sum to 1
+
+                # get sandboxed database for the specific app_id,alg_uid,exp_uid - closing off the rest of the database to the algorithm
+                rc = ResourceClient(app_id,exp_uid,alg_uid,db)
+
+                # get specific algorithm to make calls to
+                alg = utils.get_app_alg(self.app_id,alg_id)
+
+                # call initExp
+                didSucceed,dt = utils.timeit(alg.initExp)(resource=rc,n=n,d=d,failure_probability=delta,params=params)
+
 
                 log_entry = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'initExp','duration':dt,'timestamp':utils.datetimeNow() }
                 ell.log( app_id+':ALG-DURATION', log_entry  )
