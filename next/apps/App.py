@@ -12,9 +12,13 @@ from next.apps.PoolBasedTripletMDS.dashboard.Dashboard import PoolBasedTripletMD
 import next.constants
 git_hash = next.constants.GIT_HASH
 
-class PoolBasedTripletMDS(AppPrototype):
+# The directory where we store the .yaml files describing each app
+APPS_DIR = ''
+
+class App(AppPrototype):
     def __init__(self):
         self.app_id = 'PoolBasedTripletMDS'
+        self.description = Verifier.description(APPS_DIR + self.app_id + '.yaml')
 
     def daemonProcess(self,exp_uid,args_json,db,ell):
         pass
@@ -26,7 +30,7 @@ class PoolBasedTripletMDS(AppPrototype):
             args_json, success, messages = Verifier.verify(args_json):
             if not success:
                 # TODO: Turn this into an exception
-                return False, "Failed to verify: {}".format(" \n".join(messages))
+                return '{}', False, "Failed to verify: {}".format(" \n".join(messages))
 
             # Convert the args JSON to an args dict
             try:
@@ -36,17 +40,7 @@ class PoolBasedTripletMDS(AppPrototype):
                 return '{}', False, error
 
             # remove any reminants of an experiment if it exists
-            didSucceed,message = db.delete_docs_with_filter('experiments_admin',{'exp_uid':exp_uid})
-            didSucceed,message = db.delete_docs_with_filter(app_id+':experiments',{'exp_uid':exp_uid})
-            didSucceed,message = db.delete_docs_with_filter(app_id+':queries',{'exp_uid':exp_uid})
-            didSucceed,message = db.delete_docs_with_filter(app_id+':participants',{'exp_uid':exp_uid})
-            didSucceed,message = db.delete_docs_with_filter(app_id+':algorithms',{'exp_uid':exp_uid})
-
-            didSucceed,message = ell.delete_logs_with_filter(app_id+':APP-CALL',{'exp_uid':exp_uid})
-            didSucceed,message = ell.delete_logs_with_filter(app_id+':APP-RESPONSE',{'exp_uid':exp_uid})
-            didSucceed,message = ell.delete_logs_with_filter(app_id+':APP-EXCEPTION',{'exp_uid':exp_uid})
-            didSucceed,message = ell.delete_logs_with_filter(app_id+':ALG-DURATION',{'exp_uid':exp_uid})
-            didSucceed,message = ell.delete_logs_with_filter(app_id+':ALG-EVALUATION',{'exp_uid':exp_uid})
+            self.remove_experiment(app_id, exp_uid, db)
 
             # Database call that creates the experiment
             db.set('experiments_admin',exp_uid,'exp_uid',exp_uid)
@@ -56,14 +50,30 @@ class PoolBasedTripletMDS(AppPrototype):
             log_entry = { 'exp_uid':exp_uid,'task':'initExp','json':args_json,'timestamp':utils.datetimeNow() }
             ell.log(app_id+':APP-CALL', log_entry  )
 
+            # TODO: most of the for loop below has been written without testing.
+            # Debug it and make sure it works.
 
-            # assign uid to each algorithm and save it
-            # scott: alg_list copied from line 201 in PoolBasedTripletMDS.py
+            # Perform checks on the algorithms then include those algs in the
+            # experiment. It makes sure that a givn algorithm is implemented and
+            # checks to make sure it's specified in
+            # algorithm_management_settings
+            default_args = self.description['initExp']['values']['args']['values']
+            implemented_algs = default_args['alg_list']['values']['alg_id']['values']
             alg_list = args_dict['alg_list']
-            for algorithm in alg_list:
+            for algorithm in args_dict['alg_list']:
                 alg_id = algorithm['alg_id']
                 alg_uid = utils.getNewUID()
                 algorithm['alg_uid'] = alg_uid
+
+                if algorithm not in implemented_algs:
+                    raise Exception('An algorithm in alg_list ({}) is not implemented. It must be one of {}.'.format(alg_list, implemented_algs))
+
+                algorithm_settings = args_dict['args']['algorithm_management_settings']['params']['proportions']
+                porportion_algorithms = [alg['alg_label'] for alg in algorithm_settings]
+                if algorithm not in porportion_algorithms:
+                    raise Exception('An algorithm in alg_list ({})is not in in algorithm_management_settings (in the apprpriate place'.format(algorithm))
+
+                # TODO: make sure the porportions add up to 1
 
                 db.set(app_id+':algorithms',alg_uid,'alg_id',alg_id)
                 db.set(app_id+':algorithms',alg_uid,'alg_uid',alg_uid)
@@ -72,11 +82,13 @@ class PoolBasedTripletMDS(AppPrototype):
             # Setting experiment parameters in the database
             # These parometers are global to all apps
             # instructions, algorithm_management_settings, etc
+            # TODO: context isn't set in here. How can we set this for dueling
+            # bandits too?
             db.set(app_id+':experiments', exp_uid, 'exp_uid', exp_uid)
             db.set(app_id+':experiments', exp_uid, 'app_id', app_id)
             db.set(app_id+':experiments', exp_uid, 'alg_list', alg_list)
             db.set(app_id+':experiments', exp_uid, 'algorithm_management_settings', args_dict['algorithm_management_settings'])
-            db.set(app_id+':experiments', exp_uid, 'participant_to_algorithm_management', participant_to_algorithm_management)
+            db.set(app_id+':experiments', exp_uid, 'participant_to_algorithm_management', args_json['participant_to_algorithm_management'])
             db.set(app_id+':experiments', exp_uid, 'instructions', args_json['instructions'])
             db.set(app_id+':experiments', exp_uid, 'debrief', args_json['debrief'])
             db.set(app_id+':experiments', exp_uid, 'num_tries', args_json['num_tries'])
@@ -91,17 +103,6 @@ class PoolBasedTripletMDS(AppPrototype):
                 alg_id = algorithm['alg_id']
                 alg_uid = algorithm['alg_uid']
                 params = algorithm.get('params',None)
-                # Check that all the algorithms in alg_list are also in
-                # algorithm_management_settings. Checks to see if alg_labels are
-                # properly labeled
-                # LALIT: this does the same thing as PoolBasedTripletMDS,
-                # correct? It checks to see if all of alg_list algorithms are
-                # found in algorithm_management_settings
-                algorithm_settings = args_dict['args']['algorithm_management_settings']['params']['proportions']
-                porportion_algorithms = [alg['alg_label'] for alg in algorithm_settings]
-                if algorithm not in porportion_algorithms:
-                    raise Exception('An algorithm in alg_list is not in in algorithm_management_settings (in the apprpriate place')
-                # TODO: make sure the proprotions sum to 1
 
                 # get sandboxed database for the specific app_id,alg_uid,exp_uid - closing off the rest of the database to the algorithm
                 rc = ResourceClient(app_id,exp_uid,alg_uid,db)
@@ -127,7 +128,6 @@ class PoolBasedTripletMDS(AppPrototype):
             return '{}', False, error
 
 
-
   def getQuery(self,exp_uid,args_json,db,ell):
       pass
 
@@ -140,4 +140,17 @@ class PoolBasedTripletMDS(AppPrototype):
   def getStats(self,exp_uid,args_json,db,ell):
       pass
 
+  def remove_experiment(self, app_id, exp_uid, db):
+      # remove any reminants of an experiment if it exists
+      didSucceed,message = db.delete_docs_with_filter('experiments_admin',{'exp_uid':exp_uid})
+      didSucceed,message = db.delete_docs_with_filter(app_id+':experiments',{'exp_uid':exp_uid})
+      didSucceed,message = db.delete_docs_with_filter(app_id+':queries',{'exp_uid':exp_uid})
+      didSucceed,message = db.delete_docs_with_filter(app_id+':participants',{'exp_uid':exp_uid})
+      didSucceed,message = db.delete_docs_with_filter(app_id+':algorithms',{'exp_uid':exp_uid})
+
+      didSucceed,message = ell.delete_logs_with_filter(app_id+':APP-CALL',{'exp_uid':exp_uid})
+      didSucceed,message = ell.delete_logs_with_filter(app_id+':APP-RESPONSE',{'exp_uid':exp_uid})
+      didSucceed,message = ell.delete_logs_with_filter(app_id+':APP-EXCEPTION',{'exp_uid':exp_uid})
+      didSucceed,message = ell.delete_logs_with_filter(app_id+':ALG-DURATION',{'exp_uid':exp_uid})
+      didSucceed,message = ell.delete_logs_with_filter(app_id+':ALG-EVALUATION',{'exp_uid':exp_uid})
 
