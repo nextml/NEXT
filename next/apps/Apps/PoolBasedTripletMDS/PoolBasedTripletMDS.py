@@ -4,6 +4,19 @@ class PoolBasedTripletMDS(object):
     def __init__(self):
         self.app_id = 'PoolBasedTripletsMDS'
 
+        # self.necessary_fields is used when performing checks. If checks aren't
+        # needed, you can leave the arrays empty (i.e.,
+        # self.necessary_fields['getStats'] = []).
+        #
+        # predict and getStats are constant through all the apps we have
+        # developed
+        self.necessary_fields = { 'processAnswer':['index_winner','query_uid'],
+                                  'initExp':['n', 'd', 'failure_probability']
+                                  'predict':['predict_id', 'params'],
+                                  'getStats':['stat_id','params'],
+                                  'daemonProcess':['alg_uid','daemon_args']
+                                }
+
     def initExp(self, exp_uid, args_json, db, ell):
         pass
 

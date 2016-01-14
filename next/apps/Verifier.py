@@ -126,16 +126,20 @@ def compare_dict_keys(d1, d2):
     return [k for k in d1 if not k in d2],[k for k in d2 if not k in d1]
 
 
-def description(filename):
-    """
-    Gets descriptions for a particular app.
+def necessary_fields_present(args_dict, necessary_fields):
+    # Pythonic implementation
+    if not set(necessary_fields).issubset(args_dict):
+        error = "%s.predict input arguments missing field: %s" % (self.app_id, set(necessary_fields) - set(args_dict))
+        return False, error
+    return True, ''
 
-    :input filename: Filename of a .yaml descriptor of an app. For example,
-    `PoolBasedTripletMDS.yaml`.
-    :returns: The description, as specified by the YAML file but as a dict.
-    """
-    with open(filename) as f:
-        return yaml.load(f.read())
+    # previous implementation
+    for field in necessary_fields:
+        try:
+            args_dict[field]
+        except KeyError:
+            error = "%s.predict input arguments missing field: %s" % (self.app_id, str(field))
+            raise Exception(error)
 
 
 if __name__ == "__main__":
