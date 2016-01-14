@@ -1,3 +1,16 @@
+"""
+This file collects common code for every app. It is general across all apps and
+makes a call to the specified app in the appropriate place.
+
+Apps are specified with a YAML file with a specific structure. A given instance
+of an app is verified before creation.
+
+Author: Scott Sievert, stsievert@wisc.edu
+Creation date: 2016-1-11
+"""
+
+# TODO: include docstrings (copy and paste from PoolBasedTripletsMDS.py)
+
 import numpy
 import numpy.random
 import json
@@ -8,31 +21,97 @@ from next.resource_client.ResourceClient import ResourceClient
 import next.utils as utils
 from next.apps.AppPrototype import AppPrototype
 import next.apps.Verifier as Verifier
-from next.apps.PoolBasedTripletMDS.dashboard.Dashboard import PoolBasedTripletMDSDashboard
 
 import next.constants
 git_hash = next.constants.GIT_HASH
 
+# keys common to all algorithms.
+common_keys = ['alg_list', 'algorithm_management_settings', 'debrief',
+               'instructions', 'participant_to_algorithm_management']
+
+
 class App(AppPrototype):
     def __init__(self):
         self.app_id = 'PoolBasedTripletMDS'
+
+        # Import the app and call it self.myApp. For example, this line imports
+        # the file in ./Apps/PoolBasedTripletMDS/PoolBasedTripletMDS.py
         self.myApp = __import__('next.apps.Apps.'+self.app_id, fromlist=[''])
 
-        dashboard_string = 'next.apps.Apps.' + self.app_id + '.dashboard.Dashboard.'
-                                + self.app_id + 'Dashboard'
+        # import the app's dashboard. The implementation of this dashboard
+        # (which computes the results) is found in
+        # Apps/myApp/dashboard/Dashboard.py and is named myAppDashboard (e.g.,
+        # PoolBasedTripletsMDSDashboard)
+        dashboard_string = 'next.apps.Apps.' + self.app_id + \
+                           '.dashboard.Dashboard.' + self.app_id + 'Dashboard'
         self.dashboard = __import__(dashboard_string, fromlist=[''])
 
-        self.yaml_descriptor = 'Apps/' + self.app_id
-        self.description = Verifier.description(self.yaml_descriptor)
+    def daemonProcess(self, exp_uid, args_json, db, ell):
+        try:
+            app_id = self.app_id
 
-    def associated_algs(self, db):
-        alg_list, _, _ = db.get(app_id+':experiments',exp_uid,'alg_list')
-        return alg_list
+            log_entry = {'exp_uid': exp_uid, 'task': 'daemonProcess',
+                         'json': args_json, 'timestamp': utils.datetimeNow()}
+            ell.log(app_id+':APP-CALL', log_entry)
 
-    def daemonProcess(self,exp_uid,args_json,db,ell):
-        pass
+            # convert args_json to args_dict
+            try:
+                args_dict = json.loads(args_json)
+            except:
+                error = '%s.daemonProcess input args_json is in improper format' % self.app_id
+                return '{}', False, error
 
-    def processAnswer(self,exp_uid,args_json,db,ell):
+            # check for the fields that are necessary in args or error occurs
+            key_check = Verifier.necessary_fields_present(args_dict, self.myApp.necessary_fields['daemonProcess'])
+            if keys_check[0]:
+                raise(key_check[1])
+
+            alg_daemon_args = args_dict['daemon_args']
+            alg_uid = args_dict['alg_uid']
+            alg_id, didSucceed, message = db.get(app_id+':algorithms',alg_uid,'alg_id')
+
+            # get sandboxed database for the specific app_id,alg_id,exp_uid -
+            # closing off the rest of the database to the algorithm
+            rc = ResourceClient(app_id, exp_uid, alg_uid, db)
+
+            # get specific algorithm to make calls to
+            alg = utils.get_app_alg(self.app_id, alg_id)
+
+            # TODO: these keyword args are not general and don't apply to all
+            # apps... but do the necessary_fields change for daemonProcess
+            # change from app to app?
+            # Scott Sievert, 2016-1-14
+            didSucceed, dt = utils.timeit(alg.daemonProcess)(resource=rc, daemon_args_dict=alg_daemon_args)
+
+            log_entry = {'exp_uid': exp_uid, 'alg_uid': alg_uid,
+                         'task': 'daemonProcess', 'duration': dt,
+                         'timestamp': utils.datetimeNow()}
+
+            log_entry_durations = {'exp_uid': exp_uid, 'alg_uid': alg_uid,
+                                   'task': 'daemonProcess', 'duration': dt}
+            log_entry_durations.update(rc.getDurations())
+            meta = {'log_entry_durations': log_entry_durations}
+
+            daemon_message = {}
+            args_out = {'args': daemon_message, 'meta': meta}
+            response_json = json.dumps(args_out)
+
+            log_entry = {'exp_uid': exp_uid, 'task': 'daemonProcess',
+                         'json': response_json,
+                         'timestamp': utils.datetimeNow()}
+            ell.log(app_id + ':APP-RESPONSE', log_entry)
+
+            return response_json, True, ''
+
+        except Exception, err:
+            error = traceback.format_exc()
+            log_entry = {'exp_uid': exp_uid, 'task': 'daemonProcess',
+                         'error': error, 'timestamp': utils.datetimeNow()}
+            ell.log(app_id+':APP-EXCEPTION', log_entry)
+            return '{}', False, error
+
+
+    def processAnswer(self, exp_uid, args_json, db, ell):
         # modified PoolBasedTripletsMDS.py
         try:
             app_id = self.app_id
@@ -48,13 +127,9 @@ class App(AppPrototype):
                 raise Exception(error)
 
             # check for the fields that must be contained in args or error occurs
-            necessary_fields = ['index_winner','query_uid']
-            for field in necessary_fields:
-                try:
-                    args_dict[field]
-                except KeyError:
-                    error = "%s.processAnswer input arguments missing field: %s" % (self.app_id,str(field))
-                    raise Exception(error)
+            key_check = Verifier.necessary_fields_present(args_dict,
+                                            self.myApp.necessary_fields['processAnswer'])
+            if keys_check[0]: raise(key_check[1])
 
             # get list of algorithms associated with project
             alg_list,didSucceed,message = db.get(app_id+':experiments',exp_uid,'alg_list')
@@ -116,20 +191,9 @@ class App(AppPrototype):
                 raise Exception(error)
 
             # check for the fields that must be contained in args or error occurs
-            necessary_fields = ['predict_id', 'params']
-
-            # TODO: (low priority) rework this into set/subset
-            # something like set(args_dict).issubset(necessary_fields)
-            #if not set(args_dict).issubset(necessary_fields):
-                #error = "%s.predict input arguments missing field: %s" % (self.app_id, set(necessary_fields - args_dict))
-                #raise Exception(error)
-
-            for field in necessary_fields:
-                try:
-                    args_dict[field]
-                except KeyError:
-                    error = "%s.predict input arguments missing field: %s" % (self.app_id, str(field))
-                    raise Exception(error)
+            key_check = Verifier.necessary_fields_present(args_dict,
+                                        self.myApp.necessary_fields['predict'])
+            if keys_check[0]: raise(key_check[1])
 
             predict_id = args_dict['predict_id']
             params = args_dict['params']
@@ -165,8 +229,7 @@ class App(AppPrototype):
             didSucceed,message = ell.log( app_id+':APP-EXCEPTION', log_entry  )
             return '{}',False,error
 
-    def getStats(self,exp_uid,args_json,db,ell):
-
+    def getStats(self, exp_uid, args_json, db, ell):
         try:
             app_id = self.app_id
 
@@ -180,16 +243,10 @@ class App(AppPrototype):
                 error = "%s.getStats input args_json is in improper format" % self.app_id
                 return '{}',False,error
 
-            # check for the fields that must be contained in args or error occurs
-            # TODO: (low priority): use set and subset
-            # TODO: make a helper function for this
-            necessary_fields = ['stat_id','params']
-            for field in necessary_fields:
-                try:
-                    args_dict[field]
-                except KeyError:
-                    error = "%s.getStats input arguments missing field: %s" % (self.app_id,str(field))
-                    return '{}',False,error
+            key_check = Verifier.necessary_fields_present(args_dict,
+                                            self.myApp.necessary_fields['getStats'])
+            if keys_check[0]: raise(key_check[1])
+
 
             stat_id = args_dict['stat_id']
             params = args_dict['params']
@@ -213,7 +270,7 @@ class App(AppPrototype):
             return '{}', False, error
 
 
-    def getQuery(self,exp_uid,args_json,db,ell):
+    def getQuery(self, exp_uid, args_json, db, ell):
         try:
             app_id = self.app_id
 
@@ -221,7 +278,7 @@ class App(AppPrototype):
             if not success:
                 raise Exception("Failed to verify: {}".format(" \n".join(messages)))
 
-            args_dict = self.convert_json(args_json)
+            args_dict = self.helper.convert_json(args_json)
             alg_list = self.associated_algs(db)
 
             # TODO: wrap all this choose_alg to a function. This function will
@@ -314,7 +371,7 @@ class App(AppPrototype):
             ell.log( app_id+':APP-EXCEPTION', log_entry  )
             return '{}',False,error
 
-    def initExp(self,exp_uid,args_json,db,ell):
+    def initExp(self, exp_uid, args_json, db, ell):
         try:
             app_id = self.app_id
 
@@ -322,7 +379,11 @@ class App(AppPrototype):
             if not success:
                 raise Exception("Failed to verify: {}".format(" \n".join(messages)))
 
-            args_dict = self.convert_json(args_json)
+            args_dict = self.helper.convert_json(args_json)
+
+            key_check = Verifier.necessary_fields_present(args_dict,
+                                            self.myApp.necessary_fields['initExp'])
+            if keys_check[0]: raise(key_check[1])
 
             # remove any reminants of an experiment if it exists
             self.remove_experiment(app_id, exp_uid, db)
@@ -365,7 +426,8 @@ class App(AppPrototype):
                 alg_uid = algorithm['alg_uid']
                 params = algorithm.get('params',None)
 
-                # get sandboxed database for the specific app_id,alg_uid,exp_uid - closing off the rest of the database to the algorithm
+                # get sandboxed database for the specific app_id, alg_uid,
+                # exp_uid - closing off the rest of the database to the algorithm
                 rc = ResourceClient(app_id, exp_uid, alg_uid, db)
 
                 # get specific algorithm to make calls to
@@ -373,11 +435,8 @@ class App(AppPrototype):
 
                 # TODO: make alg.iniExp accept more **kwargs for future proofing
                 args = args_dict['initExp']['args']
-                common_kwargs = ['alg_list', 'algorithm_management_settings', 'debrief',
-                            'instructions', 'participant_to_algorithm_management']
 
-                alg_args = {key: args[key] for key in args.keys()
-                                        if key not in common_kwargs}
+                alg_args = {key: args[key] for key in args.keys() if key not in common_keys}
 
                 # call initExp
                 didSucceed, dt = utils.timeit(alg.initExp)(resource=rc,
@@ -429,3 +488,6 @@ class App(AppPrototype):
                 error = "%s.initExp input args_json is in improper format" % self.app_id
                 raise Exception(error)
 
+    def associated_algs(self, db):
+        alg_list, _, _ = db.get(app_id+':experiments',exp_uid,'alg_list')
+        return alg_list
