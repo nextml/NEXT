@@ -17,6 +17,15 @@ class PoolBasedTripletMDS(object):
                                   'daemonProcess':['alg_uid','daemon_args']
                                 }
 
+        self.about = 'PoolBasedTripletMDS about string'
+        self.info = 'PoolBasedTripletMDS info string'
+        self.instructions = 'PoolBasedTripletMDS instructions string'
+        self.debrief = 'PoolBasedTripletMDS debrief string'
+        self.num_tries = 100
+        self.support_algs = ['Lil_UCB', 'RandomSampling']
+
+
+
     def initExp(self, exp_uid, args_json, db, ell):
         pass
 

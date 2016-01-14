@@ -9,7 +9,7 @@ Serves as a library of utilities for all the adaptive and online learning applic
 There exist a few distinct sections:
 - Learning Library Utilties, utilities for app and alg including lists of implemnted algs and how to get alg objects
 - Namespace Utilities, utilities for interacting with namespaces used in the database
-- Time Utilities, utilities dealing with timing code and timestamps 
+- Time Utilities, utilities dealing with timing code and timestamps
 
 Usage: ::\n
   import next.utils as utils
@@ -40,6 +40,24 @@ which outputs: ::\n
 Learning Library Utilties
 #########################
 """
+
+# Python 2.7 built-in, allows to do equivalent of "from _ import this"
+# programmatically.
+import importlib
+# the documentation of __import__ says it should not be used
+
+class Utils(object):
+    def __init__(self):
+        self.supported_apps = ['PoolBasedTripletMDS']
+
+    def app_class(app_id):
+        app_id = str(app_id) # sometimes input is unicode formatted which causes error
+        next_path = 'next.apps.Apps.' + app_id
+        app_module = __import__(next_path + app_id, fromlist=[''])
+        return app_module.eval(app_id)
+
+utils = Utils()
+
 def get_supported_apps():
   """
   Returns a list of strings correspdoning to the app_id's that are fully operational in the learning library.
@@ -49,9 +67,7 @@ def get_supported_apps():
     print app_id_list
     >>> ['StochasticBanditsPureExploration', 'DuelingBanditsPureExploration', 'StochasticLinearBanditsExploreExploit', 'PoolBasedTripletMDS']
   """
-  next_path = 'next.apps'
-  app_module = __import__(next_path,fromlist=[''])
-  return app_module.implemented_apps
+  return utils.supported_apps
 
 def get_app_about(app_id):
   """
@@ -61,10 +77,7 @@ def get_app_about(app_id):
     about = utils.get_default_alg_list('PoolBasedTripletMDS')
     print about
   """
-  app_id = str(app_id) # sometimes input is unicode formatted which causes error
-  next_path = 'next.apps.'
-  app_module = __import__(next_path+app_id,fromlist=[''])
-  return app_module.get_about()
+  return utils.app_class(app_id).about
 
 def get_app_info_object(app_id):
   """
@@ -74,10 +87,7 @@ def get_app_info_object(app_id):
     about = utils.get_default_alg_list('PoolBasedTripletMDS')
     print about
   """
-  app_id = str(app_id) # soemtimes input is unicode formatted which causes error
-  next_path = 'next.apps.'
-  app_module = __import__(next_path+app_id,fromlist=[''])
-  return app_module.get_info_object()
+  return utils.app_class(app_id).info
 
 def get_app_default_instructions(app_id):
   """
@@ -87,10 +97,7 @@ def get_app_default_instructions(app_id):
     about = utils.get_app_default_instructions('PoolBasedTripletMDS')
     print about
   """
-  app_id = str(app_id) # soemtimes input is unicode formatted which causes error
-  next_path = 'next.apps.'
-  app_module = __import__(next_path+app_id,fromlist=[''])
-  return app_module.get_default_instructions()
+  return utils.app_class(app_id).instructions
 
 def get_app_default_debrief(app_id):
   """
@@ -100,10 +107,7 @@ def get_app_default_debrief(app_id):
     about = utils.get_default_debrief('PoolBasedTripletMDS')
     print about
   """
-  app_id = str(app_id) # soemtimes input is unicode formatted which causes error
-  next_path = 'next.apps.'
-  app_module = __import__(next_path+app_id,fromlist=[''])
-  return app_module.get_default_debrief()
+  return utils.app_class(app_id).debrief
 
 def get_app_default_num_tries(app_id):
   """
@@ -113,13 +117,10 @@ def get_app_default_num_tries(app_id):
     about = utils.get_app_default_num_tries('PoolBasedTripletMDS')
     print about
   """
-  app_id = str(app_id) # soemtimes input is unicode formatted which causes error
-  next_path = 'next.apps.'
-  app_module = __import__(next_path+app_id,fromlist=[''])
-  return app_module.get_default_num_tries()
+  return utils.app_class(app_id).num_tries
 
 def get_app(app_id):
-  """ 
+  """
   Returns an object correspoding to the app_id that contains methods like initExp,getQuery,etc.
 
   Usage: ::\n
@@ -127,11 +128,7 @@ def get_app(app_id):
     print app
     >>> <next.apps.StochasticBanditsPureExploration.StochasticBanditsPureExploration.StochasticBanditsPureExploration object at 0x103c9dcd0>
   """
-  app_id = str(app_id) # soemtimes input is unicode formatted which causes error
-  next_path = 'next.apps.'
-  app_module = __import__(next_path+app_id,fromlist=[''])
-  app_class = getattr(app_module,app_id)
-  return app_class()
+  return utils.app_class(app_id)
 
 def get_app_alg(app_id,alg_id):
   """
@@ -139,7 +136,7 @@ def get_app_alg(app_id,alg_id):
   Note that each algorithm (with an alg_id) is a child of an app (with an app_id), hence the app_id input
 
   Usage: ::\n
-    alg = utils.get_app_alg(app_id,alg_id) 
+    alg = utils.get_app_alg(app_id,alg_id)
     print alg
     >>> <next.apps.PoolBasedTripletMDS.RandomSampling.RandomSampling.RandomSampling object at 0x103cb7e10>
   """
@@ -147,7 +144,7 @@ def get_app_alg(app_id,alg_id):
   alg_id = str(alg_id) # soemtimes input is unicode formatted which causes error
   next_path = 'next.apps.'+app_id+'.algs.'
   alg_module = __import__(next_path+alg_id,fromlist=[''])
-  alg_class = getattr(alg_module,alg_id)
+  alg_class = getattr(alg_module, alg_id)
   return alg_class()
 
 def get_app_supported_algs(app_id):
@@ -160,8 +157,8 @@ def get_app_supported_algs(app_id):
     >>> ['LilUCB', 'LUCB', 'SuccElim']
   """
   app_id = str(app_id) # soemtimes input is unicode formatted which causes error
-  next_path = 'next.apps.'
-  app_module = __import__(next_path+app_id,fromlist=[''])
+  next_path = 'next.apps.Apps.'
+  app_module = __import__(next_path + app_id,fromlist=[''])
   return app_module.get_implemented_algs()
 
 def get_app_supported_stats(app_id):
@@ -181,36 +178,36 @@ def get_app_supported_stats(app_id):
 
 def get_app_default_alg_list(app_id):
   """
-  The NEXT system was designed with evaluation in mind meaning that users would upload their own algorithms or 
+  The NEXT system was designed with evaluation in mind meaning that users would upload their own algorithms or
   compare exsiting algorithms on their use cases. However, a number of users just want to use NEXT as a system
-  to adaptively collect data or just organized their data collection task. For this purpose, we have a set of defaults 
+  to adaptively collect data or just organized their data collection task. For this purpose, we have a set of defaults
   for the algorithms and input parameters.
 
   This script is primarily used for the internals of the system but may be of interest to those wondering what an example alg_list looks like.
-  
+
   Usage: ::\n
     alg_list = utils.get_app_default_alg_list('PoolBasedTripletMDS')
     print json.dumps(alg_list,indent=2)
     [
       {
-        "alg_label": "Test", 
-        "alg_id": "RandomSampling", 
-        "proportion": 0.1, 
-        "test_alg_label": "Test", 
+        "alg_label": "Test",
+        "alg_id": "RandomSampling",
+        "proportion": 0.1,
+        "test_alg_label": "Test",
         "params": {}
-      }, 
+      },
       {
-        "alg_label": "Random", 
-        "alg_id": "RandomSampling", 
-        "proportion": 0.45, 
-        "test_alg_label": "Test", 
+        "alg_label": "Random",
+        "alg_id": "RandomSampling",
+        "proportion": 0.45,
+        "test_alg_label": "Test",
         "params": {}
-      }, 
+      },
       {
-        "alg_label": "Uncertainty Sampling", 
-        "alg_id": "UncertaintySampling", 
-        "proportion": 0.45, 
-        "test_alg_label": "Test", 
+        "alg_label": "Uncertainty Sampling",
+        "alg_id": "UncertaintySampling",
+        "proportion": 0.45,
+        "test_alg_label": "Test",
         "params": {}
       }
     ]
@@ -248,7 +245,7 @@ import os
 def getNewUID():
   """
   Returns length 32 string of random hex that is generated from machine state - good enough for cryptography
-  Probability of collision is 1 in 340282366920938463463374607431768211456 
+  Probability of collision is 1 in 340282366920938463463374607431768211456
 
   Used for unique identifiers all over the system
   """
@@ -264,7 +261,7 @@ Time Utilities
 from datetime import datetime
 def datetimeNow(format='datetime'):
   """
-  Returns the current datetime in the format used throughout the system. 
+  Returns the current datetime in the format used throughout the system.
   For consistency, one should ALWAYS call this method, do not make your own call to datetime.
 
   Usage: ::\n
@@ -280,8 +277,8 @@ def datetimeNow(format='datetime'):
 def datetime2filename(obj_datetime):
   """
   Converts a datetime string into a datetime object in the system.
-  For consistency, one should never use their own method of converting to string, always use this method. 
-  
+  For consistency, one should never use their own method of converting to string, always use this method.
+
   Usage: ::\n
     date = utils.datetimeNow()
     date_str = utils.datetime2str(date)
@@ -293,8 +290,8 @@ def datetime2filename(obj_datetime):
 def datetime2str(obj_datetime):
   """
   Converts a datetime string into a datetime object in the system.
-  For consistency, one should never use their own method of converting to string, always use this method. 
-  
+  For consistency, one should never use their own method of converting to string, always use this method.
+
   Usage: ::\n
     date = utils.datetimeNow()
     date_str = utils.datetime2str(date)
@@ -306,8 +303,8 @@ def datetime2str(obj_datetime):
 def str2datetime(str_time):
   """
   Converts a datetime object into the string format used in the system.
-  For consistency, one should never use their own method of converting to string, always use this method. 
-  
+  For consistency, one should never use their own method of converting to string, always use this method.
+
   Usage: ::\n
     date = utils.datetimeNow()
     date_str = utils.datetime2str(date)
@@ -320,15 +317,15 @@ def str2datetime(str_time):
 
 import time
 def timeit(f):
-  """ 
+  """
   Utility used to time the duration of code execution. This script can be composed with any other script.
 
   Usage::\n
-    def f(n): 
-      return n**n  
+    def f(n):
+      return n**n
 
-    def g(n): 
-      return n,n**n 
+    def g(n):
+      return n,n**n
 
     answer0,dt = timeit(f)(3)
     answer1,answer2,dt = timeit(g)(3)
@@ -344,6 +341,6 @@ def timeit(f):
   return timed
 
 
-    
 
-    
+
+

@@ -212,6 +212,7 @@ def launch_experiment(host, experiment_list, AWS_ID, AWS_KEY, AWS_BUCKET_NAME):
     print 'Initializing experiment', experiment['initExp']
     response = requests.post(url, json.dumps(experiment['initExp']), headers={'content-type':'application/json'})
 
+    print response.text
     initExp_response_dict = json.loads(response.text)
     exp_uid = initExp_response_dict['exp_uid']
     exp_key = initExp_response_dict['exp_key']

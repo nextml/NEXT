@@ -29,7 +29,6 @@ git_hash = next.constants.GIT_HASH
 common_keys = ['alg_list', 'algorithm_management_settings', 'debrief',
                'instructions', 'participant_to_algorithm_management']
 
-
 class App(AppPrototype):
     def __init__(self):
         self.app_id = 'PoolBasedTripletMDS'
