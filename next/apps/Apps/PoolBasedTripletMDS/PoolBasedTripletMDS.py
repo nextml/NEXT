@@ -82,38 +82,31 @@ class PoolBasedTripletMDS(object):
         task = params['task']
         alg_label = params['alg_label']
 
-        if stat_id == "api_activity_histogram":
-            activity_stats = dashboard.api_activity_histogram(self.app_id,exp_uid,task)
-            stats = activity_stats
+        # These are the functions corresponding to stat_id
+        functions = {'api_activity_histogram':dashboard.api_activity_histogram,
+                     'api_processAnswer_activity_stacked_histogram':dashboard.api_processAnswer_activity_stacked_histogram,
+                     'compute_duration_multiline_plot':dashboard.compute_duration_multiline_plot,
+                     'compute_duration_detailed_stacked_area_plot':dashboard.compute_duration_detailed_stacked_area_plot,
+                     'response_time_histogram':dashboard.response_time_histogram,
+                     'network_delay_histogram':network_delay_histogram,
+                     'most_current_ranking':most_current_ranking
+                    }
 
-        # input Noneokay
-        elif stat_id == "api_processAnswer_activity_stacked_histogram":
-            activity_stats = dashboard.api_processAnswer_activity_stacked_histogram(self.app_id,exp_uid)
-            stats = activity_stats
+        # These are the args passed into that function
+        default = [self.app_id, exp_uid]
+        args = {'api_activity_histogram':default  + [task],
+                'api_processAnswer_activity_stacked_histogram':default,
+                'compute_duration_multiline_plot':default + [task],
+                'compute_duration_detailed_stacked_area_plot':default + [task, alg_label],
+                'response_time_histogram':default + [alg_label],
+                'network_delay_histogram':default + [alg_label],
+                'most_current_ranking':default + [alg_label]
+                }
 
-        # input task
-        elif stat_id == "compute_duration_multiline_plot":
-            compute_stats = dashboard.compute_duration_multiline_plot(self.app_id,exp_uid,task)
-            stats = compute_stats
-
-        # input task, alg_label
-        elif stat_id == "compute_duration_detailed_stacked_area_plot":
-            compute_detailed_stats = dashboard.compute_duration_detailed_stacked_area_plot(self.app_id,exp_uid,task,alg_label)
-            stats = compute_detailed_stats
-
-        # input alg_label
-        elif stat_id == "response_time_histogram":
-            response_time_stats = dashboard.response_time_histogram(self.app_id,exp_uid,alg_label)
-            stats = response_time_stats
-
-        # input alg_label
-        elif stat_id == "network_delay_histogram":
-            network_delay_stats = dashboard.network_delay_histogram(self.app_id,exp_uid,alg_label)
-            stats = network_delay_stats
-
-        # input alg_label
-        elif stat_id == "most_current_ranking":
-            stats = dashboard.most_current_ranking(self.app_id, exp_uid, alg_label)
+        # this line call the function specified by stat_id with the arguments
+        # for stat_id. Dictionaries are replacements for if-statements and below
+        # line unpacks some statements
+        return functions[stat_id](*args[stat_id])
 
     def predict(self, exp_uid, alg_id, predict_id, db):
         meta = {}
