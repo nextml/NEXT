@@ -18,6 +18,10 @@ class App(AppPrototype):
         self.app_id = 'PoolBasedTripletMDS'
         self.myApp = __import__('next.apps.Apps.'+self.app_id, fromlist=[''])
 
+        dashboard_string = 'next.apps.Apps.' + self.app_id + '.dashboard.Dashboard.'
+                                + self.app_id + 'Dashboard'
+        self.dashboard = __import__(dashboard_string, fromlist=[''])
+
         self.yaml_descriptor = 'Apps/' + self.app_id
         self.description = Verifier.description(self.yaml_descriptor)
 
@@ -25,10 +29,8 @@ class App(AppPrototype):
         alg_list, _, _ = db.get(app_id+':experiments',exp_uid,'alg_list')
         return alg_list
 
-
     def daemonProcess(self,exp_uid,args_json,db,ell):
         pass
-
 
     def processAnswer(self,exp_uid,args_json,db,ell):
         # modified PoolBasedTripletsMDS.py
@@ -97,11 +99,118 @@ class App(AppPrototype):
             ell.log( app_id+':APP-EXCEPTION', log_entry  )
             return '{}', False, error
 
-    def predict(self,exp_uid,args_json,db,ell):
-        pass
+    def predict(self, exp_uid, args_json, db,ell):
+        try:
+            app_id = self.app_id
+
+            log_entry = { 'exp_uid':exp_uid, 'task':'predict', 'json':args_json,
+                          'timestamp':utils.datetimeNow()}
+
+            ell.log( app_id+':APP-CALL', log_entry  )
+
+            # convert args_json to args_dict
+            try:
+                args_dict = json.loads(args_json)
+            except:
+                error = "%s.predict input args_json is in improper format" % self.app_id
+                raise Exception(error)
+
+            # check for the fields that must be contained in args or error occurs
+            necessary_fields = ['predict_id', 'params']
+
+            # TODO: (low priority) rework this into set/subset
+            # something like set(args_dict).issubset(necessary_fields)
+            #if not set(args_dict).issubset(necessary_fields):
+                #error = "%s.predict input arguments missing field: %s" % (self.app_id, set(necessary_fields - args_dict))
+                #raise Exception(error)
+
+            for field in necessary_fields:
+                try:
+                    args_dict[field]
+                except KeyError:
+                    error = "%s.predict input arguments missing field: %s" % (self.app_id, str(field))
+                    raise Exception(error)
+
+            predict_id = args_dict['predict_id']
+            params = args_dict['params']
+            alg_label = params['alg_label']
+
+            # get list of algorithms associated with project
+            alg_list,didSucceed,message = db.get(app_id+':experiments',exp_uid,'alg_list')
+
+            # get alg_id
+            for algorithm in alg_list:
+                if alg_label == algorithm['alg_label']:
+                    alg_id = algorithm['alg_id']
+                    alg_uid = algorithm['alg_uid']
+
+            response_args_dict, meta = self.myApp.predict(exp_uid, alg_id,
+                                                          predict_id, db)
+
+            args_out = {'args':response_args_dict, 'meta':meta}
+            predict_json = json.dumps(args_out)
+
+            log_entry = { 'exp_uid':exp_uid, 'task':'predict',
+                          'json':predict_json, 'timestamp':utils.datetimeNow()}
+
+            ell.log( app_id+':APP-RESPONSE', log_entry  )
+
+            return predict_json, True, ''
+
+        except Exception, err:
+            error = traceback.format_exc()
+            log_entry = { 'exp_uid':exp_uid, 'task':'predict',
+                          'error':str(error), 'timestamp':utils.datetimeNow()}
+
+            didSucceed,message = ell.log( app_id+':APP-EXCEPTION', log_entry  )
+            return '{}',False,error
 
     def getStats(self,exp_uid,args_json,db,ell):
-        pass
+
+        try:
+            app_id = self.app_id
+
+            log_entry = { 'exp_uid':exp_uid,'task':'getStats','json':args_json,'timestamp':utils.datetimeNow() }
+            ell.log( app_id+':APP-CALL', log_entry  )
+
+            # convert args_json to args_dict
+            try:
+                args_dict = json.loads(args_json)
+            except:
+                error = "%s.getStats input args_json is in improper format" % self.app_id
+                return '{}',False,error
+
+            # check for the fields that must be contained in args or error occurs
+            # TODO: (low priority): use set and subset
+            # TODO: make a helper function for this
+            necessary_fields = ['stat_id','params']
+            for field in necessary_fields:
+                try:
+                    args_dict[field]
+                except KeyError:
+                    error = "%s.getStats input arguments missing field: %s" % (self.app_id,str(field))
+                    return '{}',False,error
+
+            stat_id = args_dict['stat_id']
+            params = args_dict['params']
+
+            dashboard = self.dashboard
+
+            stats = self.myApp.getStats(stat_id, params, dashboard)
+            response_json = json.dumps(stats)
+
+            log_entry = { 'exp_uid':exp_uid, 'task':'getStats',
+                          'json':response_json, 'timestamp':utils.datetimeNow()}
+            ell.log( app_id+':APP-RESPONSE', log_entry  )
+
+            return response_json, True, ''
+
+        except Exception, err:
+            error = traceback.format_exc()
+            log_entry = { 'exp_uid':exp_uid, 'task':'getStats', 'error':error,
+                          'timestamp':utils.datetimeNow(),'args_json':args_json }
+            ell.log( app_id+':APP-EXCEPTION', log_entry  )
+            return '{}', False, error
 
 
     def getQuery(self,exp_uid,args_json,db,ell):
@@ -255,14 +364,13 @@ class App(AppPrototype):
                 params = algorithm.get('params',None)
 
                 # get sandboxed database for the specific app_id,alg_uid,exp_uid - closing off the rest of the database to the algorithm
-                rc = ResourceClient(app_id,exp_uid,alg_uid,db)
+                rc = ResourceClient(app_id, exp_uid, alg_uid,db)
 
                 # get specific algorithm to make calls to
-                alg = utils.get_app_alg(self.app_id,alg_id)
+                alg = utils.get_app_alg(self.app_id, alg_id)
 
                 # call initExp
                 didSucceed,dt = utils.timeit(alg.initExp)(resource=rc,n=n,d=d,failure_probability=delta,params=params)
-
 
                 log_entry = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'initExp','duration':dt,'timestamp':utils.datetimeNow() }
                 ell.log( app_id+':ALG-DURATION', log_entry  )
