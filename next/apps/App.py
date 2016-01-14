@@ -332,15 +332,17 @@ class App(AppPrototype):
             # experiment. It makes sure that a givn algorithm is implemented and
             # checks to make sure it's specified in
             # algorithm_management_settings
+            # DEBUG/TODO: args_dict may need other keys (I'm thinking
+            # args_dict['initExp']['args']['alg_list']
             alg_list = args_dict['alg_list']
             for algorithm in alg_list:
                 alg_id = algorithm['alg_id']
                 alg_uid = utils.getNewUID()
                 algorithm['alg_uid'] = alg_uid
 
-                db.set(app_id+':algorithms',alg_uid,'alg_id',alg_id)
-                db.set(app_id+':algorithms',alg_uid,'alg_uid',alg_uid)
-                db.set(app_id+':algorithms',alg_uid,'exp_uid',exp_uid)
+                db.set(app_id+':algorithms', alg_uid, 'alg_id', alg_id)
+                db.set(app_id+':algorithms', alg_uid, 'alg_uid', alg_uid)
+                db.set(app_id+':algorithms', alg_uid, 'exp_uid', exp_uid)
 
             # Setting experiment parameters in the database
             db.set(app_id+':experiments', exp_uid, 'exp_uid', exp_uid)
@@ -357,28 +359,38 @@ class App(AppPrototype):
             for key in args_dict.keys():
                 db.set(app_id+':experiments', exp_uid, key, args_dict[key])
 
-            # now create intitialize each algorithm
+            # now intitialize each algorithm
             for algorithm in alg_list:
                 alg_id = algorithm['alg_id']
                 alg_uid = algorithm['alg_uid']
                 params = algorithm.get('params',None)
 
                 # get sandboxed database for the specific app_id,alg_uid,exp_uid - closing off the rest of the database to the algorithm
-                rc = ResourceClient(app_id, exp_uid, alg_uid,db)
+                rc = ResourceClient(app_id, exp_uid, alg_uid, db)
 
                 # get specific algorithm to make calls to
                 alg = utils.get_app_alg(self.app_id, alg_id)
 
-                # call initExp
-                didSucceed, dt = utils.timeit(alg.initExp)(resource=rc, n=n, d=d,
-                                             failure_probability=delta, params=params)
+                # TODO: make alg.iniExp accept more **kwargs for future proofing
+                args = args_dict['initExp']['args']
+                common_kwargs = ['alg_list', 'algorithm_management_settings', 'debrief',
+                            'instructions', 'participant_to_algorithm_management']
 
-                log_entry = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'initExp','duration':dt,'timestamp':utils.datetimeNow() }
+                alg_args = {key: args[key] for key in args.keys()
+                                        if key not in common_kwargs}
+
+                # call initExp
+                didSucceed, dt = utils.timeit(alg.initExp)(resource=rc,
+                                              params=params, **alg_args)
+
+                log_entry = { 'exp_uid':exp_uid, 'alg_uid':alg_uid, 'task':'initExp',
+                              'duration':dt, 'timestamp':utils.datetimeNow() }
                 ell.log( app_id+':ALG-DURATION', log_entry  )
 
             response_json = '{}'
 
-            log_entry = { 'exp_uid':exp_uid,'task':'initExp','json':response_json,'timestamp':utils.datetimeNow() }
+            log_entry = { 'exp_uid':exp_uid, 'task':'initExp', 'json':response_json,
+                          'timestamp':utils.datetimeNow()}
             ell.log( app_id+':APP-RESPONSE', log_entry  )
 
             return response_json,True,''

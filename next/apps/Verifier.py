@@ -143,7 +143,7 @@ if __name__ == "__main__":
     d = tests.PoolBasedTripletMDS_dict()
 
     # ground truth; this dictionary is assumed to be right
-    filename = "PoolBasedTripletMDS.yaml"
+    filename = "Apps/PoolBasedTripletMDS/PoolBasedTripletMDS.yaml"
     with open(filename) as f:
         ref = yaml.load(f.read())
 
