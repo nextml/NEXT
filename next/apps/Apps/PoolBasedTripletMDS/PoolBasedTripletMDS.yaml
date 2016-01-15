@@ -98,6 +98,10 @@ initExp:
               type: num
               values: []
 
+            targetset:
+              description: A target set.
+              type: targetset
+              values: []
 
 qetQuery:
   description: 'A request to ask the query: "is {center} more similar to {left} or {right}?"'
