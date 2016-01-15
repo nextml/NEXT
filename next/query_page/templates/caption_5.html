@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>NEXT - {{exp_uid}}</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="{{ url_for('query_page.static', filename='js/next_widget.js' )}}"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+  </head>  
+  <body>
+    <!-- show instructions modal on load of page -->
+    <script>
+      $(window).load(function() { 
+          setTimeout(function(){
+              window.scrollTo(0, 1);
+          }, 0);
+          $('#directions').modal({backdrop: 'static'}); 
+      });
+    </script>
+
+    <!-- instructions Modal -->
+    <div class="modal fade" id="directions" tabindex="-1" role="dialog" aria-labelledby="directions" aria-hidden="true" data-keyboard="false">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title" id="modal-title">Experiment Information </h1>
+          </div>
+          <div class="modal-body">
+            <p>
+              <b>Experiment Information</b><br>
+              You are invited to participate in a research study about how people rate and compare captions for a cartoon. 
+              <br><br>
+              <b>What will participation involve?</b><br>
+              Making 25 judgments about the funniness of captions for a cartoon. There is no right answer.
+              <br><br>
+              <b>Confidentiality</b><br>
+              All survey and judgment data are anonymous, and cannot be traced back to an individual.
+              <br><br>
+	      <b> Powered by <a href="http://nextml.org">NEXT</a>. </b> <b> Learn more at <a href="http://nextml.org">nextml.org</a></b>
+	      <br><br
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-success" data-dismiss="modal" 
+                    onclick="next_widget.getQuery(div_id, args, callbacks);
+                             $('#instructions').show(); $('#cant').show()")>Ok</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+    <!-- debrief Modal -->
+    <div class="modal fade" id="debrief" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false" href="#">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title" id="modal-title">Debrief</h1>
+          </div>
+          <div class="modal-body">
+            <h4 id="debrief_text">Thanks for participating!</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- widget div -->
+    <div class="container" style="height:90%">
+      <div id="top_instructions" class="row" >
+        <center><p id="directions_text" style="font-size:3vh">Please select the rating for the caption you find most appropriate.</p></center>
+      </div>
+
+      <div id="wrapper" style="height:90%;">
+        <center><h1>Loading...</h1></center>
+      </div>
+
+      <div id="queriesanswered" style="margin-left:auto;margin-right:auto;font-size:3vh">
+      </div>      
+    </div>
+    
+    <script>
+      next_widget.setUrl("{{host_url}}");
+      var div_id = "wrapper";
+      var exp_app_id = "CardinalBanditsPureExploration";
+      var exp_uid = "{{exp_uid}}";
+      var widget_key = "{{widget_key}}";
+      var participant_uid = next_widget.makeRandomString(30);
+      var tries =  {{num_tries}};
+      var args = {
+          name: "getQuery",
+          exp_uid: exp_uid,
+          app_id: exp_app_id,
+          widget_key: widget_key,
+          args: { participant_uid: participant_uid }
+      };
+
+      var callbacks = {
+      	  processAnswer_success: function() {
+	      if(tries > 1){
+		  tries -=1;
+		  next_widget.getQuery(div_id, args, callbacks);
+	      } else{
+		  $('#instructions').hide();
+		  $('#wrapper').hide();
+		  $('#debrief').show();
+		  $('#debrief').modal('show');
+	      }
+	  },
+
+	  getQuery_success: function(){
+	      $('#1').css('background-color','#F2B798');
+	      $('#2').css('background-color','#F2B798');	      
+	      $('#3').css('background-color','#F2B798');
+	  },
+	  
+          widget_failure: function(){
+      	      $('#instructions').hide();
+              $('#query').hide();
+              $('#debrief').show();
+              $('#debrief').modal('show');
+          }
+      }      
+      // args for get query 
+      var args = {
+      	  name: "getQuery",
+          exp_uid: exp_uid,
+          app_id: exp_app_id,
+          widget_key: widget_key,
+          args: { participant_uid: participant_uid }
+      };
+    </script>
+
+  </body>
+</html>
+

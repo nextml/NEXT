@@ -39,19 +39,19 @@ def verify(input_dict, reference_dict):
             ans += [{'name': 'initExp/args/alg_list', 'message':'An algorithm ({}) is not implemented'.format(alg_id)}]
 
         # checking to make sure all algorithms in alg_list have settings defined
-        porportion_algorithms = [alg['alg_label'] for alg in algorithm_settings]
-        if alg_label not in porportion_algorithms:
+        proportion_algorithms = [alg['alg_label'] for alg in algorithm_settings]
+        if alg_label not in proportion_algorithms:
             ans += [{'name':'initExp/args/algorithm_management_settings',
                      'message':('An algorithm in alg_list ({})'
                                 'is not in in algorithm_management_settings '
                                 '(in the apprpriate place)').format(algorithm)}]
 
-    # checking to make sure that the total porportions add up to 1
-    total_porportion = sum(alg['proportion'] for alg in algorithm_settings)
-    if not numpy.allclose(total_porportion, 1):
+    # checking to make sure that the total proportions add up to 1
+    total_proportion = sum(alg['proportion'] for alg in algorithm_settings)
+    if not numpy.allclose(total_proportion, 1):
         ans += [{'name':'initExp/args/algorithm_management_settings',
-                'message':('The algorithm porportions must add up to 1 '
-                    '(the currently add up to {})'.format(total_porportion))}]
+                'message':('The algorithm proportions must add up to 1 '
+                    '(the currently add up to {})'.format(total_proportion))}]
 
     return input_dict, len(ans) == 0, ans
 
@@ -124,22 +124,6 @@ def compare_dict_keys(d1, d2):
     Returns [things in d1 not in d2, things in d2 not in d1]
     """
     return [k for k in d1 if not k in d2],[k for k in d2 if not k in d1]
-
-
-def necessary_fields_present(args_dict, necessary_fields):
-    # Pythonic implementation
-    if not set(necessary_fields).issubset(args_dict):
-        error = "%s.predict input arguments missing field: %s" % (self.app_id, set(necessary_fields) - set(args_dict))
-        return False, error
-    return True, ''
-
-    # previous implementation
-    for field in necessary_fields:
-        try:
-            args_dict[field]
-        except KeyError:
-            error = "%s.predict input arguments missing field: %s" % (self.app_id, str(field))
-            raise Exception(error)
 
 
 if __name__ == "__main__":
