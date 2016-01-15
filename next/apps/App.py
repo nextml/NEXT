@@ -112,7 +112,7 @@ class App(AppPrototype):
             ell.log(app_id+':APP-EXCEPTION', log_entry)
             return '{}', False, error
 
-        
+
     def initExp(self, exp_uid, args_json, db, ell):
         try:
             app_id = self.app_id
@@ -123,7 +123,7 @@ class App(AppPrototype):
             if not success:
                 raise Exception("Failed to verify: {}".format(" \n".join(messages)))
             args_dict = self.myApp.initExp(exp_uid, args_dict, db, ell);
-            
+
             # remove any reminants of an experiment if it exists
             self.remove_experiment(app_id, exp_uid, db)
 
@@ -253,6 +253,7 @@ class App(AppPrototype):
 
             # call getQuery on myApp
             app_response = self.myApp.getQuery(exp_uid, args_dict, alg_response, db, ell)
+
             query = app_response['query']
             timestamp = app_response['timestamp']
             query_uid = utils.getNewUID()
@@ -266,7 +267,9 @@ class App(AppPrototype):
 
             db.set_doc(app_id+':queries', query_uid, query_doc)
 
-            args_out = {'args':query,'meta':meta}
+            log_entry_durations.update(rc.getDurations())
+            meta = {'log_entry_durations':log_entry_durations}
+            args_out = {'args':query, 'meta':meta}
             response_json = json.dumps(args_out)
 
             log_entry = { 'exp_uid':exp_uid,'task':'getQuery','json':response_json,'timestamp':utils.datetimeNow() }
@@ -280,7 +283,7 @@ class App(AppPrototype):
             ell.log( app_id+':APP-EXCEPTION', log_entry  )
             return '{}',False,error
 
-        
+
     def processAnswer(self, exp_uid, args_json, db, ell):
         # modified PoolBasedTripletsMDS.py
         try:
