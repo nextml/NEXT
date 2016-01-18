@@ -11,8 +11,6 @@ curl -H "Content-Type: application/json" \
 -d '{"exp_uid": "DFPDISJFSA", "app_id": "PoolBasedTripletMDS", "args":{ "stat_id": "api_activity_histogram", "params": { "task": "getQuery"}}}' \
 -X POST http://localhost:8001/experiment/stats
 '''
-from flask import Flask
-from flask.ext import restful
 from flask.ext.restful import Resource, reqparse
 
 import json
@@ -59,57 +57,6 @@ class Stats(Resource):
         return None, 200, {'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'}
   
     def post(self):
-        """
-        .. http:post:: /experiment/stats
-
-        Get stats related to an experiment. For a list of potential plot types and parameters see: LINK.
-
-        **Example request**:
-        .. sourcecode:: http
-
-        POST /experiment/<exp_uid> HTTP/1.1
-        Host: next_backend.next.discovery.wisc.edu
-
-        {
-	        exp_uid: exp_uid,
-        	args: {
-                stat_id: "compute_duration_detailed_stacked_area_plot",
-                params: {
-                          task: "getQuery",
-                          alg_label: "lilUCB"
-                }        
-            }
-        }
-
-        **Example response**:
-
-        .. sourcecode:: http
-        
-        HTTP/1.1 200 OK
-        Vary: Accept
-        Content-Type: application/json
-
-        {
-        	
-        	plot_type: 'multi_line_plot'
-          	x_label : 'Number of answered triplets'
-          	x_min : 1
-          	x_max : maximum number of reported answers for any algorithm
-          	y_label : 'Error on hold-out set'
-          	y_min : 0.
-          	y_max : maximum duration value achieved by any algorithm
-        	data :[ 
-            		t : list of timestamp strings
-           		x : integers ranging from 1 to maximum number of elements in y (or t)
-            		y : list of durations
-            		legend_label : alg_label
-		]    
-        }
-
-        
-        :statuscode 200: stats successfully accessed
-        :statuscode 400: stats retrieval error
-        """        
         post_parser.add_argument('exp_uid', type=str, required=True)
         post_parser.add_argument('exp_key', type=str, required=True)
         post_parser.add_argument('args', type=dict, required=True)
@@ -132,25 +79,6 @@ class Stats(Resource):
         # Execute getStats
         response_json,didSucceed,message = broker.applyAsync(app_id,exp_uid,"getStats",args_json)
         response_dict = json.loads(response_json,parse_float=lambda o:round(float(o),4))
-
-        try:
-            index_test = response_dict['data'][0]['index']
-            targetmapping = targetmapper.get_target_mapping(exp_uid)
-            for d in response_dict['data']:
-                try:
-                    index = d['index']
-                    if len(targetmapping)==0:
-                        d['target'] = {'target_id':index,
-                                        'primary_description':index,
-                                        'primary_type':'text',
-                                        'alt_description':index,
-                                        'alt_type':'text'}
-                    else:
-                        d['target'] = targetmapping[index]
-                except:
-                    pass
-        except:
-            pass
         
         if didSucceed and "data" in response_dict.keys():
             return attach_meta(response_dict,meta_success), 201

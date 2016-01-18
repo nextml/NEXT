@@ -10,6 +10,7 @@ class PoolBasedTripletMDS(object):
         #
         # predict and getStats are constant through all the apps we have
         # developed
+        # TODO: Why is this here? Isn't this done by the verifier?
         self.necessary_fields = { 'processAnswer':['index_winner','query_uid'],
                                   'initExp':['n', 'd', 'failure_probability']
                                   'predict':['predict_id', 'params'],
@@ -36,12 +37,15 @@ class PoolBasedTripletMDS(object):
         log_entry_durations.update( rc.getDurations() )
         meta = {'log_entry_durations':log_entry_durations}
 
+        #TODO: Again, let's replace indices with the word TARGET. This reduces development confusion
         # create JSON query payload
         timestamp = str(utils.datetimeNow())
         query_uid = utils.getNewUID()
         query = {}
         query['query_uid'] = query_uid
-        query['target_indices'] = [ {'index':index_center,'label':'center','flag':0},{'index':index_left,'label':'left','flag':0},{'index':index_right,'label':'right','flag':0} ]
+        query['target_indices'] = [ {'index':index_center,'label':'center','flag':0},
+                                    {'index':index_left,'label':'left','flag':0},
+                                    {'index':index_right,'label':'right','flag':0} ]
         return {'query':query, 'query_uid':query_uid, 'timestamp':timestamp}
 
     def processAnswer(self, args_dict, query_uid, db):
@@ -114,6 +118,7 @@ class PoolBasedTripletMDS(object):
                      'most_current_ranking':most_current_ranking
                     }
 
+        # TODO: Scott, please explain to me. I don't get it.
         # These are the args passed into that function
         default = [self.app_id, exp_uid]
         args = {'api_activity_histogram':default  + [task],

@@ -4,8 +4,6 @@ author: Christopher Fernandez, Lalit Jain
 Query resource for handling restful querying of experiments in next_backend. 
 """
 
-from flask import Flask
-from flask.ext import restful
 from flask.ext.restful import Resource, reqparse
 
 import json
@@ -51,66 +49,6 @@ meta_success = {
 # Query resource class
 class getQuery(Resource):
     def post(self):
-        """.. http:post:: /experiment/getQuery
-        
-        Get an experiment query using post. Useful for situations in which a feature vector has to be uploaded.
-
-        **Example request**:
-
-        .. sourcecode:: http
-
-        POST /experiment/getQuery HTTP/1.1
-        Host: next_backend.next.discovery.wisc.edu
-
-        {
-        	exp_uid: exp_uid,
-        
-        	args : {
-        		features: 
-        	}		
-   	 }
-
-        **Example response**:
-
-        .. sourcecode:: http
-        
-        HTTP/1.1 200 OK
-        Vary: Accept
-        Content-Type: application/json
-
-        {
-        	exp_uid: exp_uid,
-
-        	status: {
-        		code: 200,
-        		status: OK,
-       		},
-
-        	target_indices: {
-        		index: 1
-        		label: "center"
-			flag: 5
-       		},
-
-        	alg_uid: ,
-		timestamp_query_generated: ,
-		participant_uid: 
-
-
-        }
-        
-        :<json features: Optional feature vector.
-
-        :>json target_indices: Application specific target indices. 
-        :>json alg_uid: 
-        :>json timestamp_query_generated:
-        :>json participant_uid:
-
-        :statuscode 200: Query successfully returned
-        :statuscode 400: Query failed to be generated
-
-        """
-
         post_parser.add_argument('exp_uid', type=str, required=True)
         post_parser.add_argument('exp_key', type=str, required=True)
         post_parser.add_argument('args', type=dict, required=False)
@@ -139,10 +77,6 @@ class getQuery(Resource):
             return attach_meta({},meta_error['QueryGenerationError'], backend_error=message)
         
         response_dict = json.loads(response_json)
-        for target_index in response_dict["target_indices"]:
-            target_index['target'] = targetmapper.get_target_data(exp_uid, target_index["index"])
-
-            
         return attach_meta(response_dict,meta_success), 200
         
             

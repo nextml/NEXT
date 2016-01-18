@@ -4,18 +4,13 @@ makes a call to the specified app in the appropriate place.
 
 Apps are specified with a YAML file with a specific structure. A given instance
 of an app is verified before creation.
-
-Author: Scott Sievert, stsievert@wisc.edu
-Creation date: 2016-1-11
 """
 
 # TODO: include docstrings (copy and paste from PoolBasedTripletsMDS.py)
-
 import numpy
 import numpy.random
 import json
 import yaml
-import time
 import traceback
 
 from next.resource_client.ResourceClient import ResourceClient
@@ -27,6 +22,7 @@ import next.constants
 git_hash = next.constants.GIT_HASH
 
 # keys common to all algorithms.
+#TODO: What is the point of this list?
 common_keys = ['alg_list', 'algorithm_management_settings', 'debrief',
                'instructions', 'participant_to_algorithm_management']
 
@@ -43,75 +39,10 @@ class App(AppPrototype):
         # (which computes the results) is found in
         # Apps/myApp/dashboard/Dashboard.py and is named myAppDashboard (e.g.,
         # PoolBasedTripletsMDSDashboard)
+        #TODO: Is this still relevant?
         dashboard_string = 'next.apps.Apps.' + self.app_id + \
                            '.dashboard.Dashboard.' + self.app_id + 'Dashboard'
         self.dashboard = __import__(dashboard_string, fromlist=[''])
-
-    def daemonProcess(self, exp_uid, args_json, db, ell):
-        try:
-            app_id = self.app_id
-
-            log_entry = {'exp_uid': exp_uid, 'task': 'daemonProcess',
-                         'json': args_json, 'timestamp': utils.datetimeNow()}
-            ell.log(app_id+':APP-CALL', log_entry)
-
-            # convert args_json to args_dict
-            try:
-                args_dict = json.loads(args_json)
-            except:
-                error = '%s.daemonProcess input args_json is in improper format' % self.app_id
-                return '{}', False, error
-
-            # check for the fields that are necessary in args or error occurs
-            key_check = Verifier.necessary_fields_present(args_dict, self.myApp.necessary_fields['daemonProcess'])
-            if keys_check[0]:
-                raise(key_check[1])
-
-            alg_daemon_args = args_dict['daemon_args']
-            alg_uid = args_dict['alg_uid']
-            alg_id, didSucceed, message = db.get(app_id+':algorithms', alg_uid, 'alg_id')
-
-            # get sandboxed database for the specific app_id,alg_id,exp_uid -
-            # closing off the rest of the database to the algorithm
-            rc = ResourceClient(app_id, exp_uid, alg_uid, db)
-
-            # get specific algorithm to make calls to
-            alg = utils.get_app_alg(self.app_id, alg_id)
-
-            # TODO: these keyword args are not general and don't apply to all
-            # apps... but do the necessary_fields change for daemonProcess
-            # change from app to app?
-            # Scott Sievert, 2016-1-14
-            didSucceed, dt = utils.timeit(alg.daemonProcess)(resource=rc, daemon_args_dict=alg_daemon_args)
-
-            log_entry = {'exp_uid': exp_uid, 'alg_uid': alg_uid,
-                         'task': 'daemonProcess', 'duration': dt,
-                         'timestamp': utils.datetimeNow()}
-
-            log_entry_durations = {'exp_uid': exp_uid, 'alg_uid': alg_uid,
-                                   'task': 'daemonProcess', 'duration': dt}
-            log_entry_durations.update(rc.getDurations())
-            meta = {'log_entry_durations': log_entry_durations}
-
-            daemon_message = {}
-            args_out = {'args': daemon_message, 'meta': meta}
-            response_json = json.dumps(args_out)
-
-            log_entry = {'exp_uid': exp_uid, 'task': 'daemonProcess',
-                         'json': response_json,
-                         'timestamp': utils.datetimeNow()}
-            ell.log(app_id + ':APP-RESPONSE', log_entry)
-
-            return response_json, True, ''
-
-        # TODO: PEP8 tool says there's invalid syntax here... fix that!
-        except Exception, err:
-            error = traceback.format_exc()
-            log_entry = {'exp_uid': exp_uid, 'task': 'daemonProcess',
-                         'error': error, 'timestamp': utils.datetimeNow()}
-            ell.log(app_id+':APP-EXCEPTION', log_entry)
-            return '{}', False, error
-
 
     def initExp(self, exp_uid, args_json, db, ell):
         try:
@@ -132,7 +63,11 @@ class App(AppPrototype):
             db.set('experiments_admin',exp_uid,'app_id',app_id)
             db.set('experiments_admin',exp_uid,'start_date',utils.datetime2str(utils.datetimeNow()))
 
-            log_entry = { 'exp_uid':exp_uid,'task':'initExp','json':args_json,'timestamp':utils.datetimeNow() }
+            log_entry = { 'exp_uid':exp_uid,
+                          'task':'initExp',
+                          'json':args_json,
+                          'timestamp':utils.datetimeNow() }
+            
             ell.log(app_id+':APP-CALL', log_entry  )
 
             alg_list = args_dict['alg_list']
@@ -164,6 +99,7 @@ class App(AppPrototype):
                 # get specific algorithm to make calls to
                 alg = utils.get_app_alg(self.app_id, algorithm[alg_id])
                 # call initExp
+                # TODO: What is alg_args?
                 didSucceed, dt = utils.timeit(alg.initExp)(resource=rc,
                                                            params=params,
                                                            **alg_args)
@@ -173,9 +109,12 @@ class App(AppPrototype):
                              'duration':dt,
                              'timestamp':utils.datetimeNow()}
                 ell.log(app_id+':ALG-DURATION', log_entry)
-
-            log_entry = { 'exp_uid':exp_uid, 'task':'initExp', 'json':response_json,
+            # FIXME: What is response_json?
+            log_entry = { 'exp_uid':exp_uid,
+                          'task':'initExp',
+                          'json':response_json,
                           'timestamp':utils.datetimeNow()}
+            
             ell.log( app_id+':APP-RESPONSE', log_entry)
             return {}, True, ''
         except Exception, err:
@@ -267,6 +206,7 @@ class App(AppPrototype):
 
             db.set_doc(app_id+':queries', query_uid, query_doc)
 
+            #FIXME: What is log_entry durations?
             log_entry_durations.update(rc.getDurations())
             meta = {'log_entry_durations':log_entry_durations}
             args_out = {'args':query, 'meta':meta}
@@ -303,8 +243,9 @@ class App(AppPrototype):
             # check for the fields that must be contained in args or error
             # occurs
             key_check = Verifier.necessary_fields_present(args_dict,
-                                  self.myApp.necessary_fields['processAnswer'])
-            if keys_check[0]:
+                                                          self.myApp.necessary_fields['processAnswer'])
+            #TODO: What is going on here?
+            if key_check[0]:
                 raise(key_check[1])
 
             # get list of algorithms associated with project
@@ -321,6 +262,7 @@ class App(AppPrototype):
             for algorithm in alg_list:
                 if alg_uid == algorithm['alg_uid']:
                     alg_id = algorithm['alg_id']
+                    # FIXME: alg_label is never used
                     alg_label = algorithm['alg_label']
                     test_alg_label = algorithm['test_alg_label']
                     response = db.increment(app_id + ':experiments', exp_uid,
@@ -349,6 +291,7 @@ class App(AppPrototype):
 
             return response_json, True, ""
 
+        # TODO: we never use err here?
         except Exception, err:
             error = traceback.format_exc()
             log_entry = {'exp_uid': exp_uid, 'task': 'processAnswer',
@@ -454,7 +397,7 @@ class App(AppPrototype):
 
 
 
-    def remove_experiment(self, app_id, exp_uid, db):
+    def remove_experiment(self, app_id, exp_uid, db, ell):
         # remove any reminants of an experiment if it exists
         didSucceed,message = db.delete_docs_with_filter('experiments_admin',{'exp_uid':exp_uid})
         didSucceed,message = db.delete_docs_with_filter(app_id+':experiments',{'exp_uid':exp_uid})
@@ -468,12 +411,13 @@ class App(AppPrototype):
         didSucceed,message = ell.delete_logs_with_filter(app_id+':ALG-DURATION',{'exp_uid':exp_uid})
         didSucceed,message = ell.delete_logs_with_filter(app_id+':ALG-EVALUATION',{'exp_uid':exp_uid})
 
-    def create_experiment(self, app_uid, exp_id, db):
+    def create_experiment(self, app_uid, exp_id, db, ell):
         # Database call that creates the experiment
         db.set('experiments_admin',exp_uid,'exp_uid',exp_uid)
         db.set('experiments_admin',exp_uid,'app_id',app_id)
         db.set('experiments_admin',exp_uid,'start_date',utils.datetime2str(utils.datetimeNow()))
 
+        # FIXME: what is args_json?
         log_entry = { 'exp_uid':exp_uid,'task':'initExp','json':args_json,'timestamp':utils.datetimeNow() }
         ell.log(app_id+':APP-CALL', log_entry  )
 
@@ -485,6 +429,3 @@ class App(AppPrototype):
                 error = "%s.initExp input args_json is in improper format" % self.app_id
                 raise Exception(error)
 
-    def associated_algs(self, db):
-
-        return alg_list

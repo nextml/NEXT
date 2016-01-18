@@ -52,53 +52,6 @@ meta_success = {
 # Answer resource class
 class processAnswer(Resource):
     def post(self):
-    	# This doc needs to be updated
-        """.. http:post:: /experiment/answer
-        
-        Post the participants answer to a given query.
-
-        **Example request**:
-
-        .. sourcecode:: http
-
-        POST /experiment/answer HTTP/1.1
-        Host: next_backend.next.discovery.wisc.edu
-
-        {
-        	exp_uid: exp_uid,
-        
-        	args : {
-        		index_winner: 'left',
-			query_uid: 
-        	}		
-   	 }
-
-        **Example response**:
-
-        .. sourcecode:: http
-        
-        HTTP/1.1 200 OK
-        Vary: Accept
-        Content-Type: application/json
-
-        {
-        	status: {
-        		code: 200,
-        		status: OK
-       		}
-        }
-        
-        :<json features: Optional feature vector.
-
-        :>json target_indices: Application specific target indices. 
-        :>json alg_uid: 
-        :>json timestamp_query_generated:
-        :>json participant_uid:
-
-        :statuscode 200: Answer successfully reported
-        :statuscode 400: Answer failed to be reported
-
-        """
         post_parser.add_argument('exp_uid', type=str, required=True)
         post_parser.add_argument('exp_key', type=str, required=True)
         post_parser.add_argument('args', type=dict, required=True)
@@ -114,23 +67,6 @@ class processAnswer(Resource):
         # Fetch app_id data from resource manager
         app_id = resource_manager.get_app_id(exp_uid)
         # Parse out a target_winner. If the argument doesn't exist, return a meta dictionary error.
-        try:
-            target_winner = args_data['args']['target_winner']
-            index_winner = int(targetmapper.get_index_given_targetID(exp_uid,
-                                                             target_winner))
-            # Set the index winner.
-            args_data['args']["index_winner"] = index_winner        
-        except:
-            error_string = ('[target_winner]. Missing required parameter in the'
-                            ' JSON body or the post body or the query string')
-            # return {'message':('Failed to specify all arguments'
-            #                    'or misformed arguments'),
-            #         'code':400,
-            #         'status':'FAIL',
-            #         'base_error':error_string}, 400
-        
-        
-        # Args from dict to json type
         args_json = json.dumps(args_data["args"]) 
         # Execute processAnswer 
         response_json,didSucceed,message = broker.applyAsync(app_id,
