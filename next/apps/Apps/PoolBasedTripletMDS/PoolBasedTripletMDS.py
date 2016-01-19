@@ -1,107 +1,67 @@
 import next.utils as utils
+import next.apps.SimpleTargetManager
+import json
 
 class PoolBasedTripletMDS(object):
     def __init__(self):
         self.app_id = 'PoolBasedTripletsMDS'
+        self.TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager()
+        
+    def initExp(self, exp_uid, args_dict, db, ell):
+        if 'targetset' in args_dict['targets'].keys():
+            n  = len(args_dict['targets']['targetset'])
+            self.TargetManager.set_targetset(args_dict['targets']['targetset'])
+        else:
+            n = args_dict['targets']['n']
+        args_dict['n'] = n
+        del args_dict['targets']
 
-        # self.necessary_fields is used when performing checks. If checks aren't
-        # needed, you can leave the arrays empty (i.e.,
-        # self.necessary_fields['getStats'] = []).
-        #
-        # predict and getStats are constant through all the apps we have
-        # developed
-        # TODO: Why is this here? Isn't this done by the verifier?
-        self.necessary_fields = { 'processAnswer':['index_winner','query_uid'],
-                                  'initExp':['n', 'd', 'failure_probability']
-                                  'predict':['predict_id', 'params'],
-                                  'getStats':['stat_id','params'],
-                                  'daemonProcess':['alg_uid','daemon_args']
-                                }
-
-        self.about = 'PoolBasedTripletMDS about string'
-        self.info = 'PoolBasedTripletMDS info string'
-        self.instructions = 'PoolBasedTripletMDS instructions string'
-        self.debrief = 'PoolBasedTripletMDS debrief string'
-        self.num_tries = 100
-        self.support_algs = ['Lil_UCB', 'RandomSampling']
-
-
-
-    def initExp(self, exp_uid, args_json, db, ell):
-        pass
-
-    def getQuery(self, exp_uid, args_uid, alg_response):
+    def getQuery(self, exp_uid, args_dict, alg_response, db, ell):
         index_center, index_left, index_right, dt = alg_response
-
-        log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'getQuery','duration':dt }
-        log_entry_durations.update( rc.getDurations() )
-        meta = {'log_entry_durations':log_entry_durations}
-
-        #TODO: Again, let's replace indices with the word TARGET. This reduces development confusion
         # create JSON query payload
-        timestamp = str(utils.datetimeNow())
-        query_uid = utils.getNewUID()
         query = {}
-        query['query_uid'] = query_uid
-        query['target_indices'] = [ {'index':index_center,'label':'center','flag':0},
-                                    {'index':index_left,'label':'left','flag':0},
-                                    {'index':index_right,'label':'right','flag':0} ]
-        return {'query':query, 'query_uid':query_uid, 'timestamp':timestamp}
+        query['target_indices'] = [ {'target':self.TargetManager.get_target_item(index_center),'label':'center'},
+                                    {'target':self.TargetManager.get_target_item(index_left),'label':'left'},
+                                    {'target':self.TargetManager.get_target_item(index_right),'label':'right'} ]
+        return query
 
-    def processAnswer(self, args_dict, query_uid, db):
+    def processAnswer(self, exp_uid, args_dict, query_uid, alg_label, num_reported_answers, db):
         targets, didSucceed, message = db.get(self.app_id+':queries',query_uid,'target_indices')
 
         for target in targets:
             if target['label'] == 'center':
-                index_center = target['index']
+                center_id = target['index']
             elif target['label'] == 'left':
-                index_left = target['index']
+                left_id = target['index']
             elif target['label'] == 'right':
-                index_right = target['index']
+                right_id = target['index']
 
-        index_winner = args_dict['index_winner']
+        target_winner = args_dict['target_winner']
 
         # update query doc
-        timestamp_query_generated,didSucceed,message = db.get(self.app_id+':queries',query_uid,'timestamp_query_generated')
-        datetime_query_generated = utils.str2datetime(timestamp_query_generated)
-        timestamp_answer_received = args_dict.get('meta',{}).get('timestamp_answer_received',None)
+        db.set(self.app_id+':queries',query_uid,'target_winner',target_winner)
 
-        if timestamp_answer_received == None:
-            datetime_answer_received = datetime_query_generated
-        else:
-            datetime_answer_received = utils.str2datetime(timestamp_answer_received)
+        q = [left_id, right_id, center_id]
 
-        delta_datetime = datetime_answer_received - datetime_query_generated
-        round_trip_time = delta_datetime.seconds + delta_datetime.microseconds/1000000.
-        response_time = float(args_dict.get('response_time',0.))
-        db.set(self.app_id+':queries',query_uid,'response_time',response_time)
-        db.set(self.app_id+':queries',query_uid,'network_delay',round_trip_time-response_time)
-        db.set(self.app_id+':queries',query_uid,'index_winner',index_winner)
-
-        q = [index_left, index_right, index_center]
-
-        if index_winner==index_right:
-            q = [index_right,index_left,index_center]
+        if target_winner==right_id:
+            q = [right_id,left_id,center_id]
 
         db.set(self.app_id+':queries',query_uid,'q',q)
 
-        log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'processAnswer','duration':dt }
-        log_entry_durations.update( rc.getDurations() )
-        meta = {'log_entry_durations':log_entry_durations}
-
         # check if we're going to evaluate this loss
         n, _, _ = db.get(self.app_id+':experiments',exp_uid,'n')
-
+            
         if num_reported_answers % ((n+4)/4) == 0:
             predict_id = 'get_embedding'
             params = {'alg_label':alg_label}
             predict_args_dict = {'predict_id':predict_id,'params':params}
             predict_args_json = json.dumps(predict_args_dict)
-
-                db.submit_job(self.app_id,exp_uid,'predict',predict_args_json,ignore_result=True)
-
-        return {'index_left'index_left:, 'index_right':index_right,
-                'index_center':index_center, 'index_winner':index_winner}, meta
+            #TODO make predict work and uncomment
+            db.submit_job(self.app_id,exp_uid,'predict',predict_args_json,ignore_result=True)
+            
+        
+        return {'left_id':left_id, 'right_id':right_id,
+                'center_id':center_id, 'target_winner':target_winner}
 
     def getStats(self, stat_id, params, dashboard):
         # input task

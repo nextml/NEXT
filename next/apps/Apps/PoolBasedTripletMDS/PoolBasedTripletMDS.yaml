@@ -6,7 +6,6 @@ initExp:
       description: PoolBasedTripletMDS
       type: str
       values: [PoolBasedTripletMDS]
-
     args:
       description: Arguments for initExp
       type: dict
@@ -103,7 +102,7 @@ initExp:
               type: targetset
               values: []
 
-qetQuery:
+getQuery:
   description: 'A request to ask the query: "is {center} more similar to {left} or {right}?"'
   type: dict
   values:
@@ -124,33 +123,33 @@ qetQuery:
         optional: true
         values: []
 
-# processAnswer:
-#   description: reporting back the reward of pulling the arm suggested by getQuery
-#   type: dict
-#   values:
-#     exp_uid:
-#       description: The experiment unique identifier.
-#       type: str
-#       values: []
+processAnswer:
+  description: reporting back the reward of pulling the arm suggested by getQuery
+  type: dict
+  values:
+    exp_uid:
+      description: The experiment unique identifier.
+      type: str
+      values: []
 
-#     exp_key:
-#       description: The experiment access key.
-#       type: str
-#       values: []
+    exp_key:
+      description: The experiment access key.
+      type: str
+      values: []
 
-#     args:
-#       target_winner:
-#         description: The target that won the given query.
-#         type: str
-#         values: []
+    args:
+      target_winner:
+        description: The ID of the target that won the given query.
+        type: str
+        values: []
 
-#       query_uid:
-#         description: The unique identifier for the query.
-#         type: str
-#         values: []
+      query_uid:
+        description: The unique identifier for the query.
+        type: str
+        values: []
 
-#       response_time:
-#         description: The time taken for the participant to answer the query.
-#         type: num
-#         values: []
+      response_time:
+        description: The time taken for the participant to answer the query.
+        type: num
+        values: []
 
