@@ -1,9 +1,12 @@
+from next.database_client.PermStore import PermStore
+db = PermStore()
+
 class SimpleTargetManager(object):
     def __init__(self):
         self.database_id = 'app_data'
         self.bucket_id = 'targets'
 
-    def set_targetset(self, exp_uid, targetset, db):
+    def set_targetset(self, exp_uid, targetset):
         """
         Update the default target docs in the DB if a user uploads a target set.
         """
@@ -15,7 +18,7 @@ class SimpleTargetManager(object):
             if not didSucceed:
                 raise Exception("Failed to create_target_mapping: {}".format(message))
 
-    def get_targetset(self, exp_uid, db):
+    def get_targetset(self, exp_uid):
         """
         Gets the entire targetset for a given experiment as a list of dictionaries.
         """
@@ -27,7 +30,7 @@ class SimpleTargetManager(object):
         targetset = mongotized_target_blob.pop(0)
         return targetset
 
-    def get_target_item(self, exp_uid, target_id, db):
+    def get_target_item(self, exp_uid, target_id):
         """
         Get a target from the targetset. Th
         """
@@ -49,3 +52,21 @@ class SimpleTargetManager(object):
         del target['exp_uid']
         return target
 
+    def get_target_mapping(self, exp_uid):
+        # Get all docs for specified exp_uid
+        mongotized_target_blob,didSucceed,message = db.getDocsByPattern(self.database_id, self.bucket_id, {'exp_uid': exp_uid})
+        # If no docs with exp_uid can be retreived, throw an error
+        if not didSucceed:
+            raise DatabaseException("Failed to get_target_mapping: %s"%(message))
+        # Pop target_blob_dict out of list
+        for i in range(len(mongotized_target_blob)):
+            if 'targetless' in mongotized_target_blob[i].keys():
+                mongotized_target_blob.pop(i)
+                break
+        try:
+            mongotized_target_blob = sorted(mongotized_target_blob,key = lambda x: x.get('target_id',0))
+        except:
+            pass
+
+        target_blob_dict = mongotized_target_blob
+        return target_blob_dict

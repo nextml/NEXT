@@ -3,10 +3,9 @@ from flask.ext.login import login_user, logout_user, login_required, current_use
 from flask.ext.restful import abort, Api, Resource 
 from next.api import api_util
 from next.api.keychain import KeyChain
-from next.api.targetmapper import TargetMapper
 
 keychain = KeyChain()
-targetmapper = TargetMapper()
+
 # Initialize flask.Flask application and restful.api objects
 api = Blueprint('api', __name__)
 api_interface = api_util.NextBackendApi(api)
