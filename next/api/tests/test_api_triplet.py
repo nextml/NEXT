@@ -13,15 +13,15 @@ HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')+':'+os.enviro
 print HOSTNAME
 def run_all(assert_200, num_clients):
   def timeit(f):
-    """ 
+    """
     Utility used to time the duration of code execution. This script can be composed with any other script.
 
     Usage::\n
-      def f(n): 
-        return n**n  
+      def f(n):
+        return n**n
 
-      def g(n): 
-        return n,n**n 
+      def g(n):
+        return n,n**n
 
       answer0,dt = timeit(f)(3)
       answer1,answer2,dt = timeit(g)(3)
@@ -37,7 +37,7 @@ def run_all(assert_200, num_clients):
     return timed
 
   app_id = 'PoolBasedTripletMDS'
-  
+
   # Setup the exp_uid's
   client_exp_uids = []
   client_exp_keys = []
@@ -65,38 +65,33 @@ def run_all(assert_200, num_clients):
   test_alg['alg_id'] = 'RandomSampling'
   test_alg['alg_label'] = 'Test'
   test_alg['test_alg_label'] = 'Test'
-  test_alg['params'] = {}
   alg_list.append(test_alg)
 
   random_alg = {}
   random_alg['alg_id'] = 'RandomSampling'
   random_alg['alg_label'] = 'Random'
   random_alg['test_alg_label'] = 'Test'
-  random_alg['params'] = {}
   alg_list.append(random_alg)
 
   uncertainty_sampling_alg = {}
   uncertainty_sampling_alg['alg_id'] = 'UncertaintySampling'
   uncertainty_sampling_alg['alg_label'] = 'Uncertainty Sampling'
   uncertainty_sampling_alg['test_alg_label'] = 'Test'
-  uncertainty_sampling_alg['params'] = {}
   alg_list.append(uncertainty_sampling_alg)
 
   crowd_kernel_alg = {}
   crowd_kernel_alg['alg_id'] = 'CrowdKernel'
   crowd_kernel_alg['alg_label'] = 'Crowd Kernel'
   crowd_kernel_alg['test_alg_label'] = 'Test'
-  crowd_kernel_alg['params'] = {}
   alg_list.append(crowd_kernel_alg)
-  
-  params = {}
+
+  params = []
   test_proportion = 0.2
-  params['proportions'] = []
   for algorithm in alg_list:
     if algorithm['alg_label'] == 'Test':
-      params['proportions'].append(  { 'alg_label': algorithm['alg_label'] , 'proportion':test_proportion }  )
+      params.append(  { 'alg_label': algorithm['alg_label'] , 'proportion':test_proportion }  )
     else:
-      params['proportions'].append(  { 'alg_label': algorithm['alg_label'] , 'proportion':(1. - test_proportion)/(len(alg_list)-1.) }  )      
+      params.append(  { 'alg_label': algorithm['alg_label'] , 'proportion':(1. - test_proportion)/(len(alg_list)-1.) }  )
   algorithm_management_settings = {}
   algorithm_management_settings['mode'] = 'fixed_proportions'
   algorithm_management_settings['params'] = params
@@ -121,6 +116,7 @@ def run_all(assert_200, num_clients):
   initExp_args_dict['app_id'] = app_id
   initExp_args_dict['site_id'] = 'replace this with working site id'
   initExp_args_dict['site_key'] = 'replace this with working site key'
+  print initExp_args_dict
 
   for cl in range(num_clients):
     # convert python dictionary to json dictionary
@@ -143,8 +139,8 @@ def run_all(assert_200, num_clients):
     print "GET experiment response =",response.text, response.status_code
     if assert_200: assert response.status_code is 200
     initExp_response_dict = json.loads(response.text)
-    
-  # Now we will do many get queries over a random set of exp_uid's to generate data  
+
+  # Now we will do many get queries over a random set of exp_uid's to generate data
   seconds_between_API_hits = .001
   t = 0
   while t<total_pulls:
@@ -173,7 +169,7 @@ def run_all(assert_200, num_clients):
     print "POST getQuery response = ", response.text, response.status_code
     if assert_200: assert response.status_code is 200
     print "POST getQuery duration = ", dt
-    print 
+    print
 
     getQuery_response_dict = json.loads(response.text)
     query_uid = getQuery_response_dict['query_uid']
@@ -188,7 +184,7 @@ def run_all(assert_200, num_clients):
         index_right = target['index']
 
     #############################################
-    # test POST processAnswer 
+    # test POST processAnswer
     #############################################
     # generate simulated reward
     direction = norm(X_true[index_left]-X_true[index_center])-norm(X_true[index_right]-X_true[index_center])
@@ -199,7 +195,7 @@ def run_all(assert_200, num_clients):
       target_winner = index_left
     else:
       target_winner = index_right
-   
+
     processAnswer_args_dict = {}
     processAnswer_args_dict["exp_uid"] = exp_uid
     processAnswer_args_dict["exp_key"] = exp_key
@@ -217,7 +213,7 @@ def run_all(assert_200, num_clients):
     processAnswer_json_response = eval(response.text)
 
   # #############################################
-  # # test GET logs 
+  # # test GET logs
   # #############################################
   # r = numpy.random.rand()
   # if r <.005:
@@ -228,7 +224,7 @@ def run_all(assert_200, num_clients):
   #   print
 
   # #############################################
-  # # test GET participants 
+  # # test GET participants
   # #############################################
   # r = numpy.random.rand()
   # if r <.005:
@@ -282,7 +278,7 @@ def run_all(assert_200, num_clients):
       getStats_json_response = eval(response.text)
       print "/experiment/stats "+args['stat_id'], str(getStats_json_response), response.status_code
       if assert_200: assert response.status_code is 200
-      print 
+      print
 
 if __name__ == '__main__':
   run_all(False,1)

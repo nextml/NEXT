@@ -27,7 +27,7 @@ def run_all(assert_200):
   # clients run in simultaneous fashion using multiprocessing library
   num_clients = 30
 
-  pool = Pool(processes=num_clients)           
+  pool = Pool(processes=num_clients)
 
 
   # input test parameters
@@ -43,14 +43,12 @@ def run_all(assert_200):
     if idx==0:
       alg_item['alg_label'] = 'Test'
     else:
-      alg_item['alg_label'] = alg_id    
+      alg_item['alg_label'] = alg_id
     alg_item['test_alg_label'] = 'Test'
-    alg_item['params'] = {}
     alg_list.append(alg_item)
-  params = {}
-  params['proportions'] = []
+  params = []
   for algorithm in alg_list:
-    params['proportions'].append(  { 'alg_label': algorithm['alg_label'] , 'proportion':1./len(alg_list) }  )
+    params.append(  { 'alg_label': algorithm['alg_label'] , 'proportion':1./len(alg_list) }  )
   algorithm_management_settings = {}
   algorithm_management_settings['mode'] = 'fixed_proportions'
   algorithm_management_settings['params'] = params
@@ -129,7 +127,7 @@ def simulate_one_client( input_args ):
   getQuery_times = []
   processAnswer_times = []
   for t in range(total_pulls):
-    
+
 
     print t,participant_uid
     #######################################
@@ -148,8 +146,8 @@ def simulate_one_client( input_args ):
     if assert_200: assert response.status_code is 200
     print "POST getQuery duration = ", dt
     getQuery_times.append(dt)
-    print 
-    
+    print
+
 
     query_dict = json.loads(response.text)
     query_uid = query_dict['query_uid']
@@ -169,7 +167,7 @@ def simulate_one_client( input_args ):
     ts = time.time()
 
     time.sleep(  avg_response_time*numpy.log(1./numpy.random.rand())  )
-    
+
     direction = norm(X_true[index_left]-X_true[index_center])-norm(X_true[index_right]-X_true[index_center])
     r = numpy.random.rand()
     if r<.1:
@@ -183,7 +181,7 @@ def simulate_one_client( input_args ):
 
 
     #############################################
-    # test POST processAnswer 
+    # test POST processAnswer
     #############################################
     processAnswer_args_dict = {}
     processAnswer_args_dict["exp_uid"] = exp_uid
@@ -211,15 +209,15 @@ def simulate_one_client( input_args ):
 
 
 def timeit(f):
-  """ 
+  """
   Utility used to time the duration of code execution. This script can be composed with any other script.
 
   Usage::\n
-    def f(n): 
-      return n**n  
+    def f(n):
+      return n**n
 
-    def g(n): 
-      return n,n**n 
+    def g(n):
+      return n,n**n
 
     answer0,dt = timeit(f)(3)
     answer1,answer2,dt = timeit(g)(3)

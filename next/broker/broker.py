@@ -40,12 +40,19 @@ class JobBroker:
         """
         submit_timestamp = utils.datetimeNow('string')
         domain = self.__get_domain_for_job(app_id+"_"+exp_uid)
-        result = tasks.apply.apply_async(args=[app_id,exp_uid,task_name, args, submit_timestamp], exchange='async@'+domain, routing_key='async@'+domain)
-        if ignore_result:
-            return True
+        if next.constants.CELERY_ON:
+            result = tasks.apply.apply_async(args=[app_id,exp_uid,task_name, args, submit_timestamp], exchange='async@'+domain, routing_key='async@'+domain)
+            if ignore_result:
+                return True
+            else:
+                return result.get(interval=.001) 
         else:
-            return result.get(interval=.001) 
-
+            result = tasks.apply(app_id,exp_uid,task_name, args, submit_timestamp)
+            if ignore_result:
+                return True
+            else:
+                return result
+            
     def applySyncByNamespace(self, app_id, exp_uid, task_name, args, namespace=None, ignore_result=False,time_limit=0):
         """
         Run a task (task_name) on a set of args with a given app_id, and exp_uid asynchronously. 
@@ -98,11 +105,18 @@ class JobBroker:
         else:
             soft_time_limit = time_limit
             hard_time_limit = time_limit + .01
-        result = tasks.apply_sync_by_namespace.apply_async(args=[app_id,exp_uid,task_name, args, namespace, job_uid, submit_timestamp, time_limit], queue=queue_name,soft_time_limit=soft_time_limit,time_limit=hard_time_limit)
-        if ignore_result:
-            return True
+        if next.constants.CELERY_ON:
+            result = tasks.apply_sync_by_namespace.apply_async(args=[app_id,exp_uid,task_name, args, namespace, job_uid, submit_timestamp, time_limit], queue=queue_name,soft_time_limit=soft_time_limit,time_limit=hard_time_limit)
+            if ignore_result:
+                return True
+            else:
+                return result.get(interval=.001) 
         else:
-            return result.get(interval=.001) 
+            result = tasks.apply_sync_by_namespace(app_id,exp_uid,task_name, args, namespace, job_uid, submit_timestamp, time_limit)
+            if ignore_result:
+                return True
+            else:
+                return result
 
     def __get_domain_for_job(self,job_id):
         """
