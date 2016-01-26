@@ -548,7 +548,7 @@ class PoolBasedTripletMDS(AppPrototype):
         predict_args_dict = {'predict_id':predict_id,'params':params}
         predict_args_json = json.dumps(predict_args_dict)
 
-        db.submit_job(app_id,exp_uid,'predict',predict_args_json,ignore_result=True)
+        db.submit_job(app_id, exp_uid, 'predict', predict_args_json, ignore_result=True)
       ###############
 
       response_args_dict = {}

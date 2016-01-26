@@ -1,6 +1,7 @@
 import next.utils as utils
 import next.apps.SimpleTargetManager
 import json
+from next.resource_client.ResourceClient import ResourceClient
 
 class PoolBasedTripletMDS(object):
     def __init__(self):
@@ -25,39 +26,38 @@ class PoolBasedTripletMDS(object):
                                     {'target':self.TargetManager.get_target_item(index_right),'label':'right'} ]
         return query
 
-    def processAnswer(self, exp_uid, args_dict, query_uid, alg_label, num_reported_answers, db):
-        targets, didSucceed, message = db.get(self.app_id+':queries',query_uid,'target_indices')
-
+    def processAnswer(self, exp_uid, args_dict, num_reported_answers, db):
+        targets, didSucceed, message = db.get(self.app_id+':queries',args_dict['query_uid'],'target_indices')
         for target in targets:
             if target['label'] == 'center':
-                center_id = target['index']
+                center_id = target['target_id']
             elif target['label'] == 'left':
-                left_id = target['index']
+                left_id = target['target_id']
             elif target['label'] == 'right':
-                right_id = target['index']
-
+                right_id = target['target_id']
         target_winner = args_dict['target_winner']
-
         # update query doc
-        db.set(self.app_id+':queries',query_uid,'target_winner',target_winner)
+        db.set(self.app_id+':queries',args_dict['query_uid'],'target_winner',target_winner)
 
         q = [left_id, right_id, center_id]
 
         if target_winner==right_id:
             q = [right_id,left_id,center_id]
-
-        db.set(self.app_id+':queries',query_uid,'q',q)
-
+        db.set(self.app_id+':queries',args_dict['query_uid'],'q',q)
         # check if we're going to evaluate this loss
         n, _, _ = db.get(self.app_id+':experiments',exp_uid,'n')
-            
+
+        # make a predict call ~ every n/4 queries     
         if num_reported_answers % ((n+4)/4) == 0:
             predict_id = 'get_embedding'
             params = {'alg_label':alg_label}
             predict_args_dict = {'predict_id':predict_id,'params':params}
             predict_args_json = json.dumps(predict_args_dict)
-            #TODO make predict work and uncomment
-            db.submit_job(self.app_id,exp_uid,'predict',predict_args_json,ignore_result=True)
+            db.submit_job(self.app_id,
+                          exp_uid,
+                          'predict',
+                          predict_args_json,
+                          ignore_result=True)
             
         
         return {'left_id':left_id, 'right_id':right_id,
@@ -95,15 +95,10 @@ class PoolBasedTripletMDS(object):
         # line unpacks some statements
         return functions[stat_id](*args[stat_id])
 
-    def predict(self, exp_uid, alg_id, predict_id, db):
+    def predict(self, exp_uid, alg, args_dict, db):
+        predict_id = args_dict['predict_id']
         meta = {}
         if predict_id=='get_embedding':
-            # get sandboxed database for the specific app_id,alg_id,exp_uid - closing off the rest of the database to the algorithm
-            rc = ResourceClient(self.app_id,exp_uid,alg_uid,db)
-
-            # get specific algorithm to make calls to
-            alg = utils.get_app_alg(self.app_id, alg_id)
-
             ##### Get Embedding #####
             Xd,num_reported_answers,dt = utils.timeit(alg.predict)(rc)
 

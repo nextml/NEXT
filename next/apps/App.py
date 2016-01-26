@@ -54,41 +54,21 @@ class App(AppPrototype):
 
             # remove any reminants of an experiment if it exists
             self.helper.remove_experiment(app_id, exp_uid, db)
-
-            # Database call that creates the experiment
-            self.helper.create_experiment(app_id, exp_uid, db)
-            db.set('experiments_admin',exp_uid,'exp_uid',exp_uid)
-            db.set('experiments_admin',exp_uid,'app_id',app_id)
-            db.set('experiments_admin',exp_uid,'start_date',utils.datetime2str(utils.datetimeNow()))
-
-            alg_list = args_dict['alg_list']
-            for algorithm in alg_list:
-                alg_id = algorithm['alg_id']
-                alg_uid = utils.getNewUID()
-                algorithm['alg_uid'] = alg_uid
-
-                db.set(app_id+':algorithms', alg_uid, 'alg_id', alg_id)
-                db.set(app_id+':algorithms', alg_uid, 'alg_uid', alg_uid)
-                db.set(app_id+':algorithms', alg_uid, 'exp_uid', exp_uid)
-
-            # Setting experiment parameters in the database
-            db.set(app_id+':experiments', exp_uid, 'exp_uid', exp_uid)
-            db.set(app_id+':experiments', exp_uid, 'app_id', app_id)
-            db.set(app_id+':experiments', exp_uid, 'alg_list', alg_list)
-            db.set(app_id+':experiments', exp_uid, 'git_hash', git_hash)
-
-            # These are the arguments specfic to this particular app
-            for key in args_dict.keys():
-                db.set(app_id+':experiments', exp_uid, key, args_dict[key])
-
+            # Set doc in experiment_admin bucket
+            db.set_doc('experiments_admin', exp_uid, {'exp_uid': exp_uid, 'app_id':app_id, 'start_date': utils.datetime2str(utils.datetimeNow())})
+            # Set doc in algorithms bucket
+            for algorithm in args_dict['alg_list']:
+                db.set_doc(app_id+':algorithms', exp_uid+algorithm['alg_label'], algorithm)
+            # Set doc in experiments bucket
+            db.set_doc(app_id+':experiments', exp_uid, args_dict)
+            db.set(app_id+':experiments', exp_uid, {'git_hash':git_hash})
             # now intitialize each algorithm
-            for algorithm in alg_list:
+            for algorithm in args_dict['alg_list']:
                 params = algorithm.get('params',None)
-                # get sandboxed database for the specific app_id, alg_uid,
-                # exp_uid - closing off the rest of the database to the algorithm
-                rc = ResourceClient(app_id, exp_uid, algorithm[alg_uid], db)
+                # get sandboxed database for the specific app_id, alg_uid, exp_uid - closing off the rest of the database to the algorithm
+                rc = ResourceClient(app_id, exp_uid, algorithm['alg_label'], db)
                 # get specific algorithm to make calls to
-                alg = utils.get_app_alg(self.app_id, algorithm[alg_id])
+                alg = utils.get_app_alg(self.app_id, algorithm['alg_id'])
                 # call initExp
                 didSucceed, dt = utils.timeit(alg.initExp)(resource=rc,
                                                            params=params,
@@ -111,54 +91,33 @@ class App(AppPrototype):
             if not success:
                 raise Exception("Failed to verify: {}".format(" \n".join(messages)))
 
-            alg_list, _, _ = db.get(app_id+':experiments',exp_uid,'alg_list')
-            alg_label_to_alg_id = {}
-            alg_label_to_alg_uid = {}
-            for algorithm in alg_list:
-                alg_label_to_alg_id[algorithm['alg_label']] = algorithm['alg_id']
-                alg_label_to_alg_uid[algorithm['alg_label']] = algorithm['alg_uid']
+            alg_list,_,_ = db.get(app_id+':experiments',exp_uid,'args')['alg_list']
 
-            response = db.get(app_id + ':experiments', exp_uid, 'algorithm_management_settings')
-            algorithm_management_settings, didSucceed, message = response
-
-            if 'participant_uid' in args_dict:
-                participant_uid = args_dict['participant_uid']
-            else:
-                participant_uid = exp_uid
-
-            # check to see if the first partipant has come by and if not, save to db
-            participant_doc_exists, didSucceed, message = db.exists(app_id+':participants',participant_uid,'participant_uid')
-            first_participant_query = not participant_doc_exists
-            if first_participant_query:
-                db.set(app_id+':participants', participant_uid, 'participant_uid', participant_uid)
-                db.set(app_id+':participants', participant_uid, 'exp_uid', exp_uid)
-
-            participant_to_algorithm_management,didSucceed,message = db.get(app_id+':experiments', exp_uid, 'participant_to_algorithm_management')
-            # the real decisions in choosing a query (partipant_to_alg settings looked at, etc)
-            if (participant_uid == exp_uid) or \
-               (participant_to_algorithm_management == 'one_to_many') or \
-               (first_participant_query):
-                
+            # Create the participant dictionary in participants bucket if needed. Also pull out label and id for this algorithm
+            if not 'participant_uid' in args_dict:
+                args_dict['participant_uid'] = args_dict['exp_uid']
+            participant_uid = args_dict['participant_uid']
+            # check to see if the first participant has come by and if not, save to db
+            first_participant_query = not db.exists(app_id+':participants',participant_uid,'participant_uid')
+            participant_to_algorithm_management,_,_ = db.get(app_id+':experiments', exp_uid, 'args')['participant_to_algorithm_management']
+            if (participant_uid == exp_uid) or (participant_to_algorithm_management == 'one_to_many') or (first_participant_query):
+                algorithm_management_settings, didSucceed, message = db.get(app_id + ':experiments', exp_uid, 'algorithm_management_settings')
                 if algorithm_management_settings['mode'] == 'fixed_proportions':
-                    proportions_list = algorithm_management_settings['params']['proportions']
-                    prop = [ prop_item['proportion'] for prop_item in proportions_list ]
-                    prop_item = numpy.random.choice(alg_list,p=prop)
+                    prop = [prop_item['proportion'] for prop_item in algorithm_management_settings['params']['proportions']]
+                    chosen_alg = numpy.random.choice(alg_list,p=prop)
                 else:
                     raise Exception('algorithm_management_mode : '+algorithm_management_settings['mode']+' not implemented')
-
-                alg_id = alg_label_to_alg_id[ prop_item['alg_label'] ]
-                alg_uid = alg_label_to_alg_uid[ prop_item['alg_label'] ]
-                alg_label = prop_item['alg_label']
-
-                if  (first_participant_query) and \
-                        (participant_to_algorithm_management=='one_to_one'):
-                    db.set(app_id+':participants',participant_uid,'alg_id',alg_id)
-                    db.set(app_id+':participants',participant_uid,'alg_uid',alg_uid)
-
+                alg_id = chosen_alg['alg_id']
+                alg_label = chosen_alg['alg_label']
+                if  (first_participant_query) and (participant_to_algorithm_management=='one_to_one'):
+                    db.set_doc(app_id+':participants',participant_uid,{'exp_uid':exp_uid,
+                                                                       'participant_uid':participant_uid,
+                                                                       'alg_id':alg_id,
+                                                                       'alg_label':alg_label})
             elif (participant_to_algorithm_management=='one_to_one'):
                 # If here, then alg_uid should already be assigned in participant doc
                 alg_id,didSucceed,message = db.get(app_id+':participants',participant_uid,'alg_id')
-                alg_uid,didSucceed,message = db.get(app_id+':participants',participant_uid,'alg_uid')
+                alg_label,didSucceed,message = db.get(app_id+':participants',participant_uid,'alg_label')
             else:
                 raise Exception('participant_to_algorithm_management : '+participant_to_algorithm_management+' not implemented')
 
@@ -172,7 +131,7 @@ class App(AppPrototype):
             # do_not_ask_list = list(set(do_not_ask_list))
 
             # get sandboxed database for the specific app_id,alg_id,exp_uid - closing off the rest of the database to the algorithm
-            rc = ResourceClient(app_id, exp_uid, alg_uid, db)
+            rc = ResourceClient(app_id, exp_uid, alg_label, db)
             alg = utils.get_app_alg(self.app_id, alg_id)
             alg_response = utils.timeit(alg.getQuery)(resource=rc)
             query = self.myApp.getQuery(exp_uid, args_dict, alg_response, db, ell)
@@ -182,13 +141,13 @@ class App(AppPrototype):
             query_doc.update(query)
             query_uid = utils.getNewUID()
             query_doc.update({'participant_uid':participant_uid,
-                              'alg_uid':alg_uid,
+                              'alg_id':alg_id,
                               'exp_uid':exp_uid,
                               'alg_label':alg_label,
                               'timestamp_query_generated':utils.datetimeNow(),
                               'query_uid':query_uid})
             db.set_doc(app_id+':queries', query_uid, query_doc)
-            return query_doc,True,''
+            return query_doc, True,''
         except Exception:
             error = traceback.format_exc()
             log_entry = { 'exp_uid':exp_uid,'task':'getQuery','error':error,'timestamp':utils.datetimeNow(),'args_json':args_json }
@@ -204,51 +163,30 @@ class App(AppPrototype):
             if not success:
                 raise Exception("Failed to verify: {}".format(" \n".join(messages)))
 
-
-            # get list of algorithms associated with project
-            alg_list, didSucceed, message = db.get(app_id + ':experiments',
-                                                   exp_uid, 'alg_list')
- 
-            # get alg_id
-            query_uid = args_dict['query_uid']
-            alg_uid, didSucceed, message = db.get(app_id + ':queries',
-                                                  query_uid, 'alg_uid')
-            if not didSucceed:
-                raise Exception("Failed to retrieve query with query_uid=" + query_uid)
-
+            # Increment num_reported_answers for this algorithm by getting alg_uid for this doc
+            query, didSucceed, message = db.get_doc(app_id + ':queries', args_dict['query_uid'])
+            alg_list, didSucceed, message = db.get(app_id + ':experiments', exp_uid, 'args')['alg_list']
+            alg_label = query['alg_label']
             for algorithm in alg_list:
-                if alg_uid == algorithm['alg_uid']:
-                    alg_id = algorithm['alg_id']
-                    alg_label = algorithm['alg_label']
-                    response = db.increment(app_id + ':experiments', exp_uid,
-                                            'num_reported_answers_for_' + alg_uid)
-                    num_reported_answers, didSucceed, message = response
+                if alg_label == algorithm['alg_label']:
+                    alg = algorithm
+                    num_reported_answers, didSucceed, message = db.increment(app_id + ':experiments', exp_uid, 'num_reported_answers_for_' + alg_label)
                     break
 
+            # Write network delay time and participant response time to db
+            self.helper.write_delay_info(args_dict, app_id, db)
             # get sandboxed database for the specific app_id,alg_id,exp_uid - closing off the rest of the database to the algorithm
-            rc = ResourceClient(app_id, exp_uid, alg_uid,db)
-
+            rc = ResourceClient(app_id, exp_uid, alg_label, db)
             # get specific algorithm to make calls to
-            alg = utils.get_app_alg(self.app_id, alg_id)
-
-            self.helper.write_delay_info(query_uid, args_dict, app_id, db)
-            app_response, meta = self.myApp.processAnswer(exp_uid, args_dict, query_uid, alg_label, num_reported_answers, db)
+            alg = utils.get_app_alg(self.app_id, alg['alg_id'])
+            app_response, meta = self.myApp.processAnswer(exp_uid, args_dict, query, alg, num_reported_answers, db)
             # call processAnswer in the algorithm.
-            didSucceed, dt = utils.timeit(alg.processAnswer)(resource=rc,
-                                                            **app_response)
-
-            
-            log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'processAnswer','duration':dt }
+            didSucceed, dt = utils.timeit(alg.processAnswer)(resource=rc, **app_response)
+            # TODO: Where does this timing actually get logged?
+            log_entry_durations = { 'exp_uid':exp_uid,'alg_label':alg_label,'task':'processAnswer','duration':dt }
             log_entry_durations.update( rc.getDurations() )
-            meta = {'log_entry_durations':log_entry_durations}
-            
-            
-            response_args_dict = {}
-            args_out = {'args': response_args_dict, 'meta': meta}
-            response_json = json.dumps(args_out)
-
-            return response_json, True, ""
-
+            args_out = {'args': {}, 'meta': {'log_entry_durations':log_entry_durations}}
+            return json.dumps(args_out), True, ""
         except Exception:
             error = traceback.format_exc()
             log_entry = {'exp_uid': exp_uid, 'task': 'processAnswer',
@@ -256,60 +194,45 @@ class App(AppPrototype):
             ell.log(app_id+':APP-EXCEPTION', log_entry)
             return '{}', False, error
 
-    # def predict(self, exp_uid, args_json, db,ell):
-    #     try:
-    #         app_id = self.app_id
+    def predict(self, exp_uid, args_json, db,ell):
+        try:
+            app_id = self.app_id
+            args_dict = self.helper.convert_json(args_json)
+            args_dict, success, messages = Verifier.verify(args_dict, self.reference_dict['predict'])
+            if not success:
+                raise Exception("Failed to verify: {}".format(" \n".join(messages)))
 
-    #         log_entry = {'exp_uid': exp_uid,  'task': 'predict',
-    #                      'json': args_json, 'timestamp': utils.datetimeNow()}
-    #         ell.log(app_id+':APP-CALL', log_entry)
+            params = args_dict['params']
+            alg_label = params['alg_label']
 
-    #         # convert args_json to args_dict
-    #         try:
-    #             args_dict = json.loads(args_json)
-    #         except:
-    #             error = "%s.predict input args_json is in improper format" % self.app_id
-    #             raise Exception(error)
+            # get list of algorithms associated with project
+            alg_list, didSucceed, message = db.get(app_id + ':experiments',exp_uid,'alg_list')
+            # get alg_id
+            for algorithm in alg_list:
+                if alg_label == algorithm['alg_label']:
+                    alg_id = algorithm['alg_id']
+                    
+                    # get sandboxed database for the specific app_id,alg_id,exp_uid - closing off the rest of the database to the algorithm
+            rc = ResourceClient(self.app_id, exp_uid, alg_label, db)
+            # get specific algorithm to make calls to
+            alg = utils.get_app_alg(self.app_id, alg_id)
+            response_args_dict, meta = self.myApp.predict(exp_uid, alg, args_dict, rc, db)
+            args_out = {'args': response_args_dict, 'meta': meta}
+            predict_json = json.dumps(args_out)
 
-    #         # check for the fields that must be contained in args or error occurs
-    #         key_check = Verifier.necessary_fields_present(args_dict,
-    #                                     self.myApp.necessary_fields['predict'])
-    #         if keys_check[0]:
-    #             raise(key_check[1])
+            log_entry = {'exp_uid': exp_uid, 'task': 'predict',
+                         'json': predict_json, 'timestamp': utils.datetimeNow()}
 
-    #         predict_id = args_dict['predict_id']
-    #         params = args_dict['params']
-    #         alg_label = params['alg_label']
+            ell.log(app_id+':APP-RESPONSE', log_entry)
+            return predict_json, True, ''
 
-    #         # get list of algorithms associated with project
-    #         alg_list, didSucceed, message = db.get(app_id + ':experiments',
-    #                                                exp_uid, 'alg_list')
+        except Exception:
+            error = traceback.format_exc()
+            log_entry = {'exp_uid': exp_uid, 'task': 'predict',
+                         'error': str(error), 'timestamp': utils.datetimeNow()}
 
-    #         # get alg_id
-    #         for algorithm in alg_list:
-    #             if alg_label == algorithm['alg_label']:
-    #                 alg_id = algorithm['alg_id']
-    #                 alg_uid = algorithm['alg_uid']
-
-    #         response_args_dict, meta = self.myApp.predict(exp_uid, alg_id,
-    #                                                       predict_id, db)
-
-    #         args_out = {'args': response_args_dict, 'meta': meta}
-    #         predict_json = json.dumps(args_out)
-
-    #         log_entry = {'exp_uid': exp_uid, 'task': 'predict',
-    #                      'json': predict_json, 'timestamp': utils.datetimeNow()}
-
-    #         ell.log(app_id+':APP-RESPONSE', log_entry)
-    #         return predict_json, True, ''
-
-    #     except Exception, err:
-    #         error = traceback.format_exc()
-    #         log_entry = {'exp_uid': exp_uid, 'task': 'predict',
-    #                      'error': str(error), 'timestamp': utils.datetimeNow()}
-
-    #         didSucceed,message = ell.log(app_id+':APP-EXCEPTION', log_entry)
-    #         return '{}', False, error
+            didSucceed,message = ell.log(app_id+':APP-EXCEPTION', log_entry)
+            return '{}', False, error
 
     # def getStats(self, exp_uid, args_json, db, ell):
     #     try:
@@ -353,8 +276,8 @@ class App(AppPrototype):
     #         return '{}', False, error
 
 class Helper(object):
-    def write_delay_info(self, query_uid, args_dict, app_id, db):
-        timestamp_query_generated,didSucceed,message = db.get(app_id+':queries',query_uid,'timestamp_query_generated')
+    def write_delay_info(self, args_dict, app_id, db):
+        timestamp_query_generated,didSucceed,message = db.get(app_id+':queries',args_dict['query_uid'],'timestamp_query_generated')
         datetime_query_generated = utils.str2datetime(timestamp_query_generated)
         timestamp_answer_received = args_dict.get('meta',{}).get('timestamp_answer_received',None)
 
@@ -366,8 +289,9 @@ class Helper(object):
         delta_datetime = datetime_answer_received - datetime_query_generated
         round_trip_time = delta_datetime.seconds + delta_datetime.microseconds/1000000.
         response_time = float(args_dict.get('response_time',0.))
-        db.set(app_id+':queries',query_uid,'response_time',response_time)
-        db.set(app_id+':queries',query_uid,'network_delay',round_trip_time-response_time)
+        db.set(app_id+':queries',args_dict['query_uid'],'response_time',response_time)
+        db.set(app_id+':queries',args_dict['query_uid'],'network_delay',round_trip_time-response_time)
+
     def remove_experiment(self, app_id, exp_uid, db, ell):
         # remove any reminants of an experiment if it exists
         didSucceed,message = db.delete_docs_with_filter('experiments_admin',{'exp_uid':exp_uid})
@@ -381,12 +305,6 @@ class Helper(object):
         didSucceed,message = ell.delete_logs_with_filter(app_id+':APP-EXCEPTION',{'exp_uid':exp_uid})
         didSucceed,message = ell.delete_logs_with_filter(app_id+':ALG-DURATION',{'exp_uid':exp_uid})
         didSucceed,message = ell.delete_logs_with_filter(app_id+':ALG-EVALUATION',{'exp_uid':exp_uid})
-
-    def create_experiment(self, app_id, exp_uid, db):
-        # Database call that creates the experiment
-        db.set('experiments_admin',exp_uid,'exp_uid',exp_uid)
-        db.set('experiments_admin',exp_uid,'app_id',app_id)
-        db.set('experiments_admin',exp_uid,'start_date',utils.datetime2str(utils.datetimeNow()))
 
     def convert_json(args_json):
             # Convert the args JSON to an args dict

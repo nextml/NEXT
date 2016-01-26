@@ -63,7 +63,7 @@ initExp:
           type: dict
           values:
             mode:
-              description: How are the algorithms selected? Currently, 'fixed_proportions' is the only implement mode and a probability of an algorithm being drawn has to be selected.
+              description: Currently, 'fixed_proportions' is the only implement mode and a probability of an algorithm being drawn has to be selected.
               type: str
               values: [fixed_proportions]
             params:
@@ -153,3 +153,36 @@ processAnswer:
         type: num
         values: []
 
+predict:
+  description: 'Make a prediction from a specific alg'
+  type: dict
+  values:
+    exp_uid:
+      description: The experiment unique identifier.
+      type: str
+      values: []
+
+    exp_key:
+      description: The experiment access key.
+      type: str
+      values: []
+
+    args:
+      predict_id:
+        description: unique identifier of session for a participant answering questions, if key non-existant particpant_uid is assigned as exp_uid.
+        type: str
+        values: []
+
+      params:
+        description: parameters for this predict call.
+        type: dict
+        values:  
+          alg_label:
+            description: alg_label of algorithm making the call
+            type: str
+            values: []
+
+          test_alg_label: 
+            description: describes the algorithm that whos triplets are evaluated on the target algorithm 
+            type: str
+            values: []
