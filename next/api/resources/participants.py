@@ -21,13 +21,13 @@ import next.utils
 import next.broker.broker
 import next.api.api_util as api_util
 from next.api.api_util import APIArgument
-from next.api.targetmapper import TargetMapper
 from next.api.keychain import KeyChain
 from next.api.resource_manager import ResourceManager
+from next.apps.SimpleTargetManager import SimpleTargetManager
 
 resource_manager = ResourceManager()
 broker = next.broker.broker.JobBroker()
-targetmapper = TargetMapper() 
+targetmapper = SimpleTargetManager()
 keychain = KeyChain()
 
 # Request parser. Checks that necessary dictionary keys are available in a given resource.
@@ -107,10 +107,9 @@ class Participants(Resource):
             
         for participant, responses in participant_responses.iteritems():
             for response in responses:
-                for target_index in response['target_indices']:
-                    target_index['target'] = targetmapper.get_target_data(exp_uid,
-                                                                          target_index['index'])
-                    
+                for target_id in response['target_id']:
+                    target_id['target'] = targetmapper.get_target_item(exp_uid, target_id)
+
         all_responses = {'participant_responses': participant_responses}
         if zip_true:
             zip_responses = BytesIO()
