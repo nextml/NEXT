@@ -20,12 +20,6 @@ initExp:
           type: num
           values: []
 
-        context:
-          description: Context for this experiment
-          type: target
-          values: []
-          optional: true
-
         alg_list:
           description: A list of algorithms you plan to use in this experiment.
           type: list
@@ -47,16 +41,14 @@ initExp:
           description: The instructions the particpant will see when experiment first launched.
           type: str
           values: [Please select, using your mouse or left and right arrow keys, the item on the bottom that is closest to the top.]
+          optional: true
 
         debrief:
           description: The message that the participant will see when done with the experiment.
           type: str
           values: [Thank you for participating]
+          optional: true
 
-        num_tries:
-          description: The number of queries the participant will answer.
-          type: num
-          values: [100]
 
         algorithm_management_settings:
           description: How individual algorithms are selected.
@@ -72,7 +64,7 @@ initExp:
               values:
                 proportions:
                   description: List of proportions per app type. Note; must be positive and the sum of 'proportions' must add up to 1.
-                  type: list
+                  type: dict
                   values:
                     alg_label:
                       description: An alg label, matching one of the ones declared in alg_list.
@@ -82,6 +74,12 @@ initExp:
                       description: Proportion of queries to give to this algorithm.
                       type: num
                       values: []
+
+        num_tries:
+          description: The number of queries the participant will answer.
+          type: str
+          values: []
+          optional: true
 
         participant_to_algorithm_management:
           description: How many algorithms does one participant see? (i.e., "one-to-many" means one participant sees many different algorithms).
