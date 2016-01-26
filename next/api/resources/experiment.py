@@ -62,12 +62,11 @@ class Experiment(Resource):
     def post(self):
         post_parser = exp_parser.copy()
         post_parser.add_argument('app_id', type=str, required=True)
-        post_parser.add_argument('args', type=dict, required=True)
-        
+        post_parser.add_argument('args', type=dict, required=True)    
         # Validate args with post_parser
         args_data = post_parser.parse_args()
         app_id = args_data['app_id']
-            
+        print app_id
         # Create and set exp_uid
         exp_uid = '%030x' % random.randrange(16**30)
         # Args from dict to json type             
@@ -76,14 +75,10 @@ class Experiment(Resource):
         response_json,didSucceed,message = broker.applyAsync(app_id,
                                                              exp_uid,
                                                              'initExp',
-                                                             args_json)
+                                                             json.dumps(args_data))
 
         if not didSucceed:
-            return attach_meta({}, meta_error['InitExpError'], backend_error=message), 400
-        
-        if not didSucceed:
-            raise DatabaseException("Failed to create experiment in database: %s"%(message))
-        
+            return attach_meta({}, meta_error['InitExpError'], backend_error=message), 400        
         # Create an experiment key and a perm key
         exp_key = keychain.create_exp_key(exp_uid)
         perm_key = keychain.create_perm_key(exp_uid, exp_key)

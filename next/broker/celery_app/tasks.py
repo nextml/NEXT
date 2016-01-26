@@ -31,12 +31,14 @@ def apply(app_id, exp_uid, task_name, args_in_json, enqueue_timestamp):
 		args_in_json = json.dumps(args_in_dict)
 
 	# get stateless app
+        print "tasks app_id", app_id
 	next_app = next.utils.get_app(app_id)
 
 	# pass it to a method
 	method = getattr(next_app, task_name)
 	args_out_json,didSucceed,message,dt = next.utils.timeit(method)(exp_uid, args_in_json, db, ell)
-	args_out_dict = json.loads(args_out_json)
+        print 'args_out_json', args_out_json, type(args_out_json)
+        args_out_dict = json.loads(args_out_json)
 	if 'args' in args_out_dict:
 		return_value = (json.dumps(args_out_dict['args']),didSucceed,message)
 		meta = args_out_dict.get('meta',{})
@@ -97,7 +99,6 @@ def apply_sync_by_namespace(app_id, exp_uid, task_name, args, namespace, job_uid
 		ell.log( app_id+':APP-EXCEPTION', log_entry  )
 		return None
 		
-
 # If celery isn't off, celery-wrap the functions so they can be called with apply_async
 if next.constants.CELERY_ON:
         apply = app.task(apply)

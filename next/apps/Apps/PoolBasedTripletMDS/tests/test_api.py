@@ -3,10 +3,8 @@ import numpy.random
 import random
 import json
 import time
-from datetime import datetime
 import requests
 from scipy.linalg import norm
-import time
 from multiprocessing import Pool
 
 
@@ -15,24 +13,17 @@ HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')+':'+os.enviro
 
 def run_all(assert_200):
 
-  app_id = 'PoolBasedTripletMDS'
   num_objects = 30
   desired_dimension = 2
   x = numpy.linspace(0,1,num_objects)
   X_true = numpy.vstack([x,x]).transpose()
   total_pulls_per_client = 100
-
   num_experiments = 1
-
   # clients run in simultaneous fashion using multiprocessing library
-  num_clients = 30
+  num_clients = 1
 
-  pool = Pool(processes=num_clients)
-
-
+  pool = Pool(processes=num_clients)           
   # input test parameters
-  n = num_objects
-  d = desired_dimension
   delta = 0.01
   supported_alg_ids = ['RandomSampling','RandomSampling','UncertaintySampling','CrowdKernel', 'STE']
 
@@ -59,9 +50,9 @@ def run_all(assert_200):
   # Test POST Experiment
   #################################################
   initExp_args_dict = {}
+  initExp_args_dict['app_id'] = 'PoolBasedTripletMDS'
   initExp_args_dict['args'] = {}
-  initExp_args_dict['args']['n'] = n
-  initExp_args_dict['args']['d'] = d
+  initExp_args_dict['args']['d'] = desired_dimension
   initExp_args_dict['args']['failure_probability'] = delta
   initExp_args_dict['args']['participant_to_algorithm_management'] = 'one_to_many' # 'one_to_one'  #optional field
   initExp_args_dict['args']['algorithm_management_settings'] = algorithm_management_settings #optional field
@@ -70,9 +61,11 @@ def run_all(assert_200):
   initExp_args_dict['args']['debrief'] = 'You want a debrief, here is your test debrief'
   initExp_args_dict['args']['context_type'] = 'text'
   initExp_args_dict['args']['context'] = 'Boom baby triplet works'
-  initExp_args_dict['app_id'] = app_id
-  initExp_args_dict['site_id'] = 'replace this with working site id'
-  initExp_args_dict['site_key'] = 'replace this with working site key'
+  initExp_args_dict['args']['targets'] = {}
+  initExp_args_dict['args']['targets'] = {}
+  initExp_args_dict['args']['targets']['n'] = num_objects
+
+
 
   exp_info = []
   for ell in range(num_experiments):

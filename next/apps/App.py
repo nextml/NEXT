@@ -16,14 +16,13 @@ import traceback
 
 from next.resource_client.ResourceClient import ResourceClient
 import next.utils as utils
-from next.apps.AppPrototype import AppPrototype
 import next.apps.Verifier as Verifier
 
 import next.constants
 git_hash = next.constants.GIT_HASH
 
 # keys common to all algorithms.
-class App(AppPrototype):
+class App(object):
     def __init__(self, app_id):
         self.app_id = app_id
         self.helper = Helper()
@@ -31,24 +30,31 @@ class App(AppPrototype):
         # Import the app and call it self.myApp. For example, this line imports
         # the file in ./Apps/PoolBasedTripletMDS/PoolBasedTripletMDS.py
         self.myApp = __import__('next.apps.Apps.'+self.app_id, fromlist=[''])
-        curr_dir,_ = os.path.split(__file__)
-        with open(os.path.join(curr_dir,'Apps/{}/{}.yaml').format(app_id, app_id),'r') as f:
+        dir,_ = os.path.split(__file__)
+        with open(os.path.join(dir, "Apps/{}/{}.yaml".format(app_id, app_id)),'r') as f:
+            print "trying to open reference_dict"
             self.reference_dict = yaml.load(f)
-        # dashboard_string = 'next.apps.Apps.' + self.app_id + \
-        #                    '.dashboard.Dashboard.' + self.app_id + 'Dashboard'
-        # self.dashboard = __import__(dashboard_string, fromlist=[''])
-
+        #TODO: Move to get stats
+        dashboard_string = 'next.apps.Apps.' + self.app_id + \
+                           '.dashboard.Dashboard'
+        dashboard_module = __import__(dashboard_string, fromlist=[''])
+        self.dashboard = getattr(dashboard_module, app_id+'Dashboard') 
     ## Begin API function implementations
         
     def initExp(self, exp_uid, args_json, db, ell):
         try:
             app_id = self.app_id
             args_dict = self.helper.convert_json(args_json)
-            args_dict, success, messages = Verifier.verify(args_dict, self.reference_dict['initExp'])
-            if not success:
-                raise Exception("Failed to verify: {}".format(" \n".join(messages)))
+            try:
+                args_dict, success, messages = Verifier.verify(args_dict, self.reference_dict['initExp']['values'])
+                print "attempted to verify", args_dict, type(args_dict)
+                if not success:
+                    raise Exception("Failed to verify: {}".format(" \n".join(messages)))
+            except Exception, error:
+                raise Exception(error)
+            
             args_dict = self.myApp.initExp(exp_uid, args_dict, db, ell);
-
+            print "verified args_dict", args_dict, type(args_dict)
             # remove any reminants of an experiment if it exists
             self.helper.remove_experiment(app_id, exp_uid, db)
             # Set doc in experiment_admin bucket
@@ -71,14 +77,16 @@ class App(AppPrototype):
                                                            params=params,
                                                            **args_dict['args'])
                 log_entry = {'exp_uid':exp_uid,
-                             'alg_uid':alg_uid,
+                             'alg_id':algorithm['alg_id'],
                              'task':'initExp',
                              'duration':dt,
                              'timestamp':utils.datetimeNow()}
                 ell.log(app_id+':ALG-DURATION', log_entry)
-            return {}, True, ''
+                print "logging algorithm", algorithm['alg_id']
+            return '{}', True, ''
         except Exception, error:
-            return {}, False, error
+            print "initExp Exception {}".format(error)
+            return '{}', False, error
 
     def getQuery(self, exp_uid, args_json, db, ell):
         try:
@@ -183,6 +191,7 @@ class App(AppPrototype):
             log_entry_durations = { 'exp_uid':exp_uid,'alg_label':alg_label,'task':'processAnswer','duration':dt }
             log_entry_durations.update( rc.getDurations() )
             args_out = {'args': {}, 'meta': {'log_entry_durations':log_entry_durations}}
+            # TODO: There should be a flag here to return the widget html if needed
             return json.dumps(args_out), True, ""
         except Exception:
             error = traceback.format_exc()
@@ -303,7 +312,7 @@ class Helper(object):
         didSucceed,message = ell.delete_logs_with_filter(app_id+':ALG-DURATION',{'exp_uid':exp_uid})
         didSucceed,message = ell.delete_logs_with_filter(app_id+':ALG-EVALUATION',{'exp_uid':exp_uid})
 
-    def convert_json(args_json):
+    def convert_json(self, args_json):
             # Convert the args JSON to an args dict
             try:
                 return json.loads(args_json)

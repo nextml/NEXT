@@ -1,6 +1,5 @@
 """
 next_backend Query Resource 
-author: Christopher Fernandez, Lalit Jain
 Query resource for handling restful querying of experiments in next_backend. 
 """
 
@@ -50,8 +49,6 @@ class getQuery(Resource):
         post_parser.add_argument('exp_uid', type=str, required=True)
         post_parser.add_argument('exp_key', type=str, required=True)
         post_parser.add_argument('args', type=dict, required=False)
-
-
         # Validate args with post_parser
         args_data = post_parser.parse_args()
         
@@ -66,10 +63,9 @@ class getQuery(Resource):
         # Standardized participant_uid
         if 'participant_uid' in args_data['args'].keys():
             args_data['args']['participant_uid'] = exp_uid+"_"+args_data['args']['participant_uid']
-        # Args from dict to json type
         args_json = json.dumps(args_data)
         # Execute getQuery 
-        response_json,didSucceed,message = broker.applyAsync(app_id,exp_uid,"getQuery",args_json)
+        response_json,didSucceed,message = broker.applyAsync(app_id,exp_uid,"getQuery", json.dumps(args_data["args"]))
         
         if not didSucceed:
             return attach_meta({},meta_error['QueryGenerationError'], backend_error=message)
