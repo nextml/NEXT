@@ -13,11 +13,7 @@ def verify(input_dict, reference_dict):
     - list_of_errors is as in verify_helper
     """
     ans = []
-    print 'input:\n', input_dict
-    print 'referencer:\n', reference_dict
-    print 'input keys', input_dict.keys(), 'ref keys', reference_dict.keys()
     for k in input_dict:
-        print 'current key line 20:', k, input_dict.keys(), reference_dict.keys()
         _, temp_ans = verify_helper(k, input_dict[k], reference_dict[k])
         ans += temp_ans
 
@@ -68,12 +64,8 @@ def verify_helper(name, input_element, reference_dict):
     - list_of_errors is: [{name: name, message: ...}, ...]
     """
     ans = []
-    print 'like 71 verify helper', reference_dict
     if reference_dict['type'] == 'dict':
-        print 'Made it past the if statement, on line 71'
         l1,l2 = compare_dict_keys(input_element, reference_dict['values'])
-        print 'l1:\n', l1
-        print 'l2:\n', l2
         if len(l1) > 0:
             ans += [{"name":name, "message":"extra keys in input: " + ",".join(l1)}]
         else:
@@ -84,10 +76,9 @@ def verify_helper(name, input_element, reference_dict):
                 elif (not 'optional' in reference_dict['values'][k]) or reference_dict['values'][k]['optional'] == False:
                     ans += [{"name":name+'/'+k, "message":"required key is absent"}]
                     ok = False
-            print 'Made past the for on line 85'
             if(ok):
                 for k in input_element:
-                    input_element[k],temp_ans = verify_helper(name + '/' + k, input_element[k], reference_dict['values'][str(k)])
+                    input_element[k], temp_ans = verify_helper(name + '/' + k, input_element[k], reference_dict['values'][str(k)])
                     ans += temp_ans
 
     elif reference_dict['type'] == 'list':
@@ -102,7 +93,7 @@ def verify_helper(name, input_element, reference_dict):
     elif reference_dict['type'] == 'str' or reference_dict['type'] == 'multiline':
         if not isinstance(input_element, str):
             ans += [{"name":name, "message":"invalid string"}]
-        if not input_element in reference_dict['values']:
+        elif 'values' in reference_dict and not input_element in reference_dict['values']:
             ans += [{"name":name, "message":"argument must be one of the specified strings: "+", ".join(reference_dict['values'])}]
 
     elif reference_dict['type'] == 'oneof':
@@ -137,38 +128,32 @@ def compare_dict_keys(d1, d2):
 if __name__ == "__main__":
     # the dictionary we're checking
     #d = json.loads('./Apps/PoolBasedTripletMDS/PoolBasedTripletMDS.yaml')
-    #print d
     d = {'app_id': 'PoolBasedTripletMDS',
             'args': {'targets':{'n': 30}, 'alg_list': [{'alg_id': 'RandomSampling',
                         'alg_label': 'Test',
-                        'params': {},
                         'test_alg_label': 'Test'},
                        {'alg_id': 'RandomSampling',
                         'alg_label': 'Random',
-                        'params': {},
                         'test_alg_label': 'Test'},
                        {'alg_id': 'UncertaintySampling',
                         'alg_label': 'Uncertainty Sampling',
-                        'params': {},
                         'test_alg_label': 'Test'},
                        {'alg_id': 'CrowdKernel',
                         'alg_label': 'Crowd Kernel',
-                        'params': {},
                         'test_alg_label': 'Test'}],
           'algorithm_management_settings': {'mode': 'fixed_proportions',
-                                            'params': {'proportions': [{'alg_label': 'Test',
+                                            'params': [{'alg_label': 'Test',
                                                                         'proportion': 0.2},
                                                                        {'alg_label': 'Random',
                                                                         'proportion': 0.26666666666666666},
                                                                        {'alg_label': 'Uncertainty Sampling',
                                                                         'proportion': 0.26666666666666666},
                                                                        {'alg_label': 'Crowd Kernel',
-                                                                        'proportion': 0.26666666666666666}]}},
+                                                                        'proportion': 0.26666666666666666}]},
           'd': 2,
           'failure_probability': 0.01,
           'participant_to_algorithm_management': 'one_to_many'},
           }
-    #pprint(d)
 
     # ground truth; this dictionary is assumed to be right
     filename = "Apps/PoolBasedTripletMDS/PoolBasedTripletMDS.yaml"
