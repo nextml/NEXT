@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, flash, request, redirect, url_for, jsonify
 from flask.ext.login import login_user, logout_user, login_required, current_user
-from flask.ext.restful import abort, Api, Resource 
+from flask.ext.restful import abort, Api, Resource
 from next.api import api_util
 from next.api.keychain import KeyChain
 
@@ -15,6 +15,12 @@ from next.api.resources.experiment import Experiment
 api_interface.add_resource(Experiment,
                            '/experiment',
                            '/experiment/<string:exp_uid>/<string:exp_key>')
+
+# TODO: delete the API endpoints for
+from next.api.app_handler import AppHandler
+api_interface.add_resource(AppHandler,
+                           '/experiment/<string:exp_uid>/<string:exp_key>/custom/function_name',
+                           '/experiment/custom/<string:function_name>')
 
 from next.api.resources.get_query import getQuery
 api_interface.add_resource(getQuery,

@@ -1,7 +1,7 @@
 """
-next_backend Statistics Resource 
+next_backend Statistics Resource
 author: Christopher Fernandez, Lalit Jain
-Stats resource for handling restful communication with next_backend analytics dashboards. 
+Stats resource for handling restful communication with next_backend analytics dashboards.
 """
 '''
 example use:
@@ -27,7 +27,7 @@ broker = next.broker.broker.JobBroker()
 keychain = KeyChain()
 
 # Request parser. Checks that necessary dictionary keys are available in a given resource.
-# We rely on learningLib functions to ensure that all necessary arguments are available and parsed. 
+# We rely on learningLib functions to ensure that all necessary arguments are available and parsed.
 post_parser = reqparse.RequestParser(argument_class=APIArgument)
 
 # Custom errors for GET and POST verbs on experiment resource
@@ -53,7 +53,7 @@ class Stats(Resource):
 
     def options(self):
         return None, 200, {'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'}
-  
+
     def post(self):
         post_parser.add_argument('exp_uid', type=str, required=True)
         post_parser.add_argument('exp_key', type=str, required=True)
@@ -77,7 +77,7 @@ class Stats(Resource):
         # Execute getStats
         response_json,didSucceed,message = broker.applyAsync(app_id,exp_uid,"getStats",args_json)
         response_dict = json.loads(response_json,parse_float=lambda o:round(float(o),4))
-        
+
         if didSucceed and "data" in response_dict.keys():
             return attach_meta(response_dict,meta_success), 201
         elif didSucceed and not "data" in response_dict.keys():
