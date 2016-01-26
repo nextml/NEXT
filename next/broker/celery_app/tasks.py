@@ -17,7 +17,6 @@ import redis
 r = redis.StrictRedis(host=next.constants.RABBITREDIS_HOSTNAME, port=next.constants.RABBITREDIS_PORT, db=0)
 
 # Main application task
-@app.task
 def apply(app_id, exp_uid, task_name, args_in_json, enqueue_timestamp):
 
 	enqueue_datetime = next.utils.str2datetime(enqueue_timestamp)
@@ -56,8 +55,6 @@ def apply(app_id, exp_uid, task_name, args_in_json, enqueue_timestamp):
 
 	return return_value
 
-
-@app.task
 def apply_sync_by_namespace(app_id, exp_uid, task_name, args, namespace, job_uid, enqueue_timestamp, time_limit):
 	
 	enqueue_datetime = next.utils.str2datetime(enqueue_timestamp)
@@ -99,5 +96,9 @@ def apply_sync_by_namespace(app_id, exp_uid, task_name, args, namespace, job_uid
 		log_entry = { 'exp_uid':exp_uid,'task':'daemonProcess','error':error,'timestamp':next.utils.datetimeNow() } 
 		ell.log( app_id+':APP-EXCEPTION', log_entry  )
 		return None
-
 		
+
+# If celery isn't off, celery-wrap the functions so they can be called with apply_async
+if next.constants.CELERY_ON:
+        apply = app.task(apply)
+        apply_sync_by_namespace = app.task(apply_sync_by_namespace)
