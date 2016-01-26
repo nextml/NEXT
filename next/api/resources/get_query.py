@@ -67,7 +67,7 @@ class getQuery(Resource):
         if 'participant_uid' in args_data['args'].keys():
             args_data['args']['participant_uid'] = exp_uid+"_"+args_data['args']['participant_uid']
         # Args from dict to json type
-        args_json = json.dumps(args_data["args"])
+        args_json = json.dumps(args_data)
         # Execute getQuery 
         response_json,didSucceed,message = broker.applyAsync(app_id,exp_uid,"getQuery",args_json)
         

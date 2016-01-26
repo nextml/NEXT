@@ -7,6 +7,7 @@ of an app is verified before creation.
 """
 
 # TODO: include docstrings (copy and paste from PoolBasedTripletsMDS.py)
+import os
 import numpy
 import numpy.random
 import json
@@ -30,16 +31,12 @@ class App(AppPrototype):
         # Import the app and call it self.myApp. For example, this line imports
         # the file in ./Apps/PoolBasedTripletMDS/PoolBasedTripletMDS.py
         self.myApp = __import__('next.apps.Apps.'+self.app_id, fromlist=[''])
-
-        with open('Apps/{}/{}.yaml'.format(app_id),'r') as f:
+        curr_dir,_ = os.path.split(__file__)
+        with open(os.path.join(curr_dir,'Apps/{}/{}.yaml').format(app_id, app_id),'r') as f:
             self.reference_dict = yaml.load(f)
-        # Import the app's dashboard. The implementation of this dashboard
-        # (which computes the results) is found in
-        # Apps/myApp/dashboard/Dashboard.py and is named myAppDashboard (e.g.,
-        # PoolBasedTripletsMDSDashboard)
-        dashboard_string = 'next.apps.Apps.' + self.app_id + \
-                           '.dashboard.Dashboard.' + self.app_id + 'Dashboard'
-        self.dashboard = __import__(dashboard_string, fromlist=[''])
+        # dashboard_string = 'next.apps.Apps.' + self.app_id + \
+        #                    '.dashboard.Dashboard.' + self.app_id + 'Dashboard'
+        # self.dashboard = __import__(dashboard_string, fromlist=[''])
 
     ## Begin API function implementations
         
