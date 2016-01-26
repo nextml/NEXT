@@ -5,8 +5,8 @@ last updated: 4/22/2015
 """
 import numpy
 import numpy.random
-from next.apps.PoolBasedTripletMDS.algs.CrowdKernel import utilsCrowdKernel
-from next.apps.PoolBasedTripletMDS.Prototype import PoolBasedTripletMDSPrototype
+from next.apps.Apps.PoolBasedTripletMDS.algs.CrowdKernel import utilsCrowdKernel
+from next.apps.Apps.PoolBasedTripletMDS.Prototype import PoolBasedTripletMDSPrototype
 
 import time
 
@@ -26,7 +26,7 @@ class CrowdKernel(PoolBasedTripletMDSPrototype):
     return True
 
 
-  def initExp(self,resource,n,d,failure_probability,params):
+  def initExp(self,resource,n,d,failure_probability,**kwargs):
     X = numpy.random.randn(n,d)*.0001
     tau = numpy.random.rand(n,n)
     

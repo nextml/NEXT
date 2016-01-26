@@ -39,13 +39,13 @@ initExp:
         instructions:
           description: The instructions the particpant will see when experiment first launched.
           type: str
-          values: [Please select, using your mouse or left and right arrow keys, the item on the bottom that is closest to the top.]
+          set: Please select, using your mouse or left and right arrow keys, the item on the bottom that is closest to the top.
           optional: true
 
         debrief:
           description: The message that the participant will see when done with the experiment.
           type: str
-          values: [Thank you for participating]
+          set: Thank you for participating
           optional: true
 
 

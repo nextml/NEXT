@@ -59,9 +59,6 @@ def run_all(assert_200):
   initExp_args_dict['args']['alg_list'] = alg_list #optional field
   initExp_args_dict['args']['instructions'] = 'You want instructions, here are your test instructions'
   initExp_args_dict['args']['debrief'] = 'You want a debrief, here is your test debrief'
-  initExp_args_dict['args']['context_type'] = 'text'
-  initExp_args_dict['args']['context'] = 'Boom baby triplet works'
-  initExp_args_dict['args']['targets'] = {}
   initExp_args_dict['args']['targets'] = {}
   initExp_args_dict['args']['targets']['n'] = num_objects
 

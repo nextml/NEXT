@@ -9,14 +9,14 @@ class PoolBasedTripletMDS(object):
         self.TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager()
         
     def initExp(self, exp_uid, args_dict, db, ell):
-        if 'targetset' in args_dict['targets'].keys():
-            n  = len(args_dict['targets']['targetset'])
-            self.TargetManager.set_targetset(args_dict['targets']['targetset'])
+        if 'targetset' in args_dict['args']['targets'].keys():
+            n  = len(args_dict['args']['targets']['targetset'])
+            self.TargetManager.set_targetset(args_dict['args']['targets']['targetset'])
         else:
-            n = args_dict['targets']['n']
-        args_dict['n'] = n
-        del args_dict['targets']
-
+            n = args_dict['args']['targets']['n']
+        args_dict['args']['n'] = n
+        del args_dict['args']['targets']
+        return args_dict
     def getQuery(self, exp_uid, args_dict, alg_response, db, ell):
         index_center, index_left, index_right, dt = alg_response
         # create JSON query payload

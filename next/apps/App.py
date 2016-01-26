@@ -8,6 +8,7 @@ of an app is verified before creation.
 
 # TODO: include docstrings (copy and paste from PoolBasedTripletsMDS.py)
 import os
+import sys
 import numpy
 import numpy.random
 import json
@@ -30,6 +31,8 @@ class App(object):
         # Import the app and call it self.myApp. For example, this line imports
         # the file in ./Apps/PoolBasedTripletMDS/PoolBasedTripletMDS.py
         self.myApp = __import__('next.apps.Apps.'+self.app_id, fromlist=[''])
+        self.myApp = getattr(self.myApp, app_id)
+        self.myApp = self.myApp()
         dir,_ = os.path.split(__file__)
         with open(os.path.join(dir, "Apps/{}/{}.yaml".format(app_id, app_id)),'r') as f:
             print "trying to open reference_dict"
@@ -47,26 +50,30 @@ class App(object):
             args_dict = self.helper.convert_json(args_json)
             try:
                 args_dict, success, messages = Verifier.verify(args_dict, self.reference_dict['initExp']['values'])
-                print "attempted to verify", args_dict, type(args_dict)
+                
                 if not success:
+                    print "Failed to verify:", messages, type(messages)
                     raise Exception("Failed to verify: {}".format(" \n".join(messages)))
             except Exception, error:
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                print "initExp Exception: {} {}".format(error, traceback.format_exc())
+                traceback.print_tb(exc_traceback)
                 raise Exception(error)
             
             args_dict = self.myApp.initExp(exp_uid, args_dict, db, ell);
             print "verified args_dict", args_dict, type(args_dict)
             # remove any reminants of an experiment if it exists
-            self.helper.remove_experiment(app_id, exp_uid, db)
+            self.helper.remove_experiment(app_id, exp_uid, db, ell)
             # Set doc in experiment_admin bucket
             db.set_doc('experiments_admin', exp_uid, {'exp_uid': exp_uid, 'app_id':app_id, 'start_date': utils.datetime2str(utils.datetimeNow())})
             # Set doc in algorithms bucket
-            for algorithm in args_dict['alg_list']:
+            for algorithm in args_dict['args']['alg_list']:
                 db.set_doc(app_id+':algorithms', exp_uid+algorithm['alg_label'], algorithm)
             # Set doc in experiments bucket
             db.set_doc(app_id+':experiments', exp_uid, args_dict)
-            db.set(app_id+':experiments', exp_uid, {'git_hash':git_hash})
+            db.set(app_id+':experiments', exp_uid, 'git_hash', git_hash)
             # now intitialize each algorithm
-            for algorithm in args_dict['alg_list']:
+            for algorithm in args_dict['args']['alg_list']:
                 params = algorithm.get('params',None)
                 # get sandboxed database for the specific app_id, alg_uid, exp_uid - closing off the rest of the database to the algorithm
                 rc = ResourceClient(app_id, exp_uid, algorithm['alg_label'], db)
@@ -81,12 +88,15 @@ class App(object):
                              'task':'initExp',
                              'duration':dt,
                              'timestamp':utils.datetimeNow()}
+                
                 ell.log(app_id+':ALG-DURATION', log_entry)
                 print "logging algorithm", algorithm['alg_id']
             return '{}', True, ''
         except Exception, error:
-            print "initExp Exception {}".format(error)
-            return '{}', False, error
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print "initExp Exception: {} {}".format(error, traceback.format_exc())
+            traceback.print_tb(exc_traceback)
+            return '{}', False, str(error)
 
     def getQuery(self, exp_uid, args_json, db, ell):
         try:

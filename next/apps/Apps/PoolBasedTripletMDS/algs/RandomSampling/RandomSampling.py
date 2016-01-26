@@ -4,8 +4,8 @@ author: Kevin Jamieson, kevin.g.jamieson@gmail.com
 last updated: 1/17/2015
 """
 import numpy.random
-from next.apps.PoolBasedTripletMDS.algs.RandomSampling import utilsMDS
-from next.apps.PoolBasedTripletMDS.Prototype import PoolBasedTripletMDSPrototype
+from next.apps.Apps.PoolBasedTripletMDS.algs.RandomSampling import utilsMDS
+from next.apps.Apps.PoolBasedTripletMDS.Prototype import PoolBasedTripletMDSPrototype
 
 import time
 
@@ -26,9 +26,8 @@ class RandomSampling(PoolBasedTripletMDSPrototype):
     return True
 
 
-  def initExp(self,resource,n,d,failure_probability,params):
+  def initExp(self,resource, n, d, failure_probability, **kwargs):
     X = numpy.random.randn(n,d)
-
     resource.set('n',n)
     resource.set('d',d)
     resource.set('delta',failure_probability)

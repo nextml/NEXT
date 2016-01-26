@@ -131,7 +131,6 @@ def get_app(app_id):
   next_path = 'next.apps.App'
   app_module = __import__(next_path,fromlist=[''])
   app_class = getattr(app_module, 'App')
-  print 'app_class', app_class
   return app_class(app_id)
 
 def get_app_alg(app_id,alg_id):
@@ -146,9 +145,9 @@ def get_app_alg(app_id,alg_id):
   """
   app_id = str(app_id) # soemtimes input is unicode formatted which causes error
   alg_id = str(alg_id) # soemtimes input is unicode formatted which causes error
-  next_path = 'next.apps.'+app_id+'.algs.'
-  alg_module = __import__(next_path+alg_id,fromlist=[''])
-  alg_class = getattr(alg_module,alg_id)
+  next_path = 'next.apps.Apps.{}.algs.{}'.format(app_id, alg_id, alg_id)
+  alg_module = __import__(next_path, fromlist=[''])
+  alg_class = getattr(alg_module, alg_id)
   return alg_class()
 
 def get_app_supported_algs(app_id):
