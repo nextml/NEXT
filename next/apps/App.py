@@ -22,7 +22,6 @@ import next.apps.Verifier as Verifier
 import next.constants
 git_hash = next.constants.GIT_HASH
 
-# keys common to all algorithms.
 class App(object):
     def __init__(self, app_id):
         self.app_id = app_id
@@ -107,24 +106,48 @@ class App(object):
         try:
             app_id = self.app_id
             args_dict = self.helper.convert_json(args_json)
-            args_dict, success, messages = Verifier.verify(args_dict, self.reference_dict['getQuery'])
-            if not success:
-                raise Exception("Failed to verify: {}".format(" \n".join(messages)))
 
-            alg_list,_,_ = db.get(app_id+':experiments',exp_uid,'args')['alg_list']
+            # This is formatting args_dict to be what the YAML wants...
+            # shouldn't the caller of this function do that?
+            args_dict['exp_uid'] = exp_uid
+            args_dict['args'] = {'participant_uid': args_dict['participant_uid']}
+            args_dict.pop('participant_uid', None)
 
+            # TODO: remove this try except block! Only included because I
+            # weansn't sure if Daniel pushed his code
+            try:
+                args_dict, success, messages = Verifier.verify(args_dict,
+                                                    self.reference_dict['getQuery']['values'])
+
+                if not success:
+                    print '\n'*5 + 'App.py:getQuery verify error' + '\n'*2
+                    print messages
+                    raise Exception("Failed to verify: {}".format(" \n".join(messages)))
+            except Exception, error:
+                pass
+
+            alg_list, _ ,_ = db.get(app_id+':experiments',exp_uid,'args')
+            alg_list = alg_list['alg_list']
+            #try:
+            #except Exception, error:
+                #exc_type, exc_value, exc_traceback = sys.exc_info()
+                #print "Exception! {} {}".format(error, traceback.format_exc())
+                #traceback.print_tb(exc_traceback)
+                #raise Exception(error)
+
+            initExp_args_dict, didSucceed, message = db.get_doc(app_id + ':experiments', exp_uid)
             # Create the participant dictionary in participants bucket if needed. Also pull out label and id for this algorithm
-            if not 'participant_uid' in args_dict:
-                args_dict['participant_uid'] = args_dict['exp_uid']
-            participant_uid = args_dict['participant_uid']
+            if not ('participant_uid' in args_dict['args'].keys()):
+                args_dict['args']['participant_uid'] = args_dict['exp_uid']
+            participant_uid = args_dict['args']['participant_uid']
             # check to see if the first participant has come by and if not, save to db
             first_participant_query = not db.exists(app_id+':participants',participant_uid,'participant_uid')
-            participant_to_algorithm_management,_,_ = db.get(app_id+':experiments', exp_uid, 'args')['participant_to_algorithm_management']
+            participant_to_algorithm_management = db.get(app_id+':experiments', exp_uid, 'args')[0]['participant_to_algorithm_management']
             if (participant_uid == exp_uid) or (participant_to_algorithm_management == 'one_to_many') or (first_participant_query):
-                algorithm_management_settings, didSucceed, message = db.get(app_id + ':experiments', exp_uid, 'algorithm_management_settings')
+                algorithm_management_settings = initExp_args_dict['args']['algorithm_management_settings']
                 if algorithm_management_settings['mode'] == 'fixed_proportions':
-                    prop = [prop_item['proportion'] for prop_item in algorithm_management_settings['params']['proportions']]
-                    chosen_alg = numpy.random.choice(alg_list,p=prop)
+                    prop = [prop_item['proportion'] for prop_item in algorithm_management_settings['params']]
+                    chosen_alg = numpy.random.choice(alg_list, p=prop)
                 else:
                     raise Exception('algorithm_management_mode : '+algorithm_management_settings['mode']+' not implemented')
                 alg_id = chosen_alg['alg_id']

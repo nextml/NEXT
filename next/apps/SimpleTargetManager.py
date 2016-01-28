@@ -40,8 +40,10 @@ class SimpleTargetManager(object):
                                                               {'exp_uid': exp_uid,
                                                                'target_id': target_id})
         try:
+            # targets are something else
             target = got_target.pop(0)
         except:
+            # targets are numbers
             target = {'target_id':target_id,
                       'primary_description':str(target_id),
                       'primary_type':'text',
@@ -49,7 +51,8 @@ class SimpleTargetManager(object):
                       'alt_type':'text'}
         if not didSucceed:
             raise Exception("Failed to get_target_item given index: {}".format(message))
-        del target['exp_uid']
+        # This line might fail; only tested under the except: statement above
+        #del target['exp_uid']
         return target
 
     def get_target_mapping(self, exp_uid):

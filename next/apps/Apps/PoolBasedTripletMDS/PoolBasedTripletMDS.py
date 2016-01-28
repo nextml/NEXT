@@ -7,7 +7,7 @@ class PoolBasedTripletMDS(object):
     def __init__(self):
         self.app_id = 'PoolBasedTripletsMDS'
         self.TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager()
-        
+
     def initExp(self, exp_uid, args_dict, db, ell):
         if 'targetset' in args_dict['args']['targets'].keys():
             n  = len(args_dict['args']['targets']['targetset'])
@@ -21,9 +21,12 @@ class PoolBasedTripletMDS(object):
         index_center, index_left, index_right, dt = alg_response
         # create JSON query payload
         query = {}
-        query['target_indices'] = [ {'target':self.TargetManager.get_target_item(index_center),'label':'center'},
-                                    {'target':self.TargetManager.get_target_item(index_left),'label':'left'},
-                                    {'target':self.TargetManager.get_target_item(index_right),'label':'right'} ]
+        print '\n'*5 + 'here myAPp 70'
+
+        query['target_indices'] = [
+                {'target':self.TargetManager.get_target_item(exp_uid, index_center),'label':'center'},
+                {'target':self.TargetManager.get_target_item(exp_uid, index_left),'label':'left'},
+                {'target':self.TargetManager.get_target_item(exp_uid, index_right),'label':'right'} ]
         return query
 
     def processAnswer(self, exp_uid, args_dict, num_reported_answers, db):
@@ -47,7 +50,7 @@ class PoolBasedTripletMDS(object):
         # check if we're going to evaluate this loss
         n, _, _ = db.get(self.app_id+':experiments',exp_uid,'n')
 
-        # make a predict call ~ every n/4 queries     
+        # make a predict call ~ every n/4 queries
         if num_reported_answers % ((n+4)/4) == 0:
             predict_id = 'get_embedding'
             params = {'alg_label':alg_label}
@@ -58,8 +61,8 @@ class PoolBasedTripletMDS(object):
                           'predict',
                           predict_args_json,
                           ignore_result=True)
-            
-        
+
+
         return {'left_id':left_id, 'right_id':right_id,
                 'center_id':center_id, 'target_winner':target_winner}
 

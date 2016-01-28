@@ -102,10 +102,6 @@ getQuery:
       description: The experiment unique identifier.
       type: str
 
-    exp_key:
-      description: The experiment access key.
-      type: str
-
     args:
       participant_uid:
         description: unique identifier of session for a participant answering questions, if key non-existant particpant_uid is assigned as exp_uid.
@@ -160,13 +156,13 @@ predict:
       params:
         description: parameters for this predict call.
         type: dict
-        values:  
+        values:
           alg_label:
             description: alg_label of algorithm making the call
             type: str
             values: []
 
-          test_alg_label: 
-            description: describes the algorithm that whos triplets are evaluated on the target algorithm 
+          test_alg_label:
+            description: describes the algorithm that whos triplets are evaluated on the target algorithm
             type: str
             values: []
