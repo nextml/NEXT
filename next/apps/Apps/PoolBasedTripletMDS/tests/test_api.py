@@ -22,7 +22,7 @@ def run_all(assert_200):
   # clients run in simultaneous fashion using multiprocessing library
   num_clients = 1
 
-  pool = Pool(processes=num_clients)           
+  pool = Pool(processes=num_clients)
   # input test parameters
   delta = 0.01
   supported_alg_ids = ['RandomSampling','RandomSampling','UncertaintySampling','CrowdKernel', 'STE']
@@ -49,6 +49,7 @@ def run_all(assert_200):
   #################################################
   # Test POST Experiment
   #################################################
+  print '\n'*2 + 'Testing POST initExp...'
   initExp_args_dict = {}
   initExp_args_dict['app_id'] = 'PoolBasedTripletMDS'
   initExp_args_dict['args'] = {}
@@ -80,6 +81,7 @@ def run_all(assert_200):
     #################################################
     # Test GET Experiment
     #################################################
+    print '\n'*2 + 'Testing GET initExp...'
     url = "http://"+HOSTNAME+"/api/experiment/"+exp_uid+"/"+exp_key
     response = requests.get(url)
     print "GET experiment response =",response.text, response.status_code
@@ -123,6 +125,7 @@ def simulate_one_client( input_args ):
     #######################################
     # test POST getQuery #
     #######################################
+    print '\n'*2 + 'Testing POST getQuery...'
     getQuery_args_dict = {}
     getQuery_args_dict['exp_uid'] = exp_uid
     getQuery_args_dict['exp_key'] = exp_key
@@ -173,6 +176,7 @@ def simulate_one_client( input_args ):
     #############################################
     # test POST processAnswer
     #############################################
+    print '\n'*2 + 'Testing POST processAnswer...'
     processAnswer_args_dict = {}
     processAnswer_args_dict["exp_uid"] = exp_uid
     processAnswer_args_dict["exp_key"] = exp_key

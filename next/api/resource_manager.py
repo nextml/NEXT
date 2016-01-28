@@ -1,11 +1,11 @@
 import next.utils as utils
-    
+
 from next.database_client.DatabaseAPI import DatabaseAPI
 db = DatabaseAPI()
 from next.logging_client.LoggerAPI import LoggerAPI
 ell = LoggerAPI()
 
-class ResourceManager: 
+class ResourceManager:
 
     """
     resource_manager
@@ -40,8 +40,8 @@ class ResourceManager:
             None
 
         Outputs: ::\n
-            (list of strings) app_id_list : list containing all app_id's that are fully operational in the system 
-        
+            (list of strings) app_id_list : list containing all app_id's that are fully operational in the system
+
         Usage: ::\n
             rm.get_app_ids()
         """
@@ -56,7 +56,7 @@ class ResourceManager:
 
         Outputs: ::\n
             (string) description : desciption of the app for readability by humans
-        
+
         Usage: ::\n
             rm.get_app_about('DuelingBanditsPureExploration')
         """
@@ -70,8 +70,8 @@ class ResourceManager:
             (string) app_id : app identifier
 
         Outputs: ::\n
-            (list of strings) alg_id_list : list containing all alg_id's that are fully operational in the system under the app 
-        
+            (list of strings) alg_id_list : list containing all alg_id's that are fully operational in the system under the app
+
         Usage: ::\n
             rm.get_app_alg_ids('PoolBasedTripletMDS')
         """
@@ -81,7 +81,7 @@ class ResourceManager:
         """
         Returns a list of dictionaries, each dictionary representing a kind of plot with the necessary inputs.
         All requests for plots are done through getStats calls which take 'stat_id' and 'params'. For each dictionary
-        returned from this function, there is a 'stat_id' field, 'description' which is the doc_string of the plot, 
+        returned from this function, there is a 'stat_id' field, 'description' which is the doc_string of the plot,
         and 'params' field which is a list of necessary params
 
         Inputs: ::\n
@@ -92,7 +92,7 @@ class ResourceManager:
                 (string) stat_id : the identifier for the specific plot / stat
                 (string) description : the doc string for the plot
                 (list of string) params : a list of the necessary parameters chosen from {'alg_label','task'}
-        
+
         Usage: ::\n
             rm.get_app_supported_stats('PoolBasedTripletMDS')
         """
@@ -107,7 +107,7 @@ class ResourceManager:
 
         Outputs: ::\n
             (dict) experiment : dictionary containing pertinent information to the experiment
-        
+
         Usage: ::\n
             rm.get_app_exp_uids('PoolBasedTripletMDS')
         """
@@ -116,19 +116,19 @@ class ResourceManager:
         exp_uids = []
         for doc in docs:
             exp_uids.append(str(doc['exp_uid']))
-        
+
         return exp_uids
 
     def get_app_exp_uid_start_date(self,exp_uid):
         """
-        Returns date in a string when experiment was initiazlied  
+        Returns date in a string when experiment was initiazlied
 
         Inputs: ::\n
             (string) exp_uid : unique experiment identifier
 
         Outputs: ::\n
             (datetime) start_date : start date in datetime format
-        
+
         Usage: ::\n
             rm.get_app_exp_uid_start_date('PoolBasedTripletMDS')
         """
@@ -138,41 +138,41 @@ class ResourceManager:
 
     def get_experiment(self,exp_uid):
         """
-        Gets an experiment from an exp_uid. Returns none if the exp_uid is not found. 
-        
+        Gets an experiment from an exp_uid. Returns none if the exp_uid is not found.
+
         Inputs: ::\n
         	(string) exp_uid : unique experiment identifier
 
         Outputs: ::\n
         	(dict) experiment : dictionary containing pertinent information to the experiment
-        
+
         Usage: ::\n
         	experiment = rm.get_experiment('b5242319c78df48f4ff31e78de5857')
         """
-        
+
         app_id = self.get_app_id(exp_uid)
 
         if app_id == None:
             return None
-        
+
         docs,didSucceed,message = db.get_docs_with_filter(app_id+':experiments',{'exp_uid':exp_uid})
 
         if len(docs)>0:
-            return docs[0] 
+            return docs[0]
         else:
             return None
 
     def get_app_id(self,exp_uid):
         """
-        Gets an app_id from an exp_uid. Returns none if the exp_uid is not found. 
+        Gets an app_id from an exp_uid. Returns none if the exp_uid is not found.
         This should be coming from cache so it should be very fast
-        
+
         Inputs: ::\n
         	exp_uid
 
         Outputs: ::\n
         	(string) app_id
-        
+
         Usage: ::\n
         	app_id = rm.get_app_id('b5242319c78df48f4ff31e78de5857')
         """
@@ -191,7 +191,7 @@ class ResourceManager:
             (list of dicts) alg_list : list of dicts describing algs implemented in exp_uid with fields:
                 (string) alg_id : the alg_id of the algorithm
                 (string) alg_label : the unique identiifer of the algorithm, also used in plots
-        
+
         Usage: ::\n
             alg_list = rm.get_algs_doc_for_exp_uid('b5242319c78df48f4ff31e78de5857')
         """
@@ -210,7 +210,7 @@ class ResourceManager:
             (list of dicts) alg_list : list of dicts describing algs implemented in exp_uid with fields:
                 (string) alg_id : the alg_id of the algorithm
                 (string) alg_label : the unique identiifer of the algorithm, also used in plots
-        
+
         Usage: ::\n
             alg_list = rm.get_algs_for_exp_uid('b5242319c78df48f4ff31e78de5857')
         """
@@ -235,23 +235,23 @@ class ResourceManager:
 
         Outputs: ::\n
             (string) git_hash : the alg_id of the algorithm
-        
+
         """
         app_id = self.get_app_id(exp_uid)
         git_hash,didSucceed,message = db.get(app_id+':experiments',exp_uid,'git_hash')
-        
+
         return git_hash
 
     def get_participant_uids(self,exp_uid):
         """
-        Given an exp_uid, returns list of participant_uid's involved with experiment 
-        
+        Given an exp_uid, returns list of participant_uid's involved with experiment
+
         Inputs: ::\n
             (string) exp_uid
 
         Outputs: ::\n
             (list) participant_uids
-        
+
         Usage: ::\n
             participant_uids = resource_manager.get_participant_uids(exp_uid)
         """
@@ -268,14 +268,14 @@ class ResourceManager:
 
     def get_participant_data(self,participant_uid, exp_uid):
         """
-        Given a participant_id and an exp_uid, returns the associated set of responses. 
-        
+        Given a participant_id and an exp_uid, returns the associated set of responses.
+
         Inputs: ::\n
         	(string) participant_uid, (string) exp_uid
 
         Outputs: ::\n
         	(list) responses
-        
+
         Usage: ::\n
         	responses = resource_manager.get_participant_data(participant_uid,exp_uid)
         """
@@ -286,14 +286,14 @@ class ResourceManager:
 
     def get_experiment_logs(self,exp_uid):
         """
-        Given an exp_uid, returns all logs associated with the experiment. 
-        
+        Given an exp_uid, returns all logs associated with the experiment.
+
         Inputs: ::\n
             (string) exp_uid
 
         Outputs: ::\n
             (list) logs
-        
+
         Usage: ::\n
             responses = resource_manager.get_experiment_logs(exp_uid)
         """
@@ -311,14 +311,14 @@ class ResourceManager:
 
     def get_experiment_logs_of_type(self,exp_uid,log_type):
         """
-        Given an exp_uid, returns all logs associated with the experiment. 
-        
+        Given an exp_uid, returns all logs associated with the experiment.
+
         Inputs: ::\n
-            (string) exp_uid, (string) log_type 
+            (string) exp_uid, (string) log_type
 
         Outputs: ::\n
             (list) logs
-        
+
         Usage: ::\n
             responses = resource_manager.get_experiment_logs(exp_uid,'APP-EXCEPTION')
         """
@@ -330,7 +330,7 @@ class ResourceManager:
 
         return logs
 
-        
-        
 
-    
+
+
+

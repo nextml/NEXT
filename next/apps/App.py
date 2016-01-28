@@ -41,16 +41,16 @@ class App(object):
         dashboard_string = 'next.apps.Apps.' + self.app_id + \
                            '.dashboard.Dashboard'
         dashboard_module = __import__(dashboard_string, fromlist=[''])
-        self.dashboard = getattr(dashboard_module, app_id+'Dashboard') 
+        self.dashboard = getattr(dashboard_module, app_id+'Dashboard')
     ## Begin API function implementations
-        
+
     def initExp(self, exp_uid, args_json, db, ell):
         try:
             app_id = self.app_id
             args_dict = self.helper.convert_json(args_json)
             try:
                 args_dict, success, messages = Verifier.verify(args_dict, self.reference_dict['initExp']['values'])
-                
+
                 if not success:
                     print "Failed to verify:", messages, type(messages)
                     raise Exception("Failed to verify: {}".format(" \n".join(messages)))
@@ -59,17 +59,22 @@ class App(object):
                 print "initExp Exception: {} {}".format(error, traceback.format_exc())
                 traceback.print_tb(exc_traceback)
                 raise Exception(error)
-            
+
             args_dict = self.myApp.initExp(exp_uid, args_dict, db, ell);
             print "verified args_dict", args_dict, type(args_dict)
             # remove any reminants of an experiment if it exists
             self.helper.remove_experiment(app_id, exp_uid, db, ell)
+
             # Set doc in experiment_admin bucket
             db.set_doc('experiments_admin', exp_uid, {'exp_uid': exp_uid, 'app_id':app_id, 'start_date': utils.datetime2str(utils.datetimeNow())})
+
             # Set doc in algorithms bucket
             for algorithm in args_dict['args']['alg_list']:
+                algorithm['exp_uid'] = exp_uid # to get doc from db
                 db.set_doc(app_id+':algorithms', exp_uid+algorithm['alg_label'], algorithm)
+
             # Set doc in experiments bucket
+            args_dict['exp_uid'] = exp_uid # to get doc from db
             db.set_doc(app_id+':experiments', exp_uid, args_dict)
             db.set(app_id+':experiments', exp_uid, 'git_hash', git_hash)
             # now intitialize each algorithm
@@ -88,7 +93,7 @@ class App(object):
                              'task':'initExp',
                              'duration':dt,
                              'timestamp':utils.datetimeNow()}
-                
+
                 ell.log(app_id+':ALG-DURATION', log_entry)
                 print "logging algorithm", algorithm['alg_id']
             return '{}', True, ''
@@ -168,7 +173,7 @@ class App(object):
             log_entry = { 'exp_uid':exp_uid,'task':'getQuery','error':error,'timestamp':utils.datetimeNow(),'args_json':args_json }
             ell.log( app_id+':APP-EXCEPTION', log_entry  )
             return '{}',False,error
-        
+
     def processAnswer(self, exp_uid, args_json, db, ell):
         # modified PoolBasedTripletsMDS.py
         try:
@@ -227,7 +232,7 @@ class App(object):
             for algorithm in alg_list:
                 if alg_label == algorithm['alg_label']:
                     alg_id = algorithm['alg_id']
-                    
+
                     # get sandboxed database for the specific app_id,alg_id,exp_uid - closing off the rest of the database to the algorithm
             rc = ResourceClient(self.app_id, exp_uid, alg_label, db)
             # get specific algorithm to make calls to
