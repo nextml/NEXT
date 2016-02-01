@@ -105,7 +105,8 @@ class ResourceClient(object):
         daemonProcess_args_dict = {'alg_label':self.alg_label,'daemon_args':daemon_args}
         daemonProcess_args_json = json.dumps(daemonProcess_args_dict)
 
-        self.db.submit_job(self.app_id,self.exp_uid,'daemonProcess',daemonProcess_args_json,namespace=self.alg_label,ignore_result=True,time_limit=time_limit)
+        self.db.submit_job(self.app_id,self.exp_uid,'daemonProcess',daemonProcess_args_json,namespace=self.exp_uid+'_'+self.alg_label,
+                           ignore_result=True,time_limit=time_limit)
 
         
     def getDurations(self):

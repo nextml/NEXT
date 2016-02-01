@@ -1,18 +1,11 @@
-"""
-UncertaintySampling app of the Online Learning Library for Next.Discovery
-author: Kevin Jamieson, kevin.g.jamieson@gmail.com
-last updated: 1/17/2015
-"""
+import time
 import numpy.random
 from next.apps.Apps.PoolBasedTripletMDS.algs.RandomSampling import utilsMDS
 from next.apps.Apps.PoolBasedTripletMDS.Prototype import PoolBasedTripletMDSPrototype
 
-import time
-
 class RandomSampling(PoolBasedTripletMDSPrototype):
 
-  def daemonProcess(self,resource,daemon_args_dict):
-
+  def daemonProcess(self,resource, daemon_args_dict):
     if 'task' in daemon_args_dict and 'args' in daemon_args_dict:
       task = daemon_args_dict['task']
       args = daemon_args_dict['args']
@@ -28,10 +21,10 @@ class RandomSampling(PoolBasedTripletMDSPrototype):
 
   def initExp(self,resource, n, d, failure_probability, **kwargs):
     X = numpy.random.randn(n,d)
-    resource.set('n',n)
-    resource.set('d',d)
-    resource.set('delta',failure_probability)
-    resource.set('X',X.tolist())
+    resource.set('n', n)
+    resource.set('d', d)
+    resource.set('delta', failure_probability)
+    resource.set('X', X.tolist())
     return True
 
 
@@ -79,7 +72,6 @@ class RandomSampling(PoolBasedTripletMDSPrototype):
 
   def __incremental_embedding_update(self,resource,args):
     verbose = False
-
     n = resource.get('n')
     d = resource.get('d')
     S = resource.get_list('S')

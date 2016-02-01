@@ -143,16 +143,13 @@ getModel:
     exp_uid:
       description: The experiment unique identifier.
       type: str
-      values: []
-
     args:
-      description: Predct args.
+      description: getModel args.
       type: dict
       values: 
         alg_label:
           description: alg_label of algorithm making the call
           type: str
-          values: []
         logging:
           description: whether you want this logged in app_id:APP-EVALUATION
           type: boolean
