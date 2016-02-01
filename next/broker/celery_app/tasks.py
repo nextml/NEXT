@@ -27,7 +27,7 @@ def apply(app_id, exp_uid, task_name, args_in_json, enqueue_timestamp):
 	# modify args_in
 	if task_name == 'processAnswer':
 		args_in_dict = json.loads(args_in_json)
-		args_in_dict['meta'] = {'timestamp_answer_received':enqueue_timestamp}
+		args_in_dict['args']['timestamp_answer_received'] = enqueue_timestamp
 		args_in_json = json.dumps(args_in_dict)
 
 	# get stateless app

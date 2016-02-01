@@ -58,7 +58,8 @@ class App(object):
                 print "initExp Exception: {} {}".format(error, traceback.format_exc())
                 traceback.print_tb(exc_traceback)
                 raise Exception(error)
-
+            
+            args_dict['exp_uid'] = exp_uid # to get doc from db
             args_dict = self.myApp.initExp(exp_uid, args_dict, db, ell);
             print "verified args_dict", args_dict, type(args_dict)
             # remove any reminants of an experiment if it exists
@@ -67,13 +68,13 @@ class App(object):
             # Set doc in experiment_admin bucket
             db.set_doc('experiments_admin', exp_uid, {'exp_uid': exp_uid, 'app_id':app_id, 'start_date': utils.datetime2str(utils.datetimeNow())})
 
-            # Set doc in algorithms bucket
+            # Set doc in algorithms bucket. These objects are used by the algorithms to store data.
             for algorithm in args_dict['args']['alg_list']:
-                algorithm['exp_uid'] = exp_uid # to get doc from db
-                db.set_doc(app_id+':algorithms', exp_uid+algorithm['alg_label'], algorithm)
+                algorithm['exp_uid'] = exp_uid 
+                # This doc_uid is used by the ResourceClient
+                db.set_doc(app_id+':algorithms', exp_uid+'_'+algorithm['alg_label'], algorithm)
 
             # Set doc in experiments bucket
-            args_dict['exp_uid'] = exp_uid # to get doc from db
             db.set_doc(app_id+':experiments', exp_uid, args_dict)
             db.set(app_id+':experiments', exp_uid, 'git_hash', git_hash)
             # now intitialize each algorithm
@@ -102,45 +103,30 @@ class App(object):
             traceback.print_tb(exc_traceback)
             return '{}', False, str(error)
 
+		
     def getQuery(self, exp_uid, args_json, db, ell):
         try:
             app_id = self.app_id
-            args_dict = self.helper.convert_json(args_json)
-
-            # This is formatting args_dict to be what the YAML wants...
-            # shouldn't the caller of this function do that?
-            args_dict['exp_uid'] = exp_uid
-            args_dict['args'] = {'participant_uid': args_dict['participant_uid']}
-            args_dict.pop('participant_uid', None)
-
-            # TODO: remove this try except block! Only included because I
-            # weansn't sure if Daniel pushed his code
+	    args_dict = self.helper.convert_json(args_json)
+	    print 'getQuery', args_dict
             try:
-                args_dict, success, messages = Verifier.verify(args_dict,
-                                                    self.reference_dict['getQuery']['values'])
-
+                args_dict, success, messages = Verifier.verify(args_dict, self.reference_dict['getQuery']['values'])
                 if not success:
                     print '\n'*5 + 'App.py:getQuery verify error' + '\n'*2
                     print messages
                     raise Exception("Failed to verify: {}".format(" \n".join(messages)))
             except Exception, error:
-                pass
+		exc_type, exc_value, exc_traceback = sys.exc_info()
+		print "Exception! {} {}".format(error, traceback.format_exc())
+		traceback.print_tb(exc_traceback)
+		raise Exception(error)
 
-            alg_list, _ ,_ = db.get(app_id+':experiments',exp_uid,'args')
+            alg_list, _ ,_ = db.get(app_id+':experiments', exp_uid, 'args')
             alg_list = alg_list['alg_list']
-            #try:
-            #except Exception, error:
-                #exc_type, exc_value, exc_traceback = sys.exc_info()
-                #print "Exception! {} {}".format(error, traceback.format_exc())
-                #traceback.print_tb(exc_traceback)
-                #raise Exception(error)
-
             initExp_args_dict, didSucceed, message = db.get_doc(app_id + ':experiments', exp_uid)
-            # Create the participant dictionary in participants bucket if needed. Also pull out label and id for this algorithm
-            if not ('participant_uid' in args_dict['args'].keys()):
-                args_dict['args']['participant_uid'] = args_dict['exp_uid']
-            participant_uid = args_dict['args']['participant_uid']
-            # check to see if the first participant has come by and if not, save to db
+                            # Create the participant dictionary in participants bucket if needed. Also pull out label and id for this algorithm
+            participant_uid = args_dict['args'].get('participant_uid', args_dict['exp_uid'])
+                # check to see if the first participant has come by and if not, save to db
             first_participant_query = not db.exists(app_id+':participants',participant_uid,'participant_uid')
             participant_to_algorithm_management = db.get(app_id+':experiments', exp_uid, 'args')[0]['participant_to_algorithm_management']
             if (participant_uid == exp_uid) or (participant_to_algorithm_management == 'one_to_many') or (first_participant_query):
@@ -153,8 +139,8 @@ class App(object):
                 alg_id = chosen_alg['alg_id']
                 alg_label = chosen_alg['alg_label']
                 if  (first_participant_query) and (participant_to_algorithm_management=='one_to_one'):
-                    db.set_doc(app_id+':participants',participant_uid,{'exp_uid':exp_uid,
-                                                                       'participant_uid':participant_uid,
+		    db.set_doc(app_id+':participants',participant_uid,{'exp_uid':exp_uid,
+								       'participant_uid':participant_uid,
                                                                        'alg_id':alg_id,
                                                                        'alg_label':alg_label})
             elif (participant_to_algorithm_management=='one_to_one'):
@@ -187,46 +173,62 @@ class App(object):
                               'alg_id':alg_id,
                               'exp_uid':exp_uid,
                               'alg_label':alg_label,
-                              'timestamp_query_generated':utils.datetimeNow(),
+                              'timestamp_query_generated':str(utils.datetimeNow()),
                               'query_uid':query_uid})
             db.set_doc(app_id+':queries', query_uid, query_doc)
-            return query_doc, True,''
-        except Exception:
-            error = traceback.format_exc()
-            log_entry = { 'exp_uid':exp_uid,'task':'getQuery','error':error,'timestamp':utils.datetimeNow(),'args_json':args_json }
-            ell.log( app_id+':APP-EXCEPTION', log_entry  )
-            return '{}',False,error
+            print "aasdfafasfsdf", app_id
+            return json.dumps(query_doc), True,''
+        except Exception, error:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            #print "getQuery Exception: {} {}".format(error, traceback.format_exc())
+            traceback.print_tb(exc_traceback)
+            return '{}', False, str(error)
+        #TODO: App exception logs
+            # error = traceback.format_exc()
+            # log_entry = { 'exp_uid':exp_uid,'task':'getQuery','error':error,'timestamp':utils.datetimeNow(),'args_json':args_json }
+            # ell.log( app_id+':APP-EXCEPTION', log_entry  )
+            # return '{}',False,error
 
     def processAnswer(self, exp_uid, args_json, db, ell):
         # modified PoolBasedTripletsMDS.py
         try:
             app_id = self.app_id
             args_dict = self.helper.convert_json(args_json)
-            args_dict, success, messages = Verifier.verify(args_dict, self.reference_dict['processAnswer'])
-            if not success:
-                raise Exception("Failed to verify: {}".format(" \n".join(messages)))
+            try:
+                args_dict, success, messages = Verifier.verify(args_dict, self.reference_dict['processAnswer']['values'])
+                if not success:
+                    print '\n'*5 + 'App.py:processAnswer verify error' + '\n'*2
+                    print messages
+                    raise Exception("Failed to verify: {}".format(" \n".join(messages)))
+            except Exception, error:
+		exc_type, exc_value, exc_traceback = sys.exc_info()
+		print "Exception! {} {}".format(error, traceback.format_exc())
+		traceback.print_tb(exc_traceback)
+		raise Exception(error)
 
-            # Increment num_reported_answers for this algorithm by getting alg_uid for this doc
-            query, didSucceed, message = db.get_doc(app_id + ':queries', args_dict['query_uid'])
-            alg_list, didSucceed, message = db.get(app_id + ':experiments', exp_uid, 'args')['alg_list']
-            alg_label = query['alg_label']
-            for algorithm in alg_list:
-                if alg_label == algorithm['alg_label']:
-                    alg = algorithm
-                    num_reported_answers, didSucceed, message = db.increment(app_id + ':experiments', exp_uid, 'num_reported_answers_for_' + alg_label)
-                    break
-
-            # Write network delay time and participant response time to db
-            self.helper.write_delay_info(args_dict, app_id, db)
+            # Update timing info in query
+            query, didSucceed, message = db.get_doc(app_id + ':queries', args_dict['args']['query_uid'])
+            timestamp_query_generated = utils.str2datetime(query['timestamp_query_generated'])
+            timestamp_answer_received = utils.str2datetime(args_dict['args'].get('timestamp_answer_received',None))
+            delta_datetime = timestamp_answer_received - timestamp_query_generated
+            round_trip_time = delta_datetime.seconds + delta_datetime.microseconds/1000000.
+            response_time = float(args_dict['args'].get('response_time',0.))
+            db.set(app_id+':queries',args_dict['args']['query_uid'],'response_time',response_time)
+            db.set(app_id+':queries',args_dict['args']['query_uid'],'network_delay',round_trip_time-response_time)
             # get sandboxed database for the specific app_id,alg_id,exp_uid - closing off the rest of the database to the algorithm
-            rc = ResourceClient(app_id, exp_uid, alg_label, db)
-            # get specific algorithm to make calls to
-            alg = utils.get_app_alg(self.app_id, alg['alg_id'])
-            app_response, meta = self.myApp.processAnswer(exp_uid, args_dict, query, alg, num_reported_answers, db)
-            # call processAnswer in the algorithm.
-            didSucceed, dt = utils.timeit(alg.processAnswer)(resource=rc, **app_response)
+            rc = ResourceClient(app_id, exp_uid, query['alg_label'], db)
+            alg = utils.get_app_alg(self.app_id, query['alg_id'])
+            app_response = self.myApp.processAnswer(exp_uid, args_dict, db)
+
+            # Update query with processAnswer edits
+            print "app_response", app_response, type(app_response)
+            for key in app_response['doc']:
+                db.set(app_id+':queries', args_dict['args']['query_uid'], key, app_response['doc'][key])
+
+            # Call algorithm with algorithm specific data
+            didSucceed, dt = utils.timeit(alg.processAnswer)(resource=rc, **app_response['alg'])
             # TODO: Where does this timing actually get logged?
-            log_entry_durations = { 'exp_uid':exp_uid,'alg_label':alg_label,'task':'processAnswer','duration':dt }
+            log_entry_durations = { 'exp_uid':exp_uid,'alg_label':query['alg_label'],'task':'processAnswer','duration':dt }
             log_entry_durations.update( rc.getDurations() )
             args_out = {'args': {}, 'meta': {'log_entry_durations':log_entry_durations}}
             # TODO: There should be a flag here to return the widget html if needed
@@ -238,41 +240,48 @@ class App(object):
             ell.log(app_id+':APP-EXCEPTION', log_entry)
             return '{}', False, error
 
-    def predict(self, exp_uid, args_json, db,ell):
+    #TODO: Rename to getModel
+    def getModel(self, exp_uid, args_json, db, ell):
         try:
             app_id = self.app_id
-            args_dict = self.helper.convert_json(args_json)
-            args_dict, success, messages = Verifier.verify(args_dict, self.reference_dict['predict'])
-            if not success:
-                raise Exception("Failed to verify: {}".format(" \n".join(messages)))
+            args_dict = self.helper.convert_json(args_json)            
+            try:
+                args_dict, success, messages = Verifier.verify(args_dict, self.reference_dict['getModel']['values'])
+                if not success:
+                    print '\n'*5 + 'App.py:getModel verify error' + '\n'*2
+                    print messages
+                    raise Exception("Failed to verify: {}".format(" \n".join(messages)))
+            except Exception, error:
+		exc_type, exc_value, exc_traceback = sys.exc_info()
+		print "Exception! {} {}".format(error, traceback.format_exc())
+		traceback.print_tb(exc_traceback)
+		raise Exception(error)
 
-            params = args_dict['params']
-            alg_label = params['alg_label']
-
-            # get list of algorithms associated with project
+            alg_label = args_dict['args']['alg_label']
+            
+            # get specific algorithm to make calls to
             alg_list, didSucceed, message = db.get(app_id + ':experiments',exp_uid,'alg_list')
-            # get alg_id
             for algorithm in alg_list:
                 if alg_label == algorithm['alg_label']:
                     alg_id = algorithm['alg_id']
-
-                    # get sandboxed database for the specific app_id,alg_id,exp_uid - closing off the rest of the database to the algorithm
-            rc = ResourceClient(self.app_id, exp_uid, alg_label, db)
-            # get specific algorithm to make calls to
             alg = utils.get_app_alg(self.app_id, alg_id)
-            response_args_dict, meta = self.myApp.predict(exp_uid, alg, args_dict, rc, db)
-            args_out = {'args': response_args_dict, 'meta': meta}
-            predict_json = json.dumps(args_out)
-
-            log_entry = {'exp_uid': exp_uid, 'task': 'predict',
-                         'json': predict_json, 'timestamp': utils.datetimeNow()}
-
-            ell.log(app_id+':APP-RESPONSE', log_entry)
-            return predict_json, True, ''
-
+            
+            # get sandboxed database for the specific app_id,alg_id,exp_uid - closing off the rest of the database to the algorithm
+            rc = ResourceClient(self.app_id, exp_uid, alg_label, db)
+            alg_response,dt = utils.timeit(alg.getModel)(rc)
+            myapp_response, meta = self.myApp.getModel(exp_uid, alg_response, args_dict, rc, db)
+            args_out = {'args': myapp_response,
+                        'meta': {'log_entry_durations':{'exp_uid':exp_uid,
+                                                        'alg_label':alg_label,
+                                                        'task':'getModel',
+                                                        'duration':dt}}}
+            if args_dict['args']['logging']:
+                log_entry = {'exp_uid': exp_uid, 'task': 'getModel', 'json': args_out, 'timestamp': str(utils.datetimeNow())}
+                ell.log(app_id+':APP-RESPONSE', log_entry)
+            return json.dumps(args_out), True, ''
         except Exception:
             error = traceback.format_exc()
-            log_entry = {'exp_uid': exp_uid, 'task': 'predict',
+            log_entry = {'exp_uid': exp_uid, 'task': 'getModel',
                          'error': str(error), 'timestamp': utils.datetimeNow()}
 
             didSucceed,message = ell.log(app_id+':APP-EXCEPTION', log_entry)
@@ -320,21 +329,6 @@ class App(object):
     #         return '{}', False, error
 
 class Helper(object):
-    def write_delay_info(self, args_dict, app_id, db):
-        timestamp_query_generated,didSucceed,message = db.get(app_id+':queries',args_dict['query_uid'],'timestamp_query_generated')
-        datetime_query_generated = utils.str2datetime(timestamp_query_generated)
-        timestamp_answer_received = args_dict.get('meta',{}).get('timestamp_answer_received',None)
-
-        if timestamp_answer_received == None:
-            datetime_answer_received = datetime_query_generated
-        else:
-            datetime_answer_received = utils.str2datetime(timestamp_answer_received)
-
-        delta_datetime = datetime_answer_received - datetime_query_generated
-        round_trip_time = delta_datetime.seconds + delta_datetime.microseconds/1000000.
-        response_time = float(args_dict.get('response_time',0.))
-        db.set(app_id+':queries',args_dict['query_uid'],'response_time',response_time)
-        db.set(app_id+':queries',args_dict['query_uid'],'network_delay',round_trip_time-response_time)
 
     def remove_experiment(self, app_id, exp_uid, db, ell):
         # remove any reminants of an experiment if it exists

@@ -58,14 +58,14 @@ class processAnswer(Resource):
         args_data = post_parser.parse_args()
         # Pull app_id and exp_uid from parsed args
         exp_uid = args_data["exp_uid"]
-        exp_key = args_data["exp_key"]
+        exp_key = args_data.pop("exp_key", None)
         if not keychain.verify_exp_key(exp_uid, exp_key):
             return api_util.attach_meta({}, api_util.verification_dictionary), 401
 
         # Fetch app_id data from resource manager
         app_id = resource_manager.get_app_id(exp_uid)
         # Parse out a target_winner. If the argument doesn't exist, return a meta dictionary error.
-        args_json = json.dumps(args_data["args"]) 
+        args_json = json.dumps(args_data) 
         # Execute processAnswer 
         response_json,didSucceed,message = broker.applyAsync(app_id,
                                                              exp_uid,
@@ -75,5 +75,6 @@ class processAnswer(Resource):
         if didSucceed:
             return attach_meta(eval(response_json), meta_success), 200
         else:
+            print "Failed to processAnswer", message 
             return attach_meta({},custom_errors['ReportAnswerError'], backend_error=message)
     

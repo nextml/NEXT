@@ -54,7 +54,7 @@ class getQuery(Resource):
         
         # Pull app_id and exp_uid from parsed args
         exp_uid = args_data["exp_uid"]
-        exp_key = args_data["exp_key"]
+        exp_key = args_data.pop("exp_key", None)
         if not keychain.verify_exp_key(exp_uid, exp_key):
             return api_util.attach_meta({}, api_util.verification_error), 401
             
@@ -63,9 +63,9 @@ class getQuery(Resource):
         # Standardized participant_uid
         if 'participant_uid' in args_data['args'].keys():
             args_data['args']['participant_uid'] = exp_uid+"_"+args_data['args']['participant_uid']
-        args_json = json.dumps(args_data)
+
         # Execute getQuery 
-        response_json,didSucceed,message = broker.applyAsync(app_id,exp_uid,"getQuery", json.dumps(args_data["args"]))
+        response_json,didSucceed,message = broker.applyAsync(app_id,exp_uid,"getQuery", json.dumps(args_data))
         
         if not didSucceed:
             return attach_meta({},meta_error['QueryGenerationError'], backend_error=message)

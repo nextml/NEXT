@@ -96,11 +96,11 @@ class STE(PoolBasedTripletMDSPrototype):
     return index_center,index_left,index_right
 
   
-  def processAnswer(self,resource,index_center,index_left,index_right,index_winner):
-    if index_left==index_winner:
-      q = [index_left,index_right,index_center]
+  def processAnswer(self,resource,center_id,left_id,right_id,target_winner):
+    if left_id==target_winner:
+      q = [left_id,right_id,center_id]
     else:
-      q = [index_right,index_left,index_center]
+      q = [right_id,left_id,center_id]
 
     resource.append_list('S',q)
 
@@ -115,7 +115,7 @@ class STE(PoolBasedTripletMDSPrototype):
     return True
 
 
-  def predict(self,resource):
+  def getModel(self,resource):
     key_value_dict = resource.get_many(['X','num_reported_answers'])
 
     X = key_value_dict.get('X',[])

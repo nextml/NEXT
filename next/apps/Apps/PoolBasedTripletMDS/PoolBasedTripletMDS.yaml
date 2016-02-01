@@ -103,10 +103,13 @@ getQuery:
       type: str
 
     args:
-      participant_uid:
-        description: unique identifier of session for a participant answering questions, if key non-existant particpant_uid is assigned as exp_uid.
-        type: str
-        optional: true
+      description: Arguments for initExp
+      type: dict
+      values:
+        participant_uid:
+          description: unique identifier of session for a participant answering questions, if key non-existant particpant_uid is assigned as exp_uid.
+          type: str
+          optional: true
 
 processAnswer:
   description: reporting back the reward of pulling the arm suggested by getQuery
@@ -116,24 +119,24 @@ processAnswer:
       description: The experiment unique identifier.
       type: str
 
-    exp_key:
-      description: The experiment access key.
-      type: str
-
     args:
-      target_winner:
-        description: The ID of the target that won the given query.
-        type: str
+      description: Arguments for initExp
+      type: dict
+      values:
+        target_winner:
+          description: The ID of the target that won the given query.
+          type: num
+        query_uid:
+          description: The unique identifier for the query.
+          type: str
+        response_time:
+          description: The time taken for the participant to answer the query.
+          type: num
+        timestamp_answer_received:
+          description: The time the answer was recieved. Added by the NEXT Broker and should not be inputted by user.
+          type: str
 
-      query_uid:
-        description: The unique identifier for the query.
-        type: str
-
-      response_time:
-        description: The time taken for the participant to answer the query.
-        type: num
-
-predict:
+getModel:
   description: 'Make a prediction from a specific alg'
   type: dict
   values:
@@ -142,27 +145,15 @@ predict:
       type: str
       values: []
 
-    exp_key:
-      description: The experiment access key.
-      type: str
-      values: []
-
     args:
-      predict_id:
-        description: unique identifier of session for a participant answering questions, if key non-existant particpant_uid is assigned as exp_uid.
-        type: str
-        values: []
-
-      params:
-        description: parameters for this predict call.
-        type: dict
-        values:
-          alg_label:
-            description: alg_label of algorithm making the call
-            type: str
-            values: []
-
-          test_alg_label:
-            description: describes the algorithm that whos triplets are evaluated on the target algorithm
-            type: str
-            values: []
+      description: Predct args.
+      type: dict
+      values: 
+        alg_label:
+          description: alg_label of algorithm making the call
+          type: str
+          values: []
+        logging:
+          description: whether you want this logged in app_id:APP-EVALUATION
+          type: boolean
+          set: false

@@ -17,7 +17,7 @@ def run_all(assert_200):
   desired_dimension = 2
   x = numpy.linspace(0,1,num_objects)
   X_true = numpy.vstack([x,x]).transpose()
-  total_pulls_per_client = 100
+  total_pulls_per_client = 1
   num_experiments = 1
   # clients run in simultaneous fashion using multiprocessing library
   num_clients = 1
@@ -148,11 +148,11 @@ def simulate_one_client( input_args ):
     print targets
     for target in targets:
       if target['label'] == 'center':
-        index_center = target['index']
+        index_center = target['target_id']
       elif target['label'] == 'left':
-        index_left = target['index']
+        index_left = target['target_id']
       elif target['label'] == 'right':
-        index_right = target['index']
+        index_right = target['target_id']
 
     # generate simulated reward #
     #############################

@@ -1,0 +1,15 @@
+app_id:algorithms - 
+initExp - initialized
+
+
+app_id:experiments - 
+initExp - experiment data is assigned her
+getQuery - alg_list, algorithm_management_settings, participant_to_algorithm_management is pulled from here
+processAnswer - alg_list pulled from here, num_reported_answers incremented
+
+app_id:participants -
+getQuery - there is a participant doc here
+
+app_id:queries-
+getQuery - query added to this
+processAnswer - alg_uid pulled from here, query and various query information pulled, query updated with answer and timing info here as well

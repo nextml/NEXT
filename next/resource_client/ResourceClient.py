@@ -9,12 +9,12 @@ import json
 import requests
 
 class ResourceClient(object):
-    def __init__(self,app_id,exp_uid,alg_uid,db_api):
+    def __init__(self,app_id,exp_uid,alg_label,db_api):
         self.app_id = app_id
         self.exp_uid = exp_uid
-        self.alg_uid = alg_uid
+        self.alg_label = alg_label
         self.bucket_id = app_id+':algorithms'
-        self.doc_uid = alg_uid
+        self.doc_uid = exp_uid+'_'+alg_label
 
         self.durationSet = 0.0
         self.durationGet = 0.0
@@ -102,10 +102,10 @@ class ResourceClient(object):
         on your daemonProcess. If the task is still executing after this time, we will forcefully kill it without notice. 
         Maximum time_limit before a kill signal is sent defaults to 5 minutes.  
         """
-        daemonProcess_args_dict = {'alg_uid':self.alg_uid,'daemon_args':daemon_args}
+        daemonProcess_args_dict = {'alg_label':self.alg_label,'daemon_args':daemon_args}
         daemonProcess_args_json = json.dumps(daemonProcess_args_dict)
 
-        self.db.submit_job(self.app_id,self.exp_uid,'daemonProcess',daemonProcess_args_json,namespace=self.alg_uid,ignore_result=True,time_limit=time_limit)
+        self.db.submit_job(self.app_id,self.exp_uid,'daemonProcess',daemonProcess_args_json,namespace=self.alg_label,ignore_result=True,time_limit=time_limit)
 
         
     def getDurations(self):
