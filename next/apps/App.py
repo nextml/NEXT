@@ -217,7 +217,7 @@ class App(object):
             myapp_response, meta = self.myApp.getModel(exp_uid, alg_response, args_dict, db)
             log_entry_durations = { 'exp_uid':exp_uid,'alg_label':alg_label,'task':'getModel','duration':dt }
             log_entry_durations.update( rc.getDurations() )
-            args_out = {'args': myapp_response, 'meta': {'log_entry_durations':log_entry_durations}}
+            args_out = {'args': myapp_response, 'meta': {'log_entry_durations':log_entry_durations, 'timestamp': str(utils.datetimeNow())}}
 
             if args_dict['args']['logging']:
                 log_entry = {'exp_uid': exp_uid, 'task': 'getModel', 'json': args_out, 'timestamp': str(utils.datetimeNow())}

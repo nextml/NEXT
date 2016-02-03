@@ -50,17 +50,16 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
 
         for algorithm in alg_list:
             alg_id = algorithm['alg_id']
-            alg_uid = algorithm['alg_uid']
             alg_label = algorithm['alg_label']
 
-            list_of_log_dict,didSucceed,message = self.ell.get_logs_with_filter(app_id+':ALG-EVALUATION',{'alg_uid':alg_uid})
+            list_of_log_dict,didSucceed,message = self.ell.get_logs_with_filter(app_id+':ALG-EVALUATION',{'exp_uid':exp_uid,'alg_label':alg_label})
             list_of_log_dict = sorted(list_of_log_dict, key=lambda item: utils.str2datetime(item['timestamp']) )
 
             x = []
             y = []
             for item in list_of_log_dict:
-                num_reported_answers = item['num_reported_answers']
-                Xd = item['Xd']
+                num_reported_answers = item['json']['args']['num_reported_answers']
+                Xd = item['json']['args']['Xd']
 
                 err = 0.5
                 if len(test_S)>0:
@@ -167,7 +166,7 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
             data.append(target_dict)
 
         return_dict = {}
-        return_dict['timestamp'] = item['timestamp']
+        return_dict['timestamp'] = getModel_args_dict['meta']['timestamp']
         return_dict['x_min'] = x_min
         return_dict['x_max'] = x_max
         return_dict['y_min'] = y_min
