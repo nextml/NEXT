@@ -29,7 +29,7 @@ class CrowdKernel(PoolBasedTripletMDSPrototype):
   def initExp(self,resource,n,d,failure_probability,**kwargs):
     X = numpy.random.randn(n,d)*.0001
     tau = numpy.random.rand(n,n)
-    
+
     resource.set('n',n)
     resource.set('d',d)
     resource.set('delta',failure_probability)
@@ -45,10 +45,10 @@ class CrowdKernel(PoolBasedTripletMDSPrototype):
     n = resource.get('n')
     d = resource.get('d')
     num_reported_answers = resource.get('num_reported_answers')
- 
+
     if num_reported_answers == None:
       num_reported_answers = 0
-    
+
     if num_reported_answers < R*n:
       a = num_reported_answers/R
       b = numpy.random.randint(n)
@@ -78,14 +78,14 @@ class CrowdKernel(PoolBasedTripletMDSPrototype):
 
       taub = list(tau[a])
       for i in range(n):
-        taub[i] = taub[i] * utilsCrowdKernel.getCrowdKernelTripletProbability(X[b],X[c],X[i]) 
+        taub[i] = taub[i] * utilsCrowdKernel.getCrowdKernelTripletProbability(X[b],X[c],X[i])
       taub = taub/sum(taub)
-      
+
       tauc = list(tau[a])
       for i in range(n):
-        tauc[i] = tauc[i] * utilsCrowdKernel.getCrowdKernelTripletProbability(X[c],X[b],X[i]) 
+        tauc[i] = tauc[i] * utilsCrowdKernel.getCrowdKernelTripletProbability(X[c],X[b],X[i])
       tauc = tauc/sum(tauc)
-      
+
       entropy  = -p*utilsCrowdKernel.getEntropy(taub)-(1-p)*utilsCrowdKernel.getEntropy(tauc)
 
       if entropy > best_entropy:
@@ -95,9 +95,9 @@ class CrowdKernel(PoolBasedTripletMDSPrototype):
     index_left = best_q[0]
     index_right = best_q[1]
 
-    return index_center,index_left,index_right
+    return [index_center,index_left,index_right]
 
-  
+
   def processAnswer(self,resource,center_id,left_id,right_id,target_winner):
     if left_id==target_winner:
       q = [left_id,right_id,center_id]
@@ -116,7 +116,7 @@ class CrowdKernel(PoolBasedTripletMDSPrototype):
       resource.daemonProcess(daemon_args_dict,time_limit=5)
 
     return True
-    
+
   def getModel(self,resource):
     key_value_dict = resource.get_many(['X','num_reported_answers'])
 
@@ -126,13 +126,13 @@ class CrowdKernel(PoolBasedTripletMDSPrototype):
     return X,num_reported_answers
 
 
-  def __incremental_embedding_update(self,resource,args):   
+  def __incremental_embedding_update(self,resource,args):
     verbose = False
-     
+
     n = resource.get('n')
     d = resource.get('d')
     S = resource.get_list('S')
-    
+
     X = numpy.array(resource.get('X'))
     # set maximum time allowed to update embedding
     t_max = 1.0

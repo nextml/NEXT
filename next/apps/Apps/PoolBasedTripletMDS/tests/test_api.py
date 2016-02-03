@@ -143,6 +143,7 @@ def simulate_one_client( input_args ):
 
 
     query_dict = json.loads(response.text)
+    print "query_dict: ", query_dict
     query_uid = query_dict['query_uid']
     targets = query_dict['target_indices']
     print targets

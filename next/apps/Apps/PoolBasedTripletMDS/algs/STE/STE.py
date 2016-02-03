@@ -29,7 +29,7 @@ class STE(PoolBasedTripletMDSPrototype):
   def initExp(self,resource,n,d,failure_probability,**kwargs):
     X = numpy.random.randn(n,d)*.0001
     tau = numpy.random.rand(n,n)
-    
+
     resource.set('n',n)
     resource.set('d',d)
     resource.set('delta',failure_probability)
@@ -43,10 +43,10 @@ class STE(PoolBasedTripletMDSPrototype):
     n = resource.get('n')
     d = resource.get('d')
     num_reported_answers = resource.get('num_reported_answers')
- 
+
     if num_reported_answers == None:
       num_reported_answers = 0
-    
+
     if num_reported_answers < R*n:
       a = num_reported_answers/R
       b = numpy.random.randint(n)
@@ -76,14 +76,14 @@ class STE(PoolBasedTripletMDSPrototype):
 
       taub = list(tau[a])
       for i in range(n):
-        taub[i] = taub[i] * utilsSTE.getSTETripletProbability(X[b],X[c],X[i]) 
+        taub[i] = taub[i] * utilsSTE.getSTETripletProbability(X[b],X[c],X[i])
       taub = taub/sum(taub)
-      
+
       tauc = list(tau[a])
       for i in range(n):
-        tauc[i] = tauc[i] * utilsSTE.getSTETripletProbability(X[c],X[b],X[i]) 
+        tauc[i] = tauc[i] * utilsSTE.getSTETripletProbability(X[c],X[b],X[i])
       tauc = tauc/sum(tauc)
-      
+
       entropy  = -p*utilsSTE.getEntropy(taub)-(1-p)*utilsSTE.getEntropy(tauc)
 
       if entropy > best_entropy:
@@ -93,9 +93,9 @@ class STE(PoolBasedTripletMDSPrototype):
     index_left = best_q[0]
     index_right = best_q[1]
 
-    return index_center,index_left,index_right
+    return [index_center,index_left,index_right]
 
-  
+
   def processAnswer(self,resource,center_id,left_id,right_id,target_winner):
     if left_id==target_winner:
       q = [left_id,right_id,center_id]
@@ -125,17 +125,17 @@ class STE(PoolBasedTripletMDSPrototype):
 
   def __incremental_embedding_update(self,resource,args):
     verbose = False
-    
+
     n = resource.get('n')
     d = resource.get('d')
     S = resource.get_list('S')
-    
+
     X = numpy.array(resource.get('X'))
     # set maximum time allowed to update embedding
     t_max = 1.0
     epsilon = 0.00001 # a relative convergence criterion, see computeEmbeddingWithGD documentation
     alpha = 1
-    
+
     t_start = time.time()
     X,emp_loss_new,hinge_loss_new,log_loss_new,acc = utilsSTE.computeEmbeddingWithGD(X,S,alpha,max_iters=1, epsilon=epsilon,verbose=verbose)
     k = 1
@@ -152,7 +152,7 @@ class STE(PoolBasedTripletMDSPrototype):
 
   def __full_embedding_update(self,resource,args):
     verbose = False
-    
+
     n = resource.get('n')
     d = resource.get('d')
     S = resource.get_list('S')
@@ -174,7 +174,7 @@ class STE(PoolBasedTripletMDSPrototype):
     emp_loss_new,hinge_loss_new,log_loss_new = utilsSTE.getLoss(X,S, alpha)
     if emp_loss_old < emp_loss_new:
       X = X_old
-    
+
     tau = utilsSTE.getSTETauDistribution(X,S,alpha)
 
     resource.set('X',X.tolist())

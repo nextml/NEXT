@@ -9,7 +9,7 @@ Serves as a library of utilities for all the adaptive and online learning applic
 There exist a few distinct sections:
 - Learning Library Utilties, utilities for app and alg including lists of implemnted algs and how to get alg objects
 - Namespace Utilities, utilities for interacting with namespaces used in the database
-- Time Utilities, utilities dealing with timing code and timestamps 
+- Time Utilities, utilities dealing with timing code and timestamps
 
 Usage: ::\n
   import next.utils as utils
@@ -119,7 +119,7 @@ def get_app_default_num_tries(app_id):
   return app_module.get_default_num_tries()
 
 def get_app(app_id):
-  """ 
+  """
   Returns an object correspoding to the app_id that contains methods like initExp,getQuery,etc.
 
   Usage: ::\n
@@ -139,7 +139,7 @@ def get_app_alg(app_id,alg_id):
   Note that each algorithm (with an alg_id) is a child of an app (with an app_id), hence the app_id input
 
   Usage: ::\n
-    alg = utils.get_app_alg(app_id,alg_id) 
+    alg = utils.get_app_alg(app_id,alg_id)
     print alg
     >>> <next.apps.PoolBasedTripletMDS.RandomSampling.RandomSampling.RandomSampling object at 0x103cb7e10>
   """
@@ -167,36 +167,36 @@ def get_app_supported_algs(app_id):
 
 def get_app_default_alg_list(app_id):
   """
-  The NEXT system was designed with evaluation in mind meaning that users would upload their own algorithms or 
+  The NEXT system was designed with evaluation in mind meaning that users would upload their own algorithms or
   compare exsiting algorithms on their use cases. However, a number of users just want to use NEXT as a system
-  to adaptively collect data or just organized their data collection task. For this purpose, we have a set of defaults 
+  to adaptively collect data or just organized their data collection task. For this purpose, we have a set of defaults
   for the algorithms and input parameters.
 
   This script is primarily used for the internals of the system but may be of interest to those wondering what an example alg_list looks like.
-  
+
   Usage: ::\n
     alg_list = utils.get_app_default_alg_list('PoolBasedTripletMDS')
     print json.dumps(alg_list,indent=2)
     [
       {
-        "alg_label": "Test", 
-        "alg_id": "RandomSampling", 
-        "proportion": 0.1, 
-        "test_alg_label": "Test", 
+        "alg_label": "Test",
+        "alg_id": "RandomSampling",
+        "proportion": 0.1,
+        "test_alg_label": "Test",
         "params": {}
-      }, 
+      },
       {
-        "alg_label": "Random", 
-        "alg_id": "RandomSampling", 
-        "proportion": 0.45, 
-        "test_alg_label": "Test", 
+        "alg_label": "Random",
+        "alg_id": "RandomSampling",
+        "proportion": 0.45,
+        "test_alg_label": "Test",
         "params": {}
-      }, 
+      },
       {
-        "alg_label": "Uncertainty Sampling", 
-        "alg_id": "UncertaintySampling", 
-        "proportion": 0.45, 
-        "test_alg_label": "Test", 
+        "alg_label": "Uncertainty Sampling",
+        "alg_id": "UncertaintySampling",
+        "proportion": 0.45,
+        "test_alg_label": "Test",
         "params": {}
       }
     ]
@@ -234,7 +234,7 @@ import os
 def getNewUID():
   """
   Returns length 32 string of random hex that is generated from machine state - good enough for cryptography
-  Probability of collision is 1 in 340282366920938463463374607431768211456 
+  Probability of collision is 1 in 340282366920938463463374607431768211456
 
   Used for unique identifiers all over the system
   """
@@ -250,7 +250,7 @@ Time Utilities
 from datetime import datetime
 def datetimeNow(format='datetime'):
   """
-  Returns the current datetime in the format used throughout the system. 
+  Returns the current datetime in the format used throughout the system.
   For consistency, one should ALWAYS call this method, do not make your own call to datetime.
 
   Usage: ::\n
@@ -266,8 +266,8 @@ def datetimeNow(format='datetime'):
 def datetime2filename(obj_datetime):
   """
   Converts a datetime string into a datetime object in the system.
-  For consistency, one should never use their own method of converting to string, always use this method. 
-  
+  For consistency, one should never use their own method of converting to string, always use this method.
+
   Usage: ::\n
     date = utils.datetimeNow()
     date_str = utils.datetime2str(date)
@@ -279,8 +279,8 @@ def datetime2filename(obj_datetime):
 def datetime2str(obj_datetime):
   """
   Converts a datetime string into a datetime object in the system.
-  For consistency, one should never use their own method of converting to string, always use this method. 
-  
+  For consistency, one should never use their own method of converting to string, always use this method.
+
   Usage: ::\n
     date = utils.datetimeNow()
     date_str = utils.datetime2str(date)
@@ -292,8 +292,8 @@ def datetime2str(obj_datetime):
 def str2datetime(str_time):
   """
   Converts a datetime object into the string format used in the system.
-  For consistency, one should never use their own method of converting to string, always use this method. 
-  
+  For consistency, one should never use their own method of converting to string, always use this method.
+
   Usage: ::\n
     date = utils.datetimeNow()
     date_str = utils.datetime2str(date)
@@ -306,15 +306,15 @@ def str2datetime(str_time):
 
 import time
 def timeit(f):
-  """ 
+  """
   Utility used to time the duration of code execution. This script can be composed with any other script.
 
   Usage::\n
-    def f(n): 
-      return n**n  
+    def f(n):
+      return n**n
 
-    def g(n): 
-      return n,n**n 
+    def g(n):
+      return n,n**n
 
     answer0,dt = timeit(f)(3)
     answer1,answer2,dt = timeit(g)(3)
@@ -323,13 +323,18 @@ def timeit(f):
     ts = time.time()
     result = f(*args, **kw)
     te = time.time()
+
+    # TODO: delete these three lines. Use
+    # `grep -Hnri ,.*,.* = .*utils.timeit` to find all locations this function
+    # is are used (typically in `a, b, c, dt = utils.timeit(...)(...)`. We want
+    # `a, dt = utils.timeit(...)(...)`.
     if type(result)==tuple:
       return result + ((te-ts),)
     else:
-      return result,(te-ts)
+      return result, (te-ts)
   return timed
 
 
-    
 
-    
+
+

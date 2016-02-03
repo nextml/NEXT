@@ -37,9 +37,9 @@ class RandomSampling(PoolBasedTripletMDSPrototype):
     index_left = q[0]
     index_right = q[1]
 
-    return index_center,index_left,index_right
+    return [index_center,index_left,index_right]
 
-  
+
   def processAnswer(self,resource,center_id,left_id,right_id,target_winner):
     if left_id==target_winner:
       q = [left_id,right_id,center_id]

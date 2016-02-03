@@ -57,7 +57,7 @@ class App(object):
             db.set_doc('experiments_admin', exp_uid, {'exp_uid': exp_uid, 'app_id':self.app_id, 'start_date': utils.datetime2str(utils.datetimeNow())})
             # Set doc in algorithms bucket. These objects are used by the algorithms to store data.
             for algorithm in args_dict['args']['alg_list']:
-                algorithm['exp_uid'] = exp_uid 
+                algorithm['exp_uid'] = exp_uid
                 # This doc_uid is used by the ResourceClient
                 db.set_doc(self.app_id+':algorithms', exp_uid+'_'+algorithm['alg_label'], algorithm)
             # Set doc in experiments bucket
@@ -78,7 +78,7 @@ class App(object):
             traceback.print_tb(exc_traceback)
             return '{}', False, str(error)
 
-		
+
     def getQuery(self, exp_uid, args_json, db, ell):
         try:
 	    args_dict = self.helper.convert_json(args_json)
@@ -120,10 +120,12 @@ class App(object):
                 alg_label,didSucceed,message = db.get(self.app_id+':participants',participant_uid,'alg_label')
             else:
                 raise Exception('participant_to_algorithm_management : '+participant_to_algorithm_management+' not implemented')
-            
+
             rc = ResourceClient(self.app_id, exp_uid, alg_label, db)
             alg = utils.get_app_alg(self.app_id, alg_id)
-            alg_response,dt = utils.timeit(alg.getQuery)(resource=rc)
+            r = utils.timeit(alg.getQuery)(resource=rc)
+            print "alg_response, get_query", type(r), r
+            alg_response, dt = r
             query_doc = self.myApp.getQuery(exp_uid, args_dict, alg_response, db)
             query_uid = utils.getNewUID()
             query_doc.update({'participant_uid':participant_uid,
@@ -134,7 +136,7 @@ class App(object):
                               'query_uid':query_uid})
             db.set_doc(self.app_id+':queries', query_uid, query_doc)
 
-            log_entry_durations = { 'exp_uid':exp_uid,'alg_label':alg_label,'task':'getQuery','duration':dt } 
+            log_entry_durations = { 'exp_uid':exp_uid,'alg_label':alg_label,'task':'getQuery','duration':dt }
             log_entry_durations.update( rc.getDurations() )
             meta = {'log_entry_durations':log_entry_durations}
             return json.dumps({'args':query_doc,'meta':log_entry_durations}), True,''
@@ -167,7 +169,7 @@ class App(object):
             response_time = float(args_dict['args'].get('response_time',0.))
             db.set(self.app_id+':queries',args_dict['args']['query_uid'],'response_time',response_time)
             db.set(self.app_id+':queries',args_dict['args']['query_uid'],'network_delay',round_trip_time-response_time)
-            
+
             rc = ResourceClient(self.app_id, exp_uid, query['alg_label'], db)
             alg = utils.get_app_alg(self.app_id, query['alg_id'])
             query, didSucceed, message = db.get_doc(self.app_id+':queries', args_dict['args']['query_uid'])
@@ -189,7 +191,7 @@ class App(object):
     def getModel(self, exp_uid, args_json, db, ell):
         try:
             app_id = self.app_id
-            args_dict = self.helper.convert_json(args_json)            
+            args_dict = self.helper.convert_json(args_json)
             try:
                 args_dict, success, messages = Verifier.verify(args_dict, self.reference_dict['getModel']['values'])
                 if not success:
@@ -201,7 +203,7 @@ class App(object):
 		print "Exception! {} {}".format(error, traceback.format_exc())
 		traceback.print_tb(exc_traceback)
 		raise Exception(error)
-            alg_label = args_dict['args']['alg_label']            
+            alg_label = args_dict['args']['alg_label']
             alg_list, didSucceed, message = db.get(app_id + ':experiments',exp_uid,'alg_list')
             for algorithm in alg_list:
                 if alg_label == algorithm['alg_label']:
@@ -211,10 +213,10 @@ class App(object):
             rc = ResourceClient(self.app_id, exp_uid, alg_label, db)
             alg_response,dt = utils.timeit(alg.getModel)(rc)
             myapp_response, meta = self.myApp.getModel(exp_uid, alg_response, args_dict, rc, db)
-            log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'getModel','duration':dt } 
+            log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'getModel','duration':dt }
             log_entry_durations.update( rc.getDurations() )
             args_out = {'args': myapp_response, 'meta': {'log_entry_durations':log_entry_durations}}
-            
+
             if args_dict['args']['logging']:
                 log_entry = {'exp_uid': exp_uid, 'task': 'getModel', 'json': args_out, 'timestamp': str(utils.datetimeNow())}
                 ell.log(app_id+':ALG-EVALUATION', log_entry)
@@ -228,7 +230,7 @@ class App(object):
 
     def getStats(self, exp_uid, args_json, db, ell):
         try:
-            args_dict = self.helper.convert_json(args_json)            
+            args_dict = self.helper.convert_json(args_json)
             try:
                 args_dict, success, messages = Verifier.verify(args_dict, self.reference_dict['getStats']['values'])
                 if not success:

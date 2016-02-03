@@ -44,7 +44,7 @@ class UncertaintySampling(PoolBasedTripletMDSPrototype):
     num_reported_answers = resource.get('num_reported_answers')
     if num_reported_answers == None:
       num_reported_answers = 0
-    
+
     R = int(1+d*numpy.log(n))
     if num_reported_answers < R*n:
       a = num_reported_answers/R
@@ -61,7 +61,7 @@ class UncertaintySampling(PoolBasedTripletMDSPrototype):
     X = numpy.array(resource.get('X'))
 
     # set maximum time allowed to search for a query
-    t_max = 0.05 
+    t_max = 0.05
     q,signed_score = utilsMDS.getRandomQuery(X)
     best_q = q
     best_score = abs(signed_score)
@@ -77,10 +77,10 @@ class UncertaintySampling(PoolBasedTripletMDSPrototype):
     index_left = best_q[0]
     index_right = best_q[1]
 
-    return index_center,index_left,index_right
+    return [index_center,index_left,index_right]
 
-  
-  def processAnswer(self,resource,center_id,left_id,right_id,target_winner):    
+
+  def processAnswer(self,resource,center_id,left_id,right_id,target_winner):
     if left_id==target_winner:
       q = [left_id,right_id,center_id]
     else:
@@ -159,10 +159,10 @@ class UncertaintySampling(PoolBasedTripletMDSPrototype):
 
 
 
-    
-    
 
-    
+
+
+
 
 
 
