@@ -65,18 +65,18 @@ class PoolBasedTripletMDS(object):
                      'compute_duration_detailed_stacked_area_plot':dashboard.compute_duration_detailed_stacked_area_plot,
                      'response_time_histogram':dashboard.response_time_histogram,
                      'network_delay_histogram':dashboard.network_delay_histogram,
-                     #'most_current_embedding':dashboard.most_current_embedding,
-                     #'test_error_multiline_plot':dashboard.test_error_multiline_plot}
-}
+                     'most_current_embedding':dashboard.most_current_embedding,
+                     'test_error_multiline_plot':dashboard.test_error_multiline_plot}
+#}
         default = [self.app_id, exp_uid]
         args = {'api_activity_histogram':default + [task],
                 'compute_duration_multiline_plot':default + [task],
                 'compute_duration_detailed_stacked_area_plot':default + [task, alg_label],
                 'response_time_histogram':default + [alg_label],
                 'network_delay_histogram':default + [alg_label],
- #               'most_current_embedding':default + [alg_label],
- #               'test_error_multiline_plot':default + [alg_label]}
-}
+                'most_current_embedding':default + [alg_label],
+                'test_error_multiline_plot':default + [alg_label]}
+#}
         return functions[stat_id](*args[stat_id])
 
- 
+
