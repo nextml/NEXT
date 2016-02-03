@@ -41,7 +41,7 @@ class PoolBasedTripletMDS(object):
         experiment,didSucceed,message = db.get_doc(self.app_id+':experiments', exp_uid)
         num_reported_answers, didSucceed, message = db.increment(self.app_id + ':experiments', exp_uid, 'num_reported_answers_for_' + query['alg_label'])
         n = experiment['args']['n']
-        if True:#num_reported_answers % ((n+4)/4) == 0:
+        if num_reported_answers % ((n+4)/4) == 0:
             getModel_args_dict = {'exp_uid':exp_uid,'args':{'alg_label':query['alg_label']}}
             db.submit_job(self.app_id,
                           exp_uid,
@@ -54,9 +54,10 @@ class PoolBasedTripletMDS(object):
     def getModel(self, exp_uid, alg_response, args_dict, db):
         return alg_response
 
-    def getStats(self, stat_id, params, dashboard):
-        task = params['task']
-        alg_label = params['alg_label']
+    def getStats(self, exp_uid, stats_request, dashboard, db):
+        stat_id = stats_request['args']['stat_id']
+        task = stats_request['args']['params'].get('task', None)
+        alg_label = stats_request['args']['params'].get('alg_label', None)
 
         # These are the functions corresponding to stat_id
         functions = {'api_activity_histogram':dashboard.api_activity_histogram,
@@ -64,21 +65,18 @@ class PoolBasedTripletMDS(object):
                      'compute_duration_detailed_stacked_area_plot':dashboard.compute_duration_detailed_stacked_area_plot,
                      'response_time_histogram':dashboard.response_time_histogram,
                      'network_delay_histogram':dashboard.network_delay_histogram,
-                     'most_current_ranking':dashboard.most_current_ranking}
-
-        # TODO: Scott, please explain to me. I don't get it.
-        # These are the args passed into that function
+                     #'most_current_embedding':dashboard.most_current_embedding,
+                     #'test_error_multiline_plot':dashboard.test_error_multiline_plot}
+}
         default = [self.app_id, exp_uid]
         args = {'api_activity_histogram':default + [task],
                 'compute_duration_multiline_plot':default + [task],
                 'compute_duration_detailed_stacked_area_plot':default + [task, alg_label],
                 'response_time_histogram':default + [alg_label],
                 'network_delay_histogram':default + [alg_label],
-                'most_current_ranking':default + [alg_label]}
-
-        # this line call the function specified by stat_id with the arguments
-        # for stat_id. Dictionaries are replacements for if-statements and below
-        # line unpacks some statements
+ #               'most_current_embedding':default + [alg_label],
+ #               'test_error_multiline_plot':default + [alg_label]}
+}
         return functions[stat_id](*args[stat_id])
 
  

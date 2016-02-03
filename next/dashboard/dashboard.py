@@ -9,7 +9,6 @@ from flask import Blueprint, render_template, url_for, request
 from jinja2 import Environment, PackageLoader, ChoiceLoader
 
 import next.constants as constants
-import next.utils as utils
 import next.database_client.PermStore as PermStore
 from next.api.resource_manager import ResourceManager
 
@@ -95,7 +94,6 @@ def experiment_dashboard(exp_uid, app_id, exp_key):
 
     # Not a particularly good way to do this. 
     alg_label_list = rm.get_algs_for_exp_uid(exp_uid)
-
     # Migrate this code to use keychain
     docs,didSucceed,message = db.getDocsByPattern('next_frontend_base',
                                                   'keys',
@@ -112,7 +110,7 @@ def experiment_dashboard(exp_uid, app_id, exp_key):
                                          constants.NEXT_BACKEND_GLOBAL_PORT)
     else:
         host_url = ''
-    env = Environment(loader=ChoiceLoader([PackageLoader('next.apps.{}'.format(app_id),
+    env = Environment(loader=ChoiceLoader([PackageLoader('next.apps.Apps.{}'.format(app_id),
                                                          'dashboard'),
                                            PackageLoader('next.dashboard',
                                                          'templates')]))
@@ -129,8 +127,7 @@ def experiment_dashboard(exp_uid, app_id, exp_key):
                            exp_start_data=exp_start_data,
                            num_participants=num_participants,
                            num_queries=num_queries,
-                           simple_flag=int(simple_flag)
-                           )
+                           simple_flag=int(simple_flag))
 
 
 

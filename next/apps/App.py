@@ -69,11 +69,7 @@ class App(object):
                 rc = ResourceClient(self.app_id, exp_uid, algorithm['alg_label'], db)
                 alg = utils.get_app_alg(self.app_id, algorithm['alg_id'])
                 didSucceed, dt = utils.timeit(alg.initExp)(resource=rc,params=params,**args_dict['args'])
-                log_entry = {'exp_uid':exp_uid,
-                             'alg_id':algorithm['alg_id'],
-                             'task':'initExp',
-                             'duration':dt,
-                             'timestamp':utils.datetimeNow()}
+                log_entry = {'exp_uid':exp_uid, 'alg_label':algorithm['alg_label'], 'task':'initExp', 'duration':dt, 'timestamp':utils.datetimeNow()}
                 ell.log(self.app_id+':ALG-DURATION', log_entry)
             return '{}', True, ''
         except Exception, error:
@@ -127,7 +123,7 @@ class App(object):
             
             rc = ResourceClient(self.app_id, exp_uid, alg_label, db)
             alg = utils.get_app_alg(self.app_id, alg_id)
-            alg_response = utils.timeit(alg.getQuery)(resource=rc)
+            alg_response,dt = utils.timeit(alg.getQuery)(resource=rc)
             query_doc = self.myApp.getQuery(exp_uid, args_dict, alg_response, db)
             query_uid = utils.getNewUID()
             query_doc.update({'participant_uid':participant_uid,
@@ -137,7 +133,11 @@ class App(object):
                               'timestamp_query_generated':str(utils.datetimeNow()),
                               'query_uid':query_uid})
             db.set_doc(self.app_id+':queries', query_uid, query_doc)
-            return json.dumps(query_doc), True,''
+
+            log_entry_durations = { 'exp_uid':exp_uid,'alg_label':alg_label,'task':'getQuery','duration':dt } 
+            log_entry_durations.update( rc.getDurations() )
+            meta = {'log_entry_durations':log_entry_durations}
+            return json.dumps({'args':query_doc,'meta':log_entry_durations}), True,''
         except Exception, error:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print "getQuery Exception: {} {}".format(error, traceback.format_exc())
@@ -175,12 +175,10 @@ class App(object):
             for key in app_response['query_update']:
                 db.set(self.app_id+':queries', args_dict['args']['query_uid'], key, app_response['query_update'][key])
             didSucceed, dt = utils.timeit(alg.processAnswer)(resource=rc, **app_response['alg_args'])
-            # TODO: Where does this timing actually get logged?
-            log_entry_durations = { 'exp_uid':exp_uid,'alg_label':query['alg_label'],'task':'processAnswer','duration':dt }
+            log_entry_durations = { 'exp_uid':exp_uid, 'alg_label':query['alg_label'], 'task':'processAnswer','duration':dt }
             log_entry_durations.update( rc.getDurations() )
-            args_out = {'args': {}, 'meta': {'log_entry_durations':log_entry_durations}}
             # TODO: There should be a flag here to return the widget html if needed
-            return json.dumps(args_out), True, ""
+            return json.dumps({'args': {}, 'meta': {'log_entry_durations':log_entry_durations}}), True, ''
         except Exception, error:
             exc_type, exc_value, exc_traceback = sys.exc_info()
 	    print "Exception! {} {}".format(error, traceback.format_exc())
@@ -203,7 +201,6 @@ class App(object):
 		print "Exception! {} {}".format(error, traceback.format_exc())
 		traceback.print_tb(exc_traceback)
 		raise Exception(error)
-
             alg_label = args_dict['args']['alg_label']            
             alg_list, didSucceed, message = db.get(app_id + ':experiments',exp_uid,'alg_list')
             for algorithm in alg_list:
@@ -214,14 +211,13 @@ class App(object):
             rc = ResourceClient(self.app_id, exp_uid, alg_label, db)
             alg_response,dt = utils.timeit(alg.getModel)(rc)
             myapp_response, meta = self.myApp.getModel(exp_uid, alg_response, args_dict, rc, db)
-            args_out = {'args': myapp_response,
-                        'meta': {'log_entry_durations':{'exp_uid':exp_uid,
-                                                        'alg_label':alg_label,
-                                                        'task':'getModel',
-                                                        'duration':dt}}}
+            log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'predict','duration':dt } 
+            log_entry_durations.update( rc.getDurations() )
+            args_out = {'args': myapp_response, 'meta': {'log_entry_durations':log_entry_durations}}
+            
             if args_dict['args']['logging']:
                 log_entry = {'exp_uid': exp_uid, 'task': 'getModel', 'json': args_out, 'timestamp': str(utils.datetimeNow())}
-                ell.log(app_id+':APP-RESPONSE', log_entry)
+                ell.log(app_id+':ALG-EVALUATION', log_entry)
             return json.dumps(args_out), True, ''
         except Exception:
             error = traceback.format_exc()
@@ -244,14 +240,14 @@ class App(object):
 		print "Exception! {} {}".format(error, traceback.format_exc())
 		traceback.print_tb(exc_traceback)
 		raise Exception(error)
-            dashboard = self.dashboard
+            dashboard = self.dashboard(db, ell)
             stats = self.myApp.getStats(exp_uid, args_dict, dashboard, db)
             return json.dumps(stats), True, ''
         except Exception, err:
             error = traceback.format_exc()
             log_entry = {'exp_uid': exp_uid, 'task': 'getStats', 'error': error,
                          'timestamp': utils.datetimeNow(), 'args_json': args_json}
-            ell.log(app_id + ':APP-EXCEPTION', log_entry)
+            ell.log(self.app_id + ':APP-EXCEPTION', log_entry)
             return '{}', False, error
 
 class Helper(object):

@@ -137,7 +137,7 @@ processAnswer:
           type: str
 
 getModel:
-  description: 'Make a prediction from a specific alg'
+  description: Make a prediction from a specific alg
   type: dict
   values:
     exp_uid:
@@ -154,3 +154,31 @@ getModel:
           description: whether you want this logged in app_id:APP-EVALUATION
           type: boolean
           set: false
+
+getStats:
+  description: getStats yeahhhh!
+  type: dict
+  values:
+    exp_uid:
+      description: The experiment unique identifier.
+      type: str
+    args:
+      description: args
+      type: dict
+      values:
+        stat_id:
+          description: stat_id
+          type: str
+        params:
+          description: params
+          type: dict
+          values:
+            alg_label:
+              description: alg_label
+              type: str
+              optional: true
+            task:
+              description: task
+              type: str
+              optional: true
+            

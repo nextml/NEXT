@@ -13,32 +13,6 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
 
     def __init__(self,db,ell):
         AppDashboard.__init__(self,db,ell)
-
-    def get_app_supported_stats(self):
-        """
-        Returns a list of dictionaries describing the identifier (stat_id) and 
-        necessary params inputs to be used when calling getStats
-
-        Expected output (list of dicts, each with fields):
-            (string) stat_id : the identiifer of the statistic
-            (string) description : docstring of describing outputs
-            (list of string) necessary_params : list where each string describes the type of param input like 'alg_label' or 'task'
-        """
-        stat_list = self.get_supported_stats()
-
-        stat = {}
-        stat['stat_id'] = 'test_error_multiline_plot'
-        stat['description'] = self.test_error_multiline_plot.__doc__
-        stat['necessary_params'] = []
-        stat_list.append(stat)
-
-        stat = {}
-        stat['stat_id'] = 'most_current_embedding'
-        stat['description'] = self.most_current_embedding.__doc__
-        stat['necessary_params'] = ['alg_label']
-        stat_list.append(stat)
-
-        return stat_list
         
     def test_error_multiline_plot(self,app_id,exp_uid):
         """

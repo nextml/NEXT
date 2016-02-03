@@ -49,9 +49,9 @@ def get_supported_apps():
     print app_id_list
     >>> ['StochasticBanditsPureExploration', 'DuelingBanditsPureExploration', 'StochasticLinearBanditsExploreExploit', 'PoolBasedTripletMDS']
   """
-  next_path = 'next.apps'
-  app_module = __import__(next_path,fromlist=[''])
-  return app_module.implemented_apps
+  apps_path = 'next/apps/Apps/'
+  import os
+  return next(os.walk(os.path.dirname(apps_path)))[1]
 
 def get_app_about(app_id):
   """
@@ -163,20 +163,6 @@ def get_app_supported_algs(app_id):
   next_path = 'next.apps.'
   app_module = __import__(next_path+app_id,fromlist=[''])
   return app_module.get_implemented_algs()
-
-def get_app_supported_stats(app_id):
-  """
-  Returns a list of dicts describing the stats available for the app and what are the necessary inputs
-
-  Usage: ::\n
-    stat_list = utils.get_app_supported_stats('PoolBasedTripletMDS')
-  """
-  app_id = str(app_id) # soemtimes input is unicode formatted which causes error
-  next_path = 'next.apps.'+app_id+'.'
-  dashboard_module = __import__(next_path+'Dashboard',fromlist=[''])
-  dashboard_class = getattr(dashboard_module,app_id+'Dashboard')
-  dashboard = dashboard_class()
-  return dashboard.get_app_supported_stats()
 
 
 def get_app_default_alg_list(app_id):

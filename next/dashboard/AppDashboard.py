@@ -16,52 +16,6 @@ class AppDashboard(object):
     self.db = db
     self.ell = ell
 
-  def get_supported_stats(self):
-    """
-    Returns a list of dictionaries describing the identifier (stat_id) and 
-    necessary params inputs to be used when calling getStats
-
-    Expected output (list of dicts, each with fields):
-      (string) stat_id : the identiifer of the statistic
-      (string) description : docstring of describing outputs
-      (list of string) necessary_params : list where each string describes the type of param input like 'alg_label' or 'task'
-    """
-
-    stat_list = []
-
-    stat = {}
-    stat['stat_id'] = 'api_activity_histogram'
-    stat['description'] = self.api_activity_histogram.__doc__
-    stat['necessary_params'] = ['task']
-    stat_list.append(stat)
-
-    stat = {}
-    stat['stat_id'] = 'compute_duration_multiline_plot'
-    stat['description'] = self.compute_duration_multiline_plot.__doc__
-    stat['necessary_params'] = ['task']
-    stat_list.append(stat)
-
-    stat = {}
-    stat['stat_id'] = 'compute_duration_detailed_stacked_area_plot'
-    stat['description'] = self.compute_duration_detailed_stacked_area_plot.__doc__
-    stat['necessary_params'] = ['task','alg_label']
-    stat_list.append(stat)
-
-    stat = {}
-    stat['stat_id'] = 'response_time_histogram'
-    stat['description'] = self.response_time_histogram.__doc__
-    stat['necessary_params'] = ['alg_label']
-    stat_list.append(stat)
-
-    stat = {}
-    stat['stat_id'] = 'network_time_histogram'
-    stat['description'] = self.response_time_histogram.__doc__
-    stat['necessary_params'] = ['alg_label']
-    stat_list.append(stat)
-
-
-    return stat_list  
-
   def api_activity_histogram(self,app_id,exp_uid,task):
     """
     Description: returns the data to plot all API activity (for all algorithms) in a histogram with respect to time for any task in {getQuery,processAnswer,predict} 
@@ -110,8 +64,7 @@ class AppDashboard(object):
     Expected output (in dict):
       (dict) MPLD3 plot dictionary
     """
-    alg_list,didSucceed,message = self.db.get(app_id+':experiments',exp_uid,'alg_list')
-
+    alg_list = self.db.get(app_id+':experiments',exp_uid,'args')[0]['alg_list']
     x_min = numpy.float('inf')
     x_max = -numpy.float('inf')
     y_min = numpy.float('inf')
@@ -119,11 +72,9 @@ class AppDashboard(object):
     list_of_alg_dicts = []
 
     for algorithm in alg_list:
-      alg_id = algorithm['alg_id']
-      alg_uid = algorithm['alg_uid']
       alg_label = algorithm['alg_label']
       
-      list_of_log_dict,didSucceed,message = self.ell.get_logs_with_filter(app_id+':ALG-DURATION',{'alg_uid':alg_uid,'task':task})
+      list_of_log_dict,didSucceed,message = self.ell.get_logs_with_filter(app_id+':ALG-DURATION',{'alg_label':alg_label,'task':task})
       list_of_log_dict = sorted(list_of_log_dict, key=lambda item: utils.str2datetime(item['timestamp']) )
 
       x = []
@@ -207,16 +158,8 @@ class AppDashboard(object):
 
     Expected output (in dict):
       (dict) MPLD3 plot dictionary
-    """
-
-    alg_list,didSucceed,message = self.db.get(app_id+':experiments',exp_uid,'alg_list')
-
-    for algorithm in alg_list:
-      if algorithm['alg_label'] == alg_label:
-        alg_id = algorithm['alg_id']
-        alg_uid = algorithm['alg_uid']
-
-    list_of_log_dict,didSucceed,message = self.ell.get_logs_with_filter(app_id+':ALG-DURATION',{'alg_uid':alg_uid,'task':task})
+    """ 
+    list_of_log_dict,didSucceed,message = self.ell.get_logs_with_filter(app_id+':ALG-DURATION',{'alg_label':alg_label,'task':task})
     list_of_log_dict = sorted(list_of_log_dict, key=lambda item: utils.str2datetime(item['timestamp']) )
 
 
@@ -302,8 +245,7 @@ class AppDashboard(object):
     Expected output (in dict):
       (dict) MPLD3 plot dictionary
     """
-
-    alg_list,didSucceed,message = self.db.get(app_id+':experiments',exp_uid,'alg_list')
+    alg_list = self.db.get(app_id+':experiments',exp_uid,'args')[0]['alg_list']
 
     for algorithm in alg_list:
       if algorithm['alg_label'] == alg_label:
@@ -344,8 +286,7 @@ class AppDashboard(object):
     Expected output (in dict):
       (dict) MPLD3 plot dictionary
     """
-
-    alg_list,didSucceed,message = self.db.get(app_id+':experiments',exp_uid,'alg_list')
+    alg_list = self.db.get(app_id+':experiments',exp_uid,'args')[0]['alg_list']
 
     for algorithm in alg_list:
       if algorithm['alg_label'] == alg_label:

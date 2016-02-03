@@ -64,18 +64,15 @@ class Stats(Resource):
 
         # Pull app_id and exp_uid from parsed args_data
         exp_uid = args_data["exp_uid"]
-        exp_key = args_data["exp_key"]
+        exp_key = args_data.pop("exp_key", None)
         if not keychain.verify_exp_key(exp_uid, exp_key):
             return api_util.attach_meta({}, api_util.verification_dictionary), 401
 
         # Fetch app_id data from resource manager
         app_id = resource_manager.get_app_id(exp_uid)
 
-        # Args from dict to json type
-        args_json = json.dumps(args_data["args"])
-
         # Execute getStats
-        response_json,didSucceed,message = broker.applyAsync(app_id,exp_uid,"getStats",args_json)
+        response_json,didSucceed,message = broker.applyAsync(app_id,exp_uid,"getStats",json.dumps(args_data))
         response_dict = json.loads(response_json,parse_float=lambda o:round(float(o),4))
 
         if didSucceed and "data" in response_dict.keys():

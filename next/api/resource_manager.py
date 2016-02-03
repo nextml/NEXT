@@ -77,26 +77,6 @@ class ResourceManager:
         """
         return utils.get_app_supported_algs(app_id)
 
-    def get_app_supported_stats(self,app_id):
-        """
-        Returns a list of dictionaries, each dictionary representing a kind of plot with the necessary inputs.
-        All requests for plots are done through getStats calls which take 'stat_id' and 'params'. For each dictionary
-        returned from this function, there is a 'stat_id' field, 'description' which is the doc_string of the plot,
-        and 'params' field which is a list of necessary params
-
-        Inputs: ::\n
-            (string) app_id : app identifier
-
-        Outputs: ::\n
-            (list of dict) plot_list : list of plots available to the app_id using getStats with args 'stat_id','params' with fields:
-                (string) stat_id : the identifier for the specific plot / stat
-                (string) description : the doc string for the plot
-                (list of string) params : a list of the necessary parameters chosen from {'alg_label','task'}
-
-        Usage: ::\n
-            rm.get_app_supported_stats('PoolBasedTripletMDS')
-        """
-        return utils.get_app_supported_stats(app_id)
 
     def get_app_exp_uids(self,app_id):
         """
@@ -215,10 +195,9 @@ class ResourceManager:
             alg_list = rm.get_algs_for_exp_uid('b5242319c78df48f4ff31e78de5857')
         """
         app_id = self.get_app_id(exp_uid)
-        full_alg_list,didSucceed,message = db.get(app_id+':experiments',exp_uid,'alg_list')
-
+        args,didSucceed,message = db.get(app_id+':experiments',exp_uid,'args') 
         alg_list = []
-        for alg in full_alg_list:
+        for alg in args['alg_list']:
             tmp = {}
             tmp['alg_id'] = alg['alg_id']
             tmp['alg_label'] = alg['alg_label']
