@@ -206,16 +206,16 @@ class App(object):
 		traceback.print_tb(exc_traceback)
 		raise Exception(error)
             alg_label = args_dict['args']['alg_label']
-            alg_list, didSucceed, message = db.get(app_id + ':experiments',exp_uid,'alg_list')
-            for algorithm in alg_list:
+            args, didSucceed, message = db.get(app_id + ':experiments',exp_uid,'args')
+            for algorithm in args['alg_list']:
                 if alg_label == algorithm['alg_label']:
                     alg_id = algorithm['alg_id']
             alg = utils.get_app_alg(self.app_id, alg_id)
             # get sandboxed database for the specific app_id,alg_id,exp_uid - closing off the rest of the database to the algorithm
             rc = ResourceClient(self.app_id, exp_uid, alg_label, db)
             alg_response,dt = utils.timeit(alg.getModel)(rc)
-            myapp_response, meta = self.myApp.getModel(exp_uid, alg_response, args_dict, rc, db)
-            log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'getModel','duration':dt }
+            myapp_response, meta = self.myApp.getModel(exp_uid, alg_response, args_dict, db)
+            log_entry_durations = { 'exp_uid':exp_uid,'alg_label':alg_label,'task':'getModel','duration':dt }
             log_entry_durations.update( rc.getDurations() )
             args_out = {'args': myapp_response, 'meta': {'log_entry_durations':log_entry_durations}}
 

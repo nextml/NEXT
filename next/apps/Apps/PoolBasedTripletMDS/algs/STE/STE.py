@@ -121,7 +121,7 @@ class STE(PoolBasedTripletMDSPrototype):
     X = key_value_dict.get('X',[])
     num_reported_answers = key_value_dict.get('num_reported_answers',[])
 
-    return X,num_reported_answers
+    return [X,num_reported_answers]
 
   def __incremental_embedding_update(self,resource,args):
     verbose = False
