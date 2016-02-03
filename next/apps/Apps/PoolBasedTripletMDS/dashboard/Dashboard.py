@@ -32,6 +32,7 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
         for algorithm in alg_list:
             test_alg_label = algorithm['test_alg_label']
 
+        # TODO: Do this by hand rather than relying on App getModel
         getModel_id = 'get_queries'
         params = {'alg_label':test_alg_label}
         getModel_args_dict = {'getModel_id':getModel_id,'params':params}
@@ -131,9 +132,7 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
             (float) y : y-value of target
         """
 
-        getModel_id = 'get_embedding'
-        params = {'alg_label':alg_label}
-        getModel_args_dict = {'getModel_id':getModel_id,'params':params}
+        getModel_args_dict = {'alg_label':alg_label}
         getModel_args_json = json.dumps(getModel_args_dict)
         next_app = utils.get_app(app_id)
         args_out_json,didSucceed,message = next_app.getModel(exp_uid, getModel_args_json, self.db, self.ell)
