@@ -18,7 +18,7 @@ class AppDashboard(object):
 
   def api_activity_histogram(self,app_id,exp_uid,task):
     """
-    Description: returns the data to plot all API activity (for all algorithms) in a histogram with respect to time for any task in {getQuery,processAnswer,predict} 
+    Description: returns the data to plot all API activity (for all algorithms) in a histogram with respect to time for any task in {getQuery,processAnswer,predict}
 
     Expected input:
       (string) task :  must be in {'getQuery','processAnswer','predict'}
@@ -36,7 +36,10 @@ class AppDashboard(object):
     start_date = utils.str2datetime(start_date_str)
     numerical_timestamps = [ ( utils.str2datetime(item['timestamp'])-start_date).total_seconds() for item in list_of_log_dict]
 
-    print numerical_timestamps
+    print "numerical_timestamps, AppDashboard.py"
+    print '\n'*10
+    print len(numerical_timestamps), type(numerical_timestamps)
+    print '\n'*10
     import matplotlib.pyplot as plt
     import mpld3
     fig, ax = plt.subplots(subplot_kw=dict(axisbg='#FFFFFF'),figsize=(12,1.5))
@@ -49,15 +52,15 @@ class AppDashboard(object):
     plot_dict = mpld3.fig_to_dict(fig)
     plt.close()
 
-    
+
     return plot_dict
 
 
 
   def compute_duration_multiline_plot(self,app_id,exp_uid,task):
     """
-    Description: Returns multiline plot where there is a one-to-one mapping lines to 
-    algorithms and each line indicates the durations to complete the task (wrt to the api call) 
+    Description: Returns multiline plot where there is a one-to-one mapping lines to
+    algorithms and each line indicates the durations to complete the task (wrt to the api call)
 
     Expected input:
       (string) task :  must be in {'getQuery','processAnswer','predict'}
@@ -74,7 +77,7 @@ class AppDashboard(object):
 
     for algorithm in alg_list:
       alg_label = algorithm['alg_label']
-      
+
       list_of_log_dict,didSucceed,message = self.ell.get_logs_with_filter(app_id+':ALG-DURATION',{'alg_label':alg_label,'task':task})
       list_of_log_dict = sorted(list_of_log_dict, key=lambda item: utils.str2datetime(item['timestamp']) )
 
@@ -87,7 +90,7 @@ class AppDashboard(object):
         x.append(k)
         y.append( item.get('app_duration',0.) + item.get('duration_enqueued',0.) )
         t.append(str(item['timestamp'])[:-3])
-      
+
       x = numpy.array(x)
       y = numpy.array(y)
       t = numpy.array(t)
@@ -155,11 +158,11 @@ class AppDashboard(object):
 
     Expected input:
       (string) task :  must be in {'getQuery','processAnswer','predict'}
-      (string) alg_label : must be a valid alg_label contained in alg_list list of dicts 
+      (string) alg_label : must be a valid alg_label contained in alg_list list of dicts
 
     Expected output (in dict):
       (dict) MPLD3 plot dictionary
-    """ 
+    """
     list_of_log_dict,didSucceed,message = self.ell.get_logs_with_filter(app_id+':ALG-DURATION',{'alg_label':alg_label,'task':task})
     list_of_log_dict = sorted(list_of_log_dict, key=lambda item: utils.str2datetime(item['timestamp']) )
 
@@ -201,7 +204,7 @@ class AppDashboard(object):
         max_y_value = _app_duration + _duration_enqueued
       if (_app_duration+_duration_enqueued) < min_y_value:
         min_y_value = _app_duration + _duration_enqueued
-      
+
       enqueued.append(_duration_enqueued)
       admin.append(_app_duration-_alg_duration)
       dbSet.append(_alg_duration_dbSet)
@@ -231,17 +234,17 @@ class AppDashboard(object):
       label.set_fontsize('small')
     plot_dict = mpld3.fig_to_dict(fig)
     plt.close()
-    
+
 
     return plot_dict
 
 
   def response_time_histogram(self,app_id,exp_uid,alg_label):
     """
-    Description: returns the data to plot response time histogram of processAnswer for each algorithm  
+    Description: returns the data to plot response time histogram of processAnswer for each algorithm
 
     Expected input:
-      (string) alg_label : must be a valid alg_label contained in alg_list list of dicts 
+      (string) alg_label : must be a valid alg_label contained in alg_list list of dicts
 
     Expected output (in dict):
       (dict) MPLD3 plot dictionary
@@ -274,10 +277,10 @@ class AppDashboard(object):
 
   def network_delay_histogram(self,app_id,exp_uid,alg_label):
     """
-    Description: returns the data to network delay histogram of the time it takes to getQuery+processAnswer for each algorithm  
+    Description: returns the data to network delay histogram of the time it takes to getQuery+processAnswer for each algorithm
 
     Expected input:
-      (string) alg_label : must be a valid alg_label contained in alg_list list of dicts 
+      (string) alg_label : must be a valid alg_label contained in alg_list list of dicts
 
     Expected output (in dict):
       (dict) MPLD3 plot dictionary
