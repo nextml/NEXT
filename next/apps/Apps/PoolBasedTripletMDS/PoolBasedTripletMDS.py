@@ -75,7 +75,7 @@ class PoolBasedTripletMDS(object):
                 'response_time_histogram':default + [alg_label],
                 'network_delay_histogram':default + [alg_label],
                 'most_current_embedding':default + [alg_label],
-                'test_error_multiline_plot':default + [alg_label]}
+                'test_error_multiline_plot':default}
 #}
         return functions[stat_id](*args[stat_id])
 
