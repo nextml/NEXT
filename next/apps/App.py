@@ -225,6 +225,7 @@ class App(object):
             return json.dumps(args_out), True, ''
         except Exception:
             error = traceback.format_exc()
+            print "============\n"*3+"getModel error",error
             log_entry = {'exp_uid': exp_uid, 'task': 'getModel',
                          'error': str(error), 'timestamp': utils.datetimeNow()}
             didSucceed,message = ell.log(app_id+':APP-EXCEPTION', log_entry)

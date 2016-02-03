@@ -137,6 +137,7 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
         getModel_args_json = json.dumps(getModel_args_dict)
         next_app = utils.get_app(app_id)
         args_out_json,didSucceed,message = next_app.getModel(exp_uid, getModel_args_json, self.db, self.ell)
+        print "Dashoard, ASDASDASD", didSucceed
         getModel_args_dict = json.loads(args_out_json)
         item = getModel_args_dict['args']
 
