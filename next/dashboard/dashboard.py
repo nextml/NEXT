@@ -43,6 +43,7 @@ def experiment_list():
                 experiments.append({'exp_uid': exp_uid,
                                     'app_id': app_id,
                                     'start_date': start_date,
+                                    'num_participants':len(rm.get_participant_uids(exp_uid)),
                                     'exp_key': exp_key})
             except IndexError as e:
                 print e
