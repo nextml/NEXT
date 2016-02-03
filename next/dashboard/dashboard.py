@@ -3,7 +3,7 @@ next dashboard.py
 author: Lalit Jain, lalitkumarj@gmail.com
 last updated: 9/16/15
 
-Flask controller for dashboards. 
+Flask controller for dashboards.
 """
 from flask import Blueprint, render_template, url_for, request
 from jinja2 import Environment, PackageLoader, ChoiceLoader
@@ -24,7 +24,7 @@ db = PermStore.PermStore()
 @dashboard.route('/experiment_list')
 def experiment_list():
     """
-    Endpoint that renders a page with a simple list of all experiments. 
+    Endpoint that renders a page with a simple list of all experiments.
     """
 
     # Experiments set
@@ -37,24 +37,24 @@ def experiment_list():
             docs,didSucceed,message = db.getDocsByPattern('next_frontend_base',
                                                           'keys',
                                                           {'object_id':exp_uid,
-                                                           'type':'exp'})            
+                                                           'type':'exp'})
             try:
                 exp_key = docs[0]['_id']
-                experiments.append({'exp_uid': exp_uid, 
-                                    'app_id': app_id, 
-                                    'start_date': start_date, 
+                experiments.append({'exp_uid': exp_uid,
+                                    'app_id': app_id,
+                                    'start_date': start_date,
                                     'exp_key': exp_key})
             except IndexError as e:
                 print e
                 pass
 
-    return render_template('experiment_list.html', 
+    return render_template('experiment_list.html',
                            experiments = reversed(experiments))
 
 @dashboard.route('/system_monitor')
 def system_monitor():
     """
-    Endpoint that renders a page with a simple list of all monitoring. 
+    Endpoint that renders a page with a simple list of all monitoring.
     """
     rabbit_url = 'http://{}:{}'.format(constants.NEXT_BACKEND_GLOBAL_HOST,
                                        15672)
@@ -62,9 +62,9 @@ def system_monitor():
                                          8888)
     mongodb_url = 'http://{}:{}'.format(constants.NEXT_BACKEND_GLOBAL_HOST,
                                         28017)
-    return render_template('system_monitor.html', 
-                           rabbit_url=rabbit_url, 
-                           cadvisor_url=cadvisor_url, 
+    return render_template('system_monitor.html',
+                           rabbit_url=rabbit_url,
+                           cadvisor_url=cadvisor_url,
                            mongodb_url=mongodb_url)
 
 @dashboard.route('/experiment_dashboard/<exp_uid>/<app_id>/<exp_key>')
@@ -92,7 +92,7 @@ def experiment_dashboard(exp_uid, app_id, exp_key):
       num_participants = -1
       num_queries = -1
 
-    # Not a particularly good way to do this. 
+    # Not a particularly good way to do this.
     alg_label_list = rm.get_algs_for_exp_uid(exp_uid)
     # Migrate this code to use keychain
     docs,didSucceed,message = db.getDocsByPattern('next_frontend_base',
@@ -105,7 +105,7 @@ def experiment_dashboard(exp_uid, app_id, exp_key):
                 for alg in alg_label_list]
 
     if (constants.NEXT_BACKEND_GLOBAL_HOST and
-        constants.NEXT_BACKEND_GLOBAL_PORT):        
+        constants.NEXT_BACKEND_GLOBAL_PORT):
         host_url = 'http://{}:{}'.format(constants.NEXT_BACKEND_GLOBAL_HOST,
                                          constants.NEXT_BACKEND_GLOBAL_PORT)
     else:
@@ -115,7 +115,7 @@ def experiment_dashboard(exp_uid, app_id, exp_key):
                                            PackageLoader('next.dashboard',
                                                          'templates')]))
     template = env.get_template('{}.html'.format(app_id)) # looks for /next/apps/{{ app_id }}/dashboard/{{ app_id }}.html
-    
+
     return template.render(app_id=app_id,
                            exp_uid=exp_uid,
                            exp_key=exp_key,

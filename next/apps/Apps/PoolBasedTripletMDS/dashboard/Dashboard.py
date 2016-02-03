@@ -4,7 +4,7 @@ import numpy.random
 from datetime import datetime
 from datetime import timedelta
 from next.utils import utils
-from next.dashboard.AppDashboard import AppDashboard
+from next.apps.AppDashboard import AppDashboard
 
 # import next.database_client.DatabaseAPIHTTP as db
 # import next.logging_client.LoggerHTTP as ell
@@ -12,11 +12,11 @@ from next.dashboard.AppDashboard import AppDashboard
 class PoolBasedTripletMDSDashboard(AppDashboard):
 
     def __init__(self,db,ell):
-        AppDashboard.__init__(self,db,ell)
-        
+        AppDashboard.__init__(self, db, ell)
+
     def test_error_multiline_plot(self,app_id,exp_uid):
         """
-        Description: Returns multiline plot where there is a one-to-one mapping lines to 
+        Description: Returns multiline plot where there is a one-to-one mapping lines to
         algorithms and each line indicates the error on the validation set with respect to number of reported answers
 
         Expected input:
@@ -77,7 +77,7 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
                 x.append(num_reported_answers)
                 y.append(err)
 
-        
+
             alg_dict = {}
             alg_dict['legend_label'] = alg_label
             alg_dict['x'] = x
@@ -117,7 +117,7 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
         Description: Returns embedding in the form of a list of dictionaries, which is conveneint for downstream applications
 
         Expected input:
-          (string) alg_label : must be a valid alg_label contained in alg_list list of dicts 
+          (string) alg_label : must be a valid alg_label contained in alg_list list of dicts
 
         Expected output (in dict):
           plot_type : 'scatter2d_noaxis'
@@ -125,7 +125,7 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
           (float) x_max : maximum x-value to display in viewing box
           (float) y_min : minimum y-value to display in viewing box
           (float) y_max : maximum y-value to display in viewing box
-          (list of dicts with fields) data : 
+          (list of dicts with fields) data :
             (int) index : index of target
             (float) x : x-value of target
             (float) y : y-value of target
@@ -151,7 +151,7 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
 
             target_dict = {}
             target_dict['index'] = idx
-            target_dict['x'] = target[0] # this is what will actually be plotted, 
+            target_dict['x'] = target[0] # this is what will actually be plotted,
             try:
                 target_dict['y'] = target[1] # takes first two components, (could be replaced by PCA)
             except:
@@ -164,7 +164,7 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
             y_max = max(y_max,target[1])
 
             data.append(target_dict)
-    
+
         return_dict = {}
         return_dict['timestamp'] = item['timestamp']
         return_dict['x_min'] = x_min
