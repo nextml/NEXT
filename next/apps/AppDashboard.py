@@ -247,12 +247,7 @@ class AppDashboard(object):
     """
     alg_list = self.db.get(app_id+':experiments',exp_uid,'args')[0]['alg_list']
 
-    for algorithm in alg_list:
-      if algorithm['alg_label'] == alg_label:
-        alg_id = algorithm['alg_id']
-        alg_uid = algorithm['alg_uid']
-
-    list_of_query_dict,didSucceed,message = self.db.get_docs_with_filter(app_id+':queries',{'exp_uid':exp_uid,'alg_uid':alg_uid})
+    list_of_query_dict,didSucceed,message = self.db.get_docs_with_filter(app_id+':queries',{'exp_uid':exp_uid,'alg_label':alg_label})
 
 
     t = []
@@ -288,12 +283,7 @@ class AppDashboard(object):
     """
     alg_list = self.db.get(app_id+':experiments',exp_uid,'args')[0]['alg_list']
 
-    for algorithm in alg_list:
-      if algorithm['alg_label'] == alg_label:
-        alg_id = algorithm['alg_id']
-        alg_uid = algorithm['alg_uid']
-
-    list_of_query_dict,didSucceed,message = self.db.get_docs_with_filter(app_id+':queries',{'exp_uid':exp_uid,'alg_uid':alg_uid})
+    list_of_query_dict,didSucceed,message = self.db.get_docs_with_filter(app_id+':queries',{'exp_uid':exp_uid,'alg_label':alg_label})
 
     t = []
     for item in list_of_query_dict:
