@@ -37,7 +37,7 @@ def apply(app_id, exp_uid, task_name, args_in_json, enqueue_timestamp):
 	# pass it to a method
 	method = getattr(next_app, task_name)
 	args_out_json,didSucceed,message,dt = next.utils.timeit(method)(exp_uid, args_in_json, db, ell)
-        print 'args_out_json', args_out_json, type(args_out_json)
+        #print 'args_out_json', args_out_json, type(args_out_json)
         args_out_dict = json.loads(args_out_json)
 	if 'args' in args_out_dict:
 		return_value = (json.dumps(args_out_dict['args']),didSucceed,message)

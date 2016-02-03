@@ -32,14 +32,14 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
         for algorithm in alg_list:
             test_alg_label = algorithm['test_alg_label']
 
-        predict_id = 'get_queries'
+        getModel_id = 'get_queries'
         params = {'alg_label':test_alg_label}
-        predict_args_dict = {'predict_id':predict_id,'params':params}
-        predict_args_json = json.dumps(predict_args_dict)
+        getModel_args_dict = {'getModel_id':getModel_id,'params':params}
+        getModel_args_json = json.dumps(getModel_args_dict)
         next_app = utils.get_app(app_id)
-        args_out_json,didSucceed,message = next_app.predict(exp_uid, predict_args_json, self.db, self.ell)
-        predict_args_dict = json.loads(args_out_json)
-        test_S = predict_args_dict['args']['queries']
+        args_out_json,didSucceed,message = next_app.getModel(exp_uid, getModel_args_json, self.db, self.ell)
+        getModel_args_dict = json.loads(args_out_json)
+        test_S = getModel_args_dict['args']['queries']
 
         x_min = numpy.float('inf')
         x_max = -numpy.float('inf')
@@ -131,14 +131,14 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
             (float) y : y-value of target
         """
 
-        predict_id = 'get_embedding'
+        getModel_id = 'get_embedding'
         params = {'alg_label':alg_label}
-        predict_args_dict = {'predict_id':predict_id,'params':params}
-        predict_args_json = json.dumps(predict_args_dict)
+        getModel_args_dict = {'getModel_id':getModel_id,'params':params}
+        getModel_args_json = json.dumps(getModel_args_dict)
         next_app = utils.get_app(app_id)
-        args_out_json,didSucceed,message = next_app.predict(exp_uid, predict_args_json, self.db, self.ell)
-        predict_args_dict = json.loads(args_out_json)
-        item = predict_args_dict['args']
+        args_out_json,didSucceed,message = next_app.getModel(exp_uid, getModel_args_json, self.db, self.ell)
+        getModel_args_dict = json.loads(args_out_json)
+        item = getModel_args_dict['args']
 
         embedding = item['Xd']
 

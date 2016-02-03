@@ -19,3 +19,6 @@ nohup.out
 
 # EC2 key files
 *.pem
+
+# backup files
+*.bak

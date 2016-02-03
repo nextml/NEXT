@@ -211,7 +211,7 @@ class App(object):
             rc = ResourceClient(self.app_id, exp_uid, alg_label, db)
             alg_response,dt = utils.timeit(alg.getModel)(rc)
             myapp_response, meta = self.myApp.getModel(exp_uid, alg_response, args_dict, rc, db)
-            log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'predict','duration':dt } 
+            log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'getModel','duration':dt } 
             log_entry_durations.update( rc.getDurations() )
             args_out = {'args': myapp_response, 'meta': {'log_entry_durations':log_entry_durations}}
             
