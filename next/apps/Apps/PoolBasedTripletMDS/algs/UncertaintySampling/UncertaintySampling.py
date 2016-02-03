@@ -54,7 +54,7 @@ class UncertaintySampling(PoolBasedTripletMDSPrototype):
       c = numpy.random.randint(n)
       while c==a or c==b:
         c = numpy.random.randint(n)
-      return a, b, c
+      return [a, b, c]
 
 
     # generate an active query

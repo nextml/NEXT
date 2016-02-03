@@ -55,7 +55,7 @@ class STE(PoolBasedTripletMDSPrototype):
       c = numpy.random.randint(n)
       while c==a or c==b:
         c = numpy.random.randint(n)
-      return a, b, c
+      return [a, b, c]
 
     X = numpy.array(resource.get('X'))
     tau = numpy.array(resource.get('tau'))

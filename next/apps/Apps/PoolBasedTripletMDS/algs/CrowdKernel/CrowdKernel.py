@@ -57,7 +57,7 @@ class CrowdKernel(PoolBasedTripletMDSPrototype):
       c = numpy.random.randint(n)
       while c==a or c==b:
         c = numpy.random.randint(n)
-      return a, b, c
+      return [a, b, c]
 
     X = numpy.array(resource.get('X'))
     tau = numpy.array(resource.get('tau'))
@@ -95,7 +95,7 @@ class CrowdKernel(PoolBasedTripletMDSPrototype):
     index_left = best_q[0]
     index_right = best_q[1]
 
-    return [index_center,index_left,index_right]
+    return [index_center, index_left, index_right]
 
 
   def processAnswer(self,resource,center_id,left_id,right_id,target_winner):

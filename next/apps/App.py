@@ -124,7 +124,9 @@ class App(object):
             rc = ResourceClient(self.app_id, exp_uid, alg_label, db)
             alg = utils.get_app_alg(self.app_id, alg_id)
             r = utils.timeit(alg.getQuery)(resource=rc)
-            print "alg_response, get_query", type(r), r
+            print '\n'*5
+            print "alg_response:getQuery", type(r), r
+            print '\n'*1
             alg_response, dt = r
             query_doc = self.myApp.getQuery(exp_uid, args_dict, alg_response, db)
             query_uid = utils.getNewUID()
