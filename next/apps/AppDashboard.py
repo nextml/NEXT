@@ -36,6 +36,7 @@ class AppDashboard(object):
     start_date = utils.str2datetime(start_date_str)
     numerical_timestamps = [ ( utils.str2datetime(item['timestamp'])-start_date).total_seconds() for item in list_of_log_dict]
 
+    print numerical_timestamps
     import matplotlib.pyplot as plt
     import mpld3
     fig, ax = plt.subplots(subplot_kw=dict(axisbg='#FFFFFF'),figsize=(12,1.5))
