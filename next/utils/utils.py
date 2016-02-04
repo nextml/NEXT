@@ -323,15 +323,11 @@ def timeit(f):
     ts = time.time()
     result = f(*args, **kw)
     te = time.time()
-
     # TODO: delete these three lines. Use
     # `grep -Hnri ,.*,.* = .*utils.timeit` to find all locations this function
     # is are used (typically in `a, b, c, dt = utils.timeit(...)(...)`. We want
-    # `a, dt = utils.timeit(...)(...)`.
-    if type(result)==tuple:
-      return result + ((te-ts),)
-    else:
-      return result, (te-ts)
+    # `a, dt = utils.timeit(...)(...)`.    
+    return result, (te-ts)
   return timed
 
 

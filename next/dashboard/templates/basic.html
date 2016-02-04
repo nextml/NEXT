@@ -98,7 +98,7 @@ popup_alert = function(text){
         <div class="row">
             <h2> Algorithm timing comparison
             <button type="button" class="btn btn-primary btn-xs"
-                  onclick="popup_alert('The outside world communicates with NEXT through requests to its HTTP API. A plot for each kind of request describes the amount of time the NEXT system took to respond to the sequence of requests. <br><br><b>How it is measured:</b> For {getQuery,processAnswer,predict} the timer starts when the request from the API is enqueued and stops when the response is sent back to the API. Because daemonComputes are jobs that are submitted by the algorithms (e.g. model updates) the timer starts on initial job submission and stopped when the job completes. Duration is measured in seconds. <br><br><b>How to use this information:</b>This timing information informs the practitioner how long each algorithm of NEXT is taking to respond to requests, which directly affects how long participants answering queries must wait between queries. Note, these times do not take into account the time it takes the response to get from NEXT to the user or the reverse direction. For this information see the Network Delay plots below. If daemonCompute times are large, this could indicate that it is taking a very long time for the model to update and queries are being served based on stale information. However, if much of this time is enqueued time, then depending on the implementation this may not be the case (see where time is being spent in the breakdown plots below).')">?</button>
+                  onclick="popup_alert('The outside world communicates with NEXT through requests to its HTTP API. A plot for each kind of request describes the amount of time the NEXT system took to respond to the sequence of requests. <br><br><b>How it is measured:</b> For {getQuery,processAnswer,getModel} the timer starts when the request from the API is enqueued and stops when the response is sent back to the API. Because daemonComputes are jobs that are submitted by the algorithms (e.g. model updates) the timer starts on initial job submission and stopped when the job completes. Duration is measured in seconds. <br><br><b>How to use this information:</b>This timing information informs the practitioner how long each algorithm of NEXT is taking to respond to requests, which directly affects how long participants answering queries must wait between queries. Note, these times do not take into account the time it takes the response to get from NEXT to the user or the reverse direction. For this information see the Network Delay plots below. If daemonCompute times are large, this could indicate that it is taking a very long time for the model to update and queries are being served based on stale information. However, if much of this time is enqueued time, then depending on the implementation this may not be the case (see where time is being spent in the breakdown plots below).')">?</button>
             </h2>
         </div>
         <div class="row">
@@ -109,7 +109,7 @@ popup_alert = function(text){
                 <div id = "compute_duration_multiline_plot_processAnswer"></div>
             </div>
             <div class="col-md-3">
-                <div id = "compute_duration_multiline_plot_predict"></div>
+                <div id = "compute_duration_multiline_plot_getModel"></div>
             </div>
             <div class="col-md-3">
                 <div id = "compute_duration_multiline_plot_daemonProcess"></div>
@@ -171,10 +171,10 @@ popup_alert = function(text){
         console.log("Failed to get stats", error);
         });
 
-    compute_duration_multiline_plot_predict = function(data) {
+    compute_duration_multiline_plot_getModel = function(data) {
         data['width'] = 250
         data['height'] = 250
-        mpld3.draw_figure("compute_duration_multiline_plot_predict", data);
+        mpld3.draw_figure("compute_duration_multiline_plot_getModel", data);
     }
 
     $.ajax({
@@ -187,12 +187,12 @@ popup_alert = function(text){
             'name': 'getStats',
             'args':{
             "stat_id" : "compute_duration_multiline_plot",
-            "params"  : {"task": "predict" } }
+            "params"  : {"task": "getModel" } }
             }),
         dataType: "json"
         }).done( function(data,textStatus, jqXHR) {
         delete data['meta']
-        compute_duration_multiline_plot_predict(data)
+        compute_duration_multiline_plot_getModel(data)
         }).fail( function(error){
         console.log("Failed to get stats", error);
         });
@@ -258,7 +258,7 @@ popup_alert = function(text){
                             <div id= "compute_duration_detailed_stacked_area_plot_processAnswer_{{ alg.alg_label_clean }}"></div>
                         </div>
                         <div class="col-md-3">
-                            <div id= "compute_duration_detailed_stacked_area_plot_predict_{{ alg.alg_label_clean }}"></div>
+                            <div id= "compute_duration_detailed_stacked_area_plot_getModel_{{ alg.alg_label_clean }}"></div>
                         </div>
                         <div class="col-md-3">
                             <div id= "compute_duration_detailed_stacked_area_plot_daemonProcess_{{ alg.alg_label_clean }}"></div>
@@ -273,7 +273,7 @@ popup_alert = function(text){
                             <div id= "compute_duration_detailed_stacked_area_plot_processAnswer_{{ alg.alg_label_clean }}"></div>
                         </div>
                         <div class="col-md-3">
-                            <div id= "compute_duration_detailed_stacked_area_plot_predict_{{ alg.alg_label_clean }}"></div>
+                            <div id= "compute_duration_detailed_stacked_area_plot_getModel_{{ alg.alg_label_clean }}"></div>
                         </div>
                         <div class="col-md-3">
                             <div id= "compute_duration_detailed_stacked_area_plot_daemonProcess_{{ alg.alg_label_clean }}"></div>
@@ -337,10 +337,10 @@ popup_alert = function(text){
                         console.log("Failed to get stats", error);
                         });
 
-                    compute_duration_detailed_stacked_area_plot_predict_{{ alg.alg_label_clean }} = function(data) {
+                    compute_duration_detailed_stacked_area_plot_getModel_{{ alg.alg_label_clean }} = function(data) {
                         data['width'] = 250
                         data['height'] = 250
-                        mpld3.draw_figure("compute_duration_detailed_stacked_area_plot_predict_{{ alg.alg_label_clean }}", data);
+                        mpld3.draw_figure("compute_duration_detailed_stacked_area_plot_getModel_{{ alg.alg_label_clean }}", data);
                     }
 
                     $.ajax({
@@ -353,12 +353,12 @@ popup_alert = function(text){
                             'name': 'getStats',
                             'args':{
                             'stat_id' : 'compute_duration_detailed_stacked_area_plot',
-                            'params'  : {'task':'predict', 'alg_label':'{{ alg.alg_label }}' } }
+                            'params'  : {'task':'getModel', 'alg_label':'{{ alg.alg_label }}' } }
                             }),
                         dataType: "json"
                         }).done( function(data,textStatus, jqXHR) {
                         delete data['meta']
-                        compute_duration_detailed_stacked_area_plot_predict_{{ alg.alg_label_clean }}(data)
+                        compute_duration_detailed_stacked_area_plot_getModel_{{ alg.alg_label_clean }}(data)
                         }).fail( function(error){
                         console.log("Failed to get stats", error);
                         });

@@ -22,22 +22,26 @@ class ResourceClient(object):
         self.db = db_api
 
     def exists(self,key):
-        exists,didSucceed,message,dt = utils.timeit(self.db.exists)(self.bucket_id,self.doc_uid,key)
+        response,dt = utils.timeit(self.db.exists)(self.bucket_id,self.doc_uid,key)
+        exists,didSucceed,message = response
         self.durationGet += dt
         return exists
 
     def get(self,key):
-        value,didSucceed,message,dt = utils.timeit(self.db.get)(self.bucket_id,self.doc_uid,key)
+        response,dt = utils.timeit(self.db.get)(self.bucket_id,self.doc_uid,key)
+        value,didSucceed,message = response
         self.durationGet += dt
         return value
 
     def set(self,key,value):
-        didSucceed,message,dt = utils.timeit(self.db.set)(self.bucket_id,self.doc_uid,key,value)
+        response,dt = utils.timeit(self.db.set)(self.bucket_id,self.doc_uid,key,value)
+        didSucceed,message = response
         self.durationSet += dt
         return True
 
     def delete(self,key):
-        didSucceed,message,dt = utils.timeit(self.db.delete)(self.bucket_id,self.doc_uid,key)
+        response,dt = utils.timeit(self.db.delete)(self.bucket_id,self.doc_uid,key)
+        didSucceed,message = response
         self.durationSet += dt
         return True
 
@@ -47,7 +51,8 @@ class ResourceClient(object):
         get_many returns dictionary with { key:value } for each key in key_list - all values retrieved simultaneously 
         If requested key does not exist, the key will not exist in the returned dictionary
         """
-        return_dict,didSucceed,message,dt = utils.timeit(self.db.get_many)(self.bucket_id,self.doc_uid,key_list)
+        response,dt = utils.timeit(self.db.get_many)(self.bucket_id,self.doc_uid,key_list)
+        return_dict,didSucceed,message = response
         self.durationGet += dt
         return return_dict
 
@@ -57,7 +62,8 @@ class ResourceClient(object):
         To initialize 'counter' at value X: rc.increment('counter',X) 
         Returned value is the value of the key after increment has taken affect
         """
-        new_value,didSucceed,message,dt = utils.timeit(self.db.increment)(self.bucket_id,self.doc_uid,key,value)
+        response,dt = utils.timeit(self.db.increment)(self.bucket_id,self.doc_uid,key,value)
+        new_value,didSucceed,message = response
         self.durationSet += dt
         return new_value
 
@@ -72,7 +78,8 @@ class ResourceClient(object):
             data = get_many(['Xsum','T'])
             empirical_mean = data['Xsum'] / data['T']
         """
-        didSucceed,message,dt = utils.timeit(self.db.increment_many)(self.bucket_id,self.doc_uid,key_value_dict)
+        response,dt = utils.timeit(self.db.increment_many)(self.bucket_id,self.doc_uid,key_value_dict)
+        didSucceed,message = response
         self.durationSet += dt
         return True
 
@@ -81,7 +88,8 @@ class ResourceClient(object):
         atomically append a value to a list with key 
         List is initialized when first value is appended: rc.append_list('answer_pairs',(index,answer))
         """
-        didSucceed,message,dt = utils.timeit(self.db.append_list)(self.bucket_id,self.doc_uid,key,value)
+        response,dt = utils.timeit(self.db.append_list)(self.bucket_id,self.doc_uid,key,value)
+        didSucceed,message = response
         self.durationSet += dt
         return True
 
@@ -89,7 +97,8 @@ class ResourceClient(object):
         """
         retrieve list that was initialized and appeneded to by append_list
         """
-        value_list,didSucceed,message,dt = utils.timeit(self.db.get_list)(self.bucket_id,self.doc_uid,key)
+        response,dt = utils.timeit(self.db.get_list)(self.bucket_id,self.doc_uid,key)
+        value_list,didSucceed,message = response
         self.durationGet += dt
         return value_list
 
