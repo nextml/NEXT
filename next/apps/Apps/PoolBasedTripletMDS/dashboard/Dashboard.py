@@ -29,6 +29,7 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
         # get list of algorithms associated with project
         args, didSucceed, message = self.db.get(app_id+':experiments',exp_uid,'args')
 
+        #TODO: This is bullshit. We are assuming they are all the same I guess?
         for algorithm in args['alg_list']:
             test_alg_label = algorithm['test_alg_label']
 
@@ -41,8 +42,8 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
         #args_out_json,didSucceed,message = next_app.getModel(exp_uid, getModel_args_json, self.db, self.ell)
         #getModel_args_dict = json.loads(args_out_json)
         #test_S = getModel_args_dict['args']['queries']
-        test_S,didSucceed, message = self.db.getDocsByPattern(app_id+':queries',{})
-        
+        test_S,didSucceed, message = self.db.get_docs_with_filter(app_id+':queries',{'exp_uid':exp_uid, 'alg_label':test_alg_label})
+        print "ALL the queries", test_S, len(test_S), type(test_S)
         
         x_min = numpy.float('inf')
         x_max = -numpy.float('inf')
