@@ -52,7 +52,7 @@ class PoolBasedTripletMDS(object):
                 'query_update':{'target_winner':target_winner}}
 
     def getModel(self, exp_uid, alg_response, args_dict, db):
-        return {'Xd':alg_response[0],'num_reported_answers':alg_response[1]}
+        return {'Xd':alg_response[0], 'num_reported_answers':alg_response[1]}
 
     def getStats(self, exp_uid, stats_request, dashboard, db):
         stat_id = stats_request['args']['stat_id']

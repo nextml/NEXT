@@ -213,8 +213,8 @@ class App(object):
             alg = utils.get_app_alg(self.app_id, alg_id)
             # get sandboxed database for the specific app_id,alg_id,exp_uid - closing off the rest of the database to the algorithm
             rc = ResourceClient(self.app_id, exp_uid, alg_label, db)
-            alg_response,dt = utils.timeit(alg.getModel)(rc)
-            myapp_response, meta = self.myApp.getModel(exp_uid, alg_response, args_dict, db)
+            alg_response, dt = utils.timeit(alg.getModel)(rc)
+            myapp_response = self.myApp.getModel(exp_uid, alg_response, args_dict, db)
             log_entry_durations = { 'exp_uid':exp_uid,'alg_label':alg_label,'task':'getModel','duration':dt }
             log_entry_durations.update( rc.getDurations() )
             args_out = {'args': myapp_response, 'meta': {'log_entry_durations':log_entry_durations, 'timestamp': str(utils.datetimeNow())}}
