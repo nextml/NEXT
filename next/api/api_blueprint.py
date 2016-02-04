@@ -2,9 +2,6 @@ from flask import Blueprint, render_template, flash, request, redirect, url_for,
 from flask.ext.login import login_user, logout_user, login_required, current_user
 from flask.ext.restful import abort, Api, Resource
 from next.api import api_util
-from next.api.keychain import KeyChain
-
-keychain = KeyChain()
 
 # Initialize flask.Flask application and restful.api objects
 api = Blueprint('api', __name__)

@@ -94,7 +94,6 @@ def experiment_dashboard(exp_uid, app_id):
 
     # Not a particularly good way to do this.
     alg_label_list = rm.get_algs_for_exp_uid(exp_uid)
-    # Migrate this code to use keychain
     docs,didSucceed,message = db.getDocsByPattern('next_frontend_base',
                                                   'keys',
                                                   {'object_id': exp_uid,

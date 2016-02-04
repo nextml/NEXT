@@ -11,13 +11,11 @@ import next.utils
 import next.broker.broker
 from next.api.api_util import *
 from next.api.api_util import APIArgument
-from next.api.keychain import KeyChain
 from next.api.resource_manager import ResourceManager
 from next.database.database_lib import make_mongodump, restore_mongodump
 
 resource_manager = ResourceManager()
 broker = next.broker.broker.JobBroker()
-keychain = KeyChain()
 
 # Request parser. Checks that necessary dictionary keys are available.
 # learningLib functions ensure that all necessary arguments are available. 

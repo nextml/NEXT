@@ -12,11 +12,9 @@ import next.broker.broker
 import next.api.api_util as api_util
 from next.api.api_util import APIArgument
 
-from next.api.keychain import KeyChain
 from next.api.resource_manager import ResourceManager
 from next.apps.SimpleTargetManager import SimpleTargetManager
 
-keychain = KeyChain()
 resource_manager = ResourceManager()
 targetmapper = SimpleTargetManager()
 

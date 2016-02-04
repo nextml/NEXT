@@ -7,12 +7,10 @@ import next.api.api_util as api_util
 from next.api.api_util import *
 from next.api.api_util import APIArgument
 
-from next.api.keychain import KeyChain
 from next.api.resource_manager import ResourceManager
 
 resource_manager = ResourceManager()
 broker = next.broker.broker.JobBroker()
-keychain = KeyChain()
 
 # Request parser. Checks that necessary dictionary keys are available in a given resource.
 # We rely on learningLib functions to ensure that all necessary arguments are available and parsed.
