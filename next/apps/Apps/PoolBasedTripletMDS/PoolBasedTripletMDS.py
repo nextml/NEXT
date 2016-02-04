@@ -48,8 +48,9 @@ class PoolBasedTripletMDS(object):
                           'getModel',
                           json.dumps(getModel_args_dict),
                           ignore_result=True)
+        q = [left_id, right_id,center_id] if target_winner==left_id else [right_id, left_id,center_id]
         return {'alg_args':{'left_id':left_id, 'right_id':right_id, 'center_id':center_id, 'target_winner':target_winner},
-                'query_update':{'target_winner':target_winner}}
+                'query_update':{'target_winner':target_winner, 'q':q}}
 
     def getModel(self, exp_uid, alg_response, args_dict, db):
         return {'Xd':alg_response[0], 'num_reported_answers':alg_response[1]}
