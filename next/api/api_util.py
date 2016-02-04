@@ -41,7 +41,7 @@ def attach_meta(response, meta, **kwargs):
 
     Usage: :\n
     """
-    for k,v in kwargs.iteritems():
+    for k, v in kwargs.iteritems():
         meta[k] = v
         
     response["meta"] = meta

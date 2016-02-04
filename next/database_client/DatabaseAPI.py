@@ -266,13 +266,15 @@ class DatabaseAPI(object):
 
             if USE_CACHE:
                 # attempts to read file from cache first
-                keyExistsInCacheStore,didSucceed,message,dt = utils.timeit(self.cacheStore.exists)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                response, dt = utils.timeit(self.cacheStore.exists)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                keyExistsInCacheStore,didSucceed,message = response
                 self.duration_cacheStoreGet += dt
                 if not didSucceed:
                     return None,False,'get.cacheStore.exists(key) failed'
 
                 if keyExistsInCacheStore:
-                    value,didSucceed,message,dt = utils.timeit(self.cacheStore.get)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                    response,dt = utils.timeit(self.cacheStore.get)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                    value,didSucceed,message = response
                     self.duration_cacheStoreGet += dt
                     if not didSucceed:
                         return None,False,message
@@ -281,13 +283,15 @@ class DatabaseAPI(object):
 
                 else:
                     # attempts to read from permanent store
-                    keyExistsInPermStore,didSucceed,message,dt = utils.timeit(self.permStore.exists)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                    response,dt = utils.timeit(self.permStore.exists)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                    keyExistsInPermStore,didSucceed,message = response
                     self.duration_permStoreGet += dt
                     if not didSucceed:
                         return None,False,'get.permStore.exists(key) failed'
 
                     if keyExistsInPermStore:
-                        value,didSucceed,message,dt = utils.timeit(self.permStore.get)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                        response,dt = utils.timeit(self.permStore.get)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                        value,didSucceed,message = response
                         self.duration_permStoreGet += dt
                         if not didSucceed:
                             return None,False,message
@@ -303,7 +307,8 @@ class DatabaseAPI(object):
                         return None,True,'Not in Database'
             else:
                 # not using cache
-                value,didSucceed,message,dt = utils.timeit(self.permStore.get)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                response,dt = utils.timeit(self.permStore.get)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                value,didSucceed,message = response
                 self.duration_permStoreGet += dt
                 if not didSucceed:
                     return None,False,message
@@ -365,14 +370,16 @@ class DatabaseAPI(object):
                 # need to implement cache!!
                 #############################
 
-                new_value,didSucceed,message,dt = utils.timeit(self.permStore.increment)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                response,dt = utils.timeit(self.permStore.increment)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                new_value,didSucceed,message = response
                 self.duration_permStoreSet += dt
                 if not didSucceed:
                     return None,False,message
                 return new_value,True,'Hit PermStore'
 
             else:
-                new_value,didSucceed,message,dt = utils.timeit(self.permStore.increment)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                response,dt = utils.timeit(self.permStore.increment)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                new_value,didSucceed,message = response
                 self.duration_permStoreSet += dt
                 if not didSucceed:
                     return None,False,message
@@ -400,14 +407,16 @@ class DatabaseAPI(object):
                 # need to implement cache!!
                 #############################
 
-                didSucceed,message,dt = utils.timeit(self.permStore.increment_many)(constants.app_data_database_id,bucket_id,doc_uid,key_value_dict)
+                response,dt = utils.timeit(self.permStore.increment_many)(constants.app_data_database_id,bucket_id,doc_uid,key_value_dict)
+                didSucceed,message = response
                 self.duration_permStoreSet += dt
                 if not didSucceed:
                     return False,message
                 return True,'Hit PermStore'
 
             else:
-                didSucceed,message,dt = utils.timeit(self.permStore.increment_many)(constants.app_data_database_id,bucket_id,doc_uid,key_value_dict)
+                response,dt = utils.timeit(self.permStore.increment_many)(constants.app_data_database_id,bucket_id,doc_uid,key_value_dict)
+                didSucceed,message = response
                 self.duration_permStoreSet += dt
                 if not didSucceed:
                     return False,message
@@ -435,13 +444,15 @@ class DatabaseAPI(object):
 
             if USE_CACHE:
                 # attempts to read file from cache first
-                keyExistsInCacheStore,didSucceed,message,dt = utils.timeit(self.cacheStore.exists)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                response,dt = utils.timeit(self.cacheStore.exists)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                keyExistsInCacheStore,didSucceed,message = response
                 self.duration_cacheStoreGet += dt
                 if not didSucceed:
                     return None,False,'get.cacheStore.exists(key) failed'
 
                 if keyExistsInCacheStore:
-                    value,didSucceed,message,dt = utils.timeit(self.cacheStore.get_list)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                    response,dt = utils.timeit(self.cacheStore.get_list)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                    value,didSucceed,message = response
                     self.duration_cacheStoreGet += dt
                     if not didSucceed:
                         return None,False,message
@@ -449,7 +460,8 @@ class DatabaseAPI(object):
                     return value,True,'From Cache'
 
                 else:
-                    value,didSucceed,message,dt = utils.timeit(self.permStore.get_list)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                    response,dt = utils.timeit(self.permStore.get_list)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                    value,didSucceed,message = response
                     self.duration_permStoreGet += dt
                     if not didSucceed:
                         return None,False,message
@@ -466,7 +478,8 @@ class DatabaseAPI(object):
                         return None,True,'Not in Database'
             else:
                 # not in cache
-                value,didSucceed,message,dt = utils.timeit(self.permStore.get_list)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                response,dt = utils.timeit(self.permStore.get_list)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                value,didSucceed,message = response
                 self.duration_permStoreGet += dt
                 if not didSucceed:
                     return None,False,message
@@ -494,22 +507,27 @@ class DatabaseAPI(object):
         try:
             if USE_CACHE:
                 # attempts to read file from cache first
-                keyExistsInCacheStore,didSucceed,message,dt = utils.timeit(self.cacheStore.exists)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                response,dt = utils.timeit(self.cacheStore.exists)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                keyExistsInCacheStore,didSucceed,message = response
                 self.duration_cacheStoreGet += dt
                 if not didSucceed:
                     return False,message
 
                 if keyExistsInCacheStore:
-                    didSucceedCache,message,dt = utils.timeit(self.cacheStore.append_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                    response,dt = utils.timeit(self.cacheStore.append_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                    didSucceedCache,message = response
                     self.duration_cacheStoreSet += dt
 
-                    didSucceedPerm,messagePerm,dt = utils.timeit(self.permStore.append_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                    response,dt = utils.timeit(self.permStore.append_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                    didSucceedPerm,messagePerm = response
                     self.duration_permStoreSet += dt
                 else:
-                    didSucceedPerm,messagePerm,dt = utils.timeit(self.permStore.append_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                    response,dt = utils.timeit(self.permStore.append_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                    didSucceedPerm,messagePerm = response
                     self.duration_permStoreSet += dt
 
-                    value_list,didSucceedPerm,message,dt = utils.timeit(self.permStore.get_list)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                    response,dt = utils.timeit(self.permStore.get_list)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                    value_list,didSucceedPerm,message = response
                     self.duration_permStoreGet += dt
 
                     didSucceedCache,message = self.cacheStore.set_list(constants.app_data_database_id,bucket_id,doc_uid,key,value_list)
@@ -521,7 +539,8 @@ class DatabaseAPI(object):
                 else:
                     return False,message
             else:
-                didSucceedPerm,messagePerm,dt = utils.timeit(self.permStore.append_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                response,dt = utils.timeit(self.permStore.append_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                didSucceedPerm,messagePerm = response
                 self.duration_permStoreSet += dt
                 return didSucceedPerm,messagePerm
         except:
@@ -544,11 +563,13 @@ class DatabaseAPI(object):
         try:
             if USE_CACHE:
                 # writes to cache first
-                didSucceedCache,messageCache,dt = utils.timeit(self.cacheStore.set_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                response,dt = utils.timeit(self.cacheStore.set_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                didSucceedCache,messageCache = response
                 self.duration_cacheStoreSet += dt
 
                 # then writes to permanent store
-                didSucceedPerm,messagePerm,dt = utils.timeit(self.permStore.set_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                response,dt = utils.timeit(self.permStore.set_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                didSucceedPerm,messagePerm = response
                 self.duration_permStoreSet += dt
 
                 if didSucceedCache and didSucceedPerm:
@@ -556,7 +577,8 @@ class DatabaseAPI(object):
                 else:
                     return False,messageCache + '\n' + messagePerm
             else:
-                didSucceedPerm,messagePerm,dt = utils.timeit(self.permStore.set_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                response,dt = utils.timeit(self.permStore.set_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                didSucceedPerm,messagePerm = response
                 self.duration_permStoreSet += dt
                 return didSucceedPerm,messagePerm
         except:
@@ -626,11 +648,13 @@ class DatabaseAPI(object):
         try:
             if USE_CACHE:
                 # writes to cache first
-                didSucceedCache,messageCache,dt = utils.timeit(self.cacheStore.set)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                response,dt = utils.timeit(self.cacheStore.set)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                didSucceedCache,messageCache = response
                 self.duration_cacheStoreSet += dt
 
                 # then writes to permanent store
-                didSucceedPerm,messagePerm,dt = utils.timeit(self.permStore.set)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                response,dt = utils.timeit(self.permStore.set)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                didSucceedPerm,messagePerm = response
                 self.duration_permStoreSet += dt
 
                 if didSucceedCache and didSucceedPerm:
@@ -638,7 +662,8 @@ class DatabaseAPI(object):
                 else:
                     return False,messageCache + '\n' + messagePerm
             else:
-                didSucceedPerm,messagePerm,dt = utils.timeit(self.permStore.set)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                response,dt = utils.timeit(self.permStore.set)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                didSucceedPerm,messagePerm = response
                 self.duration_permStoreSet += dt
                 return didSucceedPerm,messagePerm
         except:

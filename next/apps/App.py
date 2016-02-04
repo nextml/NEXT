@@ -14,12 +14,11 @@ import numpy.random
 import json
 import yaml
 import traceback
-
 from next.resource_client.ResourceClient import ResourceClient
 import next.utils as utils
 import next.apps.Verifier as Verifier
-
 import next.constants
+
 git_hash = next.constants.GIT_HASH
 #TODO: App Exception logs
 #TODO: move __import__ to importlib
@@ -68,9 +67,11 @@ class App(object):
                 params = algorithm.get('params',None)
                 rc = ResourceClient(self.app_id, exp_uid, algorithm['alg_label'], db)
                 alg = utils.get_app_alg(self.app_id, algorithm['alg_id'])
-                didSucceed, dt = utils.timeit(alg.initExp)(resource=rc,params=params,**args_dict['args'])
+                alg_succeed, dt = utils.timeit(alg.initExp)(resource=rc,params=params,**args_dict['args'])
                 log_entry = {'exp_uid':exp_uid, 'alg_label':algorithm['alg_label'], 'task':'initExp', 'duration':dt, 'timestamp':utils.datetimeNow()}
                 ell.log(self.app_id+':ALG-DURATION', log_entry)
+                if not alg_succeed:
+                    raise Exception('Algorithm {} failed to initialize.'.format(algorithm['alg_label']))
             return '{}', True, ''
         except Exception, error:
             exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -93,7 +94,6 @@ class App(object):
 		print "Exception! {} {}".format(error, traceback.format_exc())
 		traceback.print_tb(exc_traceback)
 		raise Exception(error)
-
             alg_list = db.get(self.app_id+':experiments', exp_uid, 'args')[0]['alg_list']
             experiment_dict, didSucceed, message = db.get_doc(self.app_id + ':experiments', exp_uid)
             # Create the participant dictionary in participants bucket if needed. Also pull out label and id for this algorithm
@@ -112,22 +112,18 @@ class App(object):
                 alg_label = chosen_alg['alg_label']
                 if  (first_participant_query) and (participant_to_algorithm_management=='one_to_one'):
 		    db.set_doc(self.app_id+':participants',participant_uid,{'exp_uid':exp_uid,
-								       'participant_uid':participant_uid,
-                                                                       'alg_id':alg_id,
-                                                                       'alg_label':alg_label})
+								            'participant_uid':participant_uid,
+                                                                            'alg_id':alg_id,
+                                                                            'alg_label':alg_label})
             elif (participant_to_algorithm_management=='one_to_one'):
                 alg_id,didSucceed,message = db.get(self.app_id+':participants',participant_uid,'alg_id')
                 alg_label,didSucceed,message = db.get(self.app_id+':participants',participant_uid,'alg_label')
             else:
                 raise Exception('participant_to_algorithm_management : '+participant_to_algorithm_management+' not implemented')
-
+            #TODO: Deal with the issue of not giving a repeat query
             rc = ResourceClient(self.app_id, exp_uid, alg_label, db)
             alg = utils.get_app_alg(self.app_id, alg_id)
-            r = utils.timeit(alg.getQuery)(resource=rc)
-            print '\n'*5
-            print "alg_response:getQuery", type(r), r
-            print '\n'*1
-            alg_response, dt = r
+            alg_response,dt = utils.timeit(alg.getQuery)(resource=rc)
             query_doc = self.myApp.getQuery(exp_uid, args_dict, alg_response, db)
             query_uid = utils.getNewUID()
             query_doc.update({'participant_uid':participant_uid,
@@ -137,11 +133,11 @@ class App(object):
                               'timestamp_query_generated':str(utils.datetimeNow()),
                               'query_uid':query_uid})
             db.set_doc(self.app_id+':queries', query_uid, query_doc)
-
             log_entry_durations = { 'exp_uid':exp_uid,'alg_label':alg_label,'task':'getQuery','duration':dt }
-            log_entry_durations.update( rc.getDurations() )
-            meta = {'log_entry_durations':log_entry_durations}
-            return json.dumps({'args':query_doc,'meta':log_entry_durations}), True,''
+            # TODO: What does this mean???? 
+            log_entry_durations.update(rc.getDurations())
+            # TODO: Widgets
+            return json.dumps({'args':query_doc,'meta':{'log_entry_durations':log_entry_durations}}), True,''
         except Exception, error:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print "getQuery Exception: {} {}".format(error, traceback.format_exc())
@@ -170,7 +166,7 @@ class App(object):
             round_trip_time = delta_datetime.seconds + delta_datetime.microseconds/1000000.
             response_time = float(args_dict['args'].get('response_time',0.))
             db.set(self.app_id+':queries',args_dict['args']['query_uid'],'response_time',response_time)
-            db.set(self.app_id+':queries',args_dict['args']['query_uid'],'network_delay',round_trip_time-response_time)
+            db.set(self.app_id+':queries',args_dict['args']['query_uid'],'network_delay',round_trip_time - response_time)
 
             rc = ResourceClient(self.app_id, exp_uid, query['alg_label'], db)
             alg = utils.get_app_alg(self.app_id, query['alg_id'])
@@ -178,9 +174,11 @@ class App(object):
             app_response = self.myApp.processAnswer(exp_uid, query, args_dict, db)
             for key in app_response['query_update']:
                 db.set(self.app_id+':queries', args_dict['args']['query_uid'], key, app_response['query_update'][key])
-            didSucceed, dt = utils.timeit(alg.processAnswer)(resource=rc, **app_response['alg_args'])
-            log_entry_durations = { 'exp_uid':exp_uid, 'alg_label':query['alg_label'], 'task':'processAnswer','duration':dt }
-            log_entry_durations.update( rc.getDurations() )
+            alg_succeed, dt = utils.timeit(alg.processAnswer)(resource=rc, **app_response['alg_args'])
+            log_entry_durations = {'exp_uid':exp_uid, 'alg_label':query['alg_label'], 'task':'processAnswer','duration':dt }
+            log_entry_durations.update(rc.getDurations())
+            if not alg_succeed:
+                    raise Exception('Algorithm {} failed to initialize.'.format(query['alg_label']))
             # TODO: There should be a flag here to return the widget html if needed
             return json.dumps({'args': {}, 'meta': {'log_entry_durations':log_entry_durations}}), True, ''
         except Exception, error:
@@ -188,7 +186,6 @@ class App(object):
 	    print "Exception! {} {}".format(error, traceback.format_exc())
 	    traceback.print_tb(exc_traceback)
 	    raise Exception(error)
-
 
     def getModel(self, exp_uid, args_json, db, ell):
         try:
@@ -211,14 +208,13 @@ class App(object):
                 if alg_label == algorithm['alg_label']:
                     alg_id = algorithm['alg_id']
             alg = utils.get_app_alg(self.app_id, alg_id)
-            # get sandboxed database for the specific app_id,alg_id,exp_uid - closing off the rest of the database to the algorithm
+            # get sandboxed database for the specific app_idalg_id,exp_uid - closing off the rest of the database to the algorithm
             rc = ResourceClient(self.app_id, exp_uid, alg_label, db)
             alg_response, dt = utils.timeit(alg.getModel)(rc)
             myapp_response = self.myApp.getModel(exp_uid, alg_response, args_dict, db)
             log_entry_durations = { 'exp_uid':exp_uid,'alg_label':alg_label,'task':'getModel','duration':dt }
             log_entry_durations.update( rc.getDurations() )
             args_out = {'args': myapp_response, 'meta': {'log_entry_durations':log_entry_durations, 'timestamp': str(utils.datetimeNow())}}
-
             if args_dict['args']['logging']:
                 log_entry = {'exp_uid': exp_uid, 'task': 'getModel', 'json': args_out, 'timestamp': str(utils.datetimeNow())}
                 ell.log(app_id+':ALG-EVALUATION', log_entry)
@@ -272,12 +268,13 @@ class Helper(object):
         didSucceed,message = ell.delete_logs_with_filter(app_id+':ALG-EVALUATION',{'exp_uid':exp_uid})
 
     def convert_json(self, args_json):
-            # Convert the args JSON to an args dict
-            try:
-                return json.loads(args_json)
-            except:
-                error = "%s.initExp input args_json is in improper format" % self.app_id
-                raise Exception(error)
+        #TODO: I'd like to see this in utils rather than here.
+        # Convert the args JSON to an args dict
+        try:
+            return json.loads(args_json)
+        except:
+            error = "%s.initExp input args_json is in improper format" % self.app_id
+            raise Exception(error)
 
 # TODO: Figure out a good way of handling this.
             # figure out which queries have already been asked

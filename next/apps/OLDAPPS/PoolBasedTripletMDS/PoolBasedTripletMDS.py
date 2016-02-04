@@ -340,8 +340,8 @@ class PoolBasedTripletMDS(AppPrototype):
     try: 
       app_id = self.app_id
 
-      log_entry = { 'exp_uid':exp_uid,'task':'getQuery','json':args_json,'timestamp':utils.datetimeNow() } 
-      ell.log( app_id+':APP-CALL', log_entry  )
+      log_entry = {'exp_uid':exp_uid,'task':'getQuery','json':args_json,'timestamp':utils.datetimeNow() } 
+      ell.log(app_id+':APP-CALL', log_entry)
 
       # convert args_json to args_dict
       try:

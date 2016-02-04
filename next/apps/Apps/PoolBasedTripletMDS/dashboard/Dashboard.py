@@ -33,15 +33,17 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
             test_alg_label = algorithm['test_alg_label']
 
         # TODO: Do this by hand rather than relying on App getModel
-        getModel_id = 'get_queries'
-        params = {'alg_label':test_alg_label}
-        getModel_args_dict = {'getModel_id':getModel_id,'params':params}
-        getModel_args_json = json.dumps(getModel_args_dict)
-        next_app = utils.get_app(app_id)
-        args_out_json,didSucceed,message = next_app.getModel(exp_uid, getModel_args_json, self.db, self.ell)
-        getModel_args_dict = json.loads(args_out_json)
-        test_S = getModel_args_dict['args']['queries']
-
+        #getModel_id = 'get_queries'
+        #params = {'alg_label':test_alg_label}
+        #getModel_args_dict = {'getModel_id':getModel_id,'params':params}
+        #getModel_args_json = json.dumps(getModel_args_dict)
+        #next_app = utils.get_app(app_id)
+        #args_out_json,didSucceed,message = next_app.getModel(exp_uid, getModel_args_json, self.db, self.ell)
+        #getModel_args_dict = json.loads(args_out_json)
+        #test_S = getModel_args_dict['args']['queries']
+        test_S,didSucceed, message = self.db.getDocsByPattern(app_id+':queries',{})
+        
+        
         x_min = numpy.float('inf')
         x_max = -numpy.float('inf')
         y_min = numpy.float('inf')
@@ -49,7 +51,6 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
         list_of_alg_dicts = []
 
         for algorithm in args['alg_list']:
-            alg_id = algorithm['alg_id']
             alg_label = algorithm['alg_label']
 
             list_of_log_dict,didSucceed,message = self.ell.get_logs_with_filter(app_id+':ALG-EVALUATION',{'exp_uid':exp_uid,'alg_label':alg_label})

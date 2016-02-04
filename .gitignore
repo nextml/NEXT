@@ -22,3 +22,7 @@ nohup.out
 
 # backup files
 *.bak
+
+#floo
+.floo
+.flooignore

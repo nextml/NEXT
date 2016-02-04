@@ -12,11 +12,11 @@ MAX_SAMPLES_PER_PLOT = 100
 
 class AppDashboard(object):
 
-  def __init__(self,db,ell):
+  def __init__(self, db, ell):
     self.db = db
     self.ell = ell
 
-  def api_activity_histogram(self,app_id,exp_uid,task):
+  def api_activity_histogram(self, app_id, exp_uid, task):
     """
     Description: returns the data to plot all API activity (for all algorithms) in a histogram with respect to time for any task in {getQuery,processAnswer,predict}
 
@@ -28,12 +28,12 @@ class AppDashboard(object):
     """
 
 
-    list_of_log_dict,didSucceed,message = self.ell.get_logs_with_filter(app_id+':APP-CALL',{'exp_uid':exp_uid,'task':task})
+    list_of_log_dict, _, _ = self.ell.get_logs_with_filter(app_id+':APP-CALL',{'exp_uid':exp_uid,'task':task})
 
     from datetime import datetime
     from datetime import timedelta
     start_date_file, _, _ = self.db.get_docs_with_filter('experiments_admin', 
-            {'exp_uid':exp_uid, 'app_id':app_id})
+                                                         {'exp_uid':exp_uid, 'app_id':app_id})
     start_date_str = start_date_file[0]['start_date']
     start_date = utils.str2datetime(start_date_str)
     numerical_timestamps = [(utils.str2datetime(item['timestamp'])-start_date).total_seconds() 
@@ -50,7 +50,6 @@ class AppDashboard(object):
     ax.set_xlim(0, max(numerical_timestamps))
     plot_dict = mpld3.fig_to_dict(fig)
     plt.close()
-
 
     return plot_dict
 

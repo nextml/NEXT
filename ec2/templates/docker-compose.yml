@@ -64,6 +64,8 @@ nextbackenddocker:
    - NEXT_BACKEND_GLOBAL_PORT
    - GIT_HASH={{GIT_HASH}}
    - TERM=xterm
+   # Remove this line to use celery
+   - CELERY_ON=false
 ####################################
 
 
