@@ -135,7 +135,7 @@ class ResourceManager:
         if app_id == None:
             return None
 
-        docs,didSucceed,message = db.get_docs_with_filter(app_id+':experiments',{'exp_uid':exp_uid})
+        docs, didSucceed, message = db.get_docs_with_filter(app_id+':experiments',{'exp_uid':exp_uid})
 
         if len(docs)>0:
             return docs[0]

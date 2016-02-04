@@ -74,6 +74,7 @@ initExp:
         num_tries:
           description: The number of queries the participant will answer.
           type: num
+          set: 25
           optional: true
 
         participant_to_algorithm_management:
