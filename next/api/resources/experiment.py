@@ -76,7 +76,7 @@ class Experiment(Resource):
         if not didSucceed:
             return attach_meta({}, meta_error['InitExpError'], backend_error=message), 400
 
-        return attach_meta({'exp_uid':exp_uid, 'perm_key':perm_key}, meta_success), 200
+        return attach_meta({'exp_uid':exp_uid}, meta_success), 200
 
 
 

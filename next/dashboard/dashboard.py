@@ -99,7 +99,6 @@ def experiment_dashboard(exp_uid, app_id):
                                                   'keys',
                                                   {'object_id': exp_uid,
                                                    'type': 'perm'})
-    perm_key = docs[0]['_id']
     alg_list = [{'alg_label':alg['alg_label'],
                  'alg_label_clean':'_'.join(alg['alg_label'].split())}
                 for alg in alg_label_list]
@@ -121,7 +120,6 @@ def experiment_dashboard(exp_uid, app_id):
                            git_hash=git_hash,
                            alg_list=alg_list,
                            host_url=host_url,
-                           perm_key=perm_key,
                            url_for=url_for,
                            exp_start_data=exp_start_data,
                            num_participants=num_participants,
