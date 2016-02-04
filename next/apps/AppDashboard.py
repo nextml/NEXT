@@ -32,14 +32,13 @@ class AppDashboard(object):
 
     from datetime import datetime
     from datetime import timedelta
-    start_date_str,didSucceed,message = self.db.get('experiments_admin',exp_uid,'start_date')
+    start_date_file, _, _ = self.db.get_docs_with_filter('experiments_admin', 
+            {'exp_uid':exp_uid, 'app_id':app_id})
+    start_date_str = start_date_file[0]['start_date']
     start_date = utils.str2datetime(start_date_str)
-    numerical_timestamps = [ ( utils.str2datetime(item['timestamp'])-start_date).total_seconds() for item in list_of_log_dict]
+    numerical_timestamps = [(utils.str2datetime(item['timestamp'])-start_date).total_seconds() 
+                                for item in list_of_log_dict]
 
-    print "numerical_timestamps, AppDashboard.py"
-    print '\n'*10
-    print len(numerical_timestamps), type(numerical_timestamps)
-    print '\n'*10
     import matplotlib.pyplot as plt
     import mpld3
     fig, ax = plt.subplots(subplot_kw=dict(axisbg='#FFFFFF'),figsize=(12,1.5))

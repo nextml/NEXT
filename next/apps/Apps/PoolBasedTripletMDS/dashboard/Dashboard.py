@@ -27,9 +27,9 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
         """
 
         # get list of algorithms associated with project
-        alg_list,didSucceed,message = self.db.get(app_id+':experiments',exp_uid,'alg_list')
+        args, didSucceed, message = self.db.get(app_id+':experiments',exp_uid,'args')
 
-        for algorithm in alg_list:
+        for algorithm in args['alg_list']:
             test_alg_label = algorithm['test_alg_label']
 
         # TODO: Do this by hand rather than relying on App getModel
@@ -48,7 +48,7 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
         y_max = -numpy.float('inf')
         list_of_alg_dicts = []
 
-        for algorithm in alg_list:
+        for algorithm in args['alg_list']:
             alg_id = algorithm['alg_id']
             alg_label = algorithm['alg_label']
 
