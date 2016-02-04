@@ -56,7 +56,6 @@ class Stats(Resource):
 
     def post(self):
         post_parser.add_argument('exp_uid', type=str, required=True)
-        post_parser.add_argument('exp_key', type=str, required=True)
         post_parser.add_argument('args', type=dict, required=True)
 
         # Validate args with post_parser
@@ -64,9 +63,6 @@ class Stats(Resource):
 
         # Pull app_id and exp_uid from parsed args_data
         exp_uid = args_data["exp_uid"]
-        exp_key = args_data.pop("exp_key", None)
-        if not keychain.verify_exp_key(exp_uid, exp_key):
-            return api_util.attach_meta({}, api_util.verification_dictionary), 401
 
         # Fetch app_id data from resource manager
         app_id = resource_manager.get_app_id(exp_uid)

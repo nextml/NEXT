@@ -14,17 +14,17 @@ api_interface = api_util.NextBackendApi(api)
 from next.api.resources.experiment import Experiment
 api_interface.add_resource(Experiment,
                            '/experiment',
-                           '/experiment/<string:exp_uid>/<string:exp_key>')
+                           '/experiment/<string:exp_uid>')
 
 # TODO: delete the API endpoints for
 from next.api.app_handler import AppHandler
 api_interface.add_resource(AppHandler,
-                           '/experiment/<string:exp_uid>/<string:exp_key>/custom/function_name',
+                           '/experiment/<string:exp_uid>/custom/function_name',
                            '/experiment/custom/<string:function_name>')
 
 from next.api.resources.get_query import getQuery
 api_interface.add_resource(getQuery,
-                           '/experiment/<string:exp_uid>/<string:exp_key>/getQuery',
+                           '/experiment/<string:exp_uid>/getQuery',
                            '/experiment/getQuery')
 
 from next.api.resources.process_answer import processAnswer
@@ -41,17 +41,17 @@ api_interface.add_resource(About, '/about', '/about/<string:app_id>')
 
 from next.api.resources.logs import Logs
 api_interface.add_resource(Logs,
-                           '/experiment/<string:exp_uid>/<string:exp_key>/logs',
-                           '/experiment/<string:exp_uid>/<string:exp_key>/logs/<log_type>')
+                           '/experiment/<string:exp_uid>/logs',
+                           '/experiment/<string:exp_uid>/logs/<log_type>')
 
 from next.api.resources.participants import Participants
 api_interface.add_resource(Participants,
-                           '/experiment/<string:exp_uid>/<string:exp_key>/participants')
+                           '/experiment/<string:exp_uid>/participants')
 
 from next.api.resources.targets import Targets
 
 api_interface.add_resource(Targets,
-                           '/targets/<string:exp_uid>/<string:exp_key>',
+                           '/targets/<string:exp_uid>',
                            '/targets/createtargetmapping')
 
 from next.api.resources.widgets import Widgets

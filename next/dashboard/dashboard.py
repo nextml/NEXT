@@ -39,12 +39,11 @@ def experiment_list():
                                                           {'object_id':exp_uid,
                                                            'type':'exp'})
             try:
-                exp_key = docs[0]['_id']
                 experiments.append({'exp_uid': exp_uid,
                                     'app_id': app_id,
                                     'start_date': start_date,
                                     'num_participants':len(rm.get_participant_uids(exp_uid)),
-                                    'exp_key': exp_key})
+                                    })
             except IndexError as e:
                 print e
                 pass
@@ -68,8 +67,8 @@ def system_monitor():
                            cadvisor_url=cadvisor_url,
                            mongodb_url=mongodb_url)
 
-@dashboard.route('/experiment_dashboard/<exp_uid>/<app_id>/<exp_key>')
-def experiment_dashboard(exp_uid, app_id, exp_key):
+@dashboard.route('/experiment_dashboard/<exp_uid>/<app_id>')
+def experiment_dashboard(exp_uid, app_id):
     """
     Endpoint that renders the experiment dashboard.
 
@@ -119,7 +118,6 @@ def experiment_dashboard(exp_uid, app_id, exp_key):
 
     return template.render(app_id=app_id,
                            exp_uid=exp_uid,
-                           exp_key=exp_key,
                            git_hash=git_hash,
                            alg_list=alg_list,
                            host_url=host_url,

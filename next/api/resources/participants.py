@@ -7,7 +7,7 @@ Resource for accessing all participant data related to a resource
 '''
 example use:
 get a tripletMDS query:
-curl -X GET http://localhost:8001/api/experiment/[exp_uid]/[exp_key]/participants
+curl -X GET http://localhost:8001/api/experiment/[exp_uid]/participants
 '''
 from flask import Flask, send_file, request
 from flask.ext import restful
@@ -50,7 +50,7 @@ meta_success = {
 
 # Participants resource class
 class Participants(Resource):
-    def get(self, exp_uid, exp_key):
+    def get(self, exp_uid):
         """
         .. http:get:: /experiment/<exp_uid>/participants
 
@@ -91,9 +91,6 @@ class Participants(Resource):
             except:
                 pass
             
-        if not keychain.verify_exp_key(exp_uid, exp_key):
-            return api_util.attach_meta({}, api_util.verification_error), 401
-
         # Get all participants for exp_uid from resource_manager
         participant_uids = resource_manager.get_participant_uids(exp_uid)
         participant_responses = {}

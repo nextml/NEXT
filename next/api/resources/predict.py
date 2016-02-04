@@ -72,7 +72,6 @@ class Predict(Resource):
         :statuscode 400: prediction retrieval error
         """
         post_parser.add_argument('exp_uid', type=str, required=True,help="Experiment ID Required.")
-        post_parser.add_argument('exp_key', type=str, required=True,help="Experiment ID Required.")
         post_parser.add_argument('args', type=dict, required=True,help="Experiment Args Required.")
 
 
@@ -80,9 +79,6 @@ class Predict(Resource):
         args_data = post_parser.parse_args()
         # Pull exp_uid from parsed args_data
         exp_uid = args_data["exp_uid"]
-        exp_key = args_data["exp_key"]
-        if not keychain.verify_exp_key(exp_uid, exp_key):
-            return api_util.attach_meta({}, api_util.verification_dictionary), 401
 
         # Fetch app_id data from resource manager
         app_id = resource_manager.get_app_id(exp_uid)

@@ -80,7 +80,6 @@ class WidgetKeys(Resource):
         Inputs: ::\n
                  {
                 exp_uid: experiment uid,
-                exp_key: experiment key,
                 n: number of desired keys,
                 tries: numer of tries,
                 duration: duration in minutes
@@ -91,10 +90,6 @@ class WidgetKeys(Resource):
 
         """
         args = request.json
-        # Not sure verification should even be done at this level, or through the api!!!
-        # -as is, verification is being done twice, here and in the keychain - I think it is best to just check in keychain
-        if not keychain.verify_exp_key(args['exp_uid'],args['exp_key']):
-            return api_util.attach_meta({}, api_util.verification_error)
         
-        temp_keys = keychain.create_temp_keys(args['exp_uid'], args['exp_key'], n=args['n'], tries=args.get('tries', 100), duration=args.get('duration', 60) )
+        temp_keys = keychain.create_temp_keys(args['exp_uid'], n=args['n'], tries=args.get('tries', 100), duration=args.get('duration', 60) )
         return {'keys':temp_keys}, 200, {'Access-Control-Allow-Origin':'*'}

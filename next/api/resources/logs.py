@@ -7,7 +7,7 @@ Logs resource for all logs associated with a specified experiment.
 '''
 example use:
 get a tripletMDS query:
-curl -X GET http://localhost:8001/api/experiment/[exp_uid]/[exp_key]/logs
+curl -X GET http://localhost:8001/api/experiment/[exp_uid]/logs
 '''
 from flask import Flask, request, send_file
 from flask.ext import restful
@@ -49,7 +49,7 @@ meta_success = {
 # Logs resource class
 class Logs(Resource):
 
-    def get(self, exp_uid, exp_key, log_type=None):
+    def get(self, exp_uid, log_type=None):
         """
         .. http:get:: /experiment/<exp_uid>/logs/<log_type>
 
@@ -83,8 +83,6 @@ class Logs(Resource):
         :statuscode 200: Logs successfully returned
         :statuscode 400: Logs failed to be generated
         """ 
-        if not keychain.verify_exp_key(exp_uid, exp_key):
-            return api_util.attach_meta({}, api_util.verification_dictionary), 401
 
         zip_true = False
         if request.args.get('zip'):

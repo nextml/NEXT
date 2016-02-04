@@ -47,16 +47,12 @@ meta_success = {
 class getQuery(Resource):
     def post(self):
         post_parser.add_argument('exp_uid', type=str, required=True)
-        post_parser.add_argument('exp_key', type=str, required=True)
         post_parser.add_argument('args', type=dict, required=False)
         # Validate args with post_parser
         args_data = post_parser.parse_args()
         
         # Pull app_id and exp_uid from parsed args
         exp_uid = args_data["exp_uid"]
-        exp_key = args_data.pop("exp_key", None)
-        if not keychain.verify_exp_key(exp_uid, exp_key):
-            return api_util.attach_meta({}, api_util.verification_error), 401
             
         # Fetch app_id data from resource manager
         app_id = resource_manager.get_app_id(exp_uid)

@@ -45,7 +45,7 @@ function untoggle_parent(source) {
       <input type="checkbox" name="exp_check_boxes"  onClick="untoggle_parent(this)" value="{{ experiment.exp_uid }}">
     </td>
 	<td>
-	  <a href="{{ url_for('dashboard.experiment_dashboard', exp_uid = experiment.exp_uid, app_id = experiment.app_id, exp_key = experiment.exp_key) }}">{{ experiment.exp_uid }}</a>
+	  <a href="{{ url_for('dashboard.experiment_dashboard', exp_uid=experiment.exp_uid, app_id=experiment.app_id) }}">{{ experiment.exp_uid }}</a>
 	</td>
 	<td>
 	  {{ experiment.num_participants }}
