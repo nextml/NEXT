@@ -5,31 +5,31 @@ from next.apps.Apps.PoolBasedTripletMDS.Prototype import PoolBasedTripletMDSProt
 
 class RandomSampling(PoolBasedTripletMDSPrototype):
 
-  def daemonProcess(self,resource, daemon_args_dict):
+  def daemonProcess(self,butler, daemon_args_dict):
     if 'task' in daemon_args_dict and 'args' in daemon_args_dict:
       task = daemon_args_dict['task']
       args = daemon_args_dict['args']
       if task == '__full_embedding_update':
-        self.__full_embedding_update(resource,args)
+        self.__full_embedding_update(butler,args)
       elif task == '__incremental_embedding_update':
-        self.__incremental_embedding_update(resource,args)
+        self.__incremental_embedding_update(butler,args)
     else:
       return False
 
     return True
 
 
-  def initExp(self,resource, n, d, failure_probability, **kwargs):
+  def initExp(self,butler, n, d, failure_probability, **kwargs):
     X = numpy.random.randn(n,d)
-    resource.set('n', n)
-    resource.set('d', d)
-    resource.set('delta', failure_probability)
-    resource.set('X', X.tolist())
+    butler.algorithms.set(key='n',value= n)
+    butler.algorithms.set(key='d',value= d)
+    butler.algorithms.set(key='delta',value= failure_probability)
+    butler.algorithms.set(key='X',value= X.tolist())
     return True
 
 
-  def getQuery(self,resource):
-    X = numpy.array(resource.get('X'))
+  def getQuery(self,butler):
+    X = numpy.array(butler.algorithms.get(key='X'))
 
     q,score = utilsMDS.getRandomQuery(X)
 
@@ -40,29 +40,27 @@ class RandomSampling(PoolBasedTripletMDSPrototype):
     return [index_center,index_left,index_right]
 
 
-  def processAnswer(self,resource,center_id,left_id,right_id,target_winner):
+  def processAnswer(self,butler,center_id,left_id,right_id,target_winner):
     if left_id==target_winner:
       q = [left_id,right_id,center_id]
     else:
       q = [right_id,left_id,center_id]
 
-    resource.append_list('S',q)
+    butler.algorithms.append(key='S',value=q)
 
-    n = resource.get('n')
-    d = resource.get('d')
-    num_reported_answers = resource.increment('num_reported_answers')
+    n = butler.algorithms.get(key='n')
+    d = butler.algorithms.get(key='d')
+    num_reported_answers = butler.algorithms.increment(key='num_reported_answers')
     if num_reported_answers % int(n) == 0:
-      daemon_args_dict = {'task':'__full_embedding_update','args':{}}
-      resource.daemonProcess(daemon_args_dict,time_limit=30)
+      butler.job('__full_embedding_update', {}, time_limit=30)
     else:
-      daemon_args_dict = {'task':'__incremental_embedding_update','args':{}}
-      resource.daemonProcess(daemon_args_dict,time_limit=5)
+      butler.job('__incremental_embedding_update', {},time_limit=5)
 
     return True
 
 
-  def getModel(self,resource):
-    key_value_dict = resource.get_many(['X','num_reported_answers'])
+  def getModel(self,butler):
+    key_value_dict = butler.algorithms.get(key=['X','num_reported_answers'])
 
     X = key_value_dict.get('X',[])
     num_reported_answers = key_value_dict.get('num_reported_answers',[])
@@ -70,14 +68,14 @@ class RandomSampling(PoolBasedTripletMDSPrototype):
     return [X,num_reported_answers]
 
 
-  def __incremental_embedding_update(self,resource,args):
+  def __incremental_embedding_update(self,butler,args):
     verbose = False
-    n = resource.get('n')
-    d = resource.get('d')
-    S = resource.get_list('S')
+    n = butler.algorithms.get(key='n')
+    d = butler.algorithms.get(key='d')
+    S = butler.algorithms.get(key='S')
 
 
-    X = numpy.array(resource.get('X'))
+    X = numpy.array(butler.algorithms.get(key='X'))
     # set maximum time allowed to update embedding
     t_max = 1.0
     epsilon = 0.01 # a relative convergence criterion, see computeEmbeddingWithGD documentation
@@ -90,16 +88,16 @@ class RandomSampling(PoolBasedTripletMDSPrototype):
       X,emp_loss_new,hinge_loss_new,acc = utilsMDS.computeEmbeddingWithGD(X,S,max_iters=2**k)
       k += 1
 
-    resource.set('X',X.tolist())
+    butler.algorithms.set(key='X',value=X.tolist())
 
-  def __full_embedding_update(self,resource,args):
+  def __full_embedding_update(self,butler,args):
     verbose = False
 
-    n = resource.get('n')
-    d = resource.get('d')
-    S = resource.get_list('S')
+    n = butler.algorithms.get(key='n')
+    d = butler.algorithms.get(key='d')
+    S = butler.algorithms.get(key='S')
 
-    X_old = numpy.array(resource.get('X'))
+    X_old = numpy.array(butler.algorithms.get(key='X'))
 
     t_max = 5.0
     epsilon = 0.01 # a relative convergence criterion, see computeEmbeddingWithGD documentation
@@ -115,7 +113,7 @@ class RandomSampling(PoolBasedTripletMDSPrototype):
     emp_loss_new,hinge_loss_new = utilsMDS.getLoss(X,S)
     if emp_loss_old < emp_loss_new:
       X = X_old
-    resource.set('X',X.tolist())
+    butler.algorithms.set(key='X',value=X.tolist())
 
 
 

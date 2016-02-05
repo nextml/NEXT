@@ -118,7 +118,7 @@ def get_app_default_num_tries(app_id):
   app_module = __import__(next_path+app_id,fromlist=[''])
   return app_module.get_default_num_tries()
 
-def get_app(app_id):
+def get_app(app_id, exp_uid, db, ell):
   """
   Returns an object correspoding to the app_id that contains methods like initExp,getQuery,etc.
 
@@ -131,7 +131,7 @@ def get_app(app_id):
   next_path = 'next.apps.App'
   app_module = __import__(next_path,fromlist=[''])
   app_class = getattr(app_module, 'App')
-  return app_class(app_id)
+  return app_class(app_id, exp_uid, db, ell)
 
 def get_app_alg(app_id,alg_id):
   """
