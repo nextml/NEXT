@@ -13,12 +13,10 @@ from next.api.api_util import *
 from next.api.api_util import APIArgument
 
 from next.api.targetmapper import TargetMapper
-from next.api.keychain import KeyChain
 
 from next.api.resource_manager import ResourceManager
 
 resource_manager = ResourceManager()
-keychain = KeyChain()
 
 # Request parser. Checks that necessary dictionary keys are available in a given resource.
 # We rely on learningLib functions to ensure that all necessary arguments are available and parsed.
@@ -59,8 +57,6 @@ class Widgets(Resource):
         args['app_id'] = str(app_id)
 
         # Comment this back in, having some issues with it right now.
-        # if not keychain.verify_widget_key(args['exp_uid'], args['widget_key']):
-        #    return api_util.attach_meta({}, verification_error), 401
         app_module = __import__('next.apps.{}.widgets'.format(app_id),
                                 fromlist=[app_id])
         app_class = getattr(app_module, 'WidgetGenerator')
@@ -69,32 +65,3 @@ class Widgets(Resource):
         widget = widget_func(args)
         
         return widget, 200, {'Access-Control-Allow-Origin':'*', 'Content-Type':'application/json'}
-
-
-class WidgetKeys(Resource):
-
-    def post(self):
-        """
-        Returns a list of widget keys with a given number of tries and duration.
-
-        Inputs: ::\n
-                 {
-                exp_uid: experiment uid,
-                exp_key: experiment key,
-                n: number of desired keys,
-                tries: numer of tries,
-                duration: duration in minutes
-             }
-        Output: ::\n
-            Response: 200, ContentType "text/html"
-            { key: perm key }
-
-        """
-        args = request.json
-        # Not sure verification should even be done at this level, or through the api!!!
-        # -as is, verification is being done twice, here and in the keychain - I think it is best to just check in keychain
-        if not keychain.verify_exp_key(args['exp_uid'],args['exp_key']):
-            return api_util.attach_meta({}, api_util.verification_error)
-        
-        temp_keys = keychain.create_temp_keys(args['exp_uid'], args['exp_key'], n=args['n'], tries=args.get('tries', 100), duration=args.get('duration', 60) )
-        return {'keys':temp_keys}, 200, {'Access-Control-Allow-Origin':'*'}

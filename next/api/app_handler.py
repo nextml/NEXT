@@ -7,12 +7,10 @@ import next.api.api_util as api_util
 from next.api.api_util import *
 from next.api.api_util import APIArgument
 
-from next.api.keychain import KeyChain
 from next.api.resource_manager import ResourceManager
 
 resource_manager = ResourceManager()
 broker = next.broker.broker.JobBroker()
-keychain = KeyChain()
 
 # Request parser. Checks that necessary dictionary keys are available in a given resource.
 # We rely on learningLib functions to ensure that all necessary arguments are available and parsed.
@@ -35,10 +33,9 @@ meta_success = {
 
 
 class AppHandler(Resource):
-    def post(self, exp_uid, exp_key, function_name):
+    def post(self, exp_uid, function_name):
         try:
             post_parser.add_argument('exp_uid', type=str, required=True, help="Experiment ID Required.")
-            post_parser.add_argument('exp_key', type=str, required=True, help="Experiment key Required.")
             post_parser.add_argument('args', type=dict, required=False, help="Experiment args Required.")
 
 
@@ -47,9 +44,6 @@ class AppHandler(Resource):
 
             # Pull app_id and exp_uid from parsed args
             exp_uid = args_data["exp_uid"]
-            exp_key = args_data["exp_key"]
-            if not keychain.verify_exp_key(exp_uid, exp_key):
-                return api_util.attach_meta({}, api_util.verification_error), 401
 
             # Fetch app_id data from resource manager
             app_id = resource_manager.get_app_id(exp_uid)

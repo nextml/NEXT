@@ -9,10 +9,8 @@ import next.broker.broker
 from next.api.resource_manager import ResourceManager
 from next.api.api_util import *
 from next.api.api_util import APIArgument
-from next.api.keychain import KeyChain
 resource_manager = ResourceManager()
 broker = next.broker.broker.JobBroker()
-keychain = KeyChain()
 
 # Request parser. Checks that necessary dictionary keys are available in a given resource.
 # We rely on learningLib functions to ensure that all necessary arguments are available and parsed.
@@ -40,14 +38,10 @@ meta_success = {
 }
 
 class Experiment(Resource):
-    def get(self, exp_uid, exp_key):
+    def get(self, exp_uid):
         get_parser = exp_parser.copy()
         get_parser.add_argument('exp_uid', type=str, required=True )
-        get_parser.add_argument('exp_key', type=str, required=True )
         get_parser.add_argument('args', type=dict, required=False )
-
-        if not keychain.verify_exp_key(exp_uid,exp_key):
-            return api_util.attach_meta({}, api_util.verification_error), 401
 
         # Fetch experiment data from resource manager
         experiment = resource_manager.get_experiment(exp_uid)
@@ -79,11 +73,8 @@ class Experiment(Resource):
 
         if not didSucceed:
             return attach_meta({}, meta_error['InitExpError'], backend_error=message), 400
-        # Create an experiment key and a perm key
-        exp_key = keychain.create_exp_key(exp_uid)
-        perm_key = keychain.create_perm_key(exp_uid, exp_key)
 
-        return attach_meta({'exp_uid':exp_uid, 'exp_key':exp_key, 'perm_key':perm_key}, meta_success), 200
+        return attach_meta({'exp_uid':exp_uid}, meta_success), 200
 
 
 

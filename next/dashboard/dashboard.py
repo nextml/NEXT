@@ -39,12 +39,11 @@ def experiment_list():
                                                           {'object_id':exp_uid,
                                                            'type':'exp'})
             try:
-                exp_key = docs[0]['_id']
                 experiments.append({'exp_uid': exp_uid,
                                     'app_id': app_id,
                                     'start_date': start_date,
                                     'num_participants':len(rm.get_participant_uids(exp_uid)),
-                                    'exp_key': exp_key})
+                                    })
             except IndexError as e:
                 print e
                 pass
@@ -68,8 +67,8 @@ def system_monitor():
                            cadvisor_url=cadvisor_url,
                            mongodb_url=mongodb_url)
 
-@dashboard.route('/experiment_dashboard/<exp_uid>/<app_id>/<exp_key>')
-def experiment_dashboard(exp_uid, app_id, exp_key):
+@dashboard.route('/experiment_dashboard/<exp_uid>/<app_id>')
+def experiment_dashboard(exp_uid, app_id):
     """
     Endpoint that renders the experiment dashboard.
 
@@ -95,12 +94,10 @@ def experiment_dashboard(exp_uid, app_id, exp_key):
 
     # Not a particularly good way to do this.
     alg_label_list = rm.get_algs_for_exp_uid(exp_uid)
-    # Migrate this code to use keychain
     docs,didSucceed,message = db.getDocsByPattern('next_frontend_base',
                                                   'keys',
                                                   {'object_id': exp_uid,
                                                    'type': 'perm'})
-    perm_key = docs[0]['_id']
     alg_list = [{'alg_label':alg['alg_label'],
                  'alg_label_clean':'_'.join(alg['alg_label'].split())}
                 for alg in alg_label_list]
@@ -119,11 +116,9 @@ def experiment_dashboard(exp_uid, app_id, exp_key):
 
     return template.render(app_id=app_id,
                            exp_uid=exp_uid,
-                           exp_key=exp_key,
                            git_hash=git_hash,
                            alg_list=alg_list,
                            host_url=host_url,
-                           perm_key=perm_key,
                            url_for=url_for,
                            exp_start_data=exp_start_data,
                            num_participants=num_participants,

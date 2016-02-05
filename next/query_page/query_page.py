@@ -3,11 +3,9 @@ import os
 from flask import Blueprint, render_template, flash, request, redirect, url_for
 
 import next.constants as constants
-from next.api.keychain import KeyChain
 from next.api.resource_manager import ResourceManager
 
 resource_manager = ResourceManager()
-keychain = KeyChain()
 query_page = Blueprint('query_page',
                        __name__,
                        template_folder='templates',

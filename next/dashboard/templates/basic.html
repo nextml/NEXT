@@ -52,7 +52,6 @@ popup_alert = function(text){
         data: JSON.stringify({  
             'app_id': "{{ app_id }}",
             'exp_uid': "{{ exp_uid }}",
-            'exp_key': "{{ exp_key }}",
             'name': 'getStats',
             'args':{
                 'stat_id' : 'api_activity_histogram',
@@ -78,15 +77,14 @@ popup_alert = function(text){
             <p> 
             <b> app_id: </b> {{ app_id }} <br>
             <b> exp_id: </b> {{ exp_uid }} <br>
-            <b> exp_key: </b> {{ exp_key }} <br>
             <b> git_hash: </b> {{ git_hash }} <br>
             <b> Start date: </b> {{ exp_start_data }} <br>
             <b> Number of participants: </b> {{ num_participants }} <br>
             <b> Number of answers: </b> {{ num_queries }} <br> 
-            <b> Backend Exceptions: </b> <a href="{{ host_url }}/api/experiment/{{ exp_uid }}/{{ exp_key }}/logs/APP-EXCEPTION" target="_blank">Open in new tab</a>  <br>
-            <b> Participant data: </b> <a href="{{ host_url }}/api/experiment/{{ exp_uid }}/{{ exp_key }}/participants?zip=True" target="_blank">Open in new tab</a>  <br>
-            <b> Experiment data: </b> <a href="{{ host_url }}/api/experiment/{{ exp_uid }}/{{ exp_key }}" target="_blank">Open in new tab</a>  <br>
-            <b> Query page: </b> <a href="{{ host_url }}/query/query_page/query_page_popup/{{ exp_uid }}/{{ exp_key }}" target="_blank">Open in new tab</a>  <br>
+            <b> Backend Exceptions: </b> <a href="{{ host_url }}/api/experiment/{{ exp_uid }}/logs/APP-EXCEPTION" target="_blank">Open in new tab</a>  <br>
+            <b> Participant data: </b> <a href="{{ host_url }}/api/experiment/{{ exp_uid }}/participants?zip=True" target="_blank">Open in new tab</a>  <br>
+            <b> Experiment data: </b> <a href="{{ host_url }}/api/experiment/{{ exp_uid }}" target="_blank">Open in new tab</a>  <br>
+            <b> Query page: </b> <a href="{{ host_url }}/query/query_page/query_page_popup/{{ exp_uid }}" target="_blank">Open in new tab</a>  <br>
             </p>
         </div>
     </div>
@@ -134,7 +132,6 @@ popup_alert = function(text){
         data: JSON.stringify({  
             'app_id': "{{ app_id }}",
             'exp_uid': "{{ exp_uid }}",
-            'exp_key': "{{ exp_key }}",
             'name': 'getStats',
             'args':{
             "stat_id" : "compute_duration_multiline_plot",
@@ -161,7 +158,6 @@ popup_alert = function(text){
         data: JSON.stringify({  
             'app_id': "{{ app_id }}",
             'exp_uid': "{{ exp_uid }}",
-            'exp_key': "{{ exp_key }}",
             'name': 'getStats',
             'args':{
             "stat_id" : "compute_duration_multiline_plot",
@@ -188,7 +184,6 @@ popup_alert = function(text){
         data: JSON.stringify({  
             'app_id': "{{ app_id }}",
             'exp_uid': "{{ exp_uid }}",
-            'exp_key': "{{ exp_key }}",
             'name': 'getStats',
             'args':{
             "stat_id" : "compute_duration_multiline_plot",
@@ -215,7 +210,6 @@ popup_alert = function(text){
         data: JSON.stringify({  
             'app_id': "{{ app_id }}",
             'exp_uid': "{{ exp_uid }}",
-            'exp_key': "{{ exp_key }}",
             'name': 'getStats',
             'args':{
             "stat_id" : "compute_duration_multiline_plot",
@@ -304,7 +298,6 @@ popup_alert = function(text){
                         data: JSON.stringify({  
                             'app_id': "{{ app_id }}",
                             'exp_uid': "{{ exp_uid }}",
-                            'exp_key': "{{ exp_key }}",
                             'name': 'getStats',
                             'args':{
                             'stat_id' : 'compute_duration_detailed_stacked_area_plot',
@@ -331,7 +324,6 @@ popup_alert = function(text){
                         data: JSON.stringify({  
                             'app_id': "{{ app_id }}",
                             'exp_uid': "{{ exp_uid }}",
-                            'exp_key': "{{ exp_key }}",
                             'name': 'getStats',
                             'args':{
                             'stat_id' : 'compute_duration_detailed_stacked_area_plot',
@@ -358,7 +350,6 @@ popup_alert = function(text){
                         data: JSON.stringify({  
                             'app_id': "{{ app_id }}",
                             'exp_uid': "{{ exp_uid }}",
-                            'exp_key': "{{ exp_key }}",
                             'name': 'getStats',
                             'args':{
                             'stat_id' : 'compute_duration_detailed_stacked_area_plot',
@@ -385,7 +376,6 @@ popup_alert = function(text){
                         data: JSON.stringify({  
                             'app_id': "{{ app_id }}",
                             'exp_uid': "{{ exp_uid }}",
-                            'exp_key': "{{ exp_key }}",
                             'name': 'getStats',
                             'args':{
                             'stat_id' : 'compute_duration_detailed_stacked_area_plot',
@@ -465,7 +455,6 @@ popup_alert = function(text){
                     data: JSON.stringify({  
                         'app_id': "{{ app_id }}",
                         'exp_uid': "{{ exp_uid }}",
-                        'exp_key': "{{ exp_key }}",
                         'name': 'getStats',
                         'args':{
                         'stat_id' : 'response_time_histogram',
@@ -492,7 +481,6 @@ popup_alert = function(text){
                     data: JSON.stringify({  
                         'app_id': "{{ app_id }}",
                         'exp_uid': "{{ exp_uid }}",
-                        'exp_key': "{{ exp_key }}",
                         'name': 'getStats',
                         'args':{
                         'stat_id' : 'network_delay_histogram',

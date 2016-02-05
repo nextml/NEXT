@@ -85,14 +85,13 @@ def run_all(assert_200):
     initExp_response_dict = json.loads(response.text)
 
     exp_uid = initExp_response_dict['exp_uid']
-    exp_key = initExp_response_dict['exp_key']
 
-    exp_info.append( {'exp_uid':exp_uid,'exp_key':exp_key} )
+    exp_info.append( {'exp_uid':exp_uid} )
 
     #################################################
     # Test GET Experiment
     #################################################
-    url = "http://"+HOSTNAME+"/api/experiment/"+exp_uid+"/"+exp_key
+    url = "http://"+HOSTNAME+"/api/experiment/"+exp_uid
     response = requests.get(url)
     print "GET experiment response =",response.text, response.status_code
     if assert_200: assert response.status_code is 200
@@ -112,8 +111,7 @@ def run_all(assert_200):
 
     experiment = numpy.random.choice(exp_info)
     exp_uid = experiment['exp_uid']
-    exp_key = experiment['exp_key']
-    pool_args.append( (exp_uid,exp_key,participant_uid,total_pulls_per_client,X_true,assert_200) )
+    pool_args.append( (exp_uid,participant_uid,total_pulls_per_client,X_true,assert_200) )
 
   results = pool.map(simulate_one_client, pool_args)
 
@@ -122,7 +120,7 @@ def run_all(assert_200):
 
 
 def simulate_one_client( input_args ):
-  exp_uid,exp_key,participant_uid,total_pulls,X_true,assert_200 = input_args
+  exp_uid,participant_uid,total_pulls,X_true,assert_200 = input_args
   avg_response_time = 1.
 
 
@@ -137,7 +135,6 @@ def simulate_one_client( input_args ):
     #######################################
     getQuery_args_dict = {}
     getQuery_args_dict['exp_uid'] = exp_uid
-    getQuery_args_dict['exp_key'] = exp_key
     getQuery_args_dict['args'] = {}
     # getQuery_args_dict['args']['participant_uid'] = numpy.random.choice(participants)
     getQuery_args_dict['args']['participant_uid'] = participant_uid
@@ -187,7 +184,6 @@ def simulate_one_client( input_args ):
     #############################################
     processAnswer_args_dict = {}
     processAnswer_args_dict["exp_uid"] = exp_uid
-    processAnswer_args_dict["exp_key"] = exp_key
     processAnswer_args_dict["args"] = {}
     processAnswer_args_dict["args"]["query_uid"] = query_uid
     processAnswer_args_dict["args"]["target_winner"] = target_winner

@@ -40,7 +40,6 @@ def run_all(assert_200, num_clients):
 
   # Setup the exp_uid's
   client_exp_uids = []
-  client_exp_keys = []
   client_participant_uids = []
   for cl in range(num_clients):
     participants = []
@@ -127,14 +126,12 @@ def run_all(assert_200, num_clients):
     initExp_response_dict = json.loads(response.text)
 
     exp_uid = initExp_response_dict['exp_uid']
-    exp_key = initExp_response_dict['exp_key']
     client_exp_uids.append(exp_uid)
-    client_exp_keys.append(exp_key)
 
   #################################################
   # Test GET Experiment
   #################################################
-    url = "http://"+HOSTNAME+"/api/experiment/"+client_exp_uids[cl]+"/"+client_exp_keys[cl]
+    url = "http://"+HOSTNAME+"/api/experiment/"+client_exp_uids[cl]
     response = requests.get(url)
     print "GET experiment response =",response.text, response.status_code
     if assert_200: assert response.status_code is 200
@@ -150,7 +147,6 @@ def run_all(assert_200, num_clients):
 
     # grab a random exp_uid
     exp_uid = client_exp_uids[t%len(client_exp_uids)] #random.choice(client_exp_uids)
-    exp_key = client_exp_keys[t%len(client_exp_keys)] #random.choice(client_exp_uids)
     participant_uids = client_participant_uids[t%len(client_exp_uids)]
     participant_uid = numpy.random.choice(participants)
 
@@ -159,7 +155,6 @@ def run_all(assert_200, num_clients):
     #######################################
     getQuery_args_dict = {}
     getQuery_args_dict['exp_uid'] = exp_uid
-    getQuery_args_dict['exp_key'] = exp_key
     getQuery_args_dict['args'] = {}
     getQuery_args_dict['args']['participant_uid'] = participant_uid
 
@@ -198,7 +193,6 @@ def run_all(assert_200, num_clients):
 
     processAnswer_args_dict = {}
     processAnswer_args_dict["exp_uid"] = exp_uid
-    processAnswer_args_dict["exp_key"] = exp_key
     processAnswer_args_dict["args"] = {}
     processAnswer_args_dict["args"]["query_uid"] = query_uid
     processAnswer_args_dict["args"]["target_winner"] = target_winner
@@ -217,7 +211,7 @@ def run_all(assert_200, num_clients):
   # #############################################
   # r = numpy.random.rand()
   # if r <.005:
-  #   url = 'http://'+HOSTNAME+'/api/experiment/'+exp_uid+'/'+exp_key'/logs'
+  #   url = 'http://'+HOSTNAME+'/api/experiment/'+exp_uid + '/logs'
   #   response,dt = timeit(requests.get)(url)
   #   print "GET Logs response", response.text, response.status_code
   #   print "GET Logs duration = ", dt
@@ -228,7 +222,7 @@ def run_all(assert_200, num_clients):
   # #############################################
   # r = numpy.random.rand()
   # if r <.005:
-  #   url = 'http://'+HOSTNAME+'/api/experiment/'+exp_uid+'/'+exp_key+'/participants'
+  #   url = 'http://'+HOSTNAME+'/api/experiment/'+exp_uid+'/'+'/participants'
   #   response,dt = timeit(requests.get)(url)
   #   print "Participants response", response.text, response.status_code
   #   print "Participants duration = ", dt
@@ -269,7 +263,6 @@ def run_all(assert_200, num_clients):
   for cl in range(num_clients):
     getStats_args_dict = {}
     getStats_args_dict["exp_uid"] = client_exp_uids[cl]
-    getStats_args_dict["exp_key"] = client_exp_keys[cl]
 
     for args in args_list:
       getStats_args_dict["args"] = args

@@ -12,11 +12,9 @@ import next.broker.broker
 import next.api.api_util as api_util
 from next.api.api_util import APIArgument
 
-from next.api.keychain import KeyChain
 from next.api.resource_manager import ResourceManager
 from next.apps.SimpleTargetManager import SimpleTargetManager
 
-keychain = KeyChain()
 resource_manager = ResourceManager()
 targetmapper = SimpleTargetManager()
 
@@ -39,41 +37,34 @@ class Targets(Resource):
 
     def post(self):
         """
-        Requires a exp_uid, exp_key, n, and target_blob to create target map.
+        Requires a exp_uid, n, and target_blob to create target map.
         
         USAGE BELOW DEPRECIATED
         Usage: ::\n
         POST {
         'app_id': application id,
         'exp_id': experiment id, 
-        'exp_key': experiment key, 
         'args': application specific keys 
         }
         """
         exp_uid = request.json['exp_uid']
-        exp_key = request.json['exp_key']
-        if not keychain.verify_exp_key(exp_uid, exp_key):
-            return api_util.attach_meta({}, api_util.verification_error), 200
 
         target_blob = request.json['target_blob']
         current_target_mapping = targetmapper.create_target_mapping(exp_uid, target_blob)
         return api_util.attach_meta({}, meta_success), 200 
 
-    def get(self, exp_uid, exp_key):
+    def get(self, exp_uid):
         """
-        Requires a exp_uid, exp_key, n, and target_blob to create target map.
+        Requires a exp_uid, n, and target_blob to create target map.
         
         USAGE BELOW DEPRECIATED
         Usage: ::\n
         GET {
         'app_id': application id,
         'exp_id': experiment id, 
-        'exp_key': experiment key, 
         'args': application specific keys 
         }
         """
-        if not keychain.verify_exp_key(exp_uid, exp_key):
-            return api_util.attach_meta({}, api_util.verification_error), 200
 
         current_target_mapping = targetmapper.get_target_mapping(exp_uid)
         return api_util.attach_meta({'target_mapping':current_target_mapping},{'code': 200,'status': 'OK'}), 200
