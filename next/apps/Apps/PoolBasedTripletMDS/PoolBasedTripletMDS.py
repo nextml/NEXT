@@ -42,7 +42,7 @@ class PoolBasedTripletMDS(object):
         num_reported_answers, didSucceed, message = db.increment(self.app_id + ':experiments', exp_uid, 'num_reported_answers_for_' + query['alg_label'])
         n = experiment['args']['n']
         if num_reported_answers % ((n+4)/4) == 0:
-            getModel_args_dict = {'exp_uid':exp_uid,'args':{'alg_label':query['alg_label']}}
+            getModel_args_dict = {'exp_uid':exp_uid,'args':{'alg_label':query['alg_label'], 'logging':True}}
             db.submit_job(self.app_id,
                           exp_uid,
                           'getModel',

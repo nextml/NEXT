@@ -237,7 +237,7 @@ class ResourceManager:
         app_id = self.get_app_id(exp_uid)
 
         participants,didSucceed,message = db.get_docs_with_filter(app_id+':participants',{'exp_uid':exp_uid})
-
+        print "participants", participants
         participant_uid_list = []
         for participant in participants:
             participant_uid = participant['participant_uid']

@@ -18,6 +18,7 @@ from next.resource_client.ResourceClient import ResourceClient
 import next.utils as utils
 import next.apps.Verifier as Verifier
 import next.constants
+import next.apps.Butler
 
 git_hash = next.constants.GIT_HASH
 #TODO: App Exception logs
@@ -26,6 +27,7 @@ class App(object):
     def __init__(self, app_id):
         self.app_id = app_id
         self.helper = Helper()
+        self.butler = Butler()
         self.myApp = __import__('next.apps.Apps.'+self.app_id, fromlist=[''])
         self.myApp = getattr(self.myApp, app_id)
         self.myApp = self.myApp()
@@ -99,8 +101,11 @@ class App(object):
             # Create the participant dictionary in participants bucket if needed. Also pull out label and id for this algorithm
             participant_uid = args_dict['args'].get('participant_uid', args_dict['exp_uid'])
             # check to see if the first participant has come by and if not, save to db
-            first_participant_query = not db.exists(self.app_id+':participants',participant_uid,'participant_uid')
+            first_participant_query = not db.exists(self.app_id+':participants',participant_uid,'participant_uid')[0]
             participant_to_algorithm_management = db.get(self.app_id+':experiments', exp_uid, 'args')[0]['participant_to_algorithm_management']
+            if first_participant_query:
+                db.set_doc(self.app_id+':participants',participant_uid,{'exp_uid':exp_uid,
+								        'participant_uid':participant_uid})
             if (participant_uid == exp_uid) or (participant_to_algorithm_management == 'one_to_many') or (first_participant_query):
                 algorithm_management_settings = experiment_dict['args']['algorithm_management_settings']
                 if algorithm_management_settings['mode'] == 'fixed_proportions':
@@ -111,13 +116,11 @@ class App(object):
                 alg_id = chosen_alg['alg_id']
                 alg_label = chosen_alg['alg_label']
                 if  (first_participant_query) and (participant_to_algorithm_management=='one_to_one'):
-		    db.set_doc(self.app_id+':participants',participant_uid,{'exp_uid':exp_uid,
-								            'participant_uid':participant_uid,
-                                                                            'alg_id':alg_id,
-                                                                            'alg_label':alg_label})
+                    db.set(self.app_id+':participants',participant_uid,'alg_id',alg_id)
+                    db.set(self.app_id+':participants',participant_uid,'alg_label',alg_label)
             elif (participant_to_algorithm_management=='one_to_one'):
-                alg_id,didSucceed,message = db.get(self.app_id+':participants',participant_uid,'alg_id')
-                alg_label,didSucceed,message = db.get(self.app_id+':participants',participant_uid,'alg_label')
+                alg_id,didSucceed,message = db.get(self.app_id+':participants', participant_uid,'alg_id')
+                alg_label,didSucceed,message = db.get(self.app_id+':participants', participant_uid,'alg_label')
             else:
                 raise Exception('participant_to_algorithm_management : '+participant_to_algorithm_management+' not implemented')
             #TODO: Deal with the issue of not giving a repeat query
@@ -212,13 +215,17 @@ class App(object):
             rc = ResourceClient(self.app_id, exp_uid, alg_label, db)
             alg_response, dt = utils.timeit(alg.getModel)(rc)
             myapp_response = self.myApp.getModel(exp_uid, alg_response, args_dict, db)
+            # Log the response of the getModel in ALG-EVALUATION
+            if args_dict['args']['logging']:
+                alg_log_entry = {'exp_uid': exp_uid, 'alg_label':alg_label, 'task': 'getModel', 'timestamp': str(utils.datetimeNow())}
+                alg_log_entry.update(myapp_response)
+                ell.log(app_id+':ALG-EVALUATION', alg_log_entry)
+
             log_entry_durations = { 'exp_uid':exp_uid,'alg_label':alg_label,'task':'getModel','duration':dt }
             log_entry_durations.update( rc.getDurations() )
-            args_out = {'args': myapp_response, 'meta': {'log_entry_durations':log_entry_durations, 'timestamp': str(utils.datetimeNow())}}
-            if args_dict['args']['logging']:
-                log_entry = {'exp_uid': exp_uid, 'task': 'getModel', 'json': args_out, 'timestamp': str(utils.datetimeNow())}
-                ell.log(app_id+':ALG-EVALUATION', log_entry)
-            return json.dumps(args_out), True, ''
+            
+            return json.dumps({'args': myapp_response,
+                               'meta': {'log_entry_durations':log_entry_durations, 'timestamp': str(utils.datetimeNow())}}), True, ''
         except Exception:
             error = traceback.format_exc()
             print "============\n"*3+"getModel error",error
@@ -244,13 +251,65 @@ class App(object):
             dashboard = self.dashboard(db, ell)
             stats = self.myApp.getStats(exp_uid, args_dict, dashboard, db)
             return json.dumps(stats), True, ''
-        except Exception, err:
+        except Exception, error:
             error = traceback.format_exc()
             log_entry = {'exp_uid': exp_uid, 'task': 'getStats', 'error': error,
                          'timestamp': utils.datetimeNow(), 'args_json': args_json}
             ell.log(self.app_id + ':APP-EXCEPTION', log_entry)
             return '{}', False, error
 
+
+    def daemonProcess(self,exp_uid,args_json,db,ell):
+        try:
+            log_entry = { 'exp_uid':exp_uid,'task':'daemonProcess','json':args_json,'timestamp':utils.datetimeNow() } 
+            ell.log( app_id+':APP-CALL', log_entry  )
+
+            # convert args_json to args_dict
+            try:
+                args_dict = json.loads(args_json)
+            except:
+                error = "%s.daemonProcess input args_json is in improper format" % self.app_id
+                return '{}',False,error
+            necessary_fields = ['alg_uid','daemon_args']
+            for field in necessary_fields:
+                try:
+                    args_dict[field]
+                except KeyError:
+                    error = "%s.daemonProcess input arguments missing field: %s" % (self.app_id,str(field)) 
+                    return '{}',False,error
+            alg_daemon_args = args_dict['daemon_args']
+            alg_uid = args_dict['alg_uid']
+            alg_id,didSucceed,message = db.get(app_id+':algorithms',alg_uid,'alg_id')
+
+            # get sandboxed database for the specific app_id,alg_id,exp_uid - closing off the rest of the database to the algorithm
+            rc = ResourceClient(app_id,exp_uid,alg_uid,db)
+
+            # get specific algorithm to make calls to 
+            alg = utils.get_app_alg(self.app_id,alg_id)
+
+            didSucceed,dt = utils.timeit(alg.daemonProcess)(resource=rc,daemon_args_dict=alg_daemon_args)
+      
+            log_entry = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'daemonProcess','duration':dt,'timestamp':utils.datetimeNow() } 
+            log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'daemonProcess','duration':dt } 
+            log_entry_durations.update( rc.getDurations() )
+            meta = {'log_entry_durations':log_entry_durations}
+
+            daemon_message = {}
+            args_out = {'args':daemon_message,'meta':meta}
+            response_json = json.dumps(args_out)
+
+            log_entry = { 'exp_uid':exp_uid,'task':'daemonProcess','json':response_json,'timestamp':utils.datetimeNow() } 
+            ell.log( app_id+':APP-RESPONSE', log_entry  )
+
+            return response_json,True,''
+
+        except Exception, err:
+            error = traceback.format_exc()
+            log_entry = { 'exp_uid':exp_uid,'task':'daemonProcess','error':error,'timestamp':utils.datetimeNow() } 
+            ell.log( app_id+':APP-EXCEPTION', log_entry  )
+            return '{}',False,error
+
+        
 class Helper(object):
 
     def remove_experiment(self, app_id, exp_uid, db, ell):

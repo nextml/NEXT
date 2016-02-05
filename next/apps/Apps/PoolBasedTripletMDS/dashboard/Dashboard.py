@@ -5,7 +5,7 @@ from datetime import datetime
 from datetime import timedelta
 from next.utils import utils
 from next.apps.AppDashboard import AppDashboard
-
+import next.apps.SimpleTargetManager
 # import next.database_client.DatabaseAPIHTTP as db
 # import next.logging_client.LoggerHTTP as ell
 
@@ -53,22 +53,22 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
 
         for algorithm in args['alg_list']:
             alg_label = algorithm['alg_label']
-
-            list_of_log_dict,didSucceed,message = self.ell.get_logs_with_filter(app_id+':ALG-EVALUATION',{'exp_uid':exp_uid,'alg_label':alg_label})
+            list_of_log_dict,didSucceed,message = self.ell.get_logs_with_filter(app_id+':ALG-EVALUATION',{'exp_uid':exp_uid, 'alg_label':alg_label})
             list_of_log_dict = sorted(list_of_log_dict, key=lambda item: utils.str2datetime(item['timestamp']) )
-
+            print "list_of_log_dict", list_of_log_dict
             x = []
             y = []
             for item in list_of_log_dict:
-                num_reported_answers = item['json']['args']['num_reported_answers']
-                Xd = item['json']['args']['Xd']
+                num_reported_answers = item['num_reported_answers']
+                Xd = item['Xd']
 
                 err = 0.5
                 if len(test_S)>0:
                     # compute error rate
                     number_correct = 0.
-                    for q in test_S:
-                        i,j,k = q
+                    for query in test_S:
+                        print "q", query['q']
+                        i, j, k = query['q']
                         score =  numpy.dot(Xd[j],Xd[j]) -2*numpy.dot(Xd[j],Xd[k]) + 2*numpy.dot(Xd[i],Xd[k]) - numpy.dot(Xd[i],Xd[i])
                         if score > 0:
                             number_correct += 1.0
@@ -132,7 +132,7 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
             (float) x : x-value of target
             (float) y : y-value of target
         """
-
+        TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager()
         getModel_args_dict = {'exp_uid':exp_uid,
                               'args':{'alg_label':alg_label}}
         getModel_args_json = json.dumps(getModel_args_dict)
@@ -153,7 +153,7 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
         for idx,target in enumerate(embedding):
 
             target_dict = {}
-            target_dict['index'] = idx
+            target_dict['target'] = TargetManager.get_target_item(exp_uid, idx)
             target_dict['x'] = target[0] # this is what will actually be plotted,
             try:
                 target_dict['y'] = target[1] # takes first two components, (could be replaced by PCA)
