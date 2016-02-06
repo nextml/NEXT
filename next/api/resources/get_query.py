@@ -11,9 +11,9 @@ import next.broker.broker
 import next.api.api_util as api_util
 from next.api.api_util import *
 from next.api.api_util import APIArgument
-
+import next.utils as utils
 from next.api.resource_manager import ResourceManager
-
+from jinja2 import Environment, FileSystemLoader
 resource_manager = ResourceManager()
 broker = next.broker.broker.JobBroker()
 
@@ -48,7 +48,7 @@ class getQuery(Resource):
         post_parser.add_argument('args', type=dict, required=False)
         # Validate args with post_parser
         args_data = post_parser.parse_args()
-        
+        utils.debug_print("args_data", args_data)
         # Pull app_id and exp_uid from parsed args
         exp_uid = args_data["exp_uid"]
         # Fetch app_id data from resource manager
@@ -56,14 +56,20 @@ class getQuery(Resource):
         # Standardized participant_uid
         if 'participant_uid' in args_data['args'].keys():
             args_data['args']['participant_uid'] = exp_uid+"_"+args_data['args']['participant_uid']
-
+            
         # Execute getQuery 
         response_json,didSucceed,message = broker.applyAsync(app_id,exp_uid,"getQuery", json.dumps(args_data))
-        
+        response_dict = json.loads(response_json)
         if not didSucceed:
             return attach_meta({},meta_error['QueryGenerationError'], backend_error=message)
+
+        if 'widget' in args_data['args'].keys() and args_data['args']['widget'] == True:
+            TEMPLATES_DIRECTORY = 'next/apps/Apps/{}/widgets'.format(resource_manager.get_app_id(exp_uid))
+            utils.debug_print(TEMPLATES_DIRECTORY)
+            env = Environment(loader=FileSystemLoader(TEMPLATES_DIRECTORY))
+            template=env.get_template("getQuery_widget.html")
+            return {'html':template.render(query=response_dict), 'args':response_dict}, 200, {'Access-Control-Allow-Origin':'*', 'Content-Type':'application/json'}
         
-        response_dict = json.loads(response_json)
         return attach_meta(response_dict,meta_success), 200
         
             

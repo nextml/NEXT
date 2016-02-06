@@ -15,7 +15,7 @@ var next_widget = (function($){
 	
 	getQuery : function(div_id,args,callbacks){
 	    $.ajax({
-		url: _url+"/api/widgets/getwidget",
+		url: _url+"/api/experiment/getQuery",
 		type: "POST",
 		contentType: "application/json",
 		data: JSON.stringify(args),
@@ -24,14 +24,11 @@ var next_widget = (function($){
 		// Set the div to this html
 		$('#'+div_id).html(data.html);
 		_queryTime = new Date().getTime();
-		
 		// Build args dictionary for the processAnswer call
 		_args = {};
 		_args["exp_uid"] = args["exp_uid"];
-		_args["widget_key"] = args["widget_key"];
 		_args["args"] = {};
 		_args["args"]["query_uid"] = data.args["query_uid"]; 
-		
 		// Set the callbacks
 		_callbacks = callbacks;
 		_callbacks.getQuery_success(data);
@@ -42,10 +39,29 @@ var next_widget = (function($){
 	    });
 	},	
 
+	processAnswer: function(args, query_meta) {
+	    $.extend(_args["args"], args);
+	    currTime = new Date().getTime();
+	    _args["args"]["response_time"] = (currTime -  _queryTime)/1000.;
+	    console.log(_args);
+	    $.ajax({
+		url: _url+"/api/experiment/processAnswer",
+		type: "POST",
+		contentType: "application/json",
+		data: JSON.stringify(_args)
+	    }).done( function(data, textStatus,XHR){
+		_callbacks.processAnswer_success();
+	    } ).fail(function(error){
+		console.log("Error in communicating with next_backend",jqXHR, textStatus, errorThrown);
+		_callbacks.widget_failure();
+	    });
+	},
+
+	
 	getStats : function(args, callbacks){
 	    $.ajax({
 		type : "POST",
-		url : _url+"/api/widgets/getStats",
+		url : _url+"/api/experiment/getStats",
 		data : JSON.stringify(args),
 		contentType: "application/json",
 		dataType: "json",
@@ -60,29 +76,7 @@ var next_widget = (function($){
 	    });
 	},
 
-	processAnswer: function(args, query_meta) {
-	    _args["name"] = "processAnswer";
-	    $.extend(_args["args"], args);
-	    currTime = new Date().getTime();
-	    _args["args"]["response_time"] = (currTime -  _queryTime)/1000.;
-	    
-	    console.log(_args);
-	    if (typeof query_meta !== "undefined") {
-		_args["args"]["query_meta"] = query_meta;
-	    }
-	    $.ajax({
-		url: _url+"/api/widgets/getwidget",
-		type: "POST",
-		contentType: "application/json",
-		data: JSON.stringify(_args)
-	    }).done( function(data, textStatus,XHR){
-		_callbacks.processAnswer_success();
-	    } ).fail(function(error){
-		console.log("Error in communicating with next_backend",jqXHR, textStatus, errorThrown);
-		_callbacks.widget_failure();
-	    });
-	},
-
+	
 	getInfo: function(args, callbacks) {
 	    $.ajax({
 		url: _url+"/api/widgets/getwidget",

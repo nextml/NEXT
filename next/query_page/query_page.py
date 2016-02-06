@@ -4,7 +4,7 @@ from flask import Blueprint, render_template, flash, request, redirect, url_for
 
 import next.constants as constants
 from next.api.resource_manager import ResourceManager
-
+import next.utils as utils
 resource_manager = ResourceManager()
 query_page = Blueprint('query_page',
                        __name__,
@@ -12,10 +12,10 @@ query_page = Blueprint('query_page',
                        static_folder='static')
 
 @query_page.route('/query_page/<page>')
-@query_page.route('/query_page/<page>/<exp_uid>/<widget_key>')
+@query_page.route('/query_page/<page>/<exp_uid>')
 def load_page(page, exp_uid=None, widget_key=None):
     experiment = resource_manager.get_experiment(exp_uid)
-
+    utils.debug_print("EXPERIMENT", experiment)
     num_tries = experiment['args']['num_tries']
     app_template = page+'.html'
 

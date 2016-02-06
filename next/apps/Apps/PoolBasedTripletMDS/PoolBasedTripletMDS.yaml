@@ -39,13 +39,13 @@ initExp:
         instructions:
           description: The instructions the particpant will see when experiment first launched.
           type: str
-          set: Please select, using your mouse or left and right arrow keys, the item on the bottom that is closest to the top.
+          default: Please select, using your mouse or left and right arrow keys, the item on the bottom that is closest to the top.
           optional: true
 
         debrief:
           description: The message that the participant will see when done with the experiment.
           type: str
-          set: Thank you for participating
+          default: Thank you for participating
           optional: true
 
 
@@ -74,7 +74,7 @@ initExp:
         num_tries:
           description: The number of queries the participant will answer.
           type: num
-          set: 25
+          default: 25
           optional: true
 
         participant_to_algorithm_management:
@@ -111,7 +111,12 @@ getQuery:
           description: unique identifier of session for a participant answering questions, if key non-existant particpant_uid is assigned as exp_uid.
           type: str
           optional: true
+        widget:
+          description: whether to send widget html or json response
+          type: boolean
+          default: false
 
+          
 processAnswer:
   description: reporting back the reward of pulling the arm suggested by getQuery
   type: dict
@@ -126,7 +131,7 @@ processAnswer:
       values:
         target_winner:
           description: The ID of the target that won the given query.
-          type: num
+          type: str
         query_uid:
           description: The unique identifier for the query.
           type: str
@@ -136,7 +141,7 @@ processAnswer:
         timestamp_answer_received:
           description: The time the answer was recieved. Added by the NEXT Broker and should not be inputted by user.
           type: str
-
+          
 getModel:
   description: Make a prediction from a specific alg
   type: dict
@@ -154,7 +159,7 @@ getModel:
         logging:
           description: whether you want this logged in app_id:APP-EVALUATION
           type: boolean
-          set: false
+          default: false
 
 getStats:
   description: getStats yeahhhh!

@@ -16,7 +16,6 @@ broker = next.broker.broker.JobBroker()
 targetmapper = TargetMapper() 
 
 class WidgetGenerator():
-
     
     def getQuery(self, args):
         """
@@ -67,7 +66,9 @@ class WidgetGenerator():
         try:
             target_winner = args['args']['target_winner']
         except:
-            return {'message':"Failed to specify all arguments or misformed arguments", 'code':400, 'status':'FAIL', 'base_error':'[target_winner]. Missing required parameter in the JSON body or the post body or the query string'}, 400
+            return {'message':"Failed to specify all arguments or misformed arguments",
+                    'code':400,
+                    'status':'FAIL', 'base_error':'[target_winner]. Missing required parameter in the JSON body or the post body or the query string'}, 400
         
         index_winner = int(targetmapper.get_index_given_targetID(exp_uid, target_winner))
         

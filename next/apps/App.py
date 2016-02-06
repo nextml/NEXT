@@ -18,8 +18,11 @@ import next.utils as utils
 import next.apps.Verifier as Verifier
 import next.constants
 import next.apps.Butler as Butler
+
 Butler = Butler.Butler
 git_hash = next.constants.GIT_HASH
+
+
 #TODO: App Exception logs
 #TODO: move __import__ to importlib
 class App(object):
@@ -83,6 +86,7 @@ class App(object):
     def getQuery(self, exp_uid, args_json):
         try:
 	    args_dict = self.helper.convert_json(args_json)
+            utils.debug_print(args_dict)
             try:
                 args_dict, success, messages = Verifier.verify(args_dict, self.reference_dict['getQuery']['values'])
                 if not success:
@@ -92,6 +96,7 @@ class App(object):
 		print "Exception! {} {}".format(error, traceback.format_exc())
 		traceback.print_tb(exc_traceback)
 		raise Exception(error)
+            utils.debug_print(args_dict)
             experiment_dict = self.butler.experiment.get()
             alg_list = experiment_dict['args']['alg_list']
             participant_to_algorithm_management = experiment_dict['args']['participant_to_algorithm_management']
@@ -129,7 +134,6 @@ class App(object):
             self.butler.queries.set(uid=query_uid, value=query_doc)
             log_entry_durations = { 'exp_uid':exp_uid,'alg_label':alg_label,'task':'getQuery','duration':dt }
             log_entry_durations.update(butler.algorithms.getDurations())
-            # TODO: Widgets
             return json.dumps({'args':query_doc,'meta':{'log_entry_durations':log_entry_durations}}), True,''
         except Exception, error:
             exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -143,7 +147,7 @@ class App(object):
             try:
                 args_dict, success, messages = Verifier.verify(args_dict, self.reference_dict['processAnswer']['values'])
                 if not success:
-                    raise Exception("Failed to verify: {}".format(" \n".join(messages)))
+                    raise Exception("Failed to verify: {}".format(messages))
             except Exception, error:
 		exc_type, exc_value, exc_traceback = sys.exc_info()
 		print "Exception! {} {}".format(error, traceback.format_exc())
@@ -187,10 +191,6 @@ class App(object):
 		print "Exception! {} {}".format(error, traceback.format_exc())
 		traceback.print_tb(exc_traceback)
 		raise Exception(error)
-            utils.debug_print("ALL ALGORITHM DATA ************************************************************")
-            for label in ["RandomSampling", "CrowdKernel", "UncertaintySampling", "STE", "Test"]:
-                utils.debug_print(label, self.butler.algorithms.get(label)["X"])
-                utils.debug_print("*********************************************************************************************")
             
             alg_label = args_dict['args']['alg_label']
             args = self.butler.experiment.get(key='args')
@@ -206,7 +206,6 @@ class App(object):
                 alg_log_entry = {'exp_uid': exp_uid, 'alg_label':alg_label, 'task': 'getModel', 'timestamp': str(utils.datetimeNow())}
                 alg_log_entry.update(myapp_response)
                 self.butler.log('ALG-EVALUATION', alg_log_entry)
-                
             log_entry_durations = { 'exp_uid':exp_uid,'alg_label':alg_label,'task':'getModel','duration':dt }
             log_entry_durations.update(butler.algorithms.getDurations())
             return json.dumps({'args': myapp_response,

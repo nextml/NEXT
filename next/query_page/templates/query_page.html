@@ -47,19 +47,17 @@
       var tries =  {{num_tries}};
       var div_id = "wrapper";
       var exp_uid = "{{exp_uid}}";
-      var widget_key = "{{widget_key}}";
       var participant_uid = next_widget.makeRandomString(30);
       var info_args = {
         name: "getInfo",
         exp_uid: exp_uid,
-        widget_key: widget_key,
         args: {}
       };
       var args = {
         name: "getQuery",
         exp_uid: exp_uid,
-        widget_key: widget_key,
-        args: { participant_uid: participant_uid }
+          args: {
+	      participant_uid: participant_uid, widget: true}
       };
       var callbacks = {
         processAnswer_success: function() {

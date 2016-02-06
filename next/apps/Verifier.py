@@ -72,8 +72,8 @@ def verify_helper(name, input_element, reference_dict):
             else:
                 ok = True
                 for k in l2:
-                    if 'set' in reference_dict['values'][k]:
-                        input_element[k] = reference_dict['values'][k]['set']
+                    if 'default' in reference_dict['values'][k]:
+                        input_element[k] = reference_dict['values'][k]['default']
                         if reference_dict['values'][k]['type'] == 'num':
                             input_element[k] = float(input_element[k])
                     elif (not 'optional' in reference_dict['values'][k]) or reference_dict['values'][k]['optional'] == False:
@@ -91,6 +91,10 @@ def verify_helper(name, input_element, reference_dict):
             for i in range(len(input_element)):
                 input_element[i],temp_ans = verify_helper(name+'/'+str(i), input_element[i], reference_dict['values'])
                 ans += temp_ans
+
+    elif reference_dict['type'] == 'boolean':
+        if not isinstance(input_element, (bool)):
+            ans += [{"name":name, "message":"invalid boolean"}]
 
     elif reference_dict['type'] == 'num':
         if not isinstance(input_element, (int, long, float)):
@@ -110,8 +114,8 @@ def verify_helper(name, input_element, reference_dict):
                 if count > 1:
                     ans += [{"name":name+"/"+k,"message":"More than one argument specified for 'oneof arg: " + name}]
         if count == 0:
-            if 'set' in reference_dict:
-                input_element = reference_dict['set']
+            if 'default' in reference_dict:
+                input_element = reference_dict['default']
             else:
                 ans += [{"name":name, "message":"no argument provided for 'oneof' arg"}]
 
