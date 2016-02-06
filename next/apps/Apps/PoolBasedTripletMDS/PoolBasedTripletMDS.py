@@ -39,12 +39,12 @@ class PoolBasedTripletMDS(object):
         target_winner = answer['args']['target_winner']
         # make a getModel call ~ every n/4 queries - note that this query will NOT be included in the predict
         experiment = butler.experiment.get()
-        num_reported_answers = butler.experiment.increment('num_reported_answers_for_' + query['alg_label'])
+        num_reported_answers = butler.experiment.increment(key='num_reported_answers_for_' + query['alg_label'])
+        
         n = experiment['args']['n']
         if num_reported_answers % ((n+4)/4) == 0:
-            butler.job('getModel',
-                       json.dumps({'exp_uid':exp_uid,'args':{'alg_label':query['alg_label'], 'logging':True}}))
-            q = [left_id, right_id,center_id] if target_winner==left_id else [right_id, left_id,center_id]
+            butler.job('getModel', json.dumps({'exp_uid':exp_uid,'args':{'alg_label':query['alg_label'], 'logging':True}}))
+        q = [left_id, right_id,center_id] if target_winner==left_id else [right_id, left_id,center_id]
         return {'alg_args':{'left_id':left_id, 'right_id':right_id, 'center_id':center_id, 'target_winner':target_winner},
                 'query_update':{'target_winner':target_winner, 'q':q}}
 

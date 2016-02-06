@@ -17,10 +17,10 @@ def run_all(assert_200):
   desired_dimension = 2
   x = numpy.linspace(0,1,num_objects)
   X_true = numpy.vstack([x,x]).transpose()
-  total_pulls_per_client = 50
+  total_pulls_per_client = 100
   num_experiments = 1
   # clients run in simultaneous fashion using multiprocessing library
-  num_clients = 10
+  num_clients = 5
 
   pool = Pool(processes=num_clients)
   # input test parameters
@@ -44,8 +44,6 @@ def run_all(assert_200):
   algorithm_management_settings['mode'] = 'fixed_proportions'
   algorithm_management_settings['params'] = params
 
-
-
   #################################################
   # Test POST Experiment
   #################################################
@@ -62,8 +60,6 @@ def run_all(assert_200):
   initExp_args_dict['args']['debrief'] = 'You want a debrief, here is your test debrief'
   initExp_args_dict['args']['targets'] = {}
   initExp_args_dict['args']['targets']['n'] = num_objects
-
-
 
   exp_info = []
   for ell in range(num_experiments):
@@ -87,8 +83,6 @@ def run_all(assert_200):
     if assert_200: assert response.status_code is 200
     initExp_response_dict = json.loads(response.text)
 
-
-
   ###################################
   # Generate participants
   ###################################
@@ -102,7 +96,7 @@ def run_all(assert_200):
     experiment = numpy.random.choice(exp_info)
     exp_uid = experiment['exp_uid']
     pool_args.append( (exp_uid,participant_uid,total_pulls_per_client,X_true,assert_200) )
-
+  print "participants are", participants
   results = pool.map(simulate_one_client, pool_args)
 
   for result in results:

@@ -203,14 +203,16 @@ class DatabaseAPI(object):
 
         self.broker = None
 
-    def submit_job(self,app_id,exp_uid,task,task_args_json,namespace=None,ignore_result=True,time_limit=0, alg_id=None):
+    def submit_job(self,app_id,exp_uid,task,task_args_json,namespace=None,ignore_result=True,time_limit=0, alg_id=None, alg_label=None):
         if self.broker == None:
             self.broker = next.broker.broker.JobBroker()
-
         if namespace==None:
             result = self.broker.applyAsync(app_id,exp_uid,task,task_args_json,ignore_result=ignore_result)
         else:
-            result = self.broker.applySyncByNamespace(app_id,exp_uid,alg_id,task,task_args_json,namespace=namespace,ignore_result=ignore_result,time_limit=time_limit)
+            result = self.broker.applySyncByNamespace(app_id,exp_uid,
+                                                      alg_id, alg_label,
+                                                      task,task_args_json,namespace=namespace,
+                                                      ignore_result=ignore_result,time_limit=time_limit)
         return result
 
 

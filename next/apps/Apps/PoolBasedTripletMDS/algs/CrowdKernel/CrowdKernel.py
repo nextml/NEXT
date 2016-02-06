@@ -11,6 +11,7 @@ from next.apps.Apps.PoolBasedTripletMDS.Prototype import PoolBasedTripletMDSProt
 import time
 
 class CrowdKernel(PoolBasedTripletMDSPrototype):
+
   def initExp(self,butler,n,d,failure_probability,**kwargs):
     X = numpy.random.randn(n,d)*.0001
     tau = numpy.random.rand(n,n)
@@ -93,25 +94,23 @@ class CrowdKernel(PoolBasedTripletMDSPrototype):
     n = butler.algorithms.get(key='n')
     num_reported_answers = butler.algorithms.increment(key='num_reported_answers')
     if num_reported_answers % int(n) == 0:
-      butler.job('__full_embedding_update', {}, time_limit=30)
+      butler.job('full_embedding_update', {}, time_limit=30)
     else:
-      butler.job('__incremental_embedding_update', {},time_limit=5)
+      butler.job('incremental_embedding_update', {},time_limit=5)
 
     return True
 
   def getModel(self,butler):
-    key_value_dict = butler.algorithms.get(key=['X','num_reported_answers'])
-    X = key_value_dict.get('X',[])
-    num_reported_answers = key_value_dict.get('num_reported_answers',[])
-    return [X,num_reported_answers]
+    return butler.algorithms.get(key=['X','num_reported_answers'])
 
-  def __incremental_embedding_update(self,butler,args):
+  def incremental_embedding_update(self,butler,args):
     verbose = False
     n = butler.algorithms.get(key='n')
     d = butler.algorithms.get(key='d')
     S = butler.algorithms.get(key='S')
 
     X = numpy.array(butler.algorithms.get(key='X'))
+    print "incremental_embedding_update", butler.app_id, butler.exp_uid, butler.alg_label, butler.alg_id
     # set maximum time allowed to update embedding
     t_max = 1.0
     epsilon = 0.00001 # a relative convergence criterion, see computeEmbeddingWithGD documentation
@@ -131,7 +130,7 @@ class CrowdKernel(PoolBasedTripletMDSPrototype):
     
 
 
-  def __full_embedding_update(self,butler,args):
+  def full_embedding_update(self,butler,args):
     verbose = False
 
     n = butler.algorithms.get(key='n')

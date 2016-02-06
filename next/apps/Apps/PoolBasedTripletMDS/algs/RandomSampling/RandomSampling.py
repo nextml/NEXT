@@ -4,21 +4,6 @@ from next.apps.Apps.PoolBasedTripletMDS.algs.RandomSampling import utilsMDS
 from next.apps.Apps.PoolBasedTripletMDS.Prototype import PoolBasedTripletMDSPrototype
 
 class RandomSampling(PoolBasedTripletMDSPrototype):
-
-  def daemonProcess(self,butler, daemon_args_dict):
-    if 'task' in daemon_args_dict and 'args' in daemon_args_dict:
-      task = daemon_args_dict['task']
-      args = daemon_args_dict['args']
-      if task == '__full_embedding_update':
-        self.__full_embedding_update(butler,args)
-      elif task == '__incremental_embedding_update':
-        self.__incremental_embedding_update(butler,args)
-    else:
-      return False
-
-    return True
-
-
   def initExp(self,butler, n, d, failure_probability, **kwargs):
     X = numpy.random.randn(n,d)
     butler.algorithms.set(key='n',value= n)
@@ -30,13 +15,10 @@ class RandomSampling(PoolBasedTripletMDSPrototype):
 
   def getQuery(self,butler):
     X = numpy.array(butler.algorithms.get(key='X'))
-
     q,score = utilsMDS.getRandomQuery(X)
-
     index_center = q[2]
     index_left = q[0]
     index_right = q[1]
-
     return [index_center,index_left,index_right]
 
 
@@ -47,33 +29,26 @@ class RandomSampling(PoolBasedTripletMDSPrototype):
       q = [right_id,left_id,center_id]
 
     butler.algorithms.append(key='S',value=q)
-
     n = butler.algorithms.get(key='n')
     d = butler.algorithms.get(key='d')
     num_reported_answers = butler.algorithms.increment(key='num_reported_answers')
     if num_reported_answers % int(n) == 0:
-      butler.job('__full_embedding_update', {}, time_limit=30)
+      butler.job('full_embedding_update', {}, time_limit=30)
     else:
-      butler.job('__incremental_embedding_update', {},time_limit=5)
+      butler.job('incremental_embedding_update', {},time_limit=5)
 
     return True
 
 
   def getModel(self,butler):
-    key_value_dict = butler.algorithms.get(key=['X','num_reported_answers'])
-
-    X = key_value_dict.get('X',[])
-    num_reported_answers = key_value_dict.get('num_reported_answers',[])
-
-    return [X,num_reported_answers]
+    return butler.algorithms.get(key=['X','num_reported_answers'])
 
 
-  def __incremental_embedding_update(self,butler,args):
+  def incremental_embedding_update(self,butler,args):
     verbose = False
     n = butler.algorithms.get(key='n')
     d = butler.algorithms.get(key='d')
     S = butler.algorithms.get(key='S')
-
 
     X = numpy.array(butler.algorithms.get(key='X'))
     # set maximum time allowed to update embedding
@@ -90,7 +65,7 @@ class RandomSampling(PoolBasedTripletMDSPrototype):
 
     butler.algorithms.set(key='X',value=X.tolist())
 
-  def __full_embedding_update(self,butler,args):
+  def full_embedding_update(self,butler,args):
     verbose = False
 
     n = butler.algorithms.get(key='n')

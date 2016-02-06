@@ -53,7 +53,7 @@ class JobBroker:
             else:
                 return result
             
-    def applySyncByNamespace(self, app_id, exp_uid, task_name, args, namespace=None, ignore_result=False,time_limit=0):
+    def applySyncByNamespace(self, app_id, exp_uid, alg_id, alg_label, task_name, args, namespace=None, ignore_result=False,time_limit=0):
         """
         Run a task (task_name) on a set of args with a given app_id, and exp_uid asynchronously. 
         Waits for computation to finish and returns the answer unless ignore_result=True in which case its a non-blocking call. 
@@ -106,13 +106,13 @@ class JobBroker:
             soft_time_limit = time_limit
             hard_time_limit = time_limit + .01
         if next.constants.CELERY_ON:
-            result = tasks.apply_sync_by_namespace.apply_async(args=[app_id,exp_uid,task_name, args, namespace, job_uid, submit_timestamp, time_limit], queue=queue_name,soft_time_limit=soft_time_limit,time_limit=hard_time_limit)
+            result = tasks.apply_sync_by_namespace.apply_async(args=[app_id,exp_uid,alg_id,alg_label, task_name, args, namespace, job_uid, submit_timestamp, time_limit], queue=queue_name,soft_time_limit=soft_time_limit,time_limit=hard_time_limit)
             if ignore_result:
                 return True
             else:
                 return result.get(interval=.001) 
         else:
-            result = tasks.apply_sync_by_namespace(app_id,exp_uid,task_name, args, namespace, job_uid, submit_timestamp, time_limit)
+            result = tasks.apply_sync_by_namespace(app_id,exp_uid,alg_id,alg_label,task_name, args, namespace, job_uid, submit_timestamp, time_limit)
             if ignore_result:
                 return True
             else:

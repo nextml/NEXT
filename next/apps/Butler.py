@@ -40,12 +40,14 @@ class Collection(object):
         else:
             return self.timed(self.db.get_docs_by_filter,get=True)(self.collection, pattern)
 
-    def exists(self, uid=""):
+    def exists(self, uid="", key='_id'):
         """
         Check if an object with the specified uid exists
         """
         uid = self.uid_prefix+uid
-        return self.timed(self.db.exists,True)(self.collection, uid)
+        result = self.timed(self.db.exists, get=True)(self.collection, uid, key)
+        print "exist check", uid, key, result
+        return result#self.timed(self.db.exists,get=True)(self.collection, uid, key)
 
     def increment(self, uid="", key=None):
         """
@@ -56,21 +58,22 @@ class Collection(object):
         uid = self.uid_prefix+uid
         if(type(key) == list):
             for k in key:
-                self.timed(self.db.increment)(self.collection, uid, k)
+                self.timed(self.db.increment, get=True)(self.collection, uid, k)
         else:
-            self.timed(self.db.increment)(self.collection, uid, key)
+            return self.timed(self.db.increment, get=True)(self.collection, uid, key)
 
     def append(self, uid="", key=None, value=None):
         """
         Append a value to collection[uid][key] (which is assumed to be a list)
         """
-        self.timed(self.db.append_list)(self.bucket_id,uid,key,value)
+        uid = self.uid_prefix+uid
+        self.timed(self.db.append_list)(self.collection,uid,key,value)
             
     def getDurations(self):
         """
         For book keeping purposes only
         """
-        return {'duration_dbSet': self.duration_set, 'duration_dbGet' : self.duration_get}
+        return {'duration_dbSet': self.set_durations, 'duration_dbGet' : self.get_durations}
 
     def timed(self, f, get=False):
         if not self.timing:
@@ -78,11 +81,14 @@ class Collection(object):
         
         def timed_f(*args, **kw):
             result,dt = utils.timeit(f)(*args, **kw)
+            res = None
             if(get):
                 self.get_durations += dt
+                res, didSucceed, message = result
             else:
                 self.set_durations += dt
-            return result
+                didSucceed, message = result
+            return res
         return timed_f
         
 class Butler(object):
@@ -95,7 +101,10 @@ class Butler(object):
         self.ell = ell
         self.queries = Collection(self.app_id+":queries", "", db)
         self.experiment = Collection(self.app_id+":experiments", self.exp_uid, db)
-        self.algorithms = Collection(self.app_id+":algorithms", self.exp_uid+"_", db)
+        if alg_label is None:
+            self.algorithms = Collection(self.app_id+":algorithms", self.exp_uid+"_", db)
+        else:
+            self.algorithms = Collection(self.app_id+":algorithms", self.exp_uid+"_"+alg_label, db)
         self.participants = Collection(self.app_id+":participants", "", db)
         self.other = Collection(self.app_id+":other", self.exp_uid+"_", db)
 
@@ -105,13 +114,12 @@ class Butler(object):
 
     def job(self,task,task_args_json,ignore_result=True,time_limit=0):
         if self.alg_label:
-            self.db.submit_job(self.app_id, self.exp_uid,
-                               task,
-                               task_args_json,
+            print "butler job", self.app_id, self.exp_uid, self.alg_label, self.alg_id, task
+            self.db.submit_job(self.app_id,self.exp_uid,
+                               task,task_args_json,
                                self.exp_uid+'_'+self.alg_label,
-                               ignore_result,
-                               time_limit,
-                               self.alg_id)  
+                               ignore_result,time_limit,
+                               alg_id = self.alg_id, alg_label=self.alg_label)  
         else:
             self.db.submit_job(self.app_id, self.exp_uid, task, task_args_json, None, ignore_result, time_limit)  
 

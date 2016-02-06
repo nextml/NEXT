@@ -304,6 +304,11 @@ def str2datetime(str_time):
   except:
     return datetime.strptime(str_time,'%Y-%m-%d %H:%M:%S')
 
+def debug_print(*args):
+  for a in args:
+    print '\033[93m\033[1m'+str(a)+'\033[0m',
+  print ''
+  
 import time
 def timeit(f):
   """

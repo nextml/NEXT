@@ -51,7 +51,6 @@ class getQuery(Resource):
         
         # Pull app_id and exp_uid from parsed args
         exp_uid = args_data["exp_uid"]
-            
         # Fetch app_id data from resource manager
         app_id = resource_manager.get_app_id(exp_uid)
         # Standardized participant_uid

@@ -43,7 +43,6 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
         #getModel_args_dict = json.loads(args_out_json)
         #test_S = getModel_args_dict['args']['queries']
         test_S,didSucceed, message = self.db.get_docs_with_filter(app_id+':queries',{'exp_uid':exp_uid, 'alg_label':test_alg_label})
-        print "ALL the queries", test_S, len(test_S), type(test_S)
         
         x_min = numpy.float('inf')
         x_max = -numpy.float('inf')
@@ -67,11 +66,12 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
                     # compute error rate
                     number_correct = 0.
                     for query in test_S:
-                        print "q", query['q']
-                        i, j, k = query['q']
-                        score =  numpy.dot(Xd[j],Xd[j]) -2*numpy.dot(Xd[j],Xd[k]) + 2*numpy.dot(Xd[i],Xd[k]) - numpy.dot(Xd[i],Xd[i])
-                        if score > 0:
-                            number_correct += 1.0
+                        if 'q' in query:
+                            utils.debug_print("q", query)
+                            i, j, k = query['q']
+                            score =  numpy.dot(Xd[j],Xd[j]) -2*numpy.dot(Xd[j],Xd[k]) + 2*numpy.dot(Xd[i],Xd[k]) - numpy.dot(Xd[i],Xd[i])
+                            if score > 0:
+                                number_correct += 1.0
 
                     accuracy = number_correct/len(test_S)
                     err = 1.0-accuracy
@@ -133,13 +133,8 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
             (float) y : y-value of target
         """
         TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager()
-        getModel_args_dict = {'exp_uid':exp_uid,
-                              'args':{'alg_label':alg_label}}
-        getModel_args_json = json.dumps(getModel_args_dict)
-
-        next_app = utils.get_app(app_id)
-        args_out_json, _, _ = next_app.getModel(exp_uid, getModel_args_json, self.db, self.ell)
-
+        next_app = utils.get_app(app_id, exp_uid, self.db, self.ell)
+        args_out_json, _, _ = next_app.getModel(exp_uid, json.dumps({'exp_uid':exp_uid, 'args':{'alg_label':alg_label}}))
         getModel_args_dict = json.loads(args_out_json)
         item = getModel_args_dict['args']
 
