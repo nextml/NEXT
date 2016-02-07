@@ -67,9 +67,9 @@ class BR_Thompson(DuelingBanditsPureExplorationPrototype):
 
     random_fork = numpy.random.choice(2)
     if random_fork==0:
-      return index,alt_index,index
+      return [index,alt_index,index]
     else:
-      return alt_index,index,index
+      return [alt_index,index,index]
 
 
   def processAnswer(self,resource,index_left=0,index_right=0,index_painted=0,index_winner=0):
