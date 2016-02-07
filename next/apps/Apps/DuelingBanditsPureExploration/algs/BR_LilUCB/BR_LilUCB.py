@@ -1,7 +1,5 @@
 """
 BR_LilUCB app implements DuelingBanditsPureExplorationPrototype
-author: Kevin Jamieson, kevin.g.jamieson@gmail.com
-last updated: 1/11/2015
 
 BR_LilUCB implements the lilUCB algorithm described in 
 Jamieson, Malloy, Nowak, Bubeck, "lil' UCB : An Optimal Exploration Algorithm for Multi-Armed Bandits," COLT 2014
@@ -90,21 +88,16 @@ class BR_LilUCB(DuelingBanditsPureExplorationPrototype):
     
     return True
 
-  def predict(self,butler):
+  def getModel(self,butler):
     n = butler.algorithms.get(key='n')
 
-    key_list = []
-    for i in range(n):
-      key_list.append( 'Xsum_'+str(i) )
-      key_list.append( 'T_'+str(i) )
+    key_list = ['Xsum_'+str(i) for i in range(n)]
+    key_list += ['T_'+str(i) for i in range(n)]
 
     key_value_dict = butler.algorithms.get(key=key_list)
 
-    sumX = []
-    T = []
-    for i in range(n):
-      sumX.append( key_value_dict['Xsum_'+str(i)] )
-      T.append( key_value_dict['T_'+str(i)] )
+    sumX = [key_value_dict['Xsum_'+str(i)] for i in range(n)]
+    T = [key_value_dict['T_'+str(i)] for i in range(n)]
 
     mu = numpy.zeros(n)
     for i in range(n):
@@ -113,7 +106,7 @@ class BR_LilUCB(DuelingBanditsPureExplorationPrototype):
       else:
         mu[i] = sumX[i] / T[i]
 
-    prec = [ numpy.sqrt(1./max(1,t)) for t in T]
+    prec = [numpy.sqrt(1.0/max(1,t)) for t in T]
     
     return mu.tolist(),prec
     
