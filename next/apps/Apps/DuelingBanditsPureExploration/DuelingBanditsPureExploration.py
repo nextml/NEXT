@@ -10,8 +10,20 @@
 #   modify the widgets?
 
 class DuelingBanditsPureExploration(object):
+    def __init__(self):
+        self.app_id = 'DuelingBanditsPureExploration'
+        self.TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager()
+
     def initExp(self, exp_uid, args_json, db, ell):
-        pass
+        if 'targetset' in exp_data['args']['targets'].keys():
+            n  = len(exp_data['args']['targets']['targetset'])
+            self.TargetManager.set_targetset(exp_data['args']['targets']['targetset'])
+        else:
+            n = exp_data['args']['targets']['n']
+        exp_data['args']['n'] = n
+        del exp_data['args']['targets']
+        return exp_data
+
     def getQuery(self, exp_uid, args_json, db, ell):
         pass
     def processAnswer(self, exp_uid, args_json, db, ell):
