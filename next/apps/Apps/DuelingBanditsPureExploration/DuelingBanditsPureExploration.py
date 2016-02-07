@@ -6,6 +6,7 @@
 # - look at the butler code. Butler is another database wrapper
 # x modify the tests to delete exp_key
 # x check if daemonProcess still needed (I don't think it is)
+# x Implement the .yaml file
 #   modify the widgets?
 
 class DuelingBanditsPureExploration(object):
