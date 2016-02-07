@@ -15,39 +15,37 @@ from next.apps.DuelingBanditsPureExploration.Prototype import DuelingBanditsPure
 
 class BR_LilUCB(DuelingBanditsPureExplorationPrototype):
 
-  def daemonProcess(self,resource,daemon_args_dict):
+  def getModel(self, butler, **kwargs):
     return True
   
-  def initExp(self,resource,n,failure_probability,params):
-    resource.set('n',n)
-    resource.set('failure_probability',failure_probability)
-    resource.increment('total_pulls',0)
+  def initExp(self, butler, n, failure_probability, params):
+    butler.algorithms.set('n',n)
+    butler.algorithms.set('failure_probability', failure_probability)
+
+    butler.increment(key='total_pulls', value=0)
     for i in range(n):
-      resource.increment('Xsum_'+str(i),0.)
-      resource.increment('T_'+str(i),0)
+      butler.algorithms.increment(key='Xsum_'+str(i), value=0.0)
+      butler.algorithms.increment(key='T_'+str(i), value=0.0)
 
     return True
 
   
-  def getQuery(self,resource):
+  def getQuery(self, butler):
     beta = 0.0 # algorithm parameter
 
-    n = resource.get('n')
+    n = butler.algorithms.get(key='n')
+
     key_list = ['failure_probability']
-    for i in range(n):
-      key_list.append( 'Xsum_'+str(i) )
-      key_list.append( 'T_'+str(i) )
+    key_list += ['Xsum_' + str(i) for i in range(n)]
+    key_list += ['T_' + str(i) for i in range(n)]
 
-    key_value_dict = resource.get_many(key_list)
+    key_value_dict = butler.algorithms.get(key=key_list)
 
-    sumX = []
-    T = []
-    for i in range(n):
-      sumX.append( key_value_dict['Xsum_'+str(i)] )
-      T.append( key_value_dict['T_'+str(i)] )
+    sumX = [key_value_dict['Xsum_'+str(i)] for i in range(n)]
+    T = [key_value_dict['T_'+str(i)] for i in range(n)]
 
     delta = key_value_dict['failure_probability']
-    sigma_sq = .25
+    sigma_sq = 0.25
 
     mu = numpy.zeros(n)
     UCB = numpy.zeros(n)
@@ -73,12 +71,12 @@ class BR_LilUCB(DuelingBanditsPureExplorationPrototype):
 
     random_fork = numpy.random.choice(2)
     if random_fork==0:
-      return index,alt_index,index
+      return [index,alt_index,index]
     else:
-      return alt_index,index,index
+      return [alt_index,index,index]
 
 
-  def processAnswer(self,resource,index_left=0,index_right=0,index_painted=0,index_winner=0):
+  def processAnswer(self,butler,index_left=0,index_right=0,index_painted=0,index_winner=0):
     alt_index = index_left
     if index_left==index_painted:
       alt_index = index_right
@@ -87,19 +85,20 @@ class BR_LilUCB(DuelingBanditsPureExplorationPrototype):
     if index_painted==index_winner:
       reward = 1.
 
-    resource.increment_many({'Xsum_'+str(index_painted):reward,'T_'+str(index_painted):1,'total_pulls':1})
+    butler.algorithms.increment(key='Xum_'+str(index_painted), value=reward)
+    butler.algorithms.increment(key=['T_'+str(index_painted), 'total_pulls'])
     
     return True
 
-  def predict(self,resource):
-    n = resource.get('n')
+  def predict(self,butler):
+    n = butler.algorithms.get(key='n')
 
     key_list = []
     for i in range(n):
       key_list.append( 'Xsum_'+str(i) )
       key_list.append( 'T_'+str(i) )
 
-    key_value_dict = resource.get_many(key_list)
+    key_value_dict = butler.algorithms.get(key=key_list)
 
     sumX = []
     T = []
