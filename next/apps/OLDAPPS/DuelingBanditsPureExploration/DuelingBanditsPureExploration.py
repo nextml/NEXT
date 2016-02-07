@@ -429,9 +429,11 @@ class DuelingBanditsPureExploration(AppPrototype):
 
       # create JSON query payload    
       if index_left==index_painted:
-        targets = [ {'index':index_left,'label':'left','flag':1}, {'index':index_right,'label':'right','flag':0} ]
+        targets = [ {'index':index_left,'label':'left','flag':1}, 
+                    {'index':index_right,'label':'right','flag':0} ]
       else:
-        targets = [ {'index':index_left,'label':'left','flag':0}, {'index':index_right,'label':'right','flag':1} ]
+        targets = [ {'index':index_left,'label':'left','flag':0}, 
+                    {'index':index_right,'label':'right','flag':1} ]
       timestamp = str(utils.datetimeNow())
       query_uid = utils.getNewUID()
       query = {}
