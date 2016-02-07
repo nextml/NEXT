@@ -49,18 +49,28 @@ class Collection(object):
         print "exist check", uid, key, result
         return result#self.timed(self.db.exists,get=True)(self.collection, uid, key)
 
-    def increment(self, uid="", key=None):
+    def increment(self, uid="", key=None, value=1):
         """
         Increment a value (or values) in the collection.
         * type(key) != list:   increment collection[uid][key]
         * type(key) == list:   increment collection[uid][k] for k in key
+
+        * values: How much the value should be incremented by.
         """
+
+        # TODO: increment many in old code ensures they're in the same bucket.
+        # This doesn't; look at the old code and implement increment_many in
+        # this function
         uid = self.uid_prefix+uid
         if(type(key) == list):
-            for k in key:
-                self.timed(self.db.increment, get=True)(self.collection, uid, k)
+            if type(value) in {int, float}:
+                value = len(key)*[value]
+            for k, v in zip(key, value):
+                self.timed(self.db.increment, get=True)(self.collection, uid, k, v)
         else:
-            return self.timed(self.db.increment, get=True)(self.collection, uid, key)
+            if value == None:
+                value = 1
+            return self.timed(self.db.increment, get=True)(self.collection, uid, key, value)
 
     def append(self, uid="", key=None, value=None):
         """
