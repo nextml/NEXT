@@ -8,6 +8,7 @@
 # x check if daemonProcess still needed (I don't think it is)
 # x Implement the .yaml file
 # ? modify the widgets?
+import next.apps.SimpleTargetManager
 
 class DuelingBanditsPureExploration(object):
     def __init__(self):

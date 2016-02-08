@@ -32,6 +32,7 @@ def run_all(assert_200):
   n = num_arms
   delta = 0.05
   supported_alg_ids = ['BR_LilUCB_b2','BR_Random_b2','BR_Thompson_b2']
+  supported_alg_ids = ['BR_LilUCB']
 
   alg_list = []
   for alg_id in supported_alg_ids:
@@ -56,7 +57,7 @@ def run_all(assert_200):
   initExp_args_dict = {}
   initExp_args_dict['args'] = {}
 
-  initExp_args_dict['args']['targets']['n'] = n
+  initExp_args_dict['args']['targets'] = {'n':n}
   initExp_args_dict['args']['failure_probability'] = delta
   initExp_args_dict['args']['participant_to_algorithm_management'] = 'one_to_many' # 'one_to_one'  #optional field
   initExp_args_dict['args']['algorithm_management_settings'] = algorithm_management_settings #optional field
