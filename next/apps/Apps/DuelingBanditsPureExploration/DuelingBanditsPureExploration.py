@@ -24,11 +24,25 @@ class DuelingBanditsPureExploration(object):
         del exp_data['args']['targets']
         return exp_data
 
-    def getQuery(self, exp_uid, args_json, db, ell):
+    def getQuery(self, exp_uid, query_request, alg_response, butler):
+        targets = [self.TargetMapper.get_target_item(exp_uid, alg_response[i])
+                                                 for i in [0, 1, 2]]
+
+        targets_dict = [{'index':index_left,'label':'left'}, 
+                        {'index':index_right,'label':'right'}]
+
+        if targets[0] == targets[-1]:
+            targets_dict[0]['flag'] = 1
+            targets_dict[0]['flag'] = 0
+        else:
+            targets_dict[0]['flag'] = 0
+            targets_dict[0]['flag'] = 1
+
+        return {'target_indices':targets_dict}
+
+    def processAnswer(self, exp_uid, query, answer, butler):
         pass
-    def processAnswer(self, exp_uid, args_json, db, ell):
+    def getStats(self, exp_uid, alg_response, args_dict):
         pass
-    def getStats(self, exp_uid, args_json, db, ell):
-        pass
-    def getModel(self, exp_uid, args_json, db, ell):
+    def getModel(self, exp_uid, stats_requst, dashboard, butler):
         pass
