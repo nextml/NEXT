@@ -69,7 +69,32 @@ class DuelingBanditsPureExploration(object):
                 'query_update':{'target_winner':target_winner, 'q':query}}
         
 
-    def getStats(self, exp_uid, alg_response, args_dict):
-        pass
+    def getStats(self, exp_uid, stats_request, dashboard, butler):
+        stat_id = stats_request['args']['stat_id']
+        task = stats_request['args']['params'].get('task', None)
+        alg_label = stats_request['args']['params'].get('alg_label', None)
+
+        functions = {'api_activity_histogram':dashboard.api_activity_histogram,
+                'api_processAnswer_activity_stacked_histogram':dashboard.api_processAnswer_activity_stacked_histogram,
+                'compute_duration_multiline_plot':dashboard.compute_duration_multiline_plot,
+                'compute_duration_detailed_stacked_area_plot':compute_duration_detailed_stacked_area_plot,
+                'response_time_histogram':response_time_histogram,
+                'network_delay_histogram':dashboard.network_delay_histogram,
+                'most_current_ranking':most_current_ranking
+                }
+
+        default = [self.app_id, exp_uid]
+        args = {'api_activity_histogram':default + [task],
+                'api_processAnswer_activity_stacked_histogram':default,
+                'compute_duration_multiline_plot':default + [task],
+                'compute_duration_detailed_stacked_area_plot':default + [task, alg_label],
+                'response_time_histogram':default + [alg_label],
+                'network_delay_histogram':default + [alg_label],
+                'most_current_ranking':default + [alg_label]
+                }
+
+
+        return functions[stat_id](*args)
+
     def getModel(self, exp_uid, stats_requst, dashboard, butler):
         pass
