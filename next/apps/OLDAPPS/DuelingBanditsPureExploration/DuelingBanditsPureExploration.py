@@ -461,6 +461,7 @@ class DuelingBanditsPureExploration(AppPrototype):
       ell.log( app_id+':APP-RESPONSE', log_entry  )
 
       return response_json,True,''
+
     except Exception, err:
       error = traceback.format_exc()
       log_entry = { 'exp_uid':exp_uid,'task':'getQuery','error':error,'timestamp':utils.datetimeNow(),'args_json':args_json }  
@@ -468,19 +469,6 @@ class DuelingBanditsPureExploration(AppPrototype):
       return '{}',False,error
 
   def processAnswer(self,exp_uid,args_json,db,ell):
-    """
-    reporting back the reward of pulling the arm suggested by getQuery
-
-    Expected input (in json structure with string keys):
-      (str) query_uid : unique identifier of query
-      (int) index_winner : index of arm must be {index_left,index_right}
-
-    Expected output (comma separated): 
-      if error:
-        return (JSON) '{}', (bool) False, (str) error
-      else:
-        return (JSON) '{}', (bool) True,''
-    """
 
     try:
       app_id = self.app_id

@@ -31,14 +31,14 @@ class Collection(object):
         """
         uid = self.uid_prefix+uid
         if key==None and pattern==None:
-            return self.timed(self.db.get_doc,get=True)(self.collection, uid)
+            return self.timed(self.db.get_doc, get=True)(self.collection, uid)
         elif key:
             if(type(key) == list):
-                return [self.timed(self.db.get,get=True)(self.collection, uid, k) for k in key]
+                return [self.timed(self.db.get, get=True)(self.collection, uid, k) for k in key]
             else:
-                return self.timed(self.db.get,get=True)(self.collection, uid, key)
+                return self.timed(self.db.get, get=True)(self.collection, uid, key)
         else:
-            return self.timed(self.db.get_docs_by_filter,get=True)(self.collection, pattern)
+            return self.timed(self.db.get_docs_by_filter, get=True)(self.collection, pattern)
 
     def exists(self, uid="", key='_id'):
         """

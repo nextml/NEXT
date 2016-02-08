@@ -28,8 +28,8 @@ class DuelingBanditsPureExploration(object):
         targets = [self.TargetMapper.get_target_item(exp_uid, alg_response[i])
                                                  for i in [0, 1, 2]]
 
-        targets_dict = [{'index':index_left,'label':'left'}, 
-                        {'index':index_right,'label':'right'}]
+        targets_dict = [{'index':targets[0],'label':'left'}, 
+                        {'index':targets[1],'label':'right'}]
 
         if targets[0] == targets[-1]:
             targets_dict[0]['flag'] = 1
@@ -41,7 +41,34 @@ class DuelingBanditsPureExploration(object):
         return {'target_indices':targets_dict}
 
     def processAnswer(self, exp_uid, query, answer, butler):
-        pass
+        targets = query['target_indices']
+        for target in targets:
+            if target['label'] == 'left':
+                left_id = target['index']
+            if target['label'] == 'right':
+                right_id = target['index']
+            if target['flag'] == 1:
+                painted_id = target['index']
+                
+        target_winner = answer['args']['target_winner']
+
+        experiment = butler.experiment.get()
+        num_reported_answers = butler.experiment.increment(key='num_reported_answers_for_' + query['alg_label'])
+
+        n = experiment['args']['n']
+        if num_reported_answers % ((n+4)/4) == 0:
+            butler.job('getModel', json.dumps({'exp_uid':exp_uid,'args':{'alg_label':query['alg_label'], 'logging':True}}))
+
+        query = {'query_uid':query_uid, 'targets':targets_dict,
+                 'context_type':experiment['args']['context_type'],
+                 'context':experiment['args']['context']}
+
+        return {'alg_args':{'left_id':left_id, 
+                            'right_id':right_id, 
+                            'target_winner':target_winner},
+                'query_update':{'target_winner':target_winner, 'q':query}}
+        
+
     def getStats(self, exp_uid, alg_response, args_dict):
         pass
     def getModel(self, exp_uid, stats_requst, dashboard, butler):
