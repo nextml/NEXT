@@ -14,7 +14,7 @@ from next.apps.DuelingBanditsPureExploration.Prototype import DuelingBanditsPure
 class BR_LilUCB(DuelingBanditsPureExplorationPrototype):
 
   def getModel(self, butler, **kwargs):
-    return True
+    return butler.algorithms.get(key='num_reported_answers')
   
   def initExp(self, butler, n, failure_probability, params):
     butler.algorithms.set('n',n)

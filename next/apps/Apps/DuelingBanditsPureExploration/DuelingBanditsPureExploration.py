@@ -1,13 +1,13 @@
 # TODO:
-# o implement the functions below.
-# o change the algorithm definitions (and what they return?)
+# x implement the functions below.
+# - change the algorithm definitions. Done for LilUCB only
 # o look at diffs
 # o explore the dashboard, see what you need to change
 # - look at the butler code. Butler is another database wrapper
 # x modify the tests to delete exp_key
 # x check if daemonProcess still needed (I don't think it is)
 # x Implement the .yaml file
-#   modify the widgets?
+# ? modify the widgets?
 
 class DuelingBanditsPureExploration(object):
     def __init__(self):
@@ -96,5 +96,5 @@ class DuelingBanditsPureExploration(object):
 
         return functions[stat_id](*args)
 
-    def getModel(self, exp_uid, stats_requst, dashboard, butler):
-        pass
+    def getModel(self, exp_uid, alg_response, args_dict, butler):
+        return {'num_reported_answers':alg_response[0]}

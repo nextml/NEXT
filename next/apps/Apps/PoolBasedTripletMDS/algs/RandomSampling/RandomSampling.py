@@ -40,7 +40,7 @@ class RandomSampling(PoolBasedTripletMDSPrototype):
     return True
 
 
-  def getModel(self,butler):
+  def getModel(self, butler):
     return butler.algorithms.get(key=['X','num_reported_answers'])
 
 
