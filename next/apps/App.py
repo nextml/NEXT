@@ -33,7 +33,7 @@ class App(object):
         self.myApp = __import__('next.apps.Apps.'+self.app_id, fromlist=[''])
         self.myApp = getattr(self.myApp, app_id)
         self.myApp = self.myApp()
-        self.butler = Butler(self.app_id, self.exp_uid, db, ell)
+        self.butler = Butler(self.app_id, self.exp_uid, self.myApp.TargetManager, db, ell)
         dir,_ = os.path.split(__file__)
         with open(os.path.join(dir, "Apps/{}/{}.yaml".format(app_id, app_id)),'r') as f:
             self.reference_dict = yaml.load(f)
@@ -68,7 +68,7 @@ class App(object):
             self.butler.experiment.set(value=args_dict)
             for algorithm in args_dict['args']['alg_list']:
                 params = algorithm.get('params',None)
-                butler = Butler(self.app_id, exp_uid, self.butler.db, self.butler.ell, algorithm['alg_label'], algorithm['alg_id'])
+                butler = Butler(self.app_id, exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, algorithm['alg_label'], algorithm['alg_id'])
                 alg = utils.get_app_alg(self.app_id, algorithm['alg_id'])
                 alg_succeed, dt = utils.timeit(alg.initExp)(butler,params=params,**args_dict['args'])
                 log_entry = {'exp_uid':exp_uid, 'alg_label':algorithm['alg_label'], 'task':'initExp', 'duration':dt, 'timestamp':utils.datetimeNow()}
@@ -120,7 +120,7 @@ class App(object):
                 alg_id = self.butler.participants.get(uid=participant_uid, key='alg_id')
                 alg_label = self.butler.participants.get(uid=participant_uid, key='alg_label')
             #TODO: Deal with the issue of not giving a repeat query
-            butler = Butler(self.app_id, exp_uid, self.butler.db, self.butler.ell, alg_label, alg_id)
+            butler = Butler(self.app_id, exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, alg_label, alg_id)
             alg = utils.get_app_alg(self.app_id, alg_id)
             alg_response,dt = utils.timeit(alg.getQuery)(butler)
             query_doc = self.myApp.getQuery(exp_uid, args_dict, alg_response, self.butler)
@@ -162,7 +162,7 @@ class App(object):
             self.butler.queries.set(uid=args_dict['args']['query_uid'],key='response_time',value=response_time)
             self.butler.queries.set(uid=args_dict['args']['query_uid'],key='network_delay',value=round_trip_time - response_time)
 
-            butler = Butler(self.app_id, exp_uid, self.butler.db, self.butler.ell, query['alg_label'], query['alg_id'])
+            butler = Butler(self.app_id, exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, query['alg_label'], query['alg_id'])
             alg = utils.get_app_alg(self.app_id, query['alg_id'])
             app_response = self.myApp.processAnswer(exp_uid, query, args_dict, self.butler)
             for key in app_response['query_update']:
@@ -198,7 +198,7 @@ class App(object):
                 if alg_label == algorithm['alg_label']:
                     alg_id = algorithm['alg_id']
             alg = utils.get_app_alg(self.app_id, alg_id)
-            butler = Butler(self.app_id, exp_uid, self.butler.db, self.butler.ell, alg_label, alg_id)
+            butler = Butler(self.app_id, exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, alg_label, alg_id)
             alg_response, dt = utils.timeit(alg.getModel)(butler)
             myapp_response = self.myApp.getModel(exp_uid, alg_response, args_dict, self.butler)
             # Log the response of the getModel in ALG-EVALUATION

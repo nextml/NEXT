@@ -71,5 +71,4 @@ class SimpleTargetManager(object):
         except:
             pass
 
-        target_blob_dict = mongotized_target_blob
-        return target_blob_dict
+        return mongotized_target_blob

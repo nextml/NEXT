@@ -92,7 +92,8 @@ class ResourceManager:
             rm.get_app_exp_uids('PoolBasedTripletMDS')
         """
         docs,didSucceed,message = db.get_docs_with_filter(app_id+':experiments',{})
-
+        utils.debug_print("ASD",docs)
+        
         exp_uids = []
         for doc in docs:
             exp_uids.append(str(doc['exp_uid']))
