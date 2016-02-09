@@ -15,7 +15,7 @@ class DuelingBanditsPureExploration(object):
         self.app_id = 'DuelingBanditsPureExploration'
         self.TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager()
 
-    def initExp(self, exp_uid, args_json, db, ell):
+    def initExp(self, exp_uid, exp_data, butler):
         if 'targetset' in exp_data['args']['targets'].keys():
             n  = len(exp_data['args']['targets']['targetset'])
             self.TargetManager.set_targetset(exp_data['args']['targets']['targetset'])

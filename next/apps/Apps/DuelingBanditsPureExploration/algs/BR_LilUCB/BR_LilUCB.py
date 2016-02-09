@@ -9,18 +9,21 @@ Jamieson et al "Sparse Borda Bandits," AISTATS 2015.
 
 import numpy
 import numpy.random
-from next.apps.DuelingBanditsPureExploration.Prototype import DuelingBanditsPureExplorationPrototype
+#from next.apps.DuelingBanditsPureExploration.Prototype import DuelingBanditsPureExplorationPrototype
 
-class BR_LilUCB(DuelingBanditsPureExplorationPrototype):
+#class BR_LilUCB(DuelingBanditsPureExplorationPrototype):
+class BR_LilUCB:
 
   def getModel(self, butler, **kwargs):
     return butler.algorithms.get(key='num_reported_answers')
   
-  def initExp(self, butler, n, failure_probability, params):
-    butler.algorithms.set('n',n)
+  def initExp(self, butler, n, failure_probability, params, **kwargs):
+    butler.algorithms.set('n', n)
     butler.algorithms.set('failure_probability', failure_probability)
 
-    butler.increment(key='total_pulls', value=0)
+    # TODO: why does value=0 below? That does nothing and increments by a 0
+    # value, correct? I've glanced into it, but don't see an issue
+    butler.algorithms.increment(key='total_pulls', value=0)
     for i in range(n):
       butler.algorithms.increment(key='Xsum_'+str(i), value=0.0)
       butler.algorithms.increment(key='T_'+str(i), value=0.0)

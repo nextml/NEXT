@@ -35,20 +35,22 @@ def run_all(assert_200):
   supported_alg_ids = ['BR_LilUCB']
 
   alg_list = []
-  for alg_id in supported_alg_ids:
+  for i, alg_id in enumerate(supported_alg_ids):
     alg_item = {}
     alg_item['alg_id'] = alg_id
-    alg_item['alg_label'] = alg_id
-    alg_item['params'] = {}
+    alg_item['alg_label'] = 'Test' if i==0 else alg_id
+    alg_item['test_alg_label'] = 'Test'
+    #alg_item['params'] = {}
     alg_list.append(alg_item)
-  params = {}
-  params['proportions'] = []
+  params = []
+  #params['proportions'] = []
   for algorithm in alg_list:
-    params['proportions'].append(  { 'alg_label': algorithm['alg_label'] , 'proportion':1./len(alg_list) }  )
+    params.append(  { 'alg_label': algorithm['alg_label'] , 'proportion':1./len(alg_list) }  )
   algorithm_management_settings = {}
   algorithm_management_settings['mode'] = 'fixed_proportions'
   algorithm_management_settings['params'] = params
 
+  print algorithm_management_settings
 
 
   #################################################

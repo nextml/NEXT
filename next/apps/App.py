@@ -49,7 +49,7 @@ class App(object):
             try:
                 args_dict, success, messages = Verifier.verify(args_dict, self.reference_dict['initExp']['values'])
                 if not success:
-                    raise Exception("Failed to verify: {}".format(" \n".join(messages)))
+                    raise Exception("Failed to verify: {}".format(messages))
             except Exception, error:
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 print "initExp Exception: {} {}".format(error, traceback.format_exc())
