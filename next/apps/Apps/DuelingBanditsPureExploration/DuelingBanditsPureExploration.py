@@ -26,7 +26,7 @@ class DuelingBanditsPureExploration(object):
         return exp_data
 
     def getQuery(self, exp_uid, query_request, alg_response, butler):
-        targets = [self.TargetMapper.get_target_item(exp_uid, alg_response[i])
+        targets = [self.TargetManager.get_target_item(exp_uid, alg_response[i])
                                                  for i in [0, 1, 2]]
 
         targets_dict = [{'index':targets[0],'label':'left'}, 

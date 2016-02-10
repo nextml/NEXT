@@ -18,11 +18,12 @@ class BR_LilUCB:
     return butler.algorithms.get(key='num_reported_answers')
   
   def initExp(self, butler, n, failure_probability, params, **kwargs):
-    butler.algorithms.set('n', n)
-    butler.algorithms.set('failure_probability', failure_probability)
+    butler.algorithms.set(key='n', value=n)
+    butler.algorithms.set(key='failure_probability', value=failure_probability)
 
     # TODO: why does value=0 below? That does nothing and increments by a 0
-    # value, correct? I've glanced into it, but don't see an issue
+    # value, correct? The database calls for the rewrite and old code look the
+    # same, but conceptually why increment by 0?
     butler.algorithms.increment(key='total_pulls', value=0)
     for i in range(n):
       butler.algorithms.increment(key='Xsum_'+str(i), value=0.0)
@@ -35,15 +36,10 @@ class BR_LilUCB:
     beta = 0.0 # algorithm parameter
 
     n = butler.algorithms.get(key='n')
+    key_value_dict = butler.algorithms.get()
 
-    key_list = ['failure_probability']
-    key_list += ['Xsum_' + str(i) for i in range(n)]
-    key_list += ['T_' + str(i) for i in range(n)]
-
-    key_value_dict = butler.algorithms.get(key=key_list)
-
-    sumX = [key_value_dict['Xsum_'+str(i)] for i in range(n)]
-    T = [key_value_dict['T_'+str(i)] for i in range(n)]
+    sumX = [key_value_dict[key] for key in key_value_dict if 'Xsum_' in key]
+    T = [key_value_dict[key] for key in key_value_dict if 'T_' in key]
 
     delta = key_value_dict['failure_probability']
     sigma_sq = 0.25
