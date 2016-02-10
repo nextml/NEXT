@@ -29,7 +29,7 @@ class Collection(object):
         * key != None and pattern == None and type(key) == list:   return [collection[uid][k] for k in key]
         * pattern != None:                                         return collection[uid] matching pattern
         """
-        uid = self.uid_prefix+uid
+        uid = self.uid_prefix + uid
         if key==None and pattern==None:
             return self.timed(self.db.get_doc, get=True)(self.collection, uid)
         elif key:
@@ -49,7 +49,7 @@ class Collection(object):
         print "exist check", uid, key, result
         return result#self.timed(self.db.exists,get=True)(self.collection, uid, key)
 
-    def increment(self, uid="", key=None, value=1):
+    def increment(self, key=None, value=1, uid=""):
         """
         Increment a value (or values) in the collection.
         * type(key) != list:   increment collection[uid][key]
