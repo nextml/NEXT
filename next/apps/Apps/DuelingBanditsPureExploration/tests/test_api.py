@@ -119,7 +119,6 @@ def simulate_one_client( input_args ):
   exp_uid,participant_uid,total_pulls,true_means,assert_200 = input_args
   avg_response_time = 1.
 
-
   getQuery_times = []
   processAnswer_times = []
   for t in range(total_pulls):
@@ -180,7 +179,7 @@ def simulate_one_client( input_args ):
     processAnswer_args_dict["exp_uid"] = exp_uid
     processAnswer_args_dict["args"] = {}
     processAnswer_args_dict["args"]["query_uid"] = query_uid
-    processAnswer_args_dict["args"]['target_winner'] = index_winner
+    processAnswer_args_dict["args"]['target_winner'] = index_winner['target_id']
     processAnswer_args_dict["args"]['response_time'] = response_time
 
     url = 'http://'+HOSTNAME+'/api/experiment/processAnswer'

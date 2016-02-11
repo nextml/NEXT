@@ -136,7 +136,7 @@ processAnswer:
       values:
         target_winner:
           description: The ID of the target that won the given query.
-          type: str
+          type: num
         query_uid:
           description: The unique identifier for the query.
           type: str

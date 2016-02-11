@@ -69,17 +69,17 @@ class BR_LilUCB:
       return [alt_index,index,index]
 
 
-  def processAnswer(self,butler,index_left=0,index_right=0,index_painted=0,index_winner=0):
-    alt_index = index_left
-    if index_left==index_painted:
-      alt_index = index_right
+  def processAnswer(self,butler, left_id=0, right_id=0, painted_id=0, winner_id=0):
+    alt_index = left_id
+    if left_id==painted_id:
+      alt_index = right_id
 
     reward = 0.
-    if index_painted==index_winner:
+    if painted_id==winner_id:
       reward = 1.
 
-    butler.algorithms.increment(key='Xum_'+str(index_painted), value=reward)
-    butler.algorithms.increment(key=['T_'+str(index_painted), 'total_pulls'])
+    butler.algorithms.increment(key='Xum_'+str(painted_id), value=reward)
+    butler.algorithms.increment(key=['T_'+str(painted_id), 'total_pulls'])
     
     return True
 

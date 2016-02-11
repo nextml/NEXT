@@ -42,6 +42,24 @@ class DuelingBanditsPureExploration(object):
         return {'target_indices':targets_dict}
 
     def processAnswer(self, exp_uid, query, answer, butler):
+        """
+        Parameters
+        ----------
+        exp_uid : The experiments unique ID.
+        query :
+        answer: 
+        butler : 
+
+        Returns
+        -------
+        dictionary with keys:
+            alg_args: Keywords that are passed to the algorithm.
+            query_update :
+
+        For example, this function might return ``{'a':1, 'b':2}``. The
+        algorithm would then be called with
+        ``alg.processAnswer(butler, a=1, b=2)``
+        """
         targets = query['target_indices']
         for target in targets:
             if target['label'] == 'left':
@@ -51,7 +69,7 @@ class DuelingBanditsPureExploration(object):
             if target['flag'] == 1:
                 painted_id = target['index']
                 
-        target_winner = answer['args']['target_winner']
+        winner_id = answer['args']['target_winner']
 
         experiment = butler.experiment.get()
         num_reported_answers = butler.experiment.increment(key='num_reported_answers_for_' + query['alg_label'])
@@ -60,14 +78,18 @@ class DuelingBanditsPureExploration(object):
         if num_reported_answers % ((n+4)/4) == 0:
             butler.job('getModel', json.dumps({'exp_uid':exp_uid,'args':{'alg_label':query['alg_label'], 'logging':True}}))
 
-        query = {'query_uid':query_uid, 'targets':targets_dict,
-                 'context_type':experiment['args']['context_type'],
-                 'context':experiment['args']['context']}
+        #query = {'query_uid':None, 'targets':targets,
+                 #'context_type':experiment['args']['context_type'],
+                 #'context':experiment['args']['context']}
+        #query = {}
+        q = [left_id, right_id] if winner_id==left_id else [right_id, left_id]
+        
 
         return {'alg_args':{'left_id':left_id, 
                             'right_id':right_id, 
-                            'target_winner':target_winner},
-                'query_update':{'target_winner':target_winner, 'q':query}}
+                            'winner_id':winner_id,
+                            'painted_id':painted_id},
+                'query_update':{'winner_id':winner_id, 'q':query}}
         
 
     def getStats(self, exp_uid, stats_request, dashboard, butler):
