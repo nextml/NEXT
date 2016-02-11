@@ -1,6 +1,6 @@
 # TODO:
 # x implement the functions below.
-# - change the algorithm definitions. Done for LilUCB only
+# x change the algorithm definitions. Done for LilUCB only
 # o look at diffs
 # o explore the dashboard, see what you need to change
 # - look at the butler code. Butler is another database wrapper
@@ -16,6 +16,29 @@ class DuelingBanditsPureExploration(object):
         self.TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager()
 
     def initExp(self, exp_uid, exp_data, butler):
+        """
+        This function is meant to store an additional components in the
+        databse.
+
+        In the implementation of two apps, DuelingBanditsPureExploration and
+        PoolBasedTripletMDS, we only managed targets in this function. We
+        stored the targets to the database than deleted the 'targets' key
+        from exp_data, replacing it with ``exp_data['args']['n']`` to
+        represent a list of n targets. This is easier when doing numerical
+        computation.
+
+        Inputs
+        ------
+        exp_uid : The unique identifier to represent an experiment.
+        exp_data : The keys specified in the app specific YAML file in the
+                   initExp section.
+        butler : The wrapper for database writes. See next/apps/Butler.py for
+                 more documentation.
+
+        Returns
+        -------
+        exp_data: The experiment data, potentially modified.
+        """
         if 'targetset' in exp_data['args']['targets'].keys():
             n  = len(exp_data['args']['targets']['targetset'])
             self.TargetManager.set_targetset(exp_data['args']['targets']['targetset'])
@@ -26,6 +49,25 @@ class DuelingBanditsPureExploration(object):
         return exp_data
 
     def getQuery(self, exp_uid, query_request, alg_response, butler):
+        """
+        The function that gets the next query, given a query reguest and
+        algorithm response.
+
+        Inputs
+        ------
+        exp_uid : The unique identiefief for the exp.
+        query_request :
+        alg_response : The response from the algorithm. The algorithm should
+                       return only one value, be it a list or a dictionary.
+        butler : The wrapper for database writes. See next/apps/Butler.py for
+                 more documentation.
+
+        Returns
+        -------
+        A dictionary with a key ``target_indices``.
+
+        TODO: Document this further
+        """
         targets = [self.TargetManager.get_target_item(exp_uid, alg_response[i])
                                                  for i in [0, 1, 2]]
 
@@ -93,6 +135,9 @@ class DuelingBanditsPureExploration(object):
         
 
     def getStats(self, exp_uid, stats_request, dashboard, butler):
+        """
+        Get statistics to display on the dashboard.
+        """
         stat_id = stats_request['args']['stat_id']
         task = stats_request['args']['params'].get('task', None)
         alg_label = stats_request['args']['params'].get('alg_label', None)

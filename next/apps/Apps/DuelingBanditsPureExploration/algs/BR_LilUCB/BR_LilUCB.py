@@ -18,6 +18,10 @@ class BR_LilUCB:
     return butler.algorithms.get(key='num_reported_answers')
   
   def initExp(self, butler, n, failure_probability, params, **kwargs):
+    """
+    This function is meant to set keys used later by the algorith implemented
+    in this file.
+    """
     butler.algorithms.set(key='n', value=n)
     butler.algorithms.set(key='failure_probability', value=failure_probability)
 
