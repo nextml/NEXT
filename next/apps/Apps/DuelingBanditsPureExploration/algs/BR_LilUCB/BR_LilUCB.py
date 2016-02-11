@@ -21,16 +21,12 @@ class BR_LilUCB:
     butler.algorithms.set(key='n', value=n)
     butler.algorithms.set(key='failure_probability', value=failure_probability)
 
-    # TODO: why does value=0 below? That does nothing and increments by a 0
-    # value, correct? The database calls for the rewrite and old code look the
-    # same, but conceptually why increment by 0?
-    butler.algorithms.increment(key='total_pulls', value=0)
+    butler.algorithms.set(key='total_pulls', value=0)
     for i in range(n):
-      butler.algorithms.increment(key='Xsum_'+str(i), value=0.0)
-      butler.algorithms.increment(key='T_'+str(i), value=0.0)
+      butler.algorithms.set(key='Xsum_'+str(i), value=0.0)
+      butler.algorithms.set(key='T_'+str(i), value=0.0)
 
     return True
-
   
   def getQuery(self, butler):
     beta = 0.0 # algorithm parameter

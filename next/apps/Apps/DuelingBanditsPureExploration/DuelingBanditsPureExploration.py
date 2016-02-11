@@ -34,10 +34,10 @@ class DuelingBanditsPureExploration(object):
 
         if targets[0] == targets[-1]:
             targets_dict[0]['flag'] = 1
-            targets_dict[0]['flag'] = 0
+            targets_dict[1]['flag'] = 0
         else:
             targets_dict[0]['flag'] = 0
-            targets_dict[0]['flag'] = 1
+            targets_dict[1]['flag'] = 1
 
         return {'target_indices':targets_dict}
 

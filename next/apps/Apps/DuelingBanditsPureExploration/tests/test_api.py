@@ -23,7 +23,7 @@ def run_all(assert_200):
   num_experiments = 1
 
   # clients run in simultaneous fashion using multiprocessing library
-  num_clients = 500
+  num_clients = 1
 
   pool = Pool(processes=num_clients)           
 
@@ -87,7 +87,7 @@ def run_all(assert_200):
     #################################################
     # Test GET Experiment
     #################################################
-    url = "http://"+HOSTNAME+"/api/experiment/"+exp_uid+"/"
+    url = "http://"+HOSTNAME+"/api/experiment/"+exp_uid
     response = requests.get(url)
     print "GET experiment response =",response.text, response.status_code
     if assert_200: assert response.status_code is 200
@@ -123,9 +123,8 @@ def simulate_one_client( input_args ):
   getQuery_times = []
   processAnswer_times = []
   for t in range(total_pulls):
-    
+    print "    Participant {} had {} total pulls: ".format(participant_uid, t)
 
-    print t,participant_uid
     #######################################
     # test POST getQuery #
     #######################################
@@ -149,24 +148,27 @@ def simulate_one_client( input_args ):
     targets = query_dict['target_indices']
     for target in targets:
       if target['label'] == 'left':
-        index_left = target['index']
+        left = target['index']
       if target['label'] == 'right':
-        index_right = target['index']
+        right = target['index']
       if target['flag'] == 1:
-        index_painted = target['index']
+        painted = target['index']
 
     # generate simulated reward #
     #############################
     # sleep for a bit to simulate response time
+
     ts = time.time()
 
     time.sleep(  avg_response_time*numpy.random.rand()  )
-    reward_left = true_means[index_left] + numpy.random.randn()*0.5
-    reward_right = true_means[index_right] + numpy.random.randn()*0.5
-    if reward_left>reward_right:
-      index_winner = index_left
+
+    print left
+    reward_left = true_means[left['target_id']] + numpy.random.randn()*0.5
+    reward_right = true_means[right['target_id']] + numpy.random.randn()*0.5
+    if reward_left > reward_right:
+      index_winner = left
     else:
-      index_winner = index_right
+      index_winner = right
 
     response_time = time.time() - ts
 

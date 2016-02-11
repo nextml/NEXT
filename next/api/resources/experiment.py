@@ -45,6 +45,7 @@ class Experiment(Resource):
 
         # Fetch experiment data from resource manager
         experiment = resource_manager.get_experiment(exp_uid)
+
         algorithms = resource_manager.get_algs_doc_for_exp_uid(exp_uid)
         experiment['algorithms'] = algorithms
         # Throw error if no such experiment exists

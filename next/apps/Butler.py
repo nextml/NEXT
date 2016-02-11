@@ -46,7 +46,7 @@ class Collection(object):
         """
         uid = self.uid_prefix+uid
         result = self.timed(self.db.exists, get=True)(self.collection, uid, key)
-        print "exist check", uid, key, result
+        print "Butler.py:exist, exist check", uid, key, result
         return result#self.timed(self.db.exists,get=True)(self.collection, uid, key)
 
     def increment(self, key=None, value=1, uid=""):
