@@ -142,13 +142,14 @@ class DuelingBanditsPureExploration(object):
         task = stats_request['args']['params'].get('task', None)
         alg_label = stats_request['args']['params'].get('alg_label', None)
 
+        common_panels = 
         functions = {'api_activity_histogram':dashboard.api_activity_histogram,
                 'api_processAnswer_activity_stacked_histogram':dashboard.api_processAnswer_activity_stacked_histogram,
                 'compute_duration_multiline_plot':dashboard.compute_duration_multiline_plot,
-                'compute_duration_detailed_stacked_area_plot':compute_duration_detailed_stacked_area_plot,
-                'response_time_histogram':response_time_histogram,
+                'compute_duration_detailed_stacked_area_plot':dashboard.compute_duration_detailed_stacked_area_plot,
+                'response_time_histogram':dashboard.response_time_histogram,
                 'network_delay_histogram':dashboard.network_delay_histogram,
-                'most_current_ranking':most_current_ranking
+                'most_current_ranking':dashboard.most_current_ranking
                 }
 
         default = [self.app_id, exp_uid]

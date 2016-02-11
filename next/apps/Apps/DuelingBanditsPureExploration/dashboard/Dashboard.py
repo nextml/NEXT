@@ -53,7 +53,7 @@ class DuelingBanditsPureExplorationDashboard(AppDashboard):
         params = {'alg_label':alg_label}
         predict_args_dict = {'predict_id':predict_id,'params':params}
         predict_args_json = json.dumps(predict_args_dict)
-        next_app = utils.get_app(app_id)
+        next_app = utils.get_app(app_id, exp_uid, self.db, self.ell)
         args_out_json,didSucceed,message = next_app.predict(exp_uid, predict_args_json, self.db, self.ell)
         predict_args_dict = json.loads(args_out_json)
         item = predict_args_dict['args']
