@@ -102,7 +102,7 @@ def verify_helper(name, input_element, reference_dict):
 
     elif reference_dict['type'] == 'str' or reference_dict['type'] == 'multiline':
         if not isinstance(input_element, (str, unicode)):
-            ans += [{"name":name, "message":"invalid string"}]
+            ans += [{"name":name, "message":"expected a string, got {}".format(type(input_element))}]
         elif 'values' in reference_dict and not input_element in reference_dict['values']:
             ans += [{"name":name, "message":"argument must be one of the specified strings: "+", ".join(reference_dict['values'])}]
 
