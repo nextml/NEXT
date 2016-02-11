@@ -10,7 +10,7 @@ class DuelingBanditsPureExplorationDashboard(AppDashboard):
 
     def __init__(self,db,ell):
         AppDashboard.__init__(self,db,ell)
-
+        utils.debug_print(self.__dict__.keys())
     def get_app_supported_stats(self):
         """
         Returns a list of dictionaries describing the identifier (stat_id) and 

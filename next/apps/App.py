@@ -240,7 +240,7 @@ class App(object):
             return json.dumps(stats), True, ''
         except Exception, error:
             exc_type, exc_value, exc_traceback = sys.exc_info()
-            print "getQuery Exception: {} {}".format(error, traceback.format_exc())
+            print "getStats Exception: {} {}".format(error, traceback.format_exc())
             traceback.print_tb(exc_traceback)
             raise Exception(error)
             

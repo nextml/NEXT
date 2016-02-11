@@ -9,7 +9,7 @@
 # x Implement the .yaml file
 # ? modify the widgets?
 import next.apps.SimpleTargetManager
-
+import next.utils as utils
 class DuelingBanditsPureExploration(object):
     def __init__(self):
         self.app_id = 'DuelingBanditsPureExploration'
@@ -141,8 +141,7 @@ class DuelingBanditsPureExploration(object):
         stat_id = stats_request['args']['stat_id']
         task = stats_request['args']['params'].get('task', None)
         alg_label = stats_request['args']['params'].get('alg_label', None)
-
-        common_panels = 
+        utils.debug_print("dashboard functions", dashboard.__dir__())
         functions = {'api_activity_histogram':dashboard.api_activity_histogram,
                 'api_processAnswer_activity_stacked_histogram':dashboard.api_processAnswer_activity_stacked_histogram,
                 'compute_duration_multiline_plot':dashboard.compute_duration_multiline_plot,
