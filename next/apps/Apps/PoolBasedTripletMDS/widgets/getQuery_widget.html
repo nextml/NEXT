@@ -88,12 +88,12 @@
   document.onkeydown = checkKey;
 
   var submit_right = function() {
-  	next_widget.processAnswer({"target_winner": "{{ query.target_indices[2].target_id }}"});
+  	next_widget.processAnswer({"target_winner": {{ query.target_indices[2].target_id }}});
   	$('#right').css({'outline': '2px solid #FF0000'});
   }
 
   var submit_left = function() {
-  	next_widget.processAnswer({"target_winner":"{{ query.target_indices[1].target_id }}"});
+  	next_widget.processAnswer({"target_winner": {{ query.target_indices[1].target_id }}});
   	$('#left').css({'outline': '2px solid #FF0000'});
   }
 

@@ -49,7 +49,7 @@ class RandomSampling(PoolBasedTripletMDSPrototype):
     n = butler.algorithms.get(key='n')
     d = butler.algorithms.get(key='d')
     S = butler.algorithms.get(key='S')
-
+    
     X = numpy.array(butler.algorithms.get(key='X'))
     # set maximum time allowed to update embedding
     t_max = 1.0

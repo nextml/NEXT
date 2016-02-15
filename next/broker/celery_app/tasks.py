@@ -53,7 +53,7 @@ def apply(app_id, exp_uid, task_name, args_in_json, enqueue_timestamp):
 	print '#### Finished %s,  time_enqueued=%s,  execution_time=%s ####' % (task_name,time_enqueued,dt)
 	return return_value
 
-def apply_sync_by_namespace(app_id, exp_uid, alg_id, alg_label, task_name, args, namespace, job_uid, enqueue_timestamp, time_limit):	
+def apply_sync_by_namespace(app_id, exp_uid, alg_id, alg_label, task_name, args, targets, namespace, job_uid, enqueue_timestamp, time_limit):	
 	enqueue_datetime = next.utils.str2datetime(enqueue_timestamp)
 	dequeue_datetime = next.utils.datetimeNow()
 	delta_datetime = dequeue_datetime - enqueue_datetime
@@ -62,7 +62,7 @@ def apply_sync_by_namespace(app_id, exp_uid, alg_id, alg_label, task_name, args,
 	try:
 		print '>>>>>>>> Starting namespace:%s,  job_uid=%s,  time_enqueued=%s <<<<<<<<<' % (namespace,job_uid,time_enqueued)
                 next_alg = next.utils.get_app_alg(app_id, alg_id)
-                butler = Butler(app_id, exp_uid, db, ell, alg_label, alg_id)
+                butler = Butler(app_id, exp_uid, targets, db, ell, alg_label, alg_id)
                 print "tasksadsfaf", args
 		response,dt = next.utils.timeit(getattr(next_alg, task_name))(butler, args)
                 log_entry_durations = { 'exp_uid':exp_uid,'alg_label':alg_label,'task':'daemonProcess','duration':dt }

@@ -110,7 +110,7 @@ class CrowdKernel(PoolBasedTripletMDSPrototype):
     S = butler.algorithms.get(key='S')
 
     X = numpy.array(butler.algorithms.get(key='X'))
-    print "incremental_embedding_update", butler.app_id, butler.exp_uid, butler.alg_label, butler.alg_id
+    
     # set maximum time allowed to update embedding
     t_max = 1.0
     epsilon = 0.00001 # a relative convergence criterion, see computeEmbeddingWithGD documentation
