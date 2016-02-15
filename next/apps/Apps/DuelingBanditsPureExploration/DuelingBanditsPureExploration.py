@@ -71,11 +71,13 @@ class DuelingBanditsPureExploration(object):
         targets = [self.TargetManager.get_target_item(exp_uid, alg_response[i])
                                                  for i in [0, 1, 2]]
 
-        targets_list = [{'target_id':targets[0]['target_id'],'label':'left'}, 
-                        {'target_id':targets[1]['target_id'],'label':'right'}]
+        targets_list = [{'target':targets[0],'label':'left'}, 
+                        {'target':targets[1],'label':'right'}]
+        utils.debug_print('DuelingBanditsPureExploration:getQuery')
+        utils.debug_print(targets_list)
 
 
-        if targets[0] == targets[-1]:
+        if targets[0]['target_id'] == targets[-1]['target_id']:
             targets_list[0]['flag'] = 1
             targets_list[1]['flag'] = 0
         else:
@@ -106,11 +108,11 @@ class DuelingBanditsPureExploration(object):
         targets = query['target_indices']
         for target in targets:
             if target['label'] == 'left':
-                left_id = target['target_id']
+                left_id = target['target']['target_id']
             if target['label'] == 'right':
-                right_id = target['target_id']
+                right_id = target['target']['target_id']
             if target['flag'] == 1:
-                painted_id = target['target_id']
+                painted_id = target['target']['target_id']
                 
         winner_id = answer['args']['target_winner']
 
