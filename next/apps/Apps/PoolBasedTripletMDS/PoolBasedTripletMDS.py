@@ -19,22 +19,13 @@ class PoolBasedTripletMDS(object):
         return exp_data
 
     def getQuery(self, exp_uid, query_request, alg_response, butler):
-        left = self.TargetManager.get_target_item(exp_uid, alg_response[0])
-        right = self.TargetManager.get_target_item(exp_uid, alg_response[1])
-        painted = self.TargetManager.get_target_item(exp_uid, alg_response[2])
-
-        targets = [{'index':left,'label':'left'}, 
-                   {'index':right,'label':'right'}]
-
-        if left == painted:
-            targets[0]['flag'] = 1
-            targets[1]['flag'] = 0
-            
-        else:
-            targets[0]['flag'] = 0
-            targets[1]['flag'] = 1
-
-        return {'target_indices':targets}
+        center  = self.TargetManager.get_target_item(exp_uid, alg_response[0])
+        left  = self.TargetManager.get_target_item(exp_uid, alg_response[1])
+        right  = self.TargetManager.get_target_item(exp_uid, alg_response[2])
+        center['label'] = 'center'
+        left['label'] = 'left'
+        right['label'] = 'right'
+        return {'target_indices':[center, left, right]}
 
     def processAnswer(self, exp_uid, query, answer, butler):
         targets = query['target_indices']
