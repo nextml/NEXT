@@ -94,21 +94,21 @@ div.row > div.col-xs-12 {
 <div id="query" class="row">
   <!-- Left Target -->
   <div class="col-xs-6" id="left">
-	{% if query.left.primary_type == "image" or query.left.primary_type == "img"%}
-	<img class="center-block" src={{ query.left.primary_description }}> </img>
-	{% elif query.left.primary_type == "text"%}
+	{% if query.target_indices[0].primary_type == "image" or query.target_indices[0].primary_type == "img"%}
+	<img class="center-block" src={{ query.target_indices[0].primary_description }}> </img>
+	{% elif query.target_indices[0].primary_type == "text"%}
 	  <div class="text">
-	    {{ query.left.primary_description }}
+	    {{ query.target_indices[0].primary_description }}
 	  </div>
 	{% endif %}
   </div>
   <!-- Right Target -->
   <div class="col-xs-6" id="right">
-	{% if query.right.primary_type == "image" or query.right.primary_type == "img" %}
-	<img class="center-block" src={{ query.right.primary_description }}> </img>
-	{% elif query.right.primary_type == "text" %}
+	{% if query.target_indices[1].primary_type == "image" or query.target_indices[1].primary_type == "img" %}
+	<img class="center-block" src={{ query.target_indices[1].primary_description }}> </img>
+	{% elif query.target_indices[1].primary_type == "text" %}
 	  <div class="text">
-	    {{ query.right.primary_description }}
+	    {{ query.target_indices[1].primary_description }}
 	  </div>
 	{% endif %}
   </div>
@@ -119,12 +119,12 @@ div.row > div.col-xs-12 {
   document.onkeydown = checkKey;
 
   var submit_right = function() {
-      next_widget.processAnswer({"target_winner": "{{ query.right.target_id }}"});
+      next_widget.processAnswer({"target_winner": {{ query.target_indices[1].target_id }}});
       $('#right').css({'outline': '2px solid #FF0000'});
   }
 
   var submit_left = function() {
-      next_widget.processAnswer({"target_winner":"{{ query.left.target_id }}"});
+      next_widget.processAnswer({"target_winner":{{ query.target_indices[0].target_id }}});
       $('#left').css({'outline': '2px solid #FF0000'})
   }
 

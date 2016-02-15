@@ -71,17 +71,18 @@ class DuelingBanditsPureExploration(object):
         targets = [self.TargetManager.get_target_item(exp_uid, alg_response[i])
                                                  for i in [0, 1, 2]]
 
-        targets_dict = [{'index':targets[0],'label':'left'}, 
-                        {'index':targets[1],'label':'right'}]
+        targets_list = [{'target_id':targets[0]['target_id'],'label':'left'}, 
+                        {'target_id':targets[1]['target_id'],'label':'right'}]
+
 
         if targets[0] == targets[-1]:
-            targets_dict[0]['flag'] = 1
-            targets_dict[1]['flag'] = 0
+            targets_list[0]['flag'] = 1
+            targets_list[1]['flag'] = 0
         else:
-            targets_dict[0]['flag'] = 0
-            targets_dict[1]['flag'] = 1
+            targets_list[0]['flag'] = 0
+            targets_list[1]['flag'] = 1
 
-        return {'target_indices':targets_dict}
+        return {'target_indices':targets_list}
 
     def processAnswer(self, exp_uid, query, answer, butler):
         """
@@ -105,11 +106,11 @@ class DuelingBanditsPureExploration(object):
         targets = query['target_indices']
         for target in targets:
             if target['label'] == 'left':
-                left_id = target['index']
+                left_id = target['target_id']
             if target['label'] == 'right':
-                right_id = target['index']
+                right_id = target['target_id']
             if target['flag'] == 1:
-                painted_id = target['index']
+                painted_id = target['target_id']
                 
         winner_id = answer['args']['target_winner']
 
