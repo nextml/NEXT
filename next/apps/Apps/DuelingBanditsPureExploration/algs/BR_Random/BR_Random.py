@@ -9,20 +9,22 @@ Jamieson et al "Sparse Borda Bandits," AISTATS 2015.
 
 import numpy
 import numpy.random
-from next.apps.DuelingBanditsPureExploration.Prototype import DuelingBanditsPureExplorationPrototype
+from next.apps.Apps.DuelingBanditsPureExploration.Prototype import DuelingBanditsPureExplorationPrototype
 
 class BR_Random(DuelingBanditsPureExplorationPrototype):
 
-  def daemonProcess(self,resource,daemon_args_dict):
-    return True
-  
-  def initExp(self,resource,n,failure_probability,params):
-    resource.set('n',n)
-    resource.set('failure_probability',failure_probability)
-    resource.increment('total_pulls',0)
+  def initExp(self, butler, n, failure_probability, params, **kwargs):
+    """
+    This function is meant to set keys used later by the algorith implemented
+    in this file.
+    """
+    butler.algorithms.set(key='n', value=n)
+    butler.algorithms.set(key='failure_probability', value=failure_probability)
+
+    butler.algorithms.set(key='total_pulls', value=0)
     for i in range(n):
-      resource.increment('Xsum_'+str(i),0.)
-      resource.increment('T_'+str(i),0)
+      butler.algorithms.set(key='Xsum_'+str(i), value=0.0)
+      butler.algorithms.set(key='T_'+str(i), value=0.0)
 
     return True
 
@@ -40,35 +42,40 @@ class BR_Random(DuelingBanditsPureExplorationPrototype):
     else:
       return [alt_index,index,index]
 
+  def getQuery(self, butler):
+    beta = 0.0 # algorithm parameter
 
-  def processAnswer(self,resource,index_left=0,index_right=0,index_painted=0,index_winner=0):
-    alt_index = index_left
-    if index_left==index_painted:
-      alt_index = index_right
+    n = butler.algorithms.get(key='n')
+
+    index = numpy.random.choice(n)
+    alt_index = numpy.random.choice(n)
+    while alt_index==index:
+      alt_index = numpy.random.choice(n)
+
+    random_fork = numpy.random.choice(2)
+    if random_fork==0:
+      return [index,alt_index,index]
+    else:
+      return [alt_index,index,index]
+
+  def processAnswer(self,butler, left_id=0, right_id=0, painted_id=0, winner_id=0):
+    alt_index = left_id
+    if left_id==painted_id:
+      alt_index = right_id
 
     reward = 0.
-    if index_painted==index_winner:
+    if painted_id==winner_id:
       reward = 1.
 
-    resource.increment_many({'Xsum_'+str(index_painted):reward,'T_'+str(index_painted):1,'total_pulls':1})
+    butler.algorithms.increment_many(key_value_dict={'Xsum_'+str(painted_id):reward, 'T_'+str(painted_id):1., 'total_pulls':1})
     
     return True
 
-  def predict(self,resource):
-    n = resource.get('n')
-
-    key_list = []
-    for i in range(n):
-      key_list.append( 'Xsum_'+str(i) )
-      key_list.append( 'T_'+str(i) )
-
-    key_value_dict = resource.get_many(key_list)
-
-    sumX = []
-    T = []
-    for i in range(n):
-      sumX.append( key_value_dict['Xsum_'+str(i)] )
-      T.append( key_value_dict['T_'+str(i)] )
+  def getModel(self,butler):
+    key_value_dict = butler.algorithms.get()
+    n = key_value_dict['n']
+    sumX = [key_value_dict['Xsum_'+str(i)] for i in range(n)]
+    T = [key_value_dict['T_'+str(i)] for i in range(n)]
 
     mu = numpy.zeros(n)
     for i in range(n):
@@ -77,7 +84,7 @@ class BR_Random(DuelingBanditsPureExplorationPrototype):
       else:
         mu[i] = sumX[i] / T[i]
 
-    prec = [ numpy.sqrt(1./max(1,t)) for t in T]
+    prec = [numpy.sqrt(1.0/max(1,t)) for t in T]
     
     return mu.tolist(),prec
 

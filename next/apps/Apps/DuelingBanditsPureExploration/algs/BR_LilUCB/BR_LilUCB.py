@@ -31,11 +31,10 @@ class BR_LilUCB(DuelingBanditsPureExplorationPrototype):
   def getQuery(self, butler):
     beta = 0.0 # algorithm parameter
 
-    n = butler.algorithms.get(key='n')
     key_value_dict = butler.algorithms.get()
-
-    sumX = [key_value_dict[key] for key in key_value_dict if 'Xsum_' in key]
-    T = [key_value_dict[key] for key in key_value_dict if 'T_' in key]
+    n = key_value_dict['n']
+    sumX = [key_value_dict['Xsum_'+str(i)] for i in range(n)]
+    T = [key_value_dict['T_'+str(i)] for i in range(n)]
 
     delta = key_value_dict['failure_probability']
     sigma_sq = 0.25
@@ -78,19 +77,15 @@ class BR_LilUCB(DuelingBanditsPureExplorationPrototype):
     if painted_id==winner_id:
       reward = 1.
 
-    butler.algorithms.increment(key='Xsum_'+str(painted_id), value=reward)
-    butler.algorithms.increment(key=['T_'+str(painted_id), 'total_pulls'])
+    butler.algorithms.increment_many(key_value_dict={'Xsum_'+str(painted_id):reward, 'T_'+str(painted_id):1., 'total_pulls':1})
     
     return True
 
   def getModel(self,butler):
-    n = butler.algorithms.get(key='n')
-
-    key_list_X = ['Xsum_'+str(i) for i in range(n)]
-    key_list_T = ['T_'+str(i) for i in range(n)]
-
-    sumX = butler.algorithms.get(key=key_list_X)
-    T = butler.algorithms.get(key=key_list_T)
+    key_value_dict = butler.algorithms.get()
+    n = key_value_dict['n']
+    sumX = [key_value_dict['Xsum_'+str(i)] for i in range(n)]
+    T = [key_value_dict['T_'+str(i)] for i in range(n)]
 
     mu = numpy.zeros(n)
     for i in range(n):

@@ -27,8 +27,7 @@ class AppDashboard(object):
       (dict) MPLD3 plot dictionary
     """
 
-
-    list_of_log_dict, _, _ = self.ell.get_logs_with_filter(app_id+':APP-CALL',{'exp_uid':exp_uid,'task':task})
+    queries,didSucceed,message = self.db.get_docs_with_filter(app_id+':queries',{'exp_uid':exp_uid})
 
     from datetime import datetime
     from datetime import timedelta
@@ -36,8 +35,8 @@ class AppDashboard(object):
                                                          {'exp_uid':exp_uid, 'app_id':app_id})
     start_date_str = start_date_file[0]['start_date']
     start_date = utils.str2datetime(start_date_str)
-    numerical_timestamps = [(utils.str2datetime(item['timestamp'])-start_date).total_seconds() 
-                                for item in list_of_log_dict]
+    numerical_timestamps = [(utils.str2datetime(item['timestamp_query_generated'])-start_date).total_seconds() 
+                                for item in queries]
 
     import matplotlib.pyplot as plt
     import mpld3

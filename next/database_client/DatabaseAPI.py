@@ -410,23 +410,23 @@ class DatabaseAPI(object):
                 #############################
 
                 response,dt = utils.timeit(self.permStore.increment_many)(constants.app_data_database_id,bucket_id,doc_uid,key_value_dict)
-                didSucceed,message = response
+                new_key_value_dict,didSucceed,message = response
                 self.duration_permStoreSet += dt
                 if not didSucceed:
-                    return False,message
-                return True,'Hit PermStore'
+                    return None,False,message
+                return new_key_value_dict,True,'Hit PermStore'
 
             else:
                 response,dt = utils.timeit(self.permStore.increment_many)(constants.app_data_database_id,bucket_id,doc_uid,key_value_dict)
-                didSucceed,message = response
+                new_key_value_dict,didSucceed,message = response
                 self.duration_permStoreSet += dt
                 if not didSucceed:
-                    return False,message
-                return True,'Hit PermStore'
+                    return None,False,message
+                return new_key_value_dict,True,'Hit PermStore'
 
 
         except:
-            return False,'DatabaseAPI.increment Failed with unknown exception'
+            return None,False,'DatabaseAPI.increment_many Failed with unknown exception'
 
 
     def get_list(self,bucket_id,doc_uid,key):

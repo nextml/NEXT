@@ -34,10 +34,6 @@ def experiment_list():
         for exp_uid in rm.get_app_exp_uids(app_id):
             print "exp_uid", exp_uid
             start_date = rm.get_app_exp_uid_start_date(exp_uid)
-            docs,didSucceed,message = db.getDocsByPattern('next_frontend_base',
-                                                          'keys',
-                                                          {'object_id':exp_uid,
-                                                           'type':'exp'})
             try:
                 experiments.append({'exp_uid': exp_uid,
                                     'app_id': app_id,
@@ -94,10 +90,6 @@ def experiment_dashboard(exp_uid, app_id):
 
     # Not a particularly good way to do this.
     alg_label_list = rm.get_algs_for_exp_uid(exp_uid)
-    docs,didSucceed,message = db.getDocsByPattern('next_frontend_base',
-                                                  'keys',
-                                                  {'object_id': exp_uid,
-                                                   'type': 'perm'})
     alg_list = [{'alg_label':alg['alg_label'],
                  'alg_label_clean':'_'.join(alg['alg_label'].split())}
                 for alg in alg_label_list]

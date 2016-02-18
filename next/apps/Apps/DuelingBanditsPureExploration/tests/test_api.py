@@ -16,14 +16,14 @@ HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')+':'+os.enviro
 def run_all(assert_200):
 
   app_id = 'DuelingBanditsPureExploration'
-  num_arms = 30
+  num_arms = 25
   true_means = numpy.array(range(num_arms)[::-1])/float(num_arms)
-  total_pulls_per_client = 500
+  total_pulls_per_client = 25
 
   num_experiments = 1
 
   # clients run in simultaneous fashion using multiprocessing library
-  num_clients = 8
+  num_clients = 5
 
   pool = Pool(processes=num_clients)           
 
@@ -31,15 +31,14 @@ def run_all(assert_200):
   # input test parameters
   n = num_arms
   delta = 0.05
-  supported_alg_ids = ['BR_LilUCB_b2','BR_Random_b2','BR_Thompson_b2']
-  supported_alg_ids = ['BR_LilUCB']
+  # supported_alg_ids = ['BR_LilUCB_b2','BR_Random_b2','BR_Thompson_b2']
+  supported_alg_ids = ['BR_LilUCB','BR_Random']
 
   alg_list = []
   for i, alg_id in enumerate(supported_alg_ids):
     alg_item = {}
     alg_item['alg_id'] = alg_id
-    alg_item['alg_label'] = 'Test' if i==0 else alg_id
-    alg_item['test_alg_label'] = 'Test'
+    alg_item['alg_label'] = alg_id+'_'+str(i)
     #alg_item['params'] = {}
     alg_list.append(alg_item)
   params = []

@@ -50,24 +50,24 @@ class Collection(object):
         print "Butler.py:exist, exist check", uid, key, result
         return result#self.timed(self.db.exists,get=True)(self.collection, uid, key)
 
-    def increment(self, uid="", key=None, exp=None, value=1.0):
+    def increment(self, uid="", key=None, exp=None, value=1):
         """
         Increment a value (or values) in the collection.
-        * type(key) != list:   increment collection[uid][key]
-        * type(key) == list:   increment collection[uid][k] for k in key
+        * key = str:   increment collection[uid][key]
+
+        * value: How much the value should be incremented by.
+        """
+        uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp == None else exp))
+        return self.timed(self.db.increment, get=True)(self.collection, uid, key, value)
+
+    def increment_many(self, uid="", key_value_dict=None, exp=None):
+        """
+        For each key in key_value_dict, increments value by key_value_dict[key]
 
         * values: How much the value should be incremented by.
         """
         uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp == None else exp))
-        if(type(key) == list):
-            if type(value) in {int, float}:
-                value = len(key)*[value]
-            for k, v in zip(key, value):
-                self.timed(self.db.increment, get=True)(self.collection, uid, k, v)
-        else:
-            if value == None:
-                value = 1
-            return self.timed(self.db.increment, get=True)(self.collection, uid, key, value)
+        return self.timed(self.db.increment_many, get=True)(self.collection, uid, key_value_dict)
 
     def append(self, uid="", key=None, value=None, exp=None):
         """

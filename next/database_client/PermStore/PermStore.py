@@ -450,10 +450,10 @@ class PermStore(object):
             (string) database_id, (string) bucket_id, (string) doc_uid, ({(str)key1:(float)value1,(int)key2:(float) value2}) key_value_dict
         
         Outputs:
-            (bool) didSucceed, (string) message 
+            (dict) new_key_value_dict, (bool) didSucceed, (string) message 
         
         Usage: ::\n
-            didSucceed,message = db.increment_many(database_id,bucket_id,doc_uid,key_value_dict)
+            new_key_value_dict,didSucceed,message = db.increment_many(database_id,bucket_id,doc_uid,key_value_dict)
         """
         if self.client == None:
             didSucceed,message = self.connectToMongoServer()
@@ -461,12 +461,15 @@ class PermStore(object):
                 return False,message
 
         try:
-            self.client[database_id][bucket_id].update_one({"_id":doc_uid},{ '$inc': key_value_dict },upsert = True)
-            return True,'From Mongo'
+            new_doc = self.client[database_id][bucket_id].find_and_modify(query={"_id":doc_uid} , update={ '$inc': key_value_dict },upsert = True,new=True )
+            new_key_value_dict = {}
+            for key in key_value_dict:
+                new_key_value_dict[key] = new_doc[key]
+            return new_key_value_dict,True,'From Mongo'
         except:
             raise
             error = "MongoDB.set Failed with unknown exception"
-            return False,error
+            return None,False,error
 
     def get_list(self,database_id,bucket_id,doc_uid,key):
         """

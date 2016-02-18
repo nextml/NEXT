@@ -29,12 +29,9 @@ initExp:
               alg_id:
                 description: A supported algorithm type in the system.
                 type: str
-                values: [BeatTheMean, BR_LilUCB, BR_Random, BR_SuccElim, BR_Thompson]
+                values: [BR_LilUCB, BR_Random]
               alg_label:
                 description: A name for this algorithm of your choosing.
-                type: str
-              test_alg_label:
-                description: Which algorithm to test against.
                 type: str
 
         instructions:
