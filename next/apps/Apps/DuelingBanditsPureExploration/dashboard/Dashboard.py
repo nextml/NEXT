@@ -25,7 +25,6 @@ class DuelingBanditsPureExplorationDashboard(AppDashboard):
         """
         next_app = utils.get_app(app_id, exp_uid, self.db, self.ell)
         getModel_args_dict = json.loads(next_app.getModel(exp_uid, json.dumps({'exp_uid':exp_uid, 'args':{'alg_label':alg_label}}))[0])
-        utils.debug_print(getModel_args_dict)
         item = getModel_args_dict['args']
 
         return_dict = {}

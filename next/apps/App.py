@@ -85,17 +85,17 @@ class App(object):
 
     def getQuery(self, exp_uid, args_json):
         try:
-	    args_dict = self.helper.convert_json(args_json)
+    	    args_dict = self.helper.convert_json(args_json)
             utils.debug_print(args_dict)
             try:
                 args_dict, success, messages = Verifier.verify(args_dict, self.reference_dict['getQuery']['values'])
                 if not success:
                     raise Exception("Failed to verify: {}".format(" \n".join(messages)))
             except Exception, error:
-		exc_type, exc_value, exc_traceback = sys.exc_info()
-		print "Exception! {} {}".format(error, traceback.format_exc())
-		traceback.print_tb(exc_traceback)
-		raise Exception(error)
+        		exc_type, exc_value, exc_traceback = sys.exc_info()
+        		print "Exception! {} {}".format(error, traceback.format_exc())
+        		traceback.print_tb(exc_traceback)
+        		raise Exception(error)
             utils.debug_print(args_dict)
             experiment_dict = self.butler.experiment.get()
             alg_list = experiment_dict['args']['alg_list']

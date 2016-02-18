@@ -70,8 +70,6 @@ class DuelingBanditsPureExploration(object):
 
         targets_list = [{'target':targets[0],'label':'left'}, 
                         {'target':targets[1],'label':'right'}]
-        utils.debug_print('DuelingBanditsPureExploration:getQuery')
-        utils.debug_print(targets_list)
 
 
         if targets[0]['target_id'] == targets[-1]['target_id']:
@@ -145,8 +143,6 @@ class DuelingBanditsPureExploration(object):
         stat_id = stats_request['args']['stat_id']
         task = stats_request['args']['params'].get('task', None)
         alg_label = stats_request['args']['params'].get('alg_label', None)
-        utils.debug_print('stats_request', stats_request)
-        #utils.debug_print("dashboard functions", dashboard.__dir__())
         functions = {'api_activity_histogram':dashboard.api_activity_histogram,
                      'compute_duration_multiline_plot':dashboard.compute_duration_multiline_plot,
                      'compute_duration_detailed_stacked_area_plot':dashboard.compute_duration_detailed_stacked_area_plot,
