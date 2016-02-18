@@ -8,8 +8,6 @@ DuelingBanditsPureExplorationPrototype
 This interface must be implemented by an app that solves the multi-armed dueling bandit, pure 
 exploration problem for the Borda rule. 
 """
-
-
 class DuelingBanditsPureExplorationPrototype(object):
   def __init__(self): 
     self.app_id = 'DuelingBanditsPureExploration'
@@ -62,7 +60,7 @@ class DuelingBanditsPureExplorationPrototype(object):
     """
     return NotImplementedError
 
-  def predict(self,resource):
+  def getModel(self,resource):
     """
     uses current model empirical estimates to forecast which index is the winner
 

@@ -67,6 +67,8 @@ class AppDashboard(object):
       (dict) MPLD3 plot dictionary
     """
     alg_list = self.db.get(app_id+':experiments',exp_uid,'args')[0]['alg_list']
+    print 'compute_duration_multiline_plot', self.db.get(app_id+':experiments', exp_uid, 'args')
+    utils.debug_print('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
     x_min = numpy.float('inf')
     x_max = -numpy.float('inf')
     y_min = numpy.float('inf')

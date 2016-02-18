@@ -1,13 +1,10 @@
 # TODO:
-# x implement the functions below.
 # x change the algorithm definitions. Done for LilUCB only
-# o look at diffs
 # o explore the dashboard, see what you need to change
-# - look at the butler code. Butler is another database wrapper
-# x modify the tests to delete exp_key
-# x check if daemonProcess still needed (I don't think it is)
-# x Implement the .yaml file
 # ? modify the widgets?
+import json
+import numpy
+
 import next.apps.SimpleTargetManager
 import next.utils as utils
 class DuelingBanditsPureExploration(object):
@@ -115,28 +112,32 @@ class DuelingBanditsPureExploration(object):
                 painted_id = target['target']['target_id']
                 
         winner_id = answer['args']['target_winner']
-
-        experiment = butler.experiment.get()
-        num_reported_answers = butler.experiment.increment(key='num_reported_answers_for_' + query['alg_label'])
-
-        n = experiment['args']['n']
-        if num_reported_answers % ((n+4)/4) == 0:
-            butler.job('getModel', json.dumps({'exp_uid':exp_uid,'args':{'alg_label':query['alg_label'], 'logging':True}}))
-
-        #query = {'query_uid':None, 'targets':targets,
-                 #'context_type':experiment['args']['context_type'],
-                 #'context':experiment['args']['context']}
-        #query = {}
-        q = [left_id, right_id] if winner_id==left_id else [right_id, left_id]
-        
-
+        butler.experiment.increment(key='num_reported_answers_for_' + query['alg_label'])
         return {'alg_args':{'left_id':left_id, 
                             'right_id':right_id, 
                             'winner_id':winner_id,
                             'painted_id':painted_id},
-                'query_update':{'winner_id':winner_id, 'q':query}}
-        
+                'query_update':{'winner_id':winner_id}}
 
+    def getModel(self, exp_uid, alg_response, args_dict, butler):
+        scores, precisions = alg_response
+        ranks = (-numpy.array(scores)).argsort().tolist()
+        n = len(scores)
+        indexes = numpy.array(range(n))[ranks]
+        scores = numpy.array(scores)[ranks]
+        precisions = numpy.array(precisions)[ranks]
+        ranks = range(n)
+
+        targets = []
+        for index in range(n):
+          targets.append( {'index':indexes[index],
+                           'target':self.TargetManager.get_target_item(exp_uid, indexes[index]),
+                           'rank':ranks[index],
+                           'score':scores[index],
+                           'precision':precisions[index]} )
+        num_reported_answers = butler.experiment.get('num_reported_answers')
+        return {'targets': targets, 'num_reported_answers':num_reported_answers} 
+        
     def getStats(self, exp_uid, stats_request, dashboard, butler):
         """
         Get statistics to display on the dashboard.
@@ -144,28 +145,21 @@ class DuelingBanditsPureExploration(object):
         stat_id = stats_request['args']['stat_id']
         task = stats_request['args']['params'].get('task', None)
         alg_label = stats_request['args']['params'].get('alg_label', None)
-        utils.debug_print("dashboard functions", dashboard.__dir__())
+        utils.debug_print('stats_request', stats_request)
+        #utils.debug_print("dashboard functions", dashboard.__dir__())
         functions = {'api_activity_histogram':dashboard.api_activity_histogram,
-                'api_processAnswer_activity_stacked_histogram':dashboard.api_processAnswer_activity_stacked_histogram,
-                'compute_duration_multiline_plot':dashboard.compute_duration_multiline_plot,
-                'compute_duration_detailed_stacked_area_plot':dashboard.compute_duration_detailed_stacked_area_plot,
-                'response_time_histogram':dashboard.response_time_histogram,
-                'network_delay_histogram':dashboard.network_delay_histogram,
-                'most_current_ranking':dashboard.most_current_ranking
-                }
+                     'compute_duration_multiline_plot':dashboard.compute_duration_multiline_plot,
+                     'compute_duration_detailed_stacked_area_plot':dashboard.compute_duration_detailed_stacked_area_plot,
+                     'response_time_histogram':dashboard.response_time_histogram,
+                     'network_delay_histogram':dashboard.network_delay_histogram,
+                     'most_current_ranking':dashboard.most_current_ranking}
 
         default = [self.app_id, exp_uid]
         args = {'api_activity_histogram':default + [task],
-                'api_processAnswer_activity_stacked_histogram':default,
                 'compute_duration_multiline_plot':default + [task],
                 'compute_duration_detailed_stacked_area_plot':default + [task, alg_label],
                 'response_time_histogram':default + [alg_label],
                 'network_delay_histogram':default + [alg_label],
-                'most_current_ranking':default + [alg_label]
-                }
+                'most_current_ranking':default + [alg_label]}
+        return functions[stat_id](*args[stat_id])
 
-
-        return functions[stat_id](*args)
-
-    def getModel(self, exp_uid, alg_response, args_dict, butler):
-        return {'num_reported_answers':alg_response[0]}

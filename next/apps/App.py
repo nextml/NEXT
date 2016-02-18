@@ -201,6 +201,8 @@ class App(object):
             butler = Butler(self.app_id, exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, alg_label, alg_id)
             alg_response, dt = utils.timeit(alg.getModel)(butler)
             myapp_response = self.myApp.getModel(exp_uid, alg_response, args_dict, self.butler)
+            myapp_response['exp_uid'] = exp_uid
+            myapp_response['alg_label'] = alg_label
             # Log the response of the getModel in ALG-EVALUATION
             if args_dict['args']['logging']:
                 alg_log_entry = {'exp_uid': exp_uid, 'alg_label':alg_label, 'task': 'getModel', 'timestamp': str(utils.datetimeNow())}

@@ -119,7 +119,6 @@ class Butler(object):
     def log(self, log_name, log_value):
         self.ell.log(self.app_id+":"+log_name, log_value)
     
-
     def job(self,task,task_args_json,ignore_result=True,time_limit=0):
         if self.alg_label:
             print "butler job", self.app_id, self.exp_uid, self.alg_label, self.alg_id, task

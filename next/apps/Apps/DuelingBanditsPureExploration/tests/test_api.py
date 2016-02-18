@@ -16,9 +16,9 @@ HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')+':'+os.enviro
 def run_all(assert_200):
 
   app_id = 'DuelingBanditsPureExploration'
-  num_arms = 300
-  true_means = numpy.array(range(num_arms))/float(num_arms)
-  total_pulls_per_client = 12
+  num_arms = 30
+  true_means = numpy.array(range(num_arms)[::-1])/float(num_arms)
+  total_pulls_per_client = 500
 
   num_experiments = 1
 
@@ -145,13 +145,8 @@ def simulate_one_client( input_args ):
     query_dict = json.loads(response.text)
     query_uid = query_dict['query_uid']
     targets = query_dict['target_indices']
-    for target in targets:
-      if target['label'] == 'left':
-        left = target['index']
-      if target['label'] == 'right':
-        right = target['index']
-      if target['flag'] == 1:
-        painted = target['index']
+    left  = targets[0]['target']
+    right  = targets[0]['target']
 
     # generate simulated reward #
     #############################
@@ -165,9 +160,9 @@ def simulate_one_client( input_args ):
     reward_left = true_means[left['target_id']] + numpy.random.randn()*0.5
     reward_right = true_means[right['target_id']] + numpy.random.randn()*0.5
     if reward_left > reward_right:
-      index_winner = left
+      target_winner = left
     else:
-      index_winner = right
+      target_winner = right
 
     response_time = time.time() - ts
 
@@ -179,7 +174,7 @@ def simulate_one_client( input_args ):
     processAnswer_args_dict["exp_uid"] = exp_uid
     processAnswer_args_dict["args"] = {}
     processAnswer_args_dict["args"]["query_uid"] = query_uid
-    processAnswer_args_dict["args"]['target_winner'] = index_winner['target_id']
+    processAnswer_args_dict["args"]['target_winner'] = target_winner['target_id']
     processAnswer_args_dict["args"]['response_time'] = response_time
 
     url = 'http://'+HOSTNAME+'/api/experiment/processAnswer'
@@ -196,7 +191,6 @@ def simulate_one_client( input_args ):
   getQuery_times.sort()
   return_str = '%s \n\t getQuery\t : %f (5),    %f (50),    %f (95)\n\t processAnswer\t : %f (5),    %f (50),    %f (95)\n' % (participant_uid,getQuery_times[int(.05*total_pulls)],getQuery_times[int(.50*total_pulls)],getQuery_times[int(.95*total_pulls)],processAnswer_times[int(.05*total_pulls)],processAnswer_times[int(.50*total_pulls)],processAnswer_times[int(.95*total_pulls)])
   return return_str
-
 
 
 def timeit(f):

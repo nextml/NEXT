@@ -1,36 +1,11 @@
 import json
-import numpy
-import numpy.random
-from datetime import datetime
-from datetime import timedelta
 from next.utils import utils
-from next.dashboard.AppDashboard import AppDashboard
+from next.apps.AppDashboard import AppDashboard
+import next.apps.SimpleTargetManager
 
 class DuelingBanditsPureExplorationDashboard(AppDashboard):
-
     def __init__(self,db,ell):
         AppDashboard.__init__(self,db,ell)
-        utils.debug_print(self.__dict__.keys())
-    def get_app_supported_stats(self):
-        """
-        Returns a list of dictionaries describing the identifier (stat_id) and 
-        necessary params inputs to be used when calling getStats
-
-        Expected output (list of dicts, each with fields):
-            (string) stat_id : the identiifer of the statistic
-            (string) description : docstring of describing outputs
-            (list of string) necessary_params : list where each string describes the type of param input like 'alg_label' or 'task'
-        """
-        stat_list = self.get_supported_stats()
-
-        stat = {}
-        stat['stat_id'] = 'most_current_ranking'
-        stat['description'] = self.most_current_ranking.__doc__
-        stat['necessary_params'] = ['alg_label']
-        stat_list.append(stat)
-        
-        return stat_list
-
 
     def most_current_ranking(self,app_id,exp_uid,alg_label):
         """
@@ -48,21 +23,18 @@ class DuelingBanditsPureExplorationDashboard(AppDashboard):
             (int) index : index of target
             (int) ranking : rank (0 to number of targets - 1) representing belief of being best arm
         """
-
-        predict_id = 'arm_ranking'
-        params = {'alg_label':alg_label}
-        predict_args_dict = {'predict_id':predict_id,'params':params}
-        predict_args_json = json.dumps(predict_args_dict)
         next_app = utils.get_app(app_id, exp_uid, self.db, self.ell)
-        args_out_json,didSucceed,message = next_app.predict(exp_uid, predict_args_json, self.db, self.ell)
-        predict_args_dict = json.loads(args_out_json)
-        item = predict_args_dict['args']
+        getModel_args_dict = json.loads(next_app.getModel(exp_uid, json.dumps({'exp_uid':exp_uid, 'args':{'alg_label':alg_label}}))[0])
+        utils.debug_print(getModel_args_dict)
+        item = getModel_args_dict['args']
 
         return_dict = {}
-        return_dict['headers'] = [{'label':'Rank','field':'rank'},{'label':'Target','field':'index'},{'label':'Score','field':'score'},{'label':'Precision','field':'precision'}]
+        return_dict['headers'] = [{'label':'Rank','field':'rank'},
+                                  {'label':'Target','field':'index'},
+                                  {'label':'Score','field':'score'},
+                                  {'label':'Precision','field':'precision'}]
         return_dict['data'] = item['targets']
         return_dict['plot_type'] = 'columnar_table'
-
         return return_dict
 
 

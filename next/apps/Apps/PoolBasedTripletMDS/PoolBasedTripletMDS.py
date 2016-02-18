@@ -64,7 +64,7 @@ class PoolBasedTripletMDS(object):
                      'network_delay_histogram':dashboard.network_delay_histogram,
                      'most_current_embedding':dashboard.most_current_embedding,
                      'test_error_multiline_plot':dashboard.test_error_multiline_plot}
-#}
+        
         default = [self.app_id, exp_uid]
         args = {'api_activity_histogram':default + [task],
                 'compute_duration_multiline_plot':default + [task],
@@ -73,7 +73,7 @@ class PoolBasedTripletMDS(object):
                 'network_delay_histogram':default + [alg_label],
                 'most_current_embedding':default + [alg_label],
                 'test_error_multiline_plot':default}
-#}
+        
         return functions[stat_id](*args[stat_id])
 
 

@@ -9,14 +9,10 @@ Jamieson et al "Sparse Borda Bandits," AISTATS 2015.
 
 import numpy
 import numpy.random
-#from next.apps.DuelingBanditsPureExploration.Prototype import DuelingBanditsPureExplorationPrototype
+from next.apps.Apps.DuelingBanditsPureExploration.Prototype import DuelingBanditsPureExplorationPrototype
+import next.utils as utils
 
-#class BR_LilUCB(DuelingBanditsPureExplorationPrototype):
-class BR_LilUCB:
-
-  def getModel(self, butler, **kwargs):
-    return butler.algorithms.get(key='num_reported_answers')
-  
+class BR_LilUCB(DuelingBanditsPureExplorationPrototype):
   def initExp(self, butler, n, failure_probability, params, **kwargs):
     """
     This function is meant to set keys used later by the algorith implemented
@@ -82,7 +78,7 @@ class BR_LilUCB:
     if painted_id==winner_id:
       reward = 1.
 
-    butler.algorithms.increment(key='Xum_'+str(painted_id), value=reward)
+    butler.algorithms.increment(key='Xsum_'+str(painted_id), value=reward)
     butler.algorithms.increment(key=['T_'+str(painted_id), 'total_pulls'])
     
     return True
@@ -90,13 +86,11 @@ class BR_LilUCB:
   def getModel(self,butler):
     n = butler.algorithms.get(key='n')
 
-    key_list = ['Xsum_'+str(i) for i in range(n)]
-    key_list += ['T_'+str(i) for i in range(n)]
+    key_list_X = ['Xsum_'+str(i) for i in range(n)]
+    key_list_T = ['T_'+str(i) for i in range(n)]
 
-    key_value_dict = butler.algorithms.get(key=key_list)
-
-    sumX = [key_value_dict['Xsum_'+str(i)] for i in range(n)]
-    T = [key_value_dict['T_'+str(i)] for i in range(n)]
+    sumX = butler.algorithms.get(key=key_list_X)
+    T = butler.algorithms.get(key=key_list_T)
 
     mu = numpy.zeros(n)
     for i in range(n):
@@ -109,3 +103,5 @@ class BR_LilUCB:
     
     return mu.tolist(),prec
     
+  
+ 
