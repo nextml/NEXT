@@ -31,7 +31,7 @@ def run_all(assert_200):
   # input test parameters
   n = num_arms
   delta = 0.05
-  supported_alg_ids = ['RoundRobin']
+  supported_alg_ids = ['RoundRobin','LilUCB']
 
   labels = [{'label':'bad','reward':1.},{'label':'neutral','reward':2.},{'label':'good','reward':3.}]
 
