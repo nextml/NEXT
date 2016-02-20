@@ -25,39 +25,31 @@ var buttonsChart = [["#A9A9C6"]];
                         .html(data.headers[i].label)
                 )
             }
-            var body = $('#'+div_id+' tbody');
-            for (var i = 0; i < data.data.length; i++) {
-                body.append($('<tr>'));
-                for (var j=0; j<data.headers.length; j++){
-                    var current_row = $('#'+div_id+' tbody tr:nth-child('+(i+1)+')');
+
+        var body = $('#'+div_id+' tbody');
+        var rows = [];
+        for (var i = 0; i < data.data.length; i++) {
+        var curr_row = [];
+        for (var j=0; j<data.headers.length; j++){
                     if (data.headers[j].field == 'index' && data.data[i]['target']){
-                        target = data.data[i].target;
-                        if(target.primary_type == 'image'){
-                            current_row
-                                .append($('<td>')
-                                    .append($('<img>')
-                                        .attr('src', target.primary_description)
-                                        .css({'max-height':'100px','width':'auto'})
-                                )
-                            )
-                        }else{
-                            current_row
-                                .append($('<td>')
-                                    .html(target.primary_description)
-                            )
+                        target = data.data[i].target;       
+            if(target.primary_type == 'image'){
+                            var img_col = '<td>'+'<img src='+target.primary_description+'style=max-height:100px;width:auto;></img>';
+                curr_row[j] = img_col;
+                        } else{
+                curr_row[j] = '<td>'+target.primary_description+'</td>';
                         }
-                    }else{
-                        current_row
-                            .append($('<td>')
-                                .html(data.data[i][data.headers[j].field])
-                        )
+            } else{
+            curr_row[j] = '<td>'+data.data[i][data.headers[j].field]+'</td>';
                     }
                 }
-            }
+        rows[i] = "<tr>" + curr_row.join(' ') + "</tr>";
+        }
+        body.html(rows.join(''))
         }
     }
 
-
+    
     data.plotCurrentEmbedding = function(data, div_id) {
         /**
          * Generates an embedding of the triplet values.
@@ -87,12 +79,12 @@ var buttonsChart = [["#A9A9C6"]];
                 } else if(data[i].target.primary_type=="text") {
                     text_data.push(data[i]);
                 } else if(data[i].target.primary_type=="video") {
-		    data[i].target.primary_description = data[i].target.alt_description;
-		    if(data[i].target.alt_type=="image"){
-			image_data.push(data[i]);
-		    } else {
-			text_data.push(data[i]);
-		    }
+            data[i].target.primary_description = data[i].target.alt_description;
+            if(data[i].target.alt_type=="image"){
+            image_data.push(data[i]);
+            } else {
+            text_data.push(data[i]);
+            }
                 }
             }
 
