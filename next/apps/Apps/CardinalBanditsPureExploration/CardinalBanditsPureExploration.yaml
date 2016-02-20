@@ -23,7 +23,7 @@ initExp:
               type: num
             labels:
               description: List of dictionaries with label and reward keys, (i.e. [{'label':'unfunny','reward':0.},{'label':'somewhat funny','reward':0.5},{'label':'funny','reward':1.}])
-              type: dict
+              type: list
               values: []
 
         participant_to_algorithm_management:
@@ -143,8 +143,8 @@ processAnswer:
       description: Arguments for initExp
       type: dict
       values:
-        target_winner:
-          description: The ID of the target that won the given query.
+        target_reward:
+          description: The reward of the target.
           type: num
         query_uid:
           description: The unique identifier for the query.

@@ -15,7 +15,7 @@ HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')+':'+os.enviro
 
 def run_all(assert_200):
 
-  app_id = 'DuelingBanditsPureExploration'
+  app_id = 'CardinalBanditsPureExploration'
   num_arms = 25
   true_means = numpy.array(range(num_arms)[::-1])/float(num_arms)
   total_pulls_per_client = 500
@@ -31,8 +31,9 @@ def run_all(assert_200):
   # input test parameters
   n = num_arms
   delta = 0.05
-  # supported_alg_ids = ['BR_LilUCB_b2','BR_Random_b2','BR_Thompson_b2']
-  supported_alg_ids = ['BR_LilUCB','BR_Random']
+  supported_alg_ids = ['RoundRobin']
+
+  labels = [{'label':'bad','reward':1.},{'label':'neutral','reward':2.},{'label':'good','reward':3.}]
 
   alg_list = []
   for i, alg_id in enumerate(supported_alg_ids):
@@ -67,6 +68,7 @@ def run_all(assert_200):
   initExp_args_dict['args']['debrief'] = 'You want a debrief, here is your test debrief'
   initExp_args_dict['args']['context_type'] = 'text'
   initExp_args_dict['args']['context'] = 'Boom baby dueling works'
+  initExp_args_dict['args']['rating_scale'] = {'labels':labels}
   initExp_args_dict['app_id'] = app_id
   initExp_args_dict['site_id'] = 'replace this with working site id'
   initExp_args_dict['site_key'] = 'replace this with working site key'
@@ -144,24 +146,18 @@ def simulate_one_client( input_args ):
     query_dict = json.loads(response.text)
     query_uid = query_dict['query_uid']
     targets = query_dict['target_indices']
-    left  = targets[0]['target']
-    right  = targets[0]['target']
+    target_index = targets[0]['target']['target_id']
 
     # generate simulated reward #
     #############################
     # sleep for a bit to simulate response time
-
     ts = time.time()
 
-    time.sleep(  avg_response_time*numpy.random.rand()  )
-
-    print left
-    reward_left = true_means[left['target_id']] + numpy.random.randn()*0.5
-    reward_right = true_means[right['target_id']] + numpy.random.randn()*0.5
-    if reward_left > reward_right:
-      target_winner = left
-    else:
-      target_winner = right
+    # time.sleep(  avg_response_time*numpy.random.rand()  )
+    time.sleep(  avg_response_time*numpy.log(1./numpy.random.rand())  )
+    # target_reward = true_means[target_index] + numpy.random.randn()*0.5
+    target_reward = 1.+sum(numpy.random.rand(2)<true_means[target_index]) # in {1,2,3}
+    # target_reward = numpy.random.choice(labels)['reward']
 
     response_time = time.time() - ts
 
@@ -173,7 +169,7 @@ def simulate_one_client( input_args ):
     processAnswer_args_dict["exp_uid"] = exp_uid
     processAnswer_args_dict["args"] = {}
     processAnswer_args_dict["args"]["query_uid"] = query_uid
-    processAnswer_args_dict["args"]['target_winner'] = target_winner['target_id']
+    processAnswer_args_dict["args"]['target_reward'] = target_reward
     processAnswer_args_dict["args"]['response_time'] = response_time
 
     url = 'http://'+HOSTNAME+'/api/experiment/processAnswer'

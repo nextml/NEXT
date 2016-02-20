@@ -3,7 +3,7 @@ from next.utils import utils
 from next.apps.AppDashboard import AppDashboard
 import next.apps.SimpleTargetManager
 
-class DuelingBanditsPureExplorationDashboard(AppDashboard):
+class CardinalBanditsPureExplorationDashboard(AppDashboard):
     def __init__(self,db,ell):
         AppDashboard.__init__(self,db,ell)
 
@@ -35,5 +35,3 @@ class DuelingBanditsPureExplorationDashboard(AppDashboard):
         return_dict['data'] = item['targets']
         return_dict['plot_type'] = 'columnar_table'
         return return_dict
-
-

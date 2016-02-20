@@ -3,19 +3,16 @@
 
 {% block custom_dashboard %}
 
-
 <!--##################### most_current_embedding ################ -->
-<div class="container-fluid" style ='padding-bottom: 1cm; background-color: #FFFFFF'>
+<div class="container-fluid" style ='padding-bottom: 1cm; background-color: #FFFFFF'>  
     <div class="col-lg-10 col-lg-offset-1">
-        <h2> Rankings
-            <button type="button" class="btn btn-primary btn-xs"
-                  onclick="popup_alert('Sufficient statistics collected by the algorithm, ordered by decreasing order of likelihood of being the winner. The score reflects the empirical probability that a particular arm beats another arm chosen uniformly at random from the total set of arms (e.g. the \'Borda\' score). The precision describes the square root of 1/4 times the inverse of the number of observations. If the so-called \'Borda reduction\' is used then this is an unbiased estimate of the mean and variance of the quantities. Any -1 precision values indicate that that item has not yet receieved answers.')">?</button>
-        </h2>
+        <h2> Rankings <button type="button" class="btn btn-primary btn-xs"
+                  onclick="popup_alert('Sufficient statistics collected by the algorithm, ordered by decreasing order of likelihood of being the winner. The score reflects the empirical mean of the rewards for that item. The precision describes the square root of the sample variance divided by the number of observations to describe the expected deviation of the empirical mean. Any -1 precision values indicate that that item has not yet receieved answers.')">?</button> </h2>  
     </div>
     <div class="col-lg-10 col-lg-offset-1">
 
         <ul class="nav nav-tabs" role="tablist">
-            {% for alg in alg_list %}
+            {% for alg in alg_list %} 
                 {% if loop.first %}
                     <li role="presentation" class="active"><a href="#ranking_{{ alg.alg_label_clean }}" aria-controls="ranking_{{ alg.alg_label_clean }}" role="tab" data-toggle="tab">{{ alg.alg_label_clean }}</a></li>
                 {% else %}
@@ -26,7 +23,7 @@
 
 
         <div class="tab-content">
-            {% for alg in alg_list %}
+            {% for alg in alg_list %} 
                 {% if loop.first %}
                     <div role="tabpanel" class="tab-pane active" id="ranking_{{ alg.alg_label_clean }}">
                         <div id = "most_current_ranking_{{ alg.alg_label_clean }}"></div>
@@ -37,14 +34,14 @@
                     </div>
                 {% endif %}
             <!-- <div role="tabpanel" class="tab-pane active" id="home"> -->
-
+            
 
             <script>
-              most_current_ranking_{{ alg.alg_label_clean }} = function(data) {
-              charts.createDynamicTable(data, "most_current_ranking_{{ alg.alg_label_clean }}")
-              }
+                most_current_ranking_{{ alg.alg_label_clean }} = function(data) {
+                    charts.createDynamicTable(data, "most_current_ranking_{{ alg.alg_label_clean }}")
+                }
 
-              $.ajax({
+                $.ajax({
                     url: "{{ host_url }}/api/experiment/stats",
                     type: "POST",
                     contentType: "application/json",
@@ -66,7 +63,7 @@
                     console.log("Failed to get stats", error);
                     });
 
-            </script>
+          </script>
             {% endfor %}
         </div>
 
@@ -75,4 +72,5 @@
 
 
 
-{% endblock %}
+
+{% endblock %} 

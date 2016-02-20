@@ -145,7 +145,7 @@ def simulate_one_client( input_args ):
     query_uid = query_dict['query_uid']
     targets = query_dict['target_indices']
     left  = targets[0]['target']
-    right  = targets[0]['target']
+    right  = targets[1]['target']
 
     # generate simulated reward #
     #############################

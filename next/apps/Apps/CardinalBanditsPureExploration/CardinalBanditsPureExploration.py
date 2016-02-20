@@ -34,10 +34,21 @@ class CardinalBanditsPureExploration(object):
         del exp_data['args']['targets']
 
         if 'labels' in exp_data['args']['rating_scale'].keys():
+            labels = exp_data['args']['rating_scale']['labels']
             max_label = max( label['reward'] for label in labels )
             min_label = min( label['reward'] for label in labels )
             exp_data['args']['rating_scale']['R'] = max_label-min_label
-        return exp_data
+
+        R = exp_data['args']['rating_scale']['R']
+        alg_data = {'R':R}
+        algorithm_keys = ['n','failure_probability']
+        for key in algorithm_keys:
+            alg_data[key]=exp_data['args'][key]
+
+        return exp_data,alg_data
+
+    def prealg_getQuery(self,exp_uid, query_request, butler):
+        return {'do_not_ask_list':[]}
 
     def getQuery(self, exp_uid, query_request, alg_response, butler):
         """
@@ -87,11 +98,9 @@ class CardinalBanditsPureExploration(object):
         target_id = query['target_indices'][0]['target']['target_id']     
         target_reward = answer['args']['target_reward']
         butler.experiment.increment(key='num_reported_answers_for_' + query['alg_label'])
-        return {'alg_args':{'left_id':left_id, 
-                            'right_id':right_id, 
-                            'winner_id':winner_id,
-                            'painted_id':painted_id},
-                'query_update':{'winner_id':winner_id}}
+        query_update = {'target_id':target_id,'target_reward':target_reward}
+        alg_args_dict = {'target_id':target_id,'target_reward':target_reward}
+        return query_update,alg_args_dict
 
     def getModel(self, exp_uid, alg_response, args_dict, butler):
         scores, precisions = alg_response

@@ -1,1 +1,1 @@
-from .DuelingBanditsPureExploration import *
+from .CardinalBanditsPureExploration import *
