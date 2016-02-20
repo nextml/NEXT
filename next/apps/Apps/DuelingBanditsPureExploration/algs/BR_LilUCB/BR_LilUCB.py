@@ -13,7 +13,7 @@ from next.apps.Apps.DuelingBanditsPureExploration.Prototype import DuelingBandit
 import next.utils as utils
 
 class BR_LilUCB(DuelingBanditsPureExplorationPrototype):
-  def initExp(self, butler, n, failure_probability, params, **kwargs):
+  def initExp(self, butler, n, failure_probability, params):
     """
     This function is meant to set keys used later by the algorith implemented
     in this file.

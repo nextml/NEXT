@@ -16,6 +16,13 @@ class PoolBasedTripletMDS(object):
             n = exp_data['args']['targets']['n']
         exp_data['args']['n'] = n
         del exp_data['args']['targets']
+
+        alg_data = {}
+        algorithm_keys = ['n','failure_probability']
+        for key in algorithm_keys:
+            if key in exp_data['args']:
+                alg_data[key]=exp_data['args'][key]
+        
         return exp_data
 
     def getQuery(self, exp_uid, query_request, alg_response, butler):

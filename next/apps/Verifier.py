@@ -2,6 +2,9 @@ import yaml, json
 import random
 import numpy
 from pprint import pprint
+import traceback
+import sys
+import os
 
 def verify(input_dict, reference_dict):
     """
@@ -13,44 +16,18 @@ def verify(input_dict, reference_dict):
     - list_of_errors is as in verify_helper
     """
     
-    input_dict, ans = verify_helper("", input_dict, {'type':'dict','values':reference_dict})
-    
-    # Any further custom verification goes below this line, which may
-    # modify input_dict as needed and add any errors to ans as dicts
-    # with the format: {"name":problem_key, "message":"what is wrong"}
+    input_dict, messages = verify_helper("", input_dict, {'type':'dict','values':reference_dict})
 
-  # ref_initExp = reference_dict['initExp']['values']
-  # ref_args = ref_initExp['args']['values']
-  # implemented_algs = ref_args['alg_list']['values']['alg_id']['values']
-
-  # input_args = input_dict['args']
-  # input_alg_ids = [d['alg_id'] for d in input_dict['args']['alg_list']]
-  # input_alg_labels = [d['alg_label'] for d in input_dict['args']['alg_list']]
-
-  # algorithm_settings = input_dict['args']['algorithm_management_settings']['params']['proportions']
-
-  # for alg_label, alg_id in zip(input_alg_labels, input_alg_ids):
-
-  #     # checking if algorithm is implemented
-  #     if alg_id not in implemented_algs:
-  #         ans += [{'name': 'initExp/args/alg_list', 'message':'An algorithm ({}) is not implemented'.format(alg_id)}]
-
-  #     # checking to make sure all algorithms in alg_list have settings defined
-  #     proportion_algorithms = [alg['alg_label'] for alg in algorithm_settings]
-  #     if alg_label not in proportion_algorithms:
-  #         ans += [{'name':'initExp/args/algorithm_management_settings',
-  #                  'message':('An algorithm in alg_list ({})'
-  #                             'is not in in algorithm_management_settings '
-  #                             '(in the apprpriate place)').format(algorithm)}]
-
-  # # checking to make sure that the total proportions add up to 1
-  # total_proportion = sum(alg['proportion'] for alg in algorithm_settings)
-  # if not numpy.allclose(total_proportion, 1):
-  #     ans += [{'name':'initExp/args/algorithm_management_settings',
-  #             'message':('The algorithm proportions must add up to 1 '
-  #                 '(the currently add up to {})'.format(total_proportion))}]
-
-    return input_dict, len(ans) == 0, ans
+    try:
+      if len(messages)>0:
+        raise Exception("Failed to verify: {}".format(messages))
+      else:
+        return input_dict
+    except Exception, error:
+      exc_type, exc_value, exc_traceback = sys.exc_info()
+      print "Exception: {} {}".format(error, traceback.format_exc())
+      traceback.print_tb(exc_traceback)
+      raise Exception(error)
 
 def verify_helper(name, input_element, reference_dict):
     """

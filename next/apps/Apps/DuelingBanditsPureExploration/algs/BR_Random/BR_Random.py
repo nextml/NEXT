@@ -13,7 +13,7 @@ from next.apps.Apps.DuelingBanditsPureExploration.Prototype import DuelingBandit
 
 class BR_Random(DuelingBanditsPureExplorationPrototype):
 
-  def initExp(self, butler, n, failure_probability, params, **kwargs):
+  def initExp(self, butler, n, failure_probability, params):
     """
     This function is meant to set keys used later by the algorith implemented
     in this file.
