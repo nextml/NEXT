@@ -61,7 +61,7 @@ Log-specific functionality
 System logs
 *************
 Initializing::\n
-    from next.database.DatabaseAPI import DatabaseAPI
+    from next.database_client.DatabaseAPI import DatabaseAPI
     import datetime
     db = DatabaseAPI()
 
@@ -671,6 +671,44 @@ class DatabaseAPI(object):
         except:
             error = "DatabaseAPI.set Failed with unknown exception"
             return False,error
+
+    def set_many(self,bucket_id,doc_uid,key_value_dict):
+        """
+        sets key, values in dict. If key does not exist, sets {key:value}
+
+        Inputs:
+            (string) bucket_id, (string) doc_uid, ({(str)key1:(float)value1,(int)key2:(float) value2}) key_value_dict
+
+        Outputs:
+            (bool) didSucceed, (string) message
+
+        Usage: ::\n
+            didSucceed,message = db.set_many(bucket_id,doc_uid,key_value_dict)
+        """
+        try:
+            if USE_CACHE:
+                # need to implement cache!!
+                #############################
+
+                response,dt = utils.timeit(self.permStore.set_many)(constants.app_data_database_id,bucket_id,doc_uid,key_value_dict)
+                didSucceed,message = response
+                self.duration_permStoreSet += dt
+                if not didSucceed:
+                    return False,message
+                return True,'Hit PermStore'
+
+            else:
+                response,dt = utils.timeit(self.permStore.set_many)(constants.app_data_database_id,bucket_id,doc_uid,key_value_dict)
+                didSucceed,message = response
+                self.duration_permStoreSet += dt
+                if not didSucceed:
+                    return False,message
+                return True,'Hit PermStore'
+
+
+        except:
+            return None,False,'DatabaseAPI.set_many Failed with unknown exception'
+
 
     def delete(self,bucket_id,doc_uid,key):
         """

@@ -277,7 +277,7 @@ class ResourceManager:
 
         app_id = self.get_app_id(exp_uid)
 
-        log_types = ['APP-CALL','APP-RESPONSE','APP-EXCEPTION','ALG-DURATION','ALG-EVALUATION']
+        log_types = ['APP-EXCEPTION','ALG-DURATION','ALG-EVALUATION']
 
         all_logs = []
         for log_type in log_types:

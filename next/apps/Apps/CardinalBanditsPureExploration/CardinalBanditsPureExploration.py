@@ -47,20 +47,12 @@ class CardinalBanditsPureExploration(object):
 
         return exp_data,alg_data
 
-    def prealg_getQuery(self,exp_uid, query_request, butler):
-        participant_uid = query_request['args'].get('participant_uid',exp_uid)
-
-        # figure out which queries have already been asked
-        queries = butler.queries.get(pattern={'participant_uid':participant_uid})
-        do_not_ask_list = []
-        for q in queries:
-            for t in q.get('target_indices',[]):
-                do_not_ask_list.append(t['target']['target_id'])
-        do_not_ask_list = list(set(do_not_ask_list))
+    def prealg_getQuery(self,exp_uid, query_request, participant_doc, butler):
+        do_not_ask_list = participant_doc.get('do_not_ask_list',[])
 
         return {'do_not_ask_list':do_not_ask_list}
 
-    def getQuery(self, exp_uid, query_request, alg_response, butler):
+    def getQuery(self, exp_uid, experiment_dict, query_request, alg_response, butler):
         """
         The function that gets the next query, given a query reguest and
         algorithm response.
@@ -84,8 +76,6 @@ class CardinalBanditsPureExploration(object):
         targets_list = [{'target':target}]
 
         return_dict = {'target_indices':targets_list}
-
-        experiment_dict = butler.experiment.get()
 
         if 'labels' in experiment_dict['args']['rating_scale']:
             labels = experiment_dict['args']['rating_scale']['labels']
@@ -118,6 +108,10 @@ class CardinalBanditsPureExploration(object):
         target_id = query['target_indices'][0]['target']['target_id']     
         target_reward = answer['args']['target_reward']
         butler.experiment.increment(key='num_reported_answers_for_' + query['alg_label'])
+
+        participant_uid = query['participant_uid']
+        butler.participants.append(uid=participant_uid,key='do_not_ask_list',value=target_id)
+
         query_update = {'target_id':target_id,'target_reward':target_reward}
         alg_args_dict = {'target_id':target_id,'target_reward':target_reward}
         return query_update,alg_args_dict

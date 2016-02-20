@@ -45,6 +45,7 @@ class App(object):
 
     def initExp(self, exp_uid, args_json):
         try:
+            self.helper.ensure_indices(self.app_id,self.butler.db, self.butler.ell)
             args_dict = self.helper.convert_json(args_json)
             args_dict = Verifier.verify(args_dict, self.reference_dict['initExp']['values'])
             args_dict['exp_uid'] = exp_uid # to get doc from db
@@ -69,7 +70,10 @@ class App(object):
             return '{}', True, ''
         except Exception, error:
             exc_type, exc_value, exc_traceback = sys.exc_info()
-            print "initExp Exception: {} {}".format(error, traceback.format_exc())
+            full_error = str(traceback.format_exc())+'\n'+str(error)
+            print "initExp Exception: " + full_error
+            log_entry = { 'exp_uid':exp_uid,'task':'initExp','error':full_error,'timestamp':utils.datetimeNow(),'args_json':args_json } 
+            self.butler.ell.log( self.app_id+':APP-EXCEPTION', log_entry  )
             traceback.print_tb(exc_traceback)
             return '{}', False, str(error)
 
@@ -78,7 +82,6 @@ class App(object):
         try:
     	    args_dict = self.helper.convert_json(args_json)
             args_dict = Verifier.verify(args_dict, self.reference_dict['getQuery']['values'])
-            utils.debug_print(args_dict)
             experiment_dict = self.butler.experiment.get()
             alg_list = experiment_dict['args']['alg_list']
             participant_to_algorithm_management = experiment_dict['args']['participant_to_algorithm_management']
@@ -86,7 +89,8 @@ class App(object):
             # Create the participant dictionary in participants bucket if needed. Also pull out label and id for this algorithm
             participant_uid = args_dict['args'].get('participant_uid', args_dict['exp_uid'])
             # Check to see if the first participant has come by and if not, save to db
-            first_participant_query = not self.butler.participants.exists(uid=participant_uid, key="participant_uid")
+            participant_doc = self.butler.participants.get(uid=participant_uid)
+            first_participant_query = participant_doc==None
             if first_participant_query:
                 self.butler.participants.set(uid=participant_uid, value={'exp_uid':exp_uid, 'participant_uid':participant_uid})
             if (participant_uid == exp_uid) or (participant_to_algorithm_management == 'one_to_many') or (first_participant_query):
@@ -99,14 +103,16 @@ class App(object):
                     self.butler.participants.set(uid=participant_uid, key='alg_id',value=alg_id)
                     self.butler.participants.set(uid=participant_uid, key='alg_label',value=alg_label)
             elif (participant_to_algorithm_management=='one_to_one'):
-                alg_id = self.butler.participants.get(uid=participant_uid, key='alg_id')
-                alg_label = self.butler.participants.get(uid=participant_uid, key='alg_label')
+                alg_id = participant_doc['alg_id']
+                alg_label = participant_doc['alg_label']
             # Deal with the issue of not giving a repeat query
-            algs_args_dict = self.myApp.prealg_getQuery(exp_uid, args_dict, self.butler)
+            if first_participant_query:
+                participant_doc = self.butler.participants.get(uid=participant_uid)
+            algs_args_dict = self.myApp.prealg_getQuery(exp_uid, args_dict, participant_doc, self.butler)
             butler = Butler(self.app_id, exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, alg_label, alg_id)
             alg = utils.get_app_alg(self.app_id, alg_id)
             alg_response,dt = utils.timeit(alg.getQuery)(butler,**algs_args_dict)
-            query_doc = self.myApp.getQuery(exp_uid, args_dict, alg_response, self.butler)
+            query_doc = self.myApp.getQuery(exp_uid, experiment_dict, args_dict, alg_response, self.butler)
             query_uid = utils.getNewUID()
             query_doc.update({'participant_uid':participant_uid,
                               'alg_id':alg_id,
@@ -117,11 +123,13 @@ class App(object):
             self.butler.queries.set(uid=query_uid, value=query_doc)
             log_entry_durations = { 'exp_uid':exp_uid,'alg_label':alg_label,'task':'getQuery','duration':dt }
             log_entry_durations.update(butler.algorithms.getDurations())
-            utils.debug_print(query_doc)
             return json.dumps({'args':query_doc,'meta':{'log_entry_durations':log_entry_durations}}), True,''
         except Exception, error:
             exc_type, exc_value, exc_traceback = sys.exc_info()
-            print "getQuery Exception: {} {}".format(error, traceback.format_exc())
+            full_error = str(traceback.format_exc())+'\n'+str(error)
+            print "getQuery Exception: " + full_error
+            log_entry = { 'exp_uid':exp_uid,'task':'getQuery','error':full_error,'timestamp':utils.datetimeNow(),'args_json':args_json } 
+            self.butler.ell.log( self.app_id+':APP-EXCEPTION', log_entry  )
             traceback.print_tb(exc_traceback)
             return '{}', False, str(error)
 
@@ -135,14 +143,12 @@ class App(object):
                               utils.str2datetime(query['timestamp_query_generated']))
             round_trip_time = delta_datetime.seconds + delta_datetime.microseconds/1000000.
             response_time = float(args_dict['args'].get('response_time',0.))
-            self.butler.queries.set(uid=args_dict['args']['query_uid'],key='response_time',value=response_time)
-            self.butler.queries.set(uid=args_dict['args']['query_uid'],key='network_delay',value=round_trip_time - response_time)
-
             butler = Butler(self.app_id, exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, query['alg_label'], query['alg_id'])
             alg = utils.get_app_alg(self.app_id, query['alg_id'])
             query_update,algs_args_dict = self.myApp.processAnswer(exp_uid, query, args_dict, self.butler)
-            for key in query_update:
-                self.butler.queries.set(uid=args_dict['args']['query_uid'], key=key, value=query_update[key])
+            query_update.update({'response_time':response_time,'network_delay':round_trip_time - response_time})
+            self.butler.queries.set_many(uid=args_dict['args']['query_uid'],key_value_dict=query_update)
+            # Push query back to algorithm
             alg_succeed, dt = utils.timeit(alg.processAnswer)(butler, **algs_args_dict)
             log_entry_durations = {'exp_uid':exp_uid, 'alg_label':query['alg_label'], 'task':'processAnswer','duration':dt }
             log_entry_durations.update(butler.algorithms.getDurations())
@@ -151,7 +157,10 @@ class App(object):
             return json.dumps({'args': {}, 'meta': {'log_entry_durations':log_entry_durations}}), True, ''
         except Exception, error:
             exc_type, exc_value, exc_traceback = sys.exc_info()
-    	    print "processAnswer Exception! {} {}".format(error, traceback.format_exc())
+            full_error = str(traceback.format_exc())+'\n'+str(error)
+            print "processAnswer Exception: " + full_error
+            log_entry = { 'exp_uid':exp_uid,'task':'processAnswer','error':full_error,'timestamp':utils.datetimeNow(),'args_json':args_json } 
+            self.butler.ell.log( self.app_id+':APP-EXCEPTION', log_entry  )
     	    traceback.print_tb(exc_traceback)
     	    raise Exception(error)
 
@@ -182,7 +191,10 @@ class App(object):
                                'meta': {'log_entry_durations':log_entry_durations, 'timestamp': str(utils.datetimeNow())}}), True, ''
         except Exception, error:
             exc_type, exc_value, exc_traceback = sys.exc_info()
-            print "getQuery Exception: {} {}".format(error, traceback.format_exc())
+            full_error = str(traceback.format_exc())+'\n'+str(error)
+            print "getModel Exception: " + full_error
+            log_entry = { 'exp_uid':exp_uid,'task':'getModel','error':full_error,'timestamp':utils.datetimeNow(),'args_json':args_json } 
+            self.butler.ell.log( self.app_id+':APP-EXCEPTION', log_entry  )
             traceback.print_tb(exc_traceback)       
             return Exception(error)
 
@@ -195,7 +207,10 @@ class App(object):
             return json.dumps(stats), True, ''
         except Exception, error:
             exc_type, exc_value, exc_traceback = sys.exc_info()
-            print "getStats Exception: {} {}".format(error, traceback.format_exc())
+            full_error = str(traceback.format_exc())+'\n'+str(error)
+            print "getStats Exception: " + full_error
+            log_entry = { 'exp_uid':exp_uid,'task':'getStats','error':full_error,'timestamp':utils.datetimeNow(),'args_json':args_json } 
+            self.butler.ell.log( self.app_id+':APP-EXCEPTION', log_entry  )
             traceback.print_tb(exc_traceback)
             raise Exception(error)
 
@@ -215,6 +230,25 @@ class Helper(object):
         didSucceed,message = ell.delete_logs_with_filter(app_id+':ALG-DURATION',{'exp_uid':exp_uid})
         didSucceed,message = ell.delete_logs_with_filter(app_id+':ALG-EVALUATION',{'exp_uid':exp_uid})
 
+    def ensure_indices(self,app_id,db,ell):
+        # add indexes (only adds them if they do not already exist)
+        didSucceed,message = db.ensure_index('experiments_admin',{'exp_uid':1})
+        didSucceed,message = db.ensure_index(app_id+':experiments',{'exp_uid':1})
+        didSucceed,message = db.ensure_index(app_id+':queries',{'query_uid':1})
+        didSucceed,message = db.ensure_index(app_id+':queries',{'exp_uid':1})
+        didSucceed,message = db.ensure_index(app_id+':queries',{'exp_uid':1,'alg_label':1})
+        didSucceed,message = db.ensure_index(app_id+':queries',{'participant_uid':1})
+        didSucceed,message = db.ensure_index(app_id+':participants',{'participant_uid':1})
+        didSucceed,message = db.ensure_index(app_id+':participants',{'exp_uid':1})
+        didSucceed,message = db.ensure_index(app_id+':algorithms',{'exp_uid':1})
+        didSucceed,message = db.ensure_index(app_id+':algorithms',{'exp_uid':1,'alg_label':1})
+
+        didSucceed,message = ell.ensure_index(app_id+':APP-EXCEPTION',{'exp_uid':1})
+        didSucceed,message = ell.ensure_index(app_id+':ALG-DURATION',{'exp_uid':1})
+        didSucceed,message = ell.ensure_index(app_id+':ALG-DURATION',{'exp_uid':1,'alg_label':1,'task':1})
+        didSucceed,message = ell.ensure_index(app_id+':ALG-EVALUATION',{'exp_uid':1})
+        didSucceed,message = ell.ensure_index(app_id+':ALG-EVALUATION',{'exp_uid':1,'alg_label':1})
+
     def convert_json(self, args_json):
         #TODO: I'd like to see this in utils rather than here.
         # Convert the args JSON to an args dict
@@ -223,13 +257,3 @@ class Helper(object):
         except:
             error = "%s.initExp input args_json is in improper format" % self.app_id
             raise Exception(error)
-
-# TODO: Figure out a good way of handling this.
-            # figure out which queries have already been asked
-            # queries,didSucceed,message = db.get_docs_with_filter(app_id+':queries',{'participant_uid':participant_uid})
-            # do_not_ask_list = []
-            # for q in queries:
-            #     for t in q.get('target_indices',[]):
-            #         do_not_ask_list.append(t['index'])
-            # do_not_ask_list = list(set(do_not_ask_list))
-            # get sandboxed database for the specific app_id,alg_id,exp_uid - closing off the rest of the database to the algorithm

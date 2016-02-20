@@ -576,6 +576,37 @@ class PermStore(object):
             error = "MongoDB.set Failed with unknown exception"
             return False,error
 
+    def set_many(self,database_id,bucket_id,doc_uid,key_value_dict):
+        """
+        sets {key,value} (if already exists, replaces)
+        
+        Inputs: 
+            (string) database_id, (string) bucket_id, (string) doc_uid, (dict of key-values) key_value_dict
+        
+        Outputs:
+            (bool) didSucceed, (string) message 
+        
+        Usage: ::\n
+            didSucceed,message = db.set_many(database_id,bucket_id,doc_uid,key_value_dict)
+        """
+        if self.client == None:
+            didSucceed,message = self.connectToMongoServer()
+            if not didSucceed:
+                return False,message
+
+        try:
+            
+            for key in key_value_dict:
+                key_value_dict[key] = self.makeProperDatabaseFormat(key_value_dict[key])
+
+            message = self.client[database_id][bucket_id].update_one( {"_id":doc_uid} , { '$set': key_value_dict },upsert = True )
+
+            return True,''
+        except:
+            raise
+            error = "MongoDB.set Failed with unknown exception"
+            return False,error
+
     def setDoc(self,database_id,bucket_id,doc_uid,doc):
         """
         set a doc (dictionary of string values). If doc_uid==None, uid automatically assigned

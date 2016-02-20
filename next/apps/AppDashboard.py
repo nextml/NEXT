@@ -32,7 +32,7 @@ class AppDashboard(object):
     from datetime import datetime
     from datetime import timedelta
     start_date_file, _, _ = self.db.get_docs_with_filter('experiments_admin', 
-                                                         {'exp_uid':exp_uid, 'app_id':app_id})
+                                                         {'exp_uid':exp_uid})
     start_date_str = start_date_file[0]['start_date']
     start_date = utils.str2datetime(start_date_str)
     numerical_timestamps = [(utils.str2datetime(item['timestamp_query_generated'])-start_date).total_seconds() 

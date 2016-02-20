@@ -21,6 +21,13 @@ class Collection(object):
             self.timed(self.db.set_doc)(self.collection, uid, value)
         else:
             self.timed(self.db.set)(self.collection, uid, key, value)
+
+    def set_many(self, uid="", key_value_dict=None, exp=None):
+        """
+        For each key in key_value_dict, sets value by key_value_dict[key]
+        """
+        uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp == None else exp))
+        return self.timed(self.db.set_many)(self.collection, uid, key_value_dict)
         
     def get(self, uid="", key=None, pattern=None, exp=None):
         """
