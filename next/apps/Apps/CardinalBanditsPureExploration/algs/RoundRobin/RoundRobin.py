@@ -25,10 +25,17 @@ class RoundRobin(CardinalBanditsPureExplorationPrototype):
 
   
   def getQuery(self,butler,do_not_ask_list):
+    do_not_ask_hash = {key: True for key in do_not_ask_list}
     n = butler.algorithms.get(key='n')
     cnt = butler.algorithms.increment(key='generated_queries_cnt',value=1)
 
-    index = cnt % n
+    k=0
+    while k<n and do_not_ask_hash.get(((cnt+k)%n),False):
+      k+=1
+    if k<n:
+      index = (cnt+k)%n
+    else:
+      index = numpy.random.choice(n)
 
     return index
 

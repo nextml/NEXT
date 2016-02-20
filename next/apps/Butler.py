@@ -39,7 +39,7 @@ class Collection(object):
             else:
                 return self.timed(self.db.get, get=True)(self.collection, uid, key)
         else:
-            return self.timed(self.db.get_docs_by_filter, get=True)(self.collection, pattern)
+            return self.timed(self.db.get_docs_with_filter, get=True)(self.collection, pattern)
 
     def exists(self, uid="", key='_id', exp=None):
         """

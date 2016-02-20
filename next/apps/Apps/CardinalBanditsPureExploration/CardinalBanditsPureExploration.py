@@ -48,7 +48,17 @@ class CardinalBanditsPureExploration(object):
         return exp_data,alg_data
 
     def prealg_getQuery(self,exp_uid, query_request, butler):
-        return {'do_not_ask_list':[]}
+        participant_uid = query_request['args'].get('participant_uid',exp_uid)
+
+        # figure out which queries have already been asked
+        queries = butler.queries.get(pattern={'participant_uid':participant_uid})
+        do_not_ask_list = []
+        for q in queries:
+            for t in q.get('target_indices',[]):
+                do_not_ask_list.append(t['target']['target_id'])
+        do_not_ask_list = list(set(do_not_ask_list))
+
+        return {'do_not_ask_list':do_not_ask_list}
 
     def getQuery(self, exp_uid, query_request, alg_response, butler):
         """
