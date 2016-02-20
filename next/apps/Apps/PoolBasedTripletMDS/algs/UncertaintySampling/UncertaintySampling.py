@@ -13,7 +13,7 @@ import time
 class UncertaintySampling(PoolBasedTripletMDSPrototype):
 
 
-  def initExp(self,butler,n,d,failure_probability,**kwargs):
+  def initExp(self,butler,n,d,failure_probability,params):
     X = numpy.random.randn(n,d)
 
     butler.algorithms.set(key='n',value=n)
@@ -23,7 +23,7 @@ class UncertaintySampling(PoolBasedTripletMDSPrototype):
     return True
 
 
-  def getQuery(self,butler):
+  def getQuery(self,butler,do_not_ask_list):
     n = butler.algorithms.get(key='n')
     d = butler.algorithms.get(key='d')
 

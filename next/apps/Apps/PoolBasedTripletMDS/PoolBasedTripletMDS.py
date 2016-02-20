@@ -1,7 +1,6 @@
 import json
 import next.utils as utils
 import next.apps.SimpleTargetManager
-from next.resource_client.ResourceClient import ResourceClient
 
 class PoolBasedTripletMDS(object):
     def __init__(self):
@@ -16,7 +15,17 @@ class PoolBasedTripletMDS(object):
             n = exp_data['args']['targets']['n']
         exp_data['args']['n'] = n
         del exp_data['args']['targets']
-        return exp_data
+
+        alg_data = {}
+        algorithm_keys = ['n','d','failure_probability']
+        for key in algorithm_keys:
+            if key in exp_data['args']:
+                alg_data[key]=exp_data['args'][key]
+
+        return exp_data,alg_data
+
+    def prealg_getQuery(self,exp_uid, query_request, butler):
+        return {'do_not_ask_list':[]}
 
     def getQuery(self, exp_uid, query_request, alg_response, butler):
         center  = self.TargetManager.get_target_item(exp_uid, alg_response[0])
@@ -45,8 +54,10 @@ class PoolBasedTripletMDS(object):
         if num_reported_answers % ((n+4)/4) == 0:
             butler.job('getModel', json.dumps({'exp_uid':exp_uid,'args':{'alg_label':query['alg_label'], 'logging':True}}))
         q = [left_id, right_id,center_id] if target_winner==left_id else [right_id, left_id,center_id]
-        return {'alg_args':{'left_id':left_id, 'right_id':right_id, 'center_id':center_id, 'target_winner':target_winner},
-                'query_update':{'target_winner':target_winner, 'q':q}}
+
+        algs_args_dict = {'left_id':left_id, 'right_id':right_id, 'center_id':center_id, 'target_winner':target_winner}
+        query_update = {'target_winner':target_winner, 'q':q}
+        return query_update,algs_args_dict
 
     def getModel(self, exp_uid, alg_response, args_dict, butler):
         return {'Xd':alg_response[0], 'num_reported_answers':alg_response[1]}

@@ -4,7 +4,7 @@ from next.apps.Apps.PoolBasedTripletMDS.algs.RandomSampling import utilsMDS
 from next.apps.Apps.PoolBasedTripletMDS.Prototype import PoolBasedTripletMDSPrototype
 
 class RandomSampling(PoolBasedTripletMDSPrototype):
-  def initExp(self,butler, n, d, failure_probability, **kwargs):
+  def initExp(self,butler, n, d, failure_probability,params):
     X = numpy.random.randn(n,d)
     butler.algorithms.set(key='n',value= n)
     butler.algorithms.set(key='d',value= d)
@@ -13,7 +13,7 @@ class RandomSampling(PoolBasedTripletMDSPrototype):
     return True
 
 
-  def getQuery(self,butler):
+  def getQuery(self,butler,do_not_ask_list):
     X = numpy.array(butler.algorithms.get(key='X'))
     q,score = utilsMDS.getRandomQuery(X)
     index_center = q[2]

@@ -43,7 +43,16 @@ class DuelingBanditsPureExploration(object):
             n = exp_data['args']['targets']['n']
         exp_data['args']['n'] = n
         del exp_data['args']['targets']
-        return exp_data
+
+        alg_data = {}
+        algorithm_keys = ['n','failure_probability']
+        for key in algorithm_keys:
+            alg_data[key]=exp_data['args'][key]
+
+        return exp_data,alg_data
+
+    def prealg_getQuery(self,exp_uid, query_request, butler):
+        return {'do_not_ask_list':[]}
 
     def getQuery(self, exp_uid, query_request, alg_response, butler):
         """
@@ -111,11 +120,14 @@ class DuelingBanditsPureExploration(object):
                 
         winner_id = answer['args']['target_winner']
         butler.experiment.increment(key='num_reported_answers_for_' + query['alg_label'])
-        return {'alg_args':{'left_id':left_id, 
-                            'right_id':right_id, 
-                            'winner_id':winner_id,
-                            'painted_id':painted_id},
-                'query_update':{'winner_id':winner_id}}
+
+        query_update = {'winner_id':winner_id}
+        algs_args_dict = {'left_id':left_id, 
+                        'right_id':right_id, 
+                        'winner_id':winner_id,
+                        'painted_id':painted_id}
+        return query_update,algs_args_dict
+                
 
     def getModel(self, exp_uid, alg_response, args_dict, butler):
         scores, precisions = alg_response
