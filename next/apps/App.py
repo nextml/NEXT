@@ -49,10 +49,8 @@ class App(object):
             args_dict = Verifier.verify(args_dict, self.reference_dict['initExp']['values'])
             args_dict['exp_uid'] = exp_uid # to get doc from db
             args_dict['start_date'] = utils.datetime2str(utils.datetimeNow())
-            #do we even need this collection?
             self.butler.db.set_doc('experiments_admin', exp_uid, {'exp_uid': exp_uid, 'app_id':self.app_id, 'start_date':str(utils.datetimeNow()) }) 
-            args_dict,algs_args_dict = self.myApp.initExp(exp_uid, args_dict, self.butler);
-            # TODO: verify algs_args_dict against yaml
+            args_dict,algs_args_dict = self.myApp.initExp(exp_uid, args_dict, self.butler)
             # Set doc in algorithms bucket. These objects are used by the algorithms to store data.
             for algorithm in args_dict['args']['alg_list']:
                 algorithm['exp_uid'] = exp_uid
@@ -103,10 +101,11 @@ class App(object):
             elif (participant_to_algorithm_management=='one_to_one'):
                 alg_id = self.butler.participants.get(uid=participant_uid, key='alg_id')
                 alg_label = self.butler.participants.get(uid=participant_uid, key='alg_label')
-            #TODO: Deal with the issue of not giving a repeat query
+            # Deal with the issue of not giving a repeat query
+            algs_args_dict = self.myApp.prealg_getQuery(exp_uid, args_dict, self.butler)
             butler = Butler(self.app_id, exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, alg_label, alg_id)
             alg = utils.get_app_alg(self.app_id, alg_id)
-            alg_response,dt = utils.timeit(alg.getQuery)(butler)
+            alg_response,dt = utils.timeit(alg.getQuery)(butler,**algs_args_dict)
             query_doc = self.myApp.getQuery(exp_uid, args_dict, alg_response, self.butler)
             query_uid = utils.getNewUID()
             query_doc.update({'participant_uid':participant_uid,
@@ -140,14 +139,14 @@ class App(object):
 
             butler = Butler(self.app_id, exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, query['alg_label'], query['alg_id'])
             alg = utils.get_app_alg(self.app_id, query['alg_id'])
-            app_response = self.myApp.processAnswer(exp_uid, query, args_dict, self.butler)
-            for key in app_response['query_update']:
-                self.butler.queries.set(uid=args_dict['args']['query_uid'], key=key, value=app_response['query_update'][key])
-            alg_succeed, dt = utils.timeit(alg.processAnswer)(butler, **app_response['alg_args'])
+            query_update,algs_args_dict = self.myApp.processAnswer(exp_uid, query, args_dict, self.butler)
+            for key in query_update:
+                self.butler.queries.set(uid=args_dict['args']['query_uid'], key=key, value=query_update[key])
+            alg_succeed, dt = utils.timeit(alg.processAnswer)(butler, **algs_args_dict)
             log_entry_durations = {'exp_uid':exp_uid, 'alg_label':query['alg_label'], 'task':'processAnswer','duration':dt }
             log_entry_durations.update(butler.algorithms.getDurations())
             if not alg_succeed:
-                    raise Exception('Algorithm {} failed to initialize.'.format(query['alg_label']))
+                raise Exception('Algorithm {} failed to processAnswer.'.format(query['alg_label']))
             return json.dumps({'args': {}, 'meta': {'log_entry_durations':log_entry_durations}}), True, ''
         except Exception, error:
             exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -158,7 +157,7 @@ class App(object):
     def getModel(self, exp_uid, args_json):
         try:
             args_dict = self.helper.convert_json(args_json)
-            args_dict, success, messages = Verifier.verify(args_dict, self.reference_dict['getModel']['values'])
+            args_dict = Verifier.verify(args_dict, self.reference_dict['getModel']['values'])
             
             alg_label = args_dict['args']['alg_label']
             args = self.butler.experiment.get(key='args')

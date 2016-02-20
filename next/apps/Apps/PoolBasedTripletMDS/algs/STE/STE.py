@@ -13,7 +13,7 @@ import time
 class STE(PoolBasedTripletMDSPrototype):
 
 
-  def initExp(self,butler,n,d,failure_probability,**kwargs):
+  def initExp(self,butler,n,d,failure_probability,params):
     X = numpy.random.randn(n,d)*.0001
     tau = numpy.random.rand(n,n)
 
@@ -25,7 +25,7 @@ class STE(PoolBasedTripletMDSPrototype):
     return True
 
 
-  def getQuery(self,butler):
+  def getQuery(self,butler,do_not_ask_list):
     R = 10
     n = butler.algorithms.get(key='n')
     d = butler.algorithms.get(key='d')

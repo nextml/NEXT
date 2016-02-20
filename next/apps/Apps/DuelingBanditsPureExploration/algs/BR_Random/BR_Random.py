@@ -28,23 +28,8 @@ class BR_Random(DuelingBanditsPureExplorationPrototype):
 
     return True
 
-  
-  def getQuery(self,resource):
-    n = resource.get('n')
-    index = numpy.random.choice(n)
-    alt_index = numpy.random.choice(n)
-    while alt_index==index:
-      alt_index = numpy.random.choice(n)
 
-    random_fork = numpy.random.choice(2)
-    if random_fork==0:
-      return [index,alt_index,index]
-    else:
-      return [alt_index,index,index]
-
-  def getQuery(self, butler):
-    beta = 0.0 # algorithm parameter
-
+  def getQuery(self,butler, do_not_ask_list):
     n = butler.algorithms.get(key='n')
 
     index = numpy.random.choice(n)

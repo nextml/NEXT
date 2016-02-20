@@ -12,7 +12,7 @@ import time
 
 class CrowdKernel(PoolBasedTripletMDSPrototype):
 
-  def initExp(self,butler,n,d,failure_probability,**kwargs):
+  def initExp(self,butler,n,d,failure_probability,params):
     X = numpy.random.randn(n,d)*.0001
     tau = numpy.random.rand(n,n)
 
@@ -26,7 +26,7 @@ class CrowdKernel(PoolBasedTripletMDSPrototype):
     return True
 
 
-  def getQuery(self,butler):
+  def getQuery(self,butler,do_not_ask_list):
     R = 10
     n = butler.algorithms.get(key='n')
     num_reported_answers = butler.algorithms.get(key='num_reported_answers')
