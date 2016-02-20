@@ -16,9 +16,9 @@ HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')+':'+os.enviro
 def run_all(assert_200):
 
   app_id = 'CardinalBanditsPureExploration'
-  num_arms = 25
+  num_arms = 50
   true_means = numpy.array(range(num_arms)[::-1])/float(num_arms)
-  total_pulls_per_client = 500
+  total_pulls_per_client = 25
 
   num_experiments = 1
 
@@ -67,11 +67,9 @@ def run_all(assert_200):
   initExp_args_dict['args']['instructions'] = 'You want instructions, here are your test instructions'
   initExp_args_dict['args']['debrief'] = 'You want a debrief, here is your test debrief'
   initExp_args_dict['args']['context_type'] = 'text'
-  initExp_args_dict['args']['context'] = 'Boom baby dueling works'
+  initExp_args_dict['args']['context'] = 'This is a context'
   initExp_args_dict['args']['rating_scale'] = {'labels':labels}
   initExp_args_dict['app_id'] = app_id
-  initExp_args_dict['site_id'] = 'replace this with working site id'
-  initExp_args_dict['site_key'] = 'replace this with working site key'
 
   exp_info = []
   for ell in range(num_experiments):

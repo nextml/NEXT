@@ -81,10 +81,20 @@ class CardinalBanditsPureExploration(object):
         TODO: Document this further
         """
         target = self.TargetManager.get_target_item(exp_uid, alg_response)
-
         targets_list = [{'target':target}]
 
-        return {'target_indices':targets_list}
+        return_dict = {'target_indices':targets_list}
+
+        experiment_dict = butler.experiment.get()
+
+        if 'labels' in experiment_dict['args']['rating_scale']:
+            labels = experiment_dict['args']['rating_scale']['labels']
+            return_dict.update({'labels':labels})
+
+        if 'context' in experiment_dict['args'] and 'context_type' in experiment_dict['args']:
+            return_dict.update({'context':experiment_dict['args']['context'],'context_type':experiment_dict['args']['context_type']})
+
+        return return_dict
 
     def processAnswer(self, exp_uid, query, answer, butler):
         """

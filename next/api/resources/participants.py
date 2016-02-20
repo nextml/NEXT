@@ -99,11 +99,6 @@ class Participants(Resource):
                                                              exp_uid)
             # Append participant query responses to list
             participant_responses[participant] = response
-            
-        for participant, responses in participant_responses.iteritems():
-            for response in responses:
-                for target_id in response['target_id']:
-                    target_id['target'] = targetmapper.get_target_item(exp_uid, target_id)
 
         all_responses = {'participant_responses': participant_responses}
         if zip_true:

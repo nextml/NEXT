@@ -92,7 +92,6 @@ class ResourceManager:
             rm.get_app_exp_uids('PoolBasedTripletMDS')
         """
         docs,didSucceed,message = db.get_docs_with_filter(app_id+':experiments',{})
-        utils.debug_print("ASD",docs)
         
         exp_uids = []
         for doc in docs:
@@ -158,7 +157,6 @@ class ResourceManager:
         	app_id = rm.get_app_id('b5242319c78df48f4ff31e78de5857')
         """
         app_id,didSucceed,message = db.get('experiments_admin',exp_uid,'app_id')
-        print "getting app_id", app_id, didSucceed,message, exp_uid 
         return app_id
 
 
@@ -239,7 +237,6 @@ class ResourceManager:
         app_id = self.get_app_id(exp_uid)
         participants,didSucceed,message = db.get_docs_with_filter(app_id+':participants',{'exp_uid':exp_uid})
         participant_uid_list = []
-        print "participants for ", exp_uid, participants
         for participant in participants:
             participant_uid = participant['participant_uid']
             participant_uid_list.append(participant_uid)

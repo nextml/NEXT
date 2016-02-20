@@ -117,6 +117,7 @@ class App(object):
             self.butler.queries.set(uid=query_uid, value=query_doc)
             log_entry_durations = { 'exp_uid':exp_uid,'alg_label':alg_label,'task':'getQuery','duration':dt }
             log_entry_durations.update(butler.algorithms.getDurations())
+            utils.debug_print(query_doc)
             return json.dumps({'args':query_doc,'meta':{'log_entry_durations':log_entry_durations}}), True,''
         except Exception, error:
             exc_type, exc_value, exc_traceback = sys.exc_info()

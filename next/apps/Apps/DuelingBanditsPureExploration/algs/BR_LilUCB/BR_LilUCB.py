@@ -21,10 +21,12 @@ class BR_LilUCB(DuelingBanditsPureExplorationPrototype):
     butler.algorithms.set(key='n', value=n)
     butler.algorithms.set(key='failure_probability', value=failure_probability)
 
-    butler.algorithms.set(key='total_pulls', value=0)
+    arm_key_value_dict = {}
     for i in range(n):
-      butler.algorithms.set(key='Xsum_'+str(i), value=0.0)
-      butler.algorithms.set(key='T_'+str(i), value=0.0)
+      arm_key_value_dict['Xsum_'+str(i)] = 0.
+      arm_key_value_dict['T_'+str(i)] = 0.
+    arm_key_value_dict.update({'total_pulls':0})
+    butler.algorithms.increment_many(key_value_dict=arm_key_value_dict)
 
     return True
   

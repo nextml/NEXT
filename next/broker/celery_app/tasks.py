@@ -63,7 +63,6 @@ def apply_sync_by_namespace(app_id, exp_uid, alg_id, alg_label, task_name, args,
 		print '>>>>>>>> Starting namespace:%s,  job_uid=%s,  time_enqueued=%s <<<<<<<<<' % (namespace,job_uid,time_enqueued)
                 next_alg = next.utils.get_app_alg(app_id, alg_id)
                 butler = Butler(app_id, exp_uid, targets, db, ell, alg_label, alg_id)
-                print "tasksadsfaf", args
 		response,dt = next.utils.timeit(getattr(next_alg, task_name))(butler, args)
                 log_entry_durations = { 'exp_uid':exp_uid,'alg_label':alg_label,'task':'daemonProcess','duration':dt }
                 log_entry_durations.update(butler.algorithms.getDurations())

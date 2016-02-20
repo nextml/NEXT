@@ -14,12 +14,13 @@ class LilUCB(CardinalBanditsPureExplorationPrototype):
     butler.algorithms.set(key='n', value=n)
     butler.algorithms.set(key='failure_probability',value=failure_probability)
     butler.algorithms.set(key='R',value=R)
-    butler.algorithms.increment(key='generated_queries_cnt',value=-1)
-    butler.algorithms.increment(key='total_pulls',value=0)
+    arm_key_value_dict = {}
     for i in range(n):
-      butler.algorithms.increment(key='Xsum_'+str(i),value=0.)
-      butler.algorithms.increment(key='X2sum_'+str(i),value=0.)
-      butler.algorithms.increment(key='T_'+str(i),value=0)
+      arm_key_value_dict['Xsum_'+str(i)] = 0.
+      arm_key_value_dict['X2sum_'+str(i)] = 0.
+      arm_key_value_dict['T_'+str(i)] = 0.
+    arm_key_value_dict.update({'total_pulls':0})
+    butler.algorithms.increment_many(key_value_dict=arm_key_value_dict)
 
     return True
 

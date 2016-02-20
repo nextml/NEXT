@@ -91,10 +91,12 @@ initExp:
           description: What type of content will the participant see every query? An image, video or text?
           values: [image, text, video]
           type: str
+          optional: true
 
         context:
           description: The URL of the image/video or text of the context.
           type: str
+          optional: true
 
         targets:
           description: targets

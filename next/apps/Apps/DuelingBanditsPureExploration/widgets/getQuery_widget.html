@@ -73,18 +73,19 @@ div.row > div.col-xs-12 {
 
 </style>
 <br>
-{% if query.context_type != "none" %}
+
+{% if query.context_type %}
 <div class="row" id="center">
   <div class="col-xs-12"> 
       {% if query.context_type == "text" %}
       <div style="display:table;height:100%;width:100%;">
-	<div class="center-block text"> 
-	  {{ query.context }}
-	</div>
+		<div class="center-block text"> 
+		  {{ query.context }}
+		</div>
       </div>
       {% elif query.context_type == "image" or query.context_type == "img" %}
       <div class="image_container">
-	<img src='{{ query.context }}'> </img>
+		<img src='{{ query.context }}'> </img>
       </div>
       {% endif %}
   </div>
