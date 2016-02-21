@@ -6,6 +6,7 @@ import shutil
 import tempfile
 import subprocess
 import next.constants as constants
+from pymongo import MongoClient
 
 def make_mongodump(name,exp_uid_list=[]):
     tmp_dir = tempfile.mkdtemp()
@@ -20,15 +21,18 @@ def make_mongodump(name,exp_uid_list=[]):
 
         query_str = '\'{ $or: [ {"exp_uid":{$in:%s}}, {"object_id":{$in:%s}} ] }\'' %  (exp_uid_list_str,exp_uid_list_str)
 
-        subprocess.call(('/usr/bin/mongodump -vvvvv --host {hostname}:{port} '
-                         '--out {path} --query {query_str}').format(hostname=constants.MONGODB_HOST,
+        client = MongoClient(constants.MONGODB_HOST, constants.MONGODB_PORT)
+        for db in client.database_names():
+          for col in client[db].collection_names():
+            subprocess.call(('/usr/bin/mongodump -vvvvv --host {hostname}:{port} '
+                         '--out {path} -d '+str(db)+' -c '+str(col)+' --query {query_str}').format(hostname=constants.MONGODB_HOST,
                                                           port=constants.MONGODB_PORT,
                                                           path=tmp_dir,
                                                           query_str=query_str),
                         shell=True)
     subprocess.call('mkdir -p /dump',shell=True)
     subprocess.call(('tar czf /dump/{name} '
-                     '{path}').format(name=name,path=tmp_dir),
+                     '-C {path} .').format(name=name,path=tmp_dir),
                     shell=True)
     
     shutil.rmtree(tmp_dir)
