@@ -37,6 +37,7 @@ minionworker:
    - CELERY_SYNC_WORKER_COUNT={{CELERY_SYNC_WORKER_COUNT}}
    - CELERY_ASYNC_WORKER_COUNT={{CELERY_ASYNC_WORKER_COUNT}}
    - CELERY_THREADS_PER_ASYNC_WORKER={{CELERY_THREADS_PER_ASYNC_WORKER}}
+   - CELERY_ASYNC_WORKER_PREFETCH={{CELERY_ASYNC_WORKER_PREFETCH}}
    - GIT_HASH={{GIT_HASH}}
    - PYTHONPATH=:/next_backend
 ####################################
@@ -64,8 +65,6 @@ nextbackenddocker:
    - NEXT_BACKEND_GLOBAL_PORT
    - GIT_HASH={{GIT_HASH}}
    - TERM=xterm
-   # Remove this line to use celery
-   - CELERY_ON=false
 ####################################
 
 
