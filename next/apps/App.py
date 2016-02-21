@@ -234,12 +234,10 @@ class Helper(object):
         # add indexes (only adds them if they do not already exist)
         didSucceed,message = db.ensure_index('experiments_admin',{'exp_uid':1})
         didSucceed,message = db.ensure_index(app_id+':experiments',{'exp_uid':1})
-        didSucceed,message = db.ensure_index(app_id+':queries',{'query_uid':1})
         didSucceed,message = db.ensure_index(app_id+':queries',{'exp_uid':1})
-        didSucceed,message = db.ensure_index(app_id+':queries',{'exp_uid':1,'alg_label':1})
         didSucceed,message = db.ensure_index(app_id+':queries',{'participant_uid':1})
-        didSucceed,message = db.ensure_index(app_id+':participants',{'participant_uid':1})
         didSucceed,message = db.ensure_index(app_id+':participants',{'exp_uid':1})
+        didSucceed,message = db.ensure_index(app_id+':participants',{'participant_uid':1})
         didSucceed,message = db.ensure_index(app_id+':algorithms',{'exp_uid':1})
         didSucceed,message = db.ensure_index(app_id+':algorithms',{'exp_uid':1,'alg_label':1})
 

@@ -135,8 +135,8 @@ class PermStore(object):
         client : MongoDB client
     """
     def __init__(self): 
-        self.client = MongoClient(constants.MONGODB_HOST, constants.MONGODB_PORT)
-#        self.client.write_concern = {'w':0}
+        # w=0 makes it so the write signal is fired off and and does not wait for acknowledgment
+        self.client = MongoClient(constants.MONGODB_HOST, constants.MONGODB_PORT,w=0)
 
     def __del__(self):
         try:
@@ -147,12 +147,11 @@ class PermStore(object):
 
     def connectToMongoServer(self):
         try:
-            self.client = MongoClient(constants.MONGODB_HOST, constants.MONGODB_PORT)
+            # w=0 makes it so the write signal is fired off and and does not wait for acknowledgment
+            self.client = MongoClient(constants.MONGODB_HOST, constants.MONGODB_PORT,w=0)
 
             
             if self.assertConnection():
-                # This makes it so the write signal is fired off and and does not wait for acknowledgment
-#                self.client.write_concern = {'w':0}
                 return True,''
             else:
                 raise
