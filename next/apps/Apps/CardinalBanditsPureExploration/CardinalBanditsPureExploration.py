@@ -107,7 +107,6 @@ class CardinalBanditsPureExploration(object):
         """
         target_id = query['target_indices'][0]['target']['target_id']     
         target_reward = answer['args']['target_reward']
-        butler.experiment.increment(key='num_reported_answers_for_' + query['alg_label'])
 
         participant_uid = query['participant_uid']
         butler.participants.append(uid=participant_uid,key='do_not_ask_list',value=target_id)

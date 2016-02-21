@@ -92,6 +92,8 @@ class App(object):
             participant_doc = self.butler.participants.get(uid=participant_uid)
             first_participant_query = participant_doc==None
             if first_participant_query:
+                participant_doc = {}
+            if first_participant_query:
                 self.butler.participants.set(uid=participant_uid, value={'exp_uid':exp_uid, 'participant_uid':participant_uid})
             if (participant_uid == exp_uid) or (participant_to_algorithm_management == 'one_to_many') or (first_participant_query):
                 if algorithm_management_settings['mode'] == 'fixed_proportions':
@@ -106,8 +108,6 @@ class App(object):
                 alg_id = participant_doc['alg_id']
                 alg_label = participant_doc['alg_label']
             # Deal with the issue of not giving a repeat query
-            if first_participant_query:
-                participant_doc = self.butler.participants.get(uid=participant_uid)
             algs_args_dict = self.myApp.prealg_getQuery(exp_uid, args_dict, participant_doc, self.butler)
             butler = Butler(self.app_id, exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, alg_label, alg_id)
             alg = utils.get_app_alg(self.app_id, alg_id)
