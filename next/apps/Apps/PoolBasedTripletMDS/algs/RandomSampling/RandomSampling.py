@@ -13,7 +13,7 @@ class RandomSampling(PoolBasedTripletMDSPrototype):
     return True
 
 
-  def getQuery(self,butler,do_not_ask_list):
+  def getQuery(self,butler,participant_dict,**kwargs):
     X = numpy.array(butler.algorithms.get(key='X'))
     q,score = utilsMDS.getRandomQuery(X)
     index_center = q[2]

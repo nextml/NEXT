@@ -25,8 +25,9 @@ class RoundRobin(CardinalBanditsPureExplorationPrototype):
     return True
 
   
-  def getQuery(self,butler,do_not_ask_list):
-    do_not_ask_hash = {key: True for key in do_not_ask_list}
+  def getQuery(self,butler,participant_dict,**kwargs):
+    do_not_ask_hash = {key: True for key in participant_dict.get('do_not_ask_list',[])}
+    
     n = butler.algorithms.get(key='n')
     cnt = butler.algorithms.increment(key='generated_queries_cnt',value=1)
 

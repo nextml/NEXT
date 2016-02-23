@@ -47,11 +47,6 @@ class CardinalBanditsPureExploration(object):
 
         return exp_data,alg_data
 
-    def prealg_getQuery(self,exp_uid, query_request, participant_doc, butler):
-        do_not_ask_list = participant_doc.get('do_not_ask_list',[])
-
-        return {'do_not_ask_list':do_not_ask_list}
-
     def getQuery(self, exp_uid, experiment_dict, query_request, alg_response, butler):
         """
         The function that gets the next query, given a query reguest and

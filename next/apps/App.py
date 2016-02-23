@@ -108,10 +108,9 @@ class App(object):
                 alg_id = participant_doc['alg_id']
                 alg_label = participant_doc['alg_label']
             # Deal with the issue of not giving a repeat query
-            algs_args_dict = self.myApp.prealg_getQuery(exp_uid, args_dict, participant_doc, self.butler)
             butler = Butler(self.app_id, exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, alg_label, alg_id)
             alg = utils.get_app_alg(self.app_id, alg_id)
-            alg_response,dt = utils.timeit(alg.getQuery)(butler,**algs_args_dict)
+            alg_response,dt = utils.timeit(alg.getQuery)(butler,participant_doc,**args_dict)
             query_doc = self.myApp.getQuery(exp_uid, experiment_dict, args_dict, alg_response, self.butler)
             query_uid = utils.getNewUID()
             query_doc.update({'participant_uid':participant_uid,

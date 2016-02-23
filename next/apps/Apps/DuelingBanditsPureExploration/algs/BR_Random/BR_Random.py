@@ -31,7 +31,7 @@ class RoundRobin(CardinalBanditsPureExplorationPrototype):
 
     return True
 
-  def getQuery(self, butler,do_not_ask_list):
+  def getQuery(self,butler,participant_dict,**kwargs):
     n = butler.algorithms.get(key='n')
 
     index = numpy.random.choice(n)

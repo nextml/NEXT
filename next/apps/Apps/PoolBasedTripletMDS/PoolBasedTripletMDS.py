@@ -24,9 +24,6 @@ class PoolBasedTripletMDS(object):
 
         return exp_data,alg_data
 
-    def prealg_getQuery(self,exp_uid, query_request, participant_doc, butler):
-        return {'do_not_ask_list':[]}
-
     def getQuery(self, exp_uid, experiment_dict, query_request, alg_response, butler):
         center  = self.TargetManager.get_target_item(exp_uid, alg_response[0])
         left  = self.TargetManager.get_target_item(exp_uid, alg_response[1])

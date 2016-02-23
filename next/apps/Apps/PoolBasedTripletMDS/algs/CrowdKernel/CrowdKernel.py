@@ -26,7 +26,7 @@ class CrowdKernel(PoolBasedTripletMDSPrototype):
     return True
 
 
-  def getQuery(self,butler,do_not_ask_list):
+  def getQuery(self,butler,participant_dict,**kwargs):
     R = 10
     n = butler.algorithms.get(key='n')
     num_reported_answers = butler.algorithms.get(key='num_reported_answers')

@@ -30,7 +30,7 @@ class BR_LilUCB(DuelingBanditsPureExplorationPrototype):
 
     return True
   
-  def getQuery(self, butler, do_not_ask_list):
+  def getQuery(self,butler,participant_dict,**kwargs):
     beta = 0.0 # algorithm parameter
 
     key_value_dict = butler.algorithms.get()
