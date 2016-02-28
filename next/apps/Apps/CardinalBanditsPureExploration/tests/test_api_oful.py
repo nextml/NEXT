@@ -16,14 +16,14 @@ HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')+':'+os.enviro
 def run_all(assert_200):
 
   app_id = 'CardinalBanditsPureExploration'
-  num_arms = 5000
+  num_arms = 30
   true_means = numpy.array(range(num_arms)[::-1])/float(num_arms)
-  total_pulls_per_client = 10000
+  total_pulls_per_client = 20
 
   num_experiments = 1
 
   # clients run in simultaneous fashion using multiprocessing library
-  num_clients = 500
+  num_clients = 1
 
   pool = Pool(processes=num_clients)           
 
@@ -32,6 +32,7 @@ def run_all(assert_200):
   n = num_arms
   delta = 0.05
   supported_alg_ids = ['RoundRobin','LilUCB']
+  supported_alg_ids = ['OFUL']
 
   labels = [{'label':'bad','reward':1.},{'label':'neutral','reward':2.},{'label':'good','reward':3.}]
 
@@ -40,6 +41,8 @@ def run_all(assert_200):
     alg_item = {}
     alg_item['alg_id'] = alg_id
     alg_item['alg_label'] = alg_id+'_'+str(i)
+    if 'OFUL' in supported_alg_ids:
+      alg_item['params'] = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
     #alg_item['params'] = {}
     alg_list.append(alg_item)
   params = []
@@ -125,9 +128,6 @@ def simulate_one_client( input_args ):
   getQuery_times = []
   processAnswer_times = []
   for t in range(total_pulls):
-    if (t % 50) == 0:
-      participant_uid = '%030x' % random.randrange(16**30)
-
     print "    Participant {} had {} total pulls: ".format(participant_uid, t)
 
     #######################################
@@ -149,6 +149,9 @@ def simulate_one_client( input_args ):
     
 
     query_dict = json.loads(response.text)
+    if 'fail' in query_dict['meta']['status'].lower():
+        print 'getQuery failed... exiting'
+        sys.exit()
     query_uid = query_dict['query_uid']
     targets = query_dict['target_indices']
     target_index = targets[0]['target']['target_id']

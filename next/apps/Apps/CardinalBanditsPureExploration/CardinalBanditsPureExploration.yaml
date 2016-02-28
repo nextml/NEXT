@@ -41,10 +41,15 @@ initExp:
               alg_id:
                 description: A supported algorithm type in the system.
                 type: str
-                values: [RoundRobin,LilUCB]
+                values: [RoundRobin,LilUCB,OFUL]
               alg_label:
                 description: A name for this algorithm of your choosing.
                 type: str
+              params:
+                type: matrix
+                values: []
+                description: algorithm specific parameters. We have taken this to be a matrix with column i to be feature i.
+                optional: true
 
         instructions:
           description: The instructions the particpant will see when experiment first launched.
