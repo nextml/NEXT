@@ -1,4 +1,5 @@
 import numpy
+import numpy as np
 import numpy.random
 import random
 import json
@@ -18,7 +19,7 @@ def run_all(assert_200):
   app_id = 'CardinalBanditsPureExploration'
   num_arms = 30
   true_means = numpy.array(range(num_arms)[::-1])/float(num_arms)
-  total_pulls_per_client = 20
+  total_pulls_per_client = 2
 
   num_experiments = 1
 
@@ -34,7 +35,7 @@ def run_all(assert_200):
   supported_alg_ids = ['RoundRobin','LilUCB']
   supported_alg_ids = ['OFUL']
 
-  labels = [{'label':'bad','reward':1.},{'label':'neutral','reward':2.},{'label':'good','reward':3.}]
+  labels = [{'label':'bad','reward':1.}, {'label':'good','reward':2.}]
 
   alg_list = []
   for i, alg_id in enumerate(supported_alg_ids):
@@ -42,7 +43,8 @@ def run_all(assert_200):
     alg_item['alg_id'] = alg_id
     alg_item['alg_label'] = alg_id+'_'+str(i)
     if 'OFUL' in supported_alg_ids:
-      alg_item['params'] = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+      X = np.random.rand(10, num_arms)
+      alg_item['params'] = X.tolist()
     #alg_item['params'] = {}
     alg_list.append(alg_item)
   params = []
