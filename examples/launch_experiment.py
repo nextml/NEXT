@@ -209,8 +209,6 @@ def launch_experiment(host, experiment_list, AWS_ID, AWS_KEY, AWS_BUCKET_NAME):
       experiment['initExp']['args']['context_type'] = experiment['context_type']
 
     print 'launch:211', experiment['initExp']['args'].keys()
-    targets = experiment['initExp']['args']['targets']
-    n = targets['n'] if 'n' in targets.keys() else len(targets)
     # Upload targets
     if 'primary_target_file' in experiment.keys():
         targets = generate_target_blob(AWS_BUCKET_NAME=AWS_BUCKET_NAME,
@@ -221,9 +219,14 @@ def launch_experiment(host, experiment_list, AWS_ID, AWS_KEY, AWS_BUCKET_NAME):
                                        primary_type=experiment['primary_type'],
                                        alt_file=experiment.get('alt_target_file', None),
                                        alt_type=experiment.get('alt_type','text'))
-        experiment['initExp']['args']['targets']['targets'] = targets
+        experiment['initExp']['args']['targets'] = {'targetset': targets}
+        del experiment['primary_target_file']
     else:
         experiment['initExp']['args']['targets']['n'] = n
+
+    targets = experiment['initExp']['args']['targets']
+    n = targets['n'] if 'n' in targets.keys() else len(targets)
+
     url = 'http://{}/api/experiment'.format(host)
     print 'Initializing experiment', experiment['initExp']
     response = requests.post(url,
