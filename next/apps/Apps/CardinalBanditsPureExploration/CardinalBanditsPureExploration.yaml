@@ -85,6 +85,11 @@ initExp:
                   proportion:
                     description: Proportion of queries to give to this algorithm.
                     type: num
+        R:
+          description: sub-Gaussian parameter, e.g. E[exp(t*X)]<=exp(t^2 R^2/2), defaults to R=0.5 (satisfies X \in [0,1])
+          type: num
+          default: 0.5
+          optional: true
 
         num_tries:
           description: The number of queries the participant will answer.
