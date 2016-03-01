@@ -43,7 +43,7 @@ def generate_target_blob(AWS_BUCKET_NAME,
 
     Inputs: ::\n
         file: fully qualified path of a file on the system.
-	      Must be a zipfile with pictures or a text file.
+          Must be a zipfile with pictures or a text file.
         prefix: string to prefix every uploaded file name with
         AWS_BUCKET_NAME: Aws bucket name
         AWS_ID: Aws id
@@ -117,7 +117,7 @@ def generate_target_blob(AWS_BUCKET_NAME,
                           'alt_type': 'text',
                           'alt_description':line}
                 targets.append(target)
-    return {'target_blob' : targets}
+    return targets
 
 def get_AWS_bucket(AWS_BUCKET_NAME,AWS_ID, AWS_KEY):
     """
@@ -178,15 +178,15 @@ def launch_experiment(host, experiment_list, AWS_ID, AWS_KEY, AWS_BUCKET_NAME):
   Initialize experiment from an array in an experiment file.
 
   Inputs: ::\n
-  	host: hostname of server running next_frontend_base
-  	experiment_file: Fully qualified system name of file containing experiment info. Should contain an array called experiment_list, whose elements are dictionaries containing all the info needed to launch an experiment. The dictionary must contain the key initExp, a qualified experiment initialization dictionary. It can also contain an optional target_file key that should be the fully qualified name of a target_file on the system. The target_file can be either text (must end in .txt) or a zipfile containing images (which must end in .zip). Can also add additional context_type and context keys. If the context_type is an image, the context must be a fully qualified file name.
+    host: hostname of server running next_frontend_base
+    experiment_file: Fully qualified system name of file containing experiment info. Should contain an array called experiment_list, whose elements are dictionaries containing all the info needed to launch an experiment. The dictionary must contain the key initExp, a qualified experiment initialization dictionary. It can also contain an optional target_file key that should be the fully qualified name of a target_file on the system. The target_file can be either text (must end in .txt) or a zipfile containing images (which must end in .zip). Can also add additional context_type and context keys. If the context_type is an image, the context must be a fully qualified file name.
 
-  	AWS_ID: Aws id
-  	AWS_KEY: Aws key
+    AWS_ID: Aws id
+    AWS_KEY: Aws key
   """
   exp_uid_list = []
-  exp_key_list = []
-  widget_key_list = []
+  #exp_key_list = []
+  #widget_key_list = []
   # establish S3 connection and use boto get_bucket
   bucket = get_AWS_bucket(AWS_BUCKET_NAME, AWS_ID, AWS_KEY)
 
@@ -208,51 +208,47 @@ def launch_experiment(host, experiment_list, AWS_ID, AWS_KEY, AWS_BUCKET_NAME):
       experiment['initExp']['args']['context'] = experiment['context']
       experiment['initExp']['args']['context_type'] = experiment['context_type']
 
-    url = 'http://{}/api/experiment'.format(host)
-    print 'Initializing experiment', experiment['initExp']
-    response = requests.post(url, json.dumps(experiment['initExp']), headers={'content-type':'application/json'})
-
-    print response.text
-    initExp_response_dict = json.loads(response.text)
-    exp_uid = initExp_response_dict['exp_uid']
-    exp_key = initExp_response_dict['exp_key']
-    perm_key = initExp_response_dict['perm_key']
-
-    exp_uid_list.append(str(exp_uid))
-    exp_key_list.append(str(exp_key))
-    widget_key_list.append(str(perm_key))
-
+    print 'launch:211', experiment['initExp']['args'].keys()
+    targets = experiment['initExp']['args']['targets']
+    n = targets['n'] if 'n' in targets.keys() else len(targets)
     # Upload targets
     if 'primary_target_file' in experiment.keys():
-      target_blob = generate_target_blob(AWS_BUCKET_NAME=AWS_BUCKET_NAME,
-                                         AWS_ID=AWS_ID,
-                                         AWS_KEY=AWS_KEY,
-                                         prefix=str(datetime.date.today()),
-                                         primary_file=experiment['primary_target_file'],
-                                         primary_type=experiment['primary_type'],
-                                         alt_file=experiment.get('alt_target_file', None),
-                                         alt_type=experiment.get('alt_type','text'))
-      create_target_mapping_dict = {}
-      create_target_mapping_dict['app_id'] = experiment['initExp']['app_id']
-      create_target_mapping_dict['exp_uid'] = exp_uid
-      create_target_mapping_dict['exp_key'] = exp_key
-      create_target_mapping_dict['target_blob'] = target_blob['target_blob']
+        targets = generate_target_blob(AWS_BUCKET_NAME=AWS_BUCKET_NAME,
+                                       AWS_ID=AWS_ID,
+                                       AWS_KEY=AWS_KEY,
+                                       prefix=str(datetime.date.today()),
+                                       primary_file=experiment['primary_target_file'],
+                                       primary_type=experiment['primary_type'],
+                                       alt_file=experiment.get('alt_target_file', None),
+                                       alt_type=experiment.get('alt_type','text'))
+        experiment['initExp']['args']['targets']['targets'] = targets
+    else:
+        experiment['initExp']['args']['targets']['n'] = n
+    url = 'http://{}/api/experiment'.format(host)
+    print 'Initializing experiment', experiment['initExp']
+    response = requests.post(url,
+                             json.dumps(experiment['initExp']),
+                             headers={'content-type':'application/json'})
 
-      #print create_target_mapping_dict
-      url = 'http://{}/api/targets/createtargetmapping'.format(host)
-      response = requests.post(url, json.dumps(create_target_mapping_dict), headers={'content-type':'application/json'})
+    initExp_response_dict = json.loads(response.text)
+    print "initExp_response_dict", initExp_response_dict
+    exp_uid = initExp_response_dict['exp_uid']
+    #exp_key = initExp_response_dict['exp_key']
+    #perm_key = initExp_response_dict['perm_key']
 
-    print 'Create Target Mapping response', response, response.text, response.status_code
+    exp_uid_list.append(str(exp_uid))
+    #exp_key_list.append(str(exp_key))
+    #widget_key_list.append(str(perm_key))
 
     print
-    print "Query Url is at:", "http://"+host+"/query/query_page/query_page/"+exp_uid+"/"+perm_key
+    print "Query Url is at:", "http://"+host+"/query/query_page/query_page/"+exp_uid
     print
 
   print "exp_uid_list:", exp_uid_list
-  print "exp_key_list:", exp_key_list
-  print "widget_key_list:", widget_key_list
+  #print "exp_key_list:", exp_key_list
+  #print "widget_key_list:", widget_key_list
 
-  return exp_uid_list, exp_key_list, widget_key_list
+  return exp_uid_list#, exp_key_list, widget_key_list
 
 if __name__=='__main__':
   opts, args = getopt.getopt(sys.argv[1:], None, ["experiment_file="])
@@ -266,5 +262,3 @@ if __name__=='__main__':
   experiment_list =  import_experiment_list(opts['--experiment_file'])
 
   launch_experiment(os.environ.get('NEXT_BACKEND_GLOBAL_HOST')+":"+port, experiment_list, AWS_ID=os.environ.get('AWS_ACCESS_KEY_ID'), AWS_KEY=os.environ.get('AWS_SECRET_ACCESS_KEY'), AWS_BUCKET_NAME=os.environ.get('AWS_BUCKET_NAME') )
-
-
