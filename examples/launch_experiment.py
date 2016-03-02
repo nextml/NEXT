@@ -220,7 +220,6 @@ def launch_experiment(host, experiment_list, AWS_ID, AWS_KEY, AWS_BUCKET_NAME):
                                        alt_file=experiment.get('alt_target_file', None),
                                        alt_type=experiment.get('alt_type','text'))
         experiment['initExp']['args']['targets'] = {'targetset': targets}
-        del experiment['primary_target_file']
     else:
         experiment['initExp']['args']['targets']['n'] = n
 

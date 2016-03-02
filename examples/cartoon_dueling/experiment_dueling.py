@@ -69,15 +69,6 @@ algorithm_management_settings['params'] = params
 # Create experiment dictionary
 initExp = {}
 initExp['args'] = {}
-#initExp['args'] = {'targets':{'n':25}} # number of targets
-
-with open(curr_dir + '/cap436.txt') as f:
-    captions = [line[:-1] for line in f.readlines()]
-    targetset = [{'primary_description':caption,
-                  'primary_type':'text',
-                  'alt_description':caption,
-                  'alt_type':'text'} for caption in captions]
-initExp['args']['targets'] = {'targetset':targetset}
 
 # probability of error. similar to "significant because p < 0.05"
 initExp['args']['failure_probability'] = .01

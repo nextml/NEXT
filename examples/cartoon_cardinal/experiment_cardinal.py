@@ -62,14 +62,6 @@ algorithm_management_settings['params'] = params
 cap = 'cap436'
 initExp = {}
 initExp['args'] = {} # arguments to pass the algorithm
-#initExp['args']['n'] = 25 # items in target set
-with open(curr_dir + '/cap436.txt') as f:
-    captions = [line[:-1] for line in f.readlines()]
-    targetset = [{'primary_description':caption,
-                  'primary_type':'text',
-                  'alt_description':caption,
-                  'alt_type':'text'} for caption in captions]
-initExp['args']['targets'] = {'targetset':targetset}
 
 # What's the probabiity of error? Similar to "similar because p < 0.05"
 initExp['args']['failure_probability'] = .05
