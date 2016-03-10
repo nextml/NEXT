@@ -176,6 +176,9 @@ class OFUL(CardinalBanditsPureExplorationPrototype):
           (list float) prec : list of floats representing the precision values
                               (or standard deviation)
         """
+        # TODO: I can't see the results without this
+        # (and we also need to change the label name if we want to see results,
+        # correct?)
         return 0.5  # mu.tolist(), prec
 
 
