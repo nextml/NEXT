@@ -7,6 +7,7 @@ import time
 from datetime import datetime
 import requests
 from scipy.linalg import norm
+from scipy.io import loadmat
 import time
 from multiprocessing import Pool
 import sys
@@ -14,11 +15,19 @@ import sys
 import os
 HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')+':'+os.environ.get('NEXT_BACKEND_GLOBAL_PORT', '8000')
 
+PRINT = False
+
 def run_all(assert_200):
 
   app_id = 'CardinalBanditsPureExploration'
-  num_arms = 30
-  true_means = numpy.array(range(num_arms)[::-1])/float(num_arms)
+
+  filename = '/Users/scott/Dropbox/image_search_scott/Features/features_allshoes_8_normalized.mat'
+  X = loadmat(filename)['features_all']
+  num_features, num_arms = (10, 100)  # X \in {num_features x num_arms}
+  X = X[:num_features, :num_arms]
+  print "X \in R^{}".format(X.shape)
+
+  true_means = numpy.array(range(num_arms)[::-1]) / float(num_arms)
   total_pulls_per_client = 2
 
   num_experiments = 1
@@ -43,7 +52,6 @@ def run_all(assert_200):
     alg_item['alg_id'] = alg_id
     alg_item['alg_label'] = alg_id+'_'+str(i)
     if 'OFUL' in supported_alg_ids:
-      X = np.random.rand(10, num_arms)
       alg_item['params'] = X.tolist()
     #alg_item['params'] = {}
     alg_list.append(alg_item)
@@ -55,7 +63,7 @@ def run_all(assert_200):
   algorithm_management_settings['mode'] = 'fixed_proportions'
   algorithm_management_settings['params'] = params
 
-  print algorithm_management_settings
+  # print algorithm_management_settings
 
 
   #################################################
@@ -80,11 +88,13 @@ def run_all(assert_200):
   for ell in range(num_experiments):
     url = "http://"+HOSTNAME+"/api/experiment"
     response = requests.post(url, json.dumps(initExp_args_dict), headers={'content-type':'application/json'})
-    print "POST initExp response =",response.text, response.status_code
+    if PRINT:
+        print "POST initExp response =", response.text, response.status_code
 
     if assert_200: assert response.status_code is 200
     initExp_response_dict = json.loads(response.text)
     if 'fail' in initExp_response_dict['meta']['status'].lower():
+        print initExp_response_dict
         print 'The experiment initialization failed... exiting'
         sys.exit()
 
@@ -97,7 +107,8 @@ def run_all(assert_200):
     #################################################
     url = "http://"+HOSTNAME+"/api/experiment/"+exp_uid
     response = requests.get(url)
-    print "GET experiment response =",response.text, response.status_code
+    if PRINT:
+        print "GET experiment response =",response.text, response.status_code
     if assert_200: assert response.status_code is 200
     initExp_response_dict = json.loads(response.text)
 
@@ -117,7 +128,8 @@ def run_all(assert_200):
     exp_uid = experiment['exp_uid']
     pool_args.append( (exp_uid,participant_uid,total_pulls_per_client,true_means,assert_200) )
 
-  results = pool.map(simulate_one_client, pool_args)
+  # results = pool.map(simulate_one_client, pool_args)
+  results = map(simulate_one_client, pool_args)
 
   for result in results:
     print result
@@ -145,10 +157,8 @@ def simulate_one_client( input_args ):
     response,dt = timeit(requests.post)(url, json.dumps(getQuery_args_dict),headers={'content-type':'application/json'})
     print "POST getQuery response = ", response.text, response.status_code
     if assert_200: assert response.status_code is 200
-    print "POST getQuery duration = ", dt
+    print "POST getQuery duration = ", dt, "\n"
     getQuery_times.append(dt)
-    print 
-    
 
     query_dict = json.loads(response.text)
     if 'fail' in query_dict['meta']['status'].lower():
@@ -164,9 +174,9 @@ def simulate_one_client( input_args ):
     ts = time.time()
 
     # time.sleep(  avg_response_time*numpy.random.rand()  )
-    time.sleep(  avg_response_time*numpy.log(1./numpy.random.rand())  )
-    # target_reward = true_means[target_index] + numpy.random.randn()*0.5
-    target_reward = 1.+sum(numpy.random.rand(2)<true_means[target_index]) # in {1,2,3}
+    time.sleep( avg_response_time*numpy.log(1./numpy.random.rand()))
+    target_reward = true_means[target_index] + numpy.random.randn()*0.5
+    # target_reward = 1.+sum(numpy.random.rand(2)<true_means[target_index]) # in {1,2,3}
     # target_reward = numpy.random.choice(labels)['reward']
 
     response_time = time.time() - ts

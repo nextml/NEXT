@@ -1,14 +1,11 @@
 import numpy as np
 from next.apps.Apps.CardinalBanditsPureExploration.Prototype import CardinalBanditsPureExplorationPrototype
-
-# I sometimes run into an issue where key "b_28" cannot be found. Does b need
-# to be as large as n or d?
-# ^ This should be fixed; I saved an array with key "b".
-# TODO: make sure you're adding to this array numpy wise not adding an element
+import next.utils as utils
 
 class OFUL(CardinalBanditsPureExplorationPrototype):
 
-    def initExp(self, butler, n, R, failure_probability, params):
+    def initExp(self, butler, params=None, n=None, R=None,
+                failure_probability=None):
         """
         initialize the experiment
 
@@ -24,6 +21,9 @@ class OFUL(CardinalBanditsPureExplorationPrototype):
           (boolean) didSucceed : did everything execute correctly
         """
 
+        utils.debug_print("OFUL.py:29, n = {}".format(n))
+        utils.debug_print("OFUL.py:29, R = {}".format(R))
+        utils.debug_print("After removing timeit")
         # Is there a conflict here? `params` should be a dictionary containing
         # algorithm specific parameters. Or, I should hard code them in here
         ridge = 0.2
@@ -35,17 +35,21 @@ class OFUL(CardinalBanditsPureExplorationPrototype):
         # We're saving params as a list of lists, not a ndarray
         butler.algorithms.set(key='X', value=params)
 
-        num_tries = butler.experiment.get(key='num_tries')
+        # num_tries = butler.experiment.get(key='num_tries')
         num_tries = 2  # TODO: this should be default! change it
-        #num_tries = 3
+        # it should be butler.experiment.get(key='num_tries') but I don't have
+        # time to test it right now
+
+        # num_tries = 3
         butler.algorithms.set(key='n', value=n)
         butler.algorithms.set(key='d', value=d)
         butler.algorithms.set(key='R', value=R)
 
         # this is delta in oful_caf.m
-        butler.algorithms.set(key='failure_probability', value=failure_probability)
-        butler.algorithms.set(key='ridge'       , value=ridge)
-        butler.algorithms.set(key='valid_inds'  , value=range(n))
+        butler.algorithms.set(key='failure_probability',
+                              value=failure_probability)
+        butler.algorithms.set(key='ridge', value=ridge)
+        butler.algorithms.set(key='valid_inds', value=range(n))
 
         # T == num_tries \approx 25 and is managed for us by App.py
         reward = np.zeros(num_tries)
@@ -57,7 +61,6 @@ class OFUL(CardinalBanditsPureExplorationPrototype):
         butler.algorithms.set(key='invVt'       , value=invVt.tolist())
         butler.algorithms.set(key='S_hat'       , value=1.0)
         butler.algorithms.set(key='total_pulls' , value=0.0)
-
 
         # I assume Xsum_i and X2sum_i are the reward for each arm
         # I don't know what T_i is
@@ -74,18 +77,15 @@ class OFUL(CardinalBanditsPureExplorationPrototype):
         butler.algorithms.increment_many(key_value_dict=arm_key_value_dict)
         butler.algorithms.set(key='b', value=np.zeros(d).tolist())
 
-        # X is precomputed and stored somewhere. Stored as a .mat file
-        # (look for something with feature_normalized)
         beta = np.zeros(n)
         for i in range(n):
             beta[i] = X[:, i].T.dot(X[:, i]) / ridge
 
-        # TODO: check to see if saving array to database works
         butler.algorithms.set(key='beta', value=beta.tolist())
 
-        # What target do we want to sample first? This is just a scalar
-        # corresponding which column of X to select
-        butler.algorithms.set(key='theta_T', value=np.random.randint(n))
+        # This is the initial sampling arm (of features!)
+        initial_sampling = X[:, np.random.randint(n)]
+        butler.algorithms.set(key='theta_T', value=initial_sampling.tolist())
 
         return True
 
@@ -109,16 +109,20 @@ class OFUL(CardinalBanditsPureExplorationPrototype):
         butler.algorithms.increment(key='total_pulls')
         t = butler.algorithms.get(key='total_pulls')
 
-        # TODO: there's a dependency on t or total questions asked
         Kt = args['R'] * np.sqrt(args['d'] * np.log((1 + t/args['ridge'])/args['failure_probability']))
-        term1 = Kt * np.sqrt(args['beta'])
 
-        # the arm to pull; this should be updated each iteration, right?
-        # yes, they are updated each iteration in processAnswer
+        # theta_T: the arm to pull; this should be updated each iteration,
+        # right?  yes, they are updated each iteration in processAnswer
         theta_T = butler.algorithms.get(key='theta_T')
-        term2 = X[:, theta_T].T.dot(X)
+        theta_T = np.asarray(theta_T)
 
-        # Possible bug: is this list concat or actual addition?
+        term1 = Kt * np.sqrt(args['beta'])
+        term2 = theta_T.T.dot(X)
+
+        utils.debug_print("OFUL.py:126, type(theta_T) = {}, theta_T = {}".format(type(theta_T), theta_T))
+        utils.debug_print("OFUL.py:127 X.shape {}".format((X[:, 1].T.dot(X)).shape))
+        utils.debug_print("OFUL.py:127 term.shape {} {}".format(term1.shape, term2.shape))
+
         max_index = np.argmax(term1[args['valid_inds']] + term2[args['valid_inds']])
         max_index = args['valid_inds'][max_index]
         arms_pulled = butler.algorithms.get(key='arms_pulled')
@@ -143,7 +147,6 @@ class OFUL(CardinalBanditsPureExplorationPrototype):
         arms_pulled = butler.algorithms.get(key='arms_pulled')
         X = np.asarray(args['X'])
 
-        # TODO: is this a matrix multiplication or elementwise?
         args['b'] += target_reward * X[:, target_id]
 
         val = np.asarray(args['invVt']).dot(X[:, target_id])
@@ -160,6 +163,7 @@ class OFUL(CardinalBanditsPureExplorationPrototype):
         # TODO: return args['valid_inds'] or store in some way
         args['valid_inds'] = set(inds) - set([arms_pulled[int(t)]])
         args['valid_inds'] = list(args['valid_inds'])
+        # TODO: store S_hat somewhere
         S_hat = 1
         return True
 
@@ -172,6 +176,6 @@ class OFUL(CardinalBanditsPureExplorationPrototype):
           (list float) prec : list of floats representing the precision values
                               (or standard deviation)
         """
-        return 0.5 #mu.tolist(), prec
+        return 0.5  # mu.tolist(), prec
 
 
