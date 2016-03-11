@@ -11,7 +11,10 @@ export AWS_BUCKET_NAME=next-database-backups
 export ACTIVE_MASTER=$HOST
 export SLAVE_LIST=
 export NEXT_BACKEND_GLOBAL_HOST=$HOST
-
+export GUNICORN_WORKERS=$(python -c "print(int(0.65*$(nproc)+1))")
+export CELERY_SYNC_WORKER_COUNT=$(python -c "print(6)")
+export CELERY_ASYNC_WORKER_COUNT=$(python -c "print(2)")
+export CELERY_THREADS_PER_ASYNC_WORKER=$(python -c "print(max(1,int(.35*$(nproc))))")
 
 # this comes 
 	# http://www.speedguide.net/articles/linux-tweaking-121
@@ -43,6 +46,10 @@ fi
 
 cp -f docker-compose.yml.pre docker-compose.yml
 sed -i 's|{{NEXT_DIR}}|'"$dir"'|g' docker-compose.yml
+sed -i 's|{{GUNICORN_WORKERS}}|'"$GUNICORN_WORKERS"'|g' docker-compose.yml
+sed -i 's|{{CELERY_SYNC_WORKER_COUNT}}|'"$CELERY_SYNC_WORKER_COUNT"'|g' docker-compose.yml
+sed -i 's|{{CELERY_ASYNC_WORKER_COUNT}}|'"$CELERY_ASYNC_WORKER_COUNT"'|g' docker-compose.yml
+sed -i 's|{{CELERY_THREADS_PER_ASYNC_WORKER}}|'"$CELERY_THREADS_PER_ASYNC_WORKER"'|g' docker-compose.yml
 
 docker-compose stop
 

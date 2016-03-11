@@ -34,9 +34,9 @@ minionworker:
     - rabbitmqredis:RABBITREDIS
   environment:
    - PYTHONUNBUFFERED=TRUE
-   - CELERY_SYNC_WORKER_COUNT=6
-   - CELERY_ASYNC_WORKER_COUNT=2
-   - CELERY_THREADS_PER_ASYNC_WORKER=1
+   - CELERY_SYNC_WORKER_COUNT={{CELERY_SYNC_WORKER_COUNT}}
+   - CELERY_ASYNC_WORKER_COUNT={{CELERY_ASYNC_WORKER_COUNT}}
+   - CELERY_THREADS_PER_ASYNC_WORKER={{CELERY_THREADS_PER_ASYNC_WORKER}}
    - PYTHONPATH=:/next_backend
 ####################################
 
@@ -44,7 +44,7 @@ minionworker:
 ######### API #########
 nextbackenddocker:
   build: {{NEXT_DIR}}/next/base_docker_image
-  command: gunicorn  --worker-class=gevent -R --log-level=debug --logger-class=simple --reload -b 0.0.0.0:8000 -w 1 next.api.api:app
+  command: gunicorn  --worker-class=gevent -R --log-level=debug --logger-class=simple --reload -b 0.0.0.0:8000 -w {{GUNICORN_WORKERS}} next.api.api:app
   volumes:
    - {{NEXT_DIR}}:/next_backend
   working_dir: /next_backend
