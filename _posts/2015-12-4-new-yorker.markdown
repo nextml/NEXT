@@ -14,4 +14,11 @@ Each week, the <i>New Yorker</i> magazine  runs a cartoon contest where readers 
 <br>
 The adaptive data-collection algorithms in NEXT decide which New Yorker cartoon captions to ask participants to judge based on the observation that even after a small number of judgments, there are some captions that are clearly not funny. Consequently, our algorithms automatically stop requesting judgments for the unpromising entries and focus on trying out the ones that might get a laugh. With active learning algorithms like this, the winner can be determined from far fewer total judgments and with greater certainty than using standard crowdsourcing methods that collect an equal number of judgments for every caption (regardless of how good or bad). The New Yorker caption contest illustrates how NEXT puts advanced active machine learning tools into real-world application. 
 
-Help choose this week’s winner: <a href="http://www.newyorker.com/cartoons/bob-mankoff/cartoon-lounge-show-me-the-funny">http://www.newyorker.com/cartoons/bob-mankoff/cartoon-lounge-show-me-the-funny</a>
+A New Yorker video describing how the system works. This video can be found on the New Yorker at  <a href="http://www.newyorker.com/cartoons/bob-mankoff/cartoon-lounge-show-me-the-funny">"Cartoon Lounge: Show me the funny"</a>.
+
+<script async src="//player.cnevids.com/embedjs/52f2ad0169702d21a5080000/video/564babf2ff2afb22e100001b.js"></script><div style="margin:10px 0; text-align:center;"><a href="https://thescene.com/watch/thenewyorker/the-cartoon-lounge-colin-has-a-problem" target="_blank" title="TheScene.com" style="color:#444; font-family:sans-serif; text-decoration:none;">Watch this on <span style="color:#0c48fe;">The Scene</span>.</a></div>
+
+A New Yorker video describing the results:
+
+<script async src="//player.cnevids.com/embedjs/52f2ad0169702d21a5080000/video/5654ab9b94c05f258e00001a.js"></script><div style="margin:10px 0; text-align:center"><a href="https://thescene.com/watch/thenewyorker/the-cartoon-lounge-cartoonometrics" target="_blank" title="TheScene.com" style="color:#444; font-family:sans-serif; text-decoration:none;">Watch this video on <span style="color:#0c48fe;">The Scene</span>.</a></div>
+
