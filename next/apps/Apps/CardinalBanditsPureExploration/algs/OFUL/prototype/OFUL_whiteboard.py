@@ -21,7 +21,6 @@ def argmax_reward(X, theta, V, k=0):
     return X[:, np.argmax(rewards)], np.argmax(rewards)
 
 def reward(x, theta, R=2):
-    # TODO: change R in here
     return np.inner(x, theta) + R*np.random.randn()
 
 def OFUL(X=None, R=None, theta_hat=None, theta_star=None, V=None, S=1, T=25,
@@ -39,7 +38,10 @@ def OFUL(X=None, R=None, theta_hat=None, theta_star=None, V=None, S=1, T=25,
         rewards += [reward(x, theta_star, R=0.1*R)]
         arms += [i_x]
         # print(t, "-- arm #", i_x, "reward =", r[-1])
-        print(np.linalg.norm(x), np.linalg.norm(theta_star), rewards[-1])
+
+        print((("||x|| = {:0.2}, ||optimal arm|| = {:0.2}, reward(x) = " +
+               "{:0.2}").format(np.linalg.norm(x), np.linalg.norm(theta_star),
+                                rewards[-1])))
 
         V += np.outer(x, x)
         # TODO: looking at .m file, the line below differs
@@ -48,7 +50,6 @@ def OFUL(X=None, R=None, theta_hat=None, theta_star=None, V=None, S=1, T=25,
         # b += r[-1] * x
         b += V.dot(x)
         theta_hat = np.linalg.inv(V).dot(b)
-        # theta_hat /= np.linalg.norm(theta_hat)
 
         # if PRINT:
         # print("theta = {}, x = {}, k = {}".format(theta_hat, x, k_t))
@@ -59,7 +60,7 @@ def OFUL(X=None, R=None, theta_hat=None, theta_star=None, V=None, S=1, T=25,
 # np.random.seed(5)
 # np.random.seed(42)  # convergence to low reward
 # np.random.seed(43)  # again quick convergence
-d, n = (2, 1000)
+d, n = (2, 5000)
 
 # The arms to pull. The columns are arms, the rows are features
 X = np.random.randn(d, n)
@@ -81,14 +82,10 @@ theta_hat = np.random.randn(d)
 # theta_hat /= np.linalg.norm(theta_hat)
 theta_hat = np.zeros(d)
 
-# positive: 1
-# negative: 2
-# zero: 0
-
 V = lambda_ * np.eye(d)
 
 theta_hat, rewards, arms = OFUL(X=X, R=R, theta_hat=theta_hat,
-                                theta_star=theta_star, V=V, d=d, n=n, T=150,
+                                theta_star=theta_star, V=V, d=d, n=n, T=50,
                                 PRINT=True)
 
 x_star, _ = argmax_reward(X, theta_star, V, k=0)
