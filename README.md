@@ -1,6 +1,6 @@
 # NEXT
 
-NEXT is a system that makes it *easy* to develop, evaluate, and apply active learning. [nextml.org](nextml.org)
+NEXT is a system that makes it easy to develop, evaluate, and apply active learning. [nextml.org](nextml.org)
 
 This readme contains a quick start to launch the NEXT system on EC2, and to replicate and launch the experiments from the [NEXT paper](http://www.cs.berkeley.edu/~kjamieson/resources/next.pdf). There are more detailed launch instructions [here](https://github.com/nextml/NEXT/wiki/NEXT-EC2-Launch-Tutorial).
 
