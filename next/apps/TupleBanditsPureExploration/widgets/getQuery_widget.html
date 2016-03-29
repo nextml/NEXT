@@ -92,7 +92,7 @@ div.option{
   <div class="option"
 	  style="height:{{ 100/loop.length }}%"
 	  id="{{loop.index}}"
-          onclick="submit(&quot;{{ t.target_id }}&quot;, &quot;{{loop.index}})&quot;">
+          onclick="submit(&quot;{{ t.target_id }}&quot;, &quot;{{loop.index}}&quot;)">
     {% if t.primary_type == "image" or t.primary_type == "img"%}
     <div class="image_container">      
       <img src={{ t.primary_description }}> </img>
