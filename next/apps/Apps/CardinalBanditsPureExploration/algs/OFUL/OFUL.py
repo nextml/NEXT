@@ -1,6 +1,24 @@
+from __future__ import division
 import numpy as np
 from next.apps.Apps.CardinalBanditsPureExploration.Prototype import CardinalBanditsPureExplorationPrototype
 import next.utils as utils
+
+def argmax_reward(X, theta, V, k=0):
+    r"""
+    Loop over all columns of X to solve this equation:
+
+        \widehat{x} = \arg \min_{x \in X} x^T theta + k x^T V^{-1} x
+    """
+    inv = np.linalg.inv
+    norm = np.linalg.norm
+    rewards = [np.inner(X[:, c], theta) +
+               k*np.inner(X[:, c], inv(V).dot(X[:, c]))
+               for c in range(X.shape[1])]
+    rewards = np.asarray(rewards)
+    return X[:, np.argmax(rewards)], np.argmax(rewards)
+
+def calc_reward(x, theta, R=2):
+    return np.inner(x, theta) + R*np.random.randn()
 
 class OFUL(CardinalBanditsPureExplorationPrototype):
 
@@ -20,72 +38,36 @@ class OFUL(CardinalBanditsPureExplorationPrototype):
         Expected output (comma separated):
           (boolean) didSucceed : did everything execute correctly
         """
-
-        utils.debug_print("OFUL.py:29, n = {}".format(n))
-        utils.debug_print("OFUL.py:29, R = {}".format(R))
-        utils.debug_print("After removing timeit")
-        # Is there a conflict here? `params` should be a dictionary containing
-        # algorithm specific parameters. Or, I should hard code them in here
-        ridge = 0.2
-
         # setting the target matrix, a description of each target
-        X = np.asarray(params)
-        d = len(X[:, 0])  # number of dimensions in feature
+        X = np.asarray(params['X'])
+        utils.debug_print(X.shape)
+        theta_star = np.asarray(params['theta_star'])
 
-        # We're saving params as a list of lists, not a ndarray
-        butler.algorithms.set(key='X', value=params)
+        d = X.shape[0]  # number of dimensions in feature
+        lambda_ = 1.0 / d
+        V = lambda_ * np.eye(d)
+        R = 2
 
-        # num_tries = butler.experiment.get(key='num_tries')
-        num_tries = 2  # TODO: this should be default! change it
+        theta_hat = np.random.randn(d)
+        theta_hat /= np.linalg.norm(theta_hat)
+
         # it should be butler.experiment.get(key='num_tries') but I don't have
-        # time to test it right now
+        num_tries = 2  # TODO: this should be default! change it
 
-        # num_tries = 3
-        butler.algorithms.set(key='n', value=n)
-        butler.algorithms.set(key='d', value=d)
-        butler.algorithms.set(key='R', value=R)
+        to_save = {'X': X.tolist(),
+                   'R': R, 'd': d, 'n': n,
+                   'theta_hat': theta_hat.tolist(),
+                   'theta_star': theta_star.tolist(),
+                   'V': V.tolist(),
+                   'lambda_': lambda_,
+                   'total_pulls': 0.0,
+                   'reward': [],
+                   'arms_pulled': [],
+                   'b': [0]*d,
+                   'failure_probability': failure_probability}
 
-        # this is delta in oful_caf.m
-        butler.algorithms.set(key='failure_probability',
-                              value=failure_probability)
-        butler.algorithms.set(key='ridge', value=ridge)
-        butler.algorithms.set(key='valid_inds', value=range(n))
-
-        # T == num_tries \approx 25 and is managed for us by App.py
-        reward = np.zeros(num_tries)
-        arms_pulled = np.zeros(n)
-        invVt = np.eye(d) / failure_probability
-
-        butler.algorithms.set(key='reward'      , value=reward.tolist())
-        butler.algorithms.set(key='arms_pulled' , value=arms_pulled.tolist())
-        butler.algorithms.set(key='invVt'       , value=invVt.tolist())
-        butler.algorithms.set(key='S_hat'       , value=1.0)
-        butler.algorithms.set(key='total_pulls' , value=0.0)
-
-        # I assume Xsum_i and X2sum_i are the reward for each arm
-        # I don't know what T_i is
-        arm_key_value_dict = {}
-        for i in range(n):
-            arm_key_value_dict['Xsum_' + str(i)] = 0.
-            arm_key_value_dict['T_' + str(i)] = 0.
-
-        # b stores a linear combo of the arms
-        for i in range(d):
-            arm_key_value_dict['b_' + str(i)] = 0.
-
-        arm_key_value_dict.update({'total_pulls':0,'generated_queries_cnt':-1})
-        butler.algorithms.increment_many(key_value_dict=arm_key_value_dict)
-        butler.algorithms.set(key='b', value=np.zeros(d).tolist())
-
-        beta = np.zeros(n)
-        for i in range(n):
-            beta[i] = X[:, i].T.dot(X[:, i]) / ridge
-
-        butler.algorithms.set(key='beta', value=beta.tolist())
-
-        # This is the initial sampling arm (of features!)
-        initial_sampling = X[:, np.random.randint(n)]
-        butler.algorithms.set(key='theta_T', value=initial_sampling.tolist())
+        for name in to_save:
+            butler.algorithms.set(key=name, value=to_save[name])
 
         return True
 
@@ -108,30 +90,19 @@ class OFUL(CardinalBanditsPureExplorationPrototype):
 
         butler.algorithms.increment(key='total_pulls')
         t = butler.algorithms.get(key='total_pulls')
+        utils.debug_print('OFUL.py:92, t = {}'.format(t))
 
-        Kt = args['R'] * np.sqrt(args['d'] * np.log((1 + t/args['ridge'])/args['failure_probability']))
+        k = args['R'] * np.sqrt(args['d'] * np.log((1 + t/args['lambda_'])/args['failure_probability'])) + np.sqrt(args['lambda_'])
 
-        # theta_T: the arm to pull; this should be updated each iteration,
-        # right?  yes, they are updated each iteration in processAnswer
-        theta_T = butler.algorithms.get(key='theta_T')
-        theta_T = np.asarray(theta_T)
+        # arm_x = X[:, i_x]
+        arm_x, i_x = argmax_reward(X, args['theta_hat'], np.array(args['V']), k=k)
+        reward = calc_reward(arm_x, args['theta_star'], R=0.01*args['R'])
+        utils.debug_print('reward = {}, i_x = {}'.format(reward, i_x))
+        butler.algorithms.set(key='reward', value=reward)
+        return i_x
 
-        term1 = Kt * np.sqrt(args['beta'])
-        term2 = theta_T.T.dot(X)
-
-        utils.debug_print("OFUL.py:126, type(theta_T) = {}, theta_T = {}".format(type(theta_T), theta_T))
-        utils.debug_print("OFUL.py:127 X.shape {}".format((X[:, 1].T.dot(X)).shape))
-        utils.debug_print("OFUL.py:127 term.shape {} {}".format(term1.shape, term2.shape))
-
-        max_index = np.argmax(term1[args['valid_inds']] + term2[args['valid_inds']])
-        max_index = args['valid_inds'][max_index]
-        arms_pulled = butler.algorithms.get(key='arms_pulled')
-        arms_pulled[max_index] += 1
-        butler.algorithms.set(key='arms_pulled', value=arms_pulled)
-
-        return max_index
-
-    def processAnswer(self, butler, target_id, target_reward):
+    def processAnswer(self, butler, target_id=None,
+                      target_reward=None):
         """
         reporting back the reward of pulling the arm suggested by getQuery
 
@@ -142,29 +113,20 @@ class OFUL(CardinalBanditsPureExplorationPrototype):
         Expected output (comma separated):
           (boolean) didSucceed : did everything execute correctly
         """
+        reward = butler.algorithms.get(key='reward')
+        utils.debug_print(type(target_id), type(target_reward))
+        utils.debug_print('target_id = {}, target_reward = {}'.format(target_id, target_reward))
         args = butler.algorithms.get()
-        t = butler.algorithms.get(key='total_pulls')
-        arms_pulled = butler.algorithms.get(key='arms_pulled')
+        utils.debug_print(args.keys())
         X = np.asarray(args['X'])
+        V = args['V']
+        arm_pulled = X[:, target_id]
+        args['b'] += reward * arm_pulled
+        V += np.outer(arm_pulled, arm_pulled)
 
-        args['b'] += target_reward * X[:, target_id]
-
-        val = np.asarray(args['invVt']).dot(X[:, target_id])
-        val2 = X[:, target_id].T.dot(val)
-
-        # I have verified that this is an element-wise power
-        args['beta'] -= ((X.T.dot(val))**2).T / (1 + val2)
-        args['invVt'] -= (val.dot(val.T)) / (1 + val2)
-        theta_T = args['invVt'].dot(args['b'])
-
-        butler.algorithms.set(key='theta_T', value=theta_T.tolist())
-
-        inds = np.array(args['valid_inds'], dtype=int)
-        # TODO: return args['valid_inds'] or store in some way
-        args['valid_inds'] = set(inds) - set([arms_pulled[int(t)]])
-        args['valid_inds'] = list(args['valid_inds'])
-        # TODO: store S_hat somewhere
-        S_hat = 1
+        d = {'X': X, 'V': V}
+        for name in d:
+            butler.algorithms.set(key=name, value=d[name])
         return True
 
     def getModel(self, butler):

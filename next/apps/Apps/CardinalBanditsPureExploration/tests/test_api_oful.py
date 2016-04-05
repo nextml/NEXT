@@ -28,7 +28,7 @@ def run_all(assert_200):
   print "X \in R^{}".format(X.shape)
 
   true_means = numpy.array(range(num_arms)[::-1]) / float(num_arms)
-  total_pulls_per_client = 2
+  total_pulls_per_client = 10
 
   num_experiments = 1
 
@@ -52,7 +52,10 @@ def run_all(assert_200):
     alg_item['alg_id'] = alg_id
     alg_item['alg_label'] = alg_id+'_'+str(i)
     if 'OFUL' in supported_alg_ids:
-      alg_item['params'] = X.tolist()
+      theta_star = np.random.randn(X.shape[0])
+      theta_star /= np.linalg.norm(theta_star)
+      print(X.shape)
+      alg_item['params'] = {'X':X.tolist(), 'theta_star':theta_star.tolist() }
     #alg_item['params'] = {}
     alg_list.append(alg_item)
   params = []
@@ -64,7 +67,6 @@ def run_all(assert_200):
   algorithm_management_settings['params'] = params
 
   # print algorithm_management_settings
-
 
   #################################################
   # Test POST Experiment

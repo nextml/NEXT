@@ -31,6 +31,18 @@ def reward(x, theta, R=2):
 
 def OFUL(X=None, R=None, theta_hat=None, theta_star=None, V=None, S=1, T=25,
          d=None, n=None, lambda_=None, PRINT=False):
+    """"
+    X : x
+    R: x
+    theta_hat : algorithms, key='theta_hat'
+    theta_star : a param the user passes in
+    V : 
+    S : unused
+    T : num_tries
+    d : x
+    n : x
+    lambda_ : can be hard coded for now
+    """
     if PRINT:
         print("theta_star = {}".format(theta_star))
 
