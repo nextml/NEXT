@@ -45,7 +45,7 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
             alg_label = algorithm['alg_label']
             list_of_log_dict,didSucceed,message = self.ell.get_logs_with_filter(app_id+':ALG-EVALUATION',{'exp_uid':exp_uid, 'alg_label':alg_label})
             list_of_log_dict = sorted(list_of_log_dict, key=lambda item: utils.str2datetime(item['timestamp']) )
-            print "list_of_log_dict", list_of_log_dict
+            
             x = []
             y = []
             for item in list_of_log_dict:

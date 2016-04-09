@@ -11,7 +11,9 @@ class PoolBasedBinaryClassification(object):
         if 'targetset' in exp_data['args']['targets'].keys():
             n  = len(exp_data['args']['targets']['targetset'])
             self.TargetManager.set_targetset(exp_uid, exp_data['args']['targets']['targetset'])
+        d = len(exp_data['args']['targets']['targetset'][0]['meta']['features'])
         exp_data['args']['n'] = n
+        exp_data['args']['d'] = d
         del exp_data['args']['targets']
 
         alg_data = {}
@@ -29,14 +31,15 @@ class PoolBasedBinaryClassification(object):
 
     def processAnswer(self, exp_uid, query, answer, butler):
         target = query['target_indices']
+        target_label = answer['args']['target_label']
 
         num_reported_answers = butler.experiment.increment(key='num_reported_answers_for_' + query['alg_label'])
         
-        # # make a getModel call ~ every n/4 queries - note that this query will NOT be included in the predict
-        # experiment = butler.experiment.get()
-        # n = experiment['args']['n']
-        # if num_reported_answers % ((n+4)/4) == 0:
-        #     butler.job('getModel', json.dumps({'exp_uid':exp_uid,'args':{'alg_label':query['alg_label'], 'logging':True}}))
+        # make a getModel call ~ every n/4 queries - note that this query will NOT be included in the predict
+        experiment = butler.experiment.get()
+        d = experiment['args']['d']
+        if num_reported_answers % ((d+4)/4) == 0:
+            butler.job('getModel', json.dumps({'exp_uid':exp_uid,'args':{'alg_label':query['alg_label'], 'logging':True}}))
         
 
         algs_args_dict = {'target_index':target['target_id'],'target_label':target_label}
@@ -57,7 +60,6 @@ class PoolBasedBinaryClassification(object):
                      'compute_duration_detailed_stacked_area_plot':dashboard.compute_duration_detailed_stacked_area_plot,
                      'response_time_histogram':dashboard.response_time_histogram,
                      'network_delay_histogram':dashboard.network_delay_histogram,
-                     'most_current_embedding':dashboard.most_current_embedding,
                      'test_error_multiline_plot':dashboard.test_error_multiline_plot}
         
         default = [self.app_id, exp_uid]
@@ -66,7 +68,6 @@ class PoolBasedBinaryClassification(object):
                 'compute_duration_detailed_stacked_area_plot':default + [task, alg_label],
                 'response_time_histogram':default + [alg_label],
                 'network_delay_histogram':default + [alg_label],
-                'most_current_embedding':default + [alg_label],
                 'test_error_multiline_plot':default}
         
         return functions[stat_id](*args[stat_id])

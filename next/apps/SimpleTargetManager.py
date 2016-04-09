@@ -10,8 +10,7 @@ class SimpleTargetManager(object):
         """
         Update the default target docs in the DB if a user uploads a target set.
         """
-        for i in range(len(targetset)):
-            target = targetset[i]
+        for i,target in enumerate(targetset):
             target['target_id'] = i
             target['exp_uid'] = exp_uid
             didSucceed, message = db.setDoc(self.database_id, self.bucket_id, None, target)
@@ -22,12 +21,12 @@ class SimpleTargetManager(object):
         """
         Gets the entire targetset for a given experiment as a list of dictionaries.
         """
-        mongotized_target_blob, didSucceed, message = db.getDocsByPattern(self.database_id,
+        targetset, didSucceed, message = db.getDocsByPattern(self.database_id,
                                                                           self.bucket_id,
                                                                           {'exp_uid': exp_uid})
         if not didSucceed:
             raise Exception("Failed to create_target_mapping: {}".format(message))
-        targetset = mongotized_target_blob.pop(0)
+        # targetset = mongotized_target_blob.pop(0)
         return targetset
 
     def get_target_item(self, exp_uid, target_id):

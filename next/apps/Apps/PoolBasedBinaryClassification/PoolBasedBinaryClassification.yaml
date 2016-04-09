@@ -36,7 +36,7 @@ initExp:
         instructions:
           description: The instructions the particpant will see when experiment first launched.
           type: str
-          default: Please select, using your mouse or left and right arrow keys, the item on the bottom that is closest to the top.
+          default: Please select the label that is most appropriate
           optional: true
 
         debrief:

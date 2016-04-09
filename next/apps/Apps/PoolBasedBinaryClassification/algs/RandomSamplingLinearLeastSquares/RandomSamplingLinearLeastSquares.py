@@ -2,7 +2,7 @@ import time
 import numpy.random
 from next.apps.Apps.PoolBasedBinaryClassification.Prototype import PoolBasedBinaryClassificationPrototype
 
-class RandomSamplingLinearLeastSqaures(PoolBasedBinaryClassificationPrototype):
+class RandomSamplingLinearLeastSquares(PoolBasedBinaryClassificationPrototype):
   def initExp(self,butler, n, failure_probability,params):
     butler.algorithms.set(key='n',value= n)
     butler.algorithms.set(key='delta',value= failure_probability)
@@ -40,19 +40,25 @@ class RandomSamplingLinearLeastSqaures(PoolBasedBinaryClassificationPrototype):
 
 
   def full_embedding_update(self,butler,args):
-    answer_pairs = butler.algorithms.get('S')
+    answer_pairs = butler.algorithms.get(key='S')
     targets = butler.targets.get_targetset(butler.exp_uid)
     targets = sorted(targets,key=lambda x: x['target_id'])
+    target_features = []
+    for target_index in range(len(targets)):
+      target_vec = targets[target_index]['meta']['features']
+      target_vec.append(1.)
+      target_features.append(target_vec)
 
     X = []
     y = []
     for answer in answer_pairs:
       target_index,target_label = answer
-      X.append(targets[target_index]['meta']['features'].append(1.))
+      X.append(target_features[target_index])
       y.append(target_label)
     X = numpy.array(X)
     y = numpy.array(y)
     w = numpy.linalg.lstsq(X,y)[0]
+    # label_residues = numpy.dot(X,w)
     butler.algorithms.set(key='weights',value=w.tolist())
 
 
