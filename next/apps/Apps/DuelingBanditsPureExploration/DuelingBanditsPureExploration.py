@@ -8,9 +8,9 @@ import numpy
 import next.apps.SimpleTargetManager
 import next.utils as utils
 class DuelingBanditsPureExploration(object):
-    def __init__(self):
+    def __init__(self,db):
         self.app_id = 'DuelingBanditsPureExploration'
-        self.TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager()
+        self.TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager(db)
 
     def initExp(self, exp_uid, exp_data, butler):
         """

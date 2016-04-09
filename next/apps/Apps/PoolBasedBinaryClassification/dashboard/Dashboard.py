@@ -5,7 +5,6 @@ from datetime import datetime
 from datetime import timedelta
 from next.utils import utils
 from next.apps.AppDashboard import AppDashboard
-import next.apps.SimpleTargetManager
 # import next.database_client.DatabaseAPIHTTP as db
 # import next.logging_client.LoggerHTTP as ell
 
@@ -74,6 +73,7 @@ class PoolBasedBinaryClassificationDashboard(AppDashboard):
                 y.append(err)
 
             x = numpy.argsort(x)
+            x = [x[i] for i in x]
             y = [y[i] for i in x]
         
             alg_dict = {}

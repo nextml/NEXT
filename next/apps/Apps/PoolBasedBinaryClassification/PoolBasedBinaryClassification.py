@@ -3,9 +3,9 @@ import next.utils as utils
 import next.apps.SimpleTargetManager
 
 class PoolBasedBinaryClassification(object):
-    def __init__(self):
+    def __init__(self,db):
         self.app_id = 'PoolBasedBinaryClassification'
-        self.TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager()
+        self.TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager(db)
 
     def initExp(self, exp_uid, exp_data, butler):
         if 'targetset' in exp_data['args']['targets'].keys():

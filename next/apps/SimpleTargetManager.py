@@ -1,10 +1,8 @@
-from next.database_client.PermStore import PermStore
-db = PermStore()
 
 class SimpleTargetManager(object):
-    def __init__(self):
-        self.database_id = 'app_data'
+    def __init__(self,db):
         self.bucket_id = 'targets'
+        self.db = db
 
     def set_targetset(self, exp_uid, targetset):
         """
@@ -13,7 +11,7 @@ class SimpleTargetManager(object):
         for i,target in enumerate(targetset):
             target['target_id'] = i
             target['exp_uid'] = exp_uid
-            didSucceed, message = db.setDoc(self.database_id, self.bucket_id, None, target)
+            didSucceed, message = self.db.set_doc(self.bucket_id, None, target)
             if not didSucceed:
                 raise Exception("Failed to create_target_mapping: {}".format(message))
 
@@ -21,8 +19,7 @@ class SimpleTargetManager(object):
         """
         Gets the entire targetset for a given experiment as a list of dictionaries.
         """
-        targetset, didSucceed, message = db.getDocsByPattern(self.database_id,
-                                                                          self.bucket_id,
+        targetset, didSucceed, message = self.db.get_docs_with_filter(self.bucket_id,
                                                                           {'exp_uid': exp_uid})
         if not didSucceed:
             raise Exception("Failed to create_target_mapping: {}".format(message))
@@ -34,8 +31,7 @@ class SimpleTargetManager(object):
         Get a target from the targetset. Th
         """
         # Get an individual target form the DB given exp_uid and index
-        got_target, didSucceed, message = db.getDocsByPattern(self.database_id,
-                                                              self.bucket_id,
+        got_target, didSucceed, message = self.db.get_docs_with_filter(self.bucket_id,
                                                               {'exp_uid': exp_uid,
                                                                'target_id': target_id})
         try:
@@ -56,7 +52,7 @@ class SimpleTargetManager(object):
 
     def get_target_mapping(self, exp_uid):
         # Get all docs for specified exp_uid
-        mongotized_target_blob,didSucceed,message = db.getDocsByPattern(self.database_id, self.bucket_id, {'exp_uid': exp_uid})
+        mongotized_target_blob,didSucceed,message = self.db.get_docs_with_filter(self.bucket_id, {'exp_uid': exp_uid})
         # If no docs with exp_uid can be retreived, throw an error
         if not didSucceed:
             raise DatabaseException("Failed to get_target_mapping: %s"%(message))

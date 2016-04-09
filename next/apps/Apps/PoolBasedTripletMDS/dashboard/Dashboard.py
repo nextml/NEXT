@@ -5,7 +5,6 @@ from datetime import datetime
 from datetime import timedelta
 from next.utils import utils
 from next.apps.AppDashboard import AppDashboard
-import next.apps.SimpleTargetManager
 # import next.database_client.DatabaseAPIHTTP as db
 # import next.logging_client.LoggerHTTP as ell
 
@@ -122,8 +121,8 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
             (float) x : x-value of target
             (float) y : y-value of target
         """
-        TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager()
         next_app = utils.get_app(app_id, exp_uid, self.db, self.ell)
+        TargetManager = next_app.myApp.TargetManager
         args_out_json, _, _ = next_app.getModel(exp_uid, json.dumps({'exp_uid':exp_uid, 'args':{'alg_label':alg_label}}))
         getModel_args_dict = json.loads(args_out_json)
         item = getModel_args_dict['args']
