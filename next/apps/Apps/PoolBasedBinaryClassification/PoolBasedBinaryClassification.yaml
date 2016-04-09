@@ -123,7 +123,7 @@ processAnswer:
       type: dict
       values:
         target_label:
-          description: The label provided by participant of the target.
+          description: The label in {-1,1} provided by participant of the target.
           type: num
         query_uid:
           description: The unique identifier for the query.

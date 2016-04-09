@@ -35,16 +35,16 @@
 <div class="row" style="height:50%">
   <!-- Center Target -->
   <div class="col-xs-12" id="center" >
-    {% if query.target_indices[0].primary_type == "image" or query.target_indices[0].primary_type == "img" %}
-    <img class="center-block" src={{ query.target_indices[0].primary_description }}></img>
-    {% elif query.target_indices[0].primary_type == "text" %}
+    {% if query.target_indices.primary_type == "image" or query.target_indices.primary_type == "img" %}
+    <img class="center-block" src={{ query.target_indices.primary_description }}></img>
+    {% elif query.target_indices.primary_type == "text" %}
     <div>
-      <div>{{ query.target_indices[0].primary_description }}</div>
+      <div>{{ query.target_indices.primary_description }}</div>
     </div>
 
-    {% elif query.target_indices[0].primary_type == "video" %}
+    {% elif query.target_indices.primary_type == "video" %}
     <video width="320" height="240"  poster="http://jimpunk.net/Loading/wp-content/uploads/loading1.gif" controls autoplay loop>
-      <source src={{ query.target_indices[0].primary_description }} type="video/mp4">
+      <source src={{ query.target_indices.primary_description }} type="video/mp4">
 	Your browser does not support the video tag.
     </video>
     {% endif %}
@@ -54,32 +54,12 @@
 <div class="row">
   <!-- Left Target -->
   <div class="col-xs-6" id="left">
-    {% if query.target_indices[1].primary_type == "image" or query.target_indices[1].primary_type == "img"%}
-    <img class="center-block" src={{ query.target_indices[1].primary_description }}></img>
-
-    {% elif query.target_indices[1].primary_type == "text"%}
-    <div>{{ query.target_indices[1].primary_description }}</div>
-
-    {% elif query.target_indices[0].primary_type == "video" %}
-    <video width="320" height="240" poster="http://jimpunk.net/Loading/wp-content/uploads/loading1.gif" controls autoplay loop>
-      <source src={{ query.target_indices[1].primary_description }} type="video/mp4">
-	Your browser does not support the video tag.
-    </video>
-    {% endif %}
+    <div>No (-1)</div>
   </div>
 
   <!-- Right Target -->
   <div class="col-xs-6" id="right">
-    {% if query.target_indices[2].primary_type == "image" or query.target_indices[2].primary_type == "img" %}
-    <img class="center-block" src={{ query.target_indices[2].primary_description }}> </img>
-    {% elif query.target_indices[2].primary_type == "text" %}
-    <div>{{ query.target_indices[2].primary_description }}</div>
-    {% elif query.target_indices[0].primary_type == "video" %}
-    <video width="320" height="240" poster="http://jimpunk.net/Loading/wp-content/uploads/loading1.gif" controls autoplay loop>
-      <source src={{ query.target_indices[2].primary_description }} type="video/mp4">
-	Your browser does not support the video tag.
-    </video>
-    {% endif %}
+    <div>Yes (+1)</div>
   </div>
 </div>
 
@@ -88,12 +68,12 @@
   document.onkeydown = checkKey;
 
   var submit_right = function() {
-  	next_widget.processAnswer({"target_winner": {{ query.target_indices[2].target_id }}});
+  	next_widget.processAnswer({"target_label": -1.});
   	$('#right').css({'outline': '2px solid #FF0000'});
   }
 
   var submit_left = function() {
-  	next_widget.processAnswer({"target_winner": {{ query.target_indices[1].target_id }}});
+  	next_widget.processAnswer({"target_label": 1.});
   	$('#left').css({'outline': '2px solid #FF0000'});
   }
 
