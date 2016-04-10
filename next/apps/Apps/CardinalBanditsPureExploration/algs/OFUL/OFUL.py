@@ -11,8 +11,7 @@ def argmax_reward(X, theta, V, k=0):
     """
     inv = np.linalg.inv
     norm = np.linalg.norm
-    rewards = [np.inner(X[:, c], theta) +
-               k*np.inner(X[:, c], inv(V).dot(X[:, c]))
+    rewards = [np.inner(X[:, c], theta) + k*np.inner(X[:, c], inv(V).dot(X[:, c]))
                for c in range(X.shape[1])]
     rewards = np.asarray(rewards)
     return X[:, np.argmax(rewards)], np.argmax(rewards)
@@ -46,13 +45,11 @@ class OFUL(CardinalBanditsPureExplorationPrototype):
         d = X.shape[0]  # number of dimensions in feature
         lambda_ = 1.0 / d
         V = lambda_ * np.eye(d)
-        R = 2
+        R = 2.0
 
+        # initial sampling arm
         theta_hat = np.random.randn(d)
         theta_hat /= np.linalg.norm(theta_hat)
-
-        # it should be butler.experiment.get(key='num_tries') but I don't have
-        num_tries = 2  # TODO: this should be default! change it
 
         to_save = {'X': X.tolist(),
                    'R': R, 'd': d, 'n': n,
@@ -61,7 +58,7 @@ class OFUL(CardinalBanditsPureExplorationPrototype):
                    'V': V.tolist(),
                    'lambda_': lambda_,
                    'total_pulls': 0.0,
-                   'reward': [],
+                   'rewards': [],
                    'arms_pulled': [],
                    'b': [0]*d,
                    'failure_probability': failure_probability}
@@ -86,19 +83,23 @@ class OFUL(CardinalBanditsPureExplorationPrototype):
           (int) target_index : idnex of arm to pull (in 0,n-1)
         """
         args = butler.algorithms.get()
-        X = np.asarray(args['X'])
+        X = np.asarray(args['X'], dtype=float)
 
         butler.algorithms.increment(key='total_pulls')
         t = butler.algorithms.get(key='total_pulls')
-        utils.debug_print('OFUL.py:92, t = {}'.format(t))
 
-        k = args['R'] * np.sqrt(args['d'] * np.log((1 + t/args['lambda_'])/args['failure_probability'])) + np.sqrt(args['lambda_'])
+        log_div = (1 + t * 1.0/args['lambda_']) * 1.0 / args['failure_probability']
+        k = args['R'] * np.sqrt(args['d'] * np.log(log_div)) + np.sqrt(args['lambda_'])
 
         # arm_x = X[:, i_x]
-        arm_x, i_x = argmax_reward(X, args['theta_hat'], np.array(args['V']), k=k)
-        reward = calc_reward(arm_x, args['theta_star'], R=0.01*args['R'])
-        utils.debug_print('reward = {}, i_x = {}'.format(reward, i_x))
+        arm_x, i_x = argmax_reward(X, np.array(args['theta_hat']),
+                                   np.array(np.array(args['V'])), k=k)
+        reward = calc_reward(arm_x, np.array(args['theta_star']), 
+                             R=0.01*args['R'])
+        # allow reward to propograte forward to other functions; it's used
+        # later
         butler.algorithms.set(key='reward', value=reward)
+        utils.debug_print("OFUL:102, arm_pulled = {}".format(i_x))
         return i_x
 
     def processAnswer(self, butler, target_id=None,
@@ -113,18 +114,29 @@ class OFUL(CardinalBanditsPureExplorationPrototype):
         Expected output (comma separated):
           (boolean) didSucceed : did everything execute correctly
         """
-        reward = butler.algorithms.get(key='reward')
-        utils.debug_print(type(target_id), type(target_reward))
-        utils.debug_print('target_id = {}, target_reward = {}'.format(target_id, target_reward))
         args = butler.algorithms.get()
-        utils.debug_print(args.keys())
-        X = np.asarray(args['X'])
+
+        # this makes sure the reward propogates from getQuery to processAnswer
+        reward = butler.algorithms.get(key='reward')
+
+        X = np.asarray(args['X'], dtype=float)
+        b = np.array(args['b'], dtype=float)
+        theta_star = np.array(args['theta_star'])
+
         V = args['V']
         arm_pulled = X[:, target_id]
-        args['b'] += reward * arm_pulled
-        V += np.outer(arm_pulled, arm_pulled)
 
-        d = {'X': X, 'V': V}
+        V += np.outer(arm_pulled, arm_pulled)
+        b += reward * arm_pulled
+        theta_hat = np.linalg.inv(V).dot(b)
+
+        utils.debug_print("OFUL:131, ||x - est(x)||_2 = {}"
+                    .format(np.linalg.norm(theta_star - theta_hat)))
+
+        # save the results
+        d = {'X': X, 'V': V, 
+             'b':b.tolist(), 
+             'theta_hat':theta_hat.tolist()}
         for name in d:
             butler.algorithms.set(key=name, value=d[name])
         return True
