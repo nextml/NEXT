@@ -50,7 +50,7 @@ class App(object):
             args_dict = Verifier.verify(args_dict, self.reference_dict['initExp']['values'])
             args_dict['exp_uid'] = exp_uid # to get doc from db
             args_dict['start_date'] = utils.datetime2str(utils.datetimeNow())
-            self.butler.db.set_doc('experiments_admin', exp_uid, {'exp_uid': exp_uid, 'app_id':self.app_id, 'start_date':str(utils.datetimeNow()) }) 
+            self.butler.admin.set(uid=exp_uid,value={'exp_uid': exp_uid, 'app_id':self.app_id, 'start_date':str(utils.datetimeNow())}) 
             args_dict,algs_args_dict = self.myApp.initExp(exp_uid, args_dict, self.butler)
             # Set doc in algorithms bucket. These objects are used by the algorithms to store data.
             for algorithm in args_dict['args']['alg_list']:
@@ -197,24 +197,9 @@ class App(object):
             traceback.print_tb(exc_traceback)       
             return Exception(error)
 
-    def getStats(self, exp_uid, args_json):
-        try:
-            args_dict = self.helper.convert_json(args_json)
-            args_dict = Verifier.verify(args_dict, self.reference_dict['getStats']['values'])
-            dashboard = self.dashboard(self.butler.db, self.butler.ell)
-            stats = self.myApp.getStats(exp_uid, args_dict, dashboard, self.butler)
-            return json.dumps(stats), True, ''
-        except Exception, error:
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            full_error = str(traceback.format_exc())+'\n'+str(error)
-            print "getStats Exception: " + full_error
-            log_entry = { 'exp_uid':exp_uid,'task':'getStats','error':full_error,'timestamp':utils.datetimeNow(),'args_json':args_json } 
-            self.butler.ell.log( self.app_id+':APP-EXCEPTION', log_entry  )
-            traceback.print_tb(exc_traceback)
-            raise Exception(error)
 
 class Helper(object):
-    #TODO: This is never called??
+    #TODO: This is never called?? Can we please remove this class?
     def remove_experiment(self, app_id, exp_uid, db, ell):
         # remove any reminants of an experiment if it exists
         didSucceed,message = db.delete_docs_with_filter('experiments_admin',{'exp_uid':exp_uid})

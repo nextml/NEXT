@@ -50,7 +50,7 @@ class getQuery(Resource):
         args_data = post_parser.parse_args()
         utils.debug_print("args_data", args_data)
         # Pull app_id and exp_uid from parsed args
-        exp_uid = args_data["exp_uid"]
+        exp_uid = args_data['exp_uid']
         # Fetch app_id data from resource manager
         app_id = resource_manager.get_app_id(exp_uid)
         # Standardized participant_uid

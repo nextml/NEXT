@@ -41,7 +41,7 @@ class JobBroker:
         submit_timestamp = utils.datetimeNow('string')
         domain = self.__get_domain_for_job(app_id+"_"+exp_uid)
         if next.constants.CELERY_ON:
-            result = tasks.apply.apply_async(args=[app_id,exp_uid,task_name, args, submit_timestamp], exchange='async@'+domain, routing_key='async@'+domain)
+            result = tasks.apply.apply_async(args=[app_id,exp_uid,task_name,args,submit_timestamp], exchange='async@'+domain, routing_key='async@'+domain)
             if ignore_result:
                 return True
             else:

@@ -14,7 +14,7 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
     def __init__(self,db,ell):
         AppDashboard.__init__(self, db, ell)
 
-    def test_error_multiline_plot(self,app_id,exp_uid):
+    def test_error_multiline_plot(self,app_id,exp_uid, butler):
         """
         Description: Returns multiline plot where there is a one-to-one mapping lines to
         algorithms and each line indicates the error on the validation set with respect to number of reported answers
@@ -27,14 +27,13 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
         """
 
         # get list of algorithms associated with project
-        args, didSucceed, message = self.db.get(app_id+':experiments',exp_uid,'args')
-
+        args = butler.experiment(key='args')
+        
         #TODO: This is bullshit. We are assuming they are all the same I guess?
         for algorithm in args['alg_list']:
             test_alg_label = algorithm['test_alg_label']
 
-        test_S,didSucceed, message = self.db.get_docs_with_filter(app_id+':queries',{'exp_uid':exp_uid, 'alg_label':test_alg_label})
-        
+        test_S = butler.queries.get(pattern={'exp_uid':exp_uid, 'alg_label':test_alg_label})
         x_min = numpy.float('inf')
         x_max = -numpy.float('inf')
         y_min = numpy.float('inf')
@@ -43,7 +42,7 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
 
         for algorithm in args['alg_list']:
             alg_label = algorithm['alg_label']
-            list_of_log_dict,didSucceed,message = self.ell.get_logs_with_filter(app_id+':ALG-EVALUATION',{'exp_uid':exp_uid, 'alg_label':alg_label})
+            list_of_log_dict,didSucceed,message = butler.ell.get_logs_with_filter(app_id+':ALG-EVALUATION',{'exp_uid':exp_uid, 'alg_label':alg_label})
             list_of_log_dict = sorted(list_of_log_dict, key=lambda item: utils.str2datetime(item['timestamp']) )
             print "list_of_log_dict", list_of_log_dict
             x = []
@@ -104,7 +103,7 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
         return plot_dict
 
 
-    def most_current_embedding(self,app_id,exp_uid,alg_label):
+    def most_current_embedding(self,app_id,exp_uid,butler,alg_label):
         """
         Description: Returns embedding in the form of a list of dictionaries, which is conveneint for downstream applications
 
@@ -122,7 +121,7 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
             (float) x : x-value of target
             (float) y : y-value of target
         """
-        TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager()
+        TargetManager = butler.targets#next.apps.SimpleTargetManager.SimpleTargetManager()
         next_app = utils.get_app(app_id, exp_uid, self.db, self.ell)
         args_out_json, _, _ = next_app.getModel(exp_uid, json.dumps({'exp_uid':exp_uid, 'args':{'alg_label':alg_label}}))
         getModel_args_dict = json.loads(args_out_json)

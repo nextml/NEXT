@@ -5,14 +5,18 @@ last updated: 9/16/15
 
 Flask controller for dashboards.
 """
+import os
+import json
+import yaml
 from flask import Blueprint, render_template, url_for, request
 from jinja2 import Environment, PackageLoader, ChoiceLoader
 
 import next.constants as constants
 import next.database_client.PermStore as PermStore
 from next.api.resource_manager import ResourceManager
-
-
+import next.apps.Verifier as Verifier
+import next.apps.Butler as Butler
+import next.utils as utils
 # Declare this as the dashboard blueprint
 dashboard = Blueprint('dashboard',
                       __name__,
@@ -21,12 +25,18 @@ dashboard = Blueprint('dashboard',
 rm = ResourceManager()
 db = PermStore.PermStore()
 
+# TODO: presumably this can be in the broker?
+from next.database_client.DatabaseAPI import DatabaseAPI
+dba = DatabaseAPI()
+from next.logging_client.LoggerAPI import LoggerAPI
+ell = LoggerAPI()
+curr_dir,_ = os.path.split(__file__)
+
 @dashboard.route('/experiment_list')
 def experiment_list():
     """
     Endpoint that renders a page with a simple list of all experiments.
     """
-
     # Experiments set
     experiments = []
     for app_id in rm.get_app_ids():
@@ -46,6 +56,40 @@ def experiment_list():
 
     return render_template('experiment_list.html',
                            experiments = reversed(experiments))
+
+@dashboard.route('/get_stats', methods=['POST'])
+def get_stats():
+    # TODO: Move a lot of this logic to the broker?
+    args_dict = request.json
+
+    exp_uid = args_dict['exp_uid']
+    app_id = rm.get_app_id(exp_uid)
+    with open(os.path.join('next/apps', 'Apps/{}/{}.yaml'.format(app_id, app_id)),'r') as f:
+        reference_dict = yaml.load(f)        
+    # verification
+    utils.debug_print('args_dict', args_dict)
+    utils.debug_print('exp_uid', 'app_id', exp_uid, app_id)
+
+    args_dict = Verifier.verify(args_dict, reference_dict['getStats']['values'])
+    stat_id = args_dict['args'].pop('stat_id',None)
+    # myApp
+    myApp = __import__('next.apps.Apps.'+app_id, fromlist=[''])
+    myApp = getattr(myApp, app_id)
+    myApp = myApp()
+
+    # butler
+    butler = Butler.Butler(app_id, exp_uid, myApp.TargetManager, dba, ell)
+
+    # dashboard
+    dashboard_string = 'next.apps.Apps.' + app_id + \
+                       '.dashboard.Dashboard'
+    dashboard_module = __import__(dashboard_string, fromlist=[''])
+    dashboard = getattr(dashboard_module, app_id+'Dashboard')
+    dashboard = dashboard(butler.db, butler.ell)
+    utils.debug_print('stat_id', stat_id)
+    stats_method = getattr(dashboard, stat_id)
+    return json.dumps(stats_method(exp_uid, app_id, butler, **args_dict['args']['params'])), True, ''
+
 
 @dashboard.route('/system_monitor')
 def system_monitor():

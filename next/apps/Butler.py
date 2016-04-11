@@ -115,6 +115,7 @@ class Butler(object):
         self.ell = ell
         self.targets = targets
         self.queries = Collection(self.app_id+":queries", "", self.exp_uid, db)
+        self.admin = Collection("experiments_admin", "", self.exp_uid, db)
         self.experiment = Collection(self.app_id+":experiments", "{exp_uid}", self.exp_uid, db)
         if alg_label is None:
             self.algorithms = Collection(self.app_id+":algorithms", "{exp_uid}_", self.exp_uid, db)

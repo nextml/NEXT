@@ -46,13 +46,11 @@ popup_alert = function(text){
     }
 
     $.ajax({
-        url: "{{ host_url }}/api/experiment/stats",
+        url: "{{ host_url }}/dashboard/get_stats",
         type: "POST",
         contentType: "application/json",
         data: JSON.stringify({  
-            'app_id': "{{ app_id }}",
             'exp_uid': "{{ exp_uid }}",
-            'name': 'getStats',
             'args':{
                 'stat_id' : 'api_activity_histogram',
                 'params'  : {'task':'processAnswer'} 
@@ -126,13 +124,11 @@ popup_alert = function(text){
     }
 
     $.ajax({
-        url: "{{ host_url }}/api/experiment/stats",
+        url: "{{ host_url }}/dashboard/get_stats",
         type: "POST",
         contentType: "application/json",
         data: JSON.stringify({  
-            'app_id': "{{ app_id }}",
             'exp_uid': "{{ exp_uid }}",
-            'name': 'getStats',
             'args':{
             "stat_id" : "compute_duration_multiline_plot",
             "params"  : {"task": "getQuery" } }
@@ -152,13 +148,11 @@ popup_alert = function(text){
     }
 
     $.ajax({
-        url: "{{ host_url }}/api/experiment/stats",
+        url: "{{ host_url }}/dashboard/get_stats",
         type: "POST",
         contentType: "application/json",
         data: JSON.stringify({  
-            'app_id': "{{ app_id }}",
             'exp_uid': "{{ exp_uid }}",
-            'name': 'getStats',
             'args':{
             "stat_id" : "compute_duration_multiline_plot",
             "params"  : {"task": "processAnswer" } }
@@ -178,13 +172,11 @@ popup_alert = function(text){
     }
 
     $.ajax({
-        url: "{{ host_url }}/api/experiment/stats",
+        url: "{{ host_url }}/dashboard/get_stats",
         type: "POST",
         contentType: "application/json",
         data: JSON.stringify({  
-            'app_id': "{{ app_id }}",
             'exp_uid': "{{ exp_uid }}",
-            'name': 'getStats',
             'args':{
             "stat_id" : "compute_duration_multiline_plot",
             "params"  : {"task": "getModel" } }
@@ -204,13 +196,11 @@ popup_alert = function(text){
     }
 
     $.ajax({
-        url: "{{ host_url }}/api/experiment/stats",
+        url: "{{ host_url }}/dashboard/get_stats",
         type: "POST",
         contentType: "application/json",
         data: JSON.stringify({  
-            'app_id': "{{ app_id }}",
             'exp_uid': "{{ exp_uid }}",
-            'name': 'getStats',
             'args':{
             "stat_id" : "compute_duration_multiline_plot",
             "params"  : {"task": "daemonProcess" } }
@@ -292,13 +282,12 @@ popup_alert = function(text){
                     }
 
                     $.ajax({
-                        url: "{{ host_url }}/api/experiment/stats",
+                        url: "{{ host_url }}/dashboard/get_stats",
                         type: "POST",
                         contentType: "application/json",
                         data: JSON.stringify({  
-                            'app_id': "{{ app_id }}",
+
                             'exp_uid': "{{ exp_uid }}",
-                            'name': 'getStats',
                             'args':{
                             'stat_id' : 'compute_duration_detailed_stacked_area_plot',
                             'params'  : {'task':'getQuery', 'alg_label':'{{ alg.alg_label }}' } }
@@ -318,13 +307,12 @@ popup_alert = function(text){
                     }
 
                     $.ajax({
-                        url: "{{ host_url }}/api/experiment/stats",
+                        url: "{{ host_url }}/dashboard/get_stats",
                         type: "POST",
                         contentType: "application/json",
                         data: JSON.stringify({  
-                            'app_id': "{{ app_id }}",
+
                             'exp_uid': "{{ exp_uid }}",
-                            'name': 'getStats',
                             'args':{
                             'stat_id' : 'compute_duration_detailed_stacked_area_plot',
                             'params'  : {'task':'processAnswer', 'alg_label':'{{ alg.alg_label }}' } }
@@ -344,13 +332,12 @@ popup_alert = function(text){
                     }
 
                     $.ajax({
-                        url: "{{ host_url }}/api/experiment/stats",
+                        url: "{{ host_url }}/dashboard/get_stats",
                         type: "POST",
                         contentType: "application/json",
                         data: JSON.stringify({  
-                            'app_id': "{{ app_id }}",
+
                             'exp_uid': "{{ exp_uid }}",
-                            'name': 'getStats',
                             'args':{
                             'stat_id' : 'compute_duration_detailed_stacked_area_plot',
                             'params'  : {'task':'getModel', 'alg_label':'{{ alg.alg_label }}' } }
@@ -370,13 +357,12 @@ popup_alert = function(text){
                     }
 
                     $.ajax({
-                        url: "{{ host_url }}/api/experiment/stats",
+                        url: "{{ host_url }}/dashboard/get_stats",
                         type: "POST",
                         contentType: "application/json",
                         data: JSON.stringify({  
-                            'app_id': "{{ app_id }}",
+
                             'exp_uid': "{{ exp_uid }}",
-                            'name': 'getStats',
                             'args':{
                             'stat_id' : 'compute_duration_detailed_stacked_area_plot',
                             'params'  : {'task':'daemonProcess', 'alg_label':'{{ alg.alg_label }}' } }
@@ -449,13 +435,12 @@ popup_alert = function(text){
                 }
 
                 $.ajax({
-                    url: "{{ host_url }}/api/experiment/stats",
+                    url: "{{ host_url }}/dashboard/get_stats",
                     type: "POST",
                     contentType: "application/json",
                     data: JSON.stringify({  
-                        'app_id': "{{ app_id }}",
+
                         'exp_uid': "{{ exp_uid }}",
-                        'name': 'getStats',
                         'args':{
                         'stat_id' : 'response_time_histogram',
                         'params'  : {'alg_label':'{{ alg.alg_label }}'} }
@@ -475,13 +460,12 @@ popup_alert = function(text){
                 }
 
                 $.ajax({
-                    url: "{{ host_url }}/api/experiment/stats",
+                    url: "{{ host_url }}/dashboard/get_stats",
                     type: "POST",
                     contentType: "application/json",
                     data: JSON.stringify({  
-                        'app_id': "{{ app_id }}",
+
                         'exp_uid': "{{ exp_uid }}",
-                        'name': 'getStats',
                         'args':{
                         'stat_id' : 'network_delay_histogram',
                         'params'  : {'alg_label':'{{ alg.alg_label }}'} }
