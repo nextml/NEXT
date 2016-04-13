@@ -67,7 +67,7 @@ class DatabaseBackup(Resource):
 class DatabaseRestore(Resource):
     def post(self):
         """
-        .. http:get:: /databaseBackup
+        .. http:get:: /databasebackup
         
             Get a tar copy of the database.
         
@@ -75,7 +75,7 @@ class DatabaseRestore(Resource):
             
         .. selfourcecode:: http
             
-            GET /databaseBackup HTTP/1.1
+            GET /databasebackup HTTP/1.1
         
             **Example response**:
             
