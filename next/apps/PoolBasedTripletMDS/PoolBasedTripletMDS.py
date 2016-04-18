@@ -394,8 +394,23 @@ class PoolBasedTripletMDS(AppPrototype):
         # If here, then alg_uid should already be assigned in participant doc
         alg_id,didSucceed,message = db.get(app_id+':participants',participant_uid,'alg_id')
         alg_uid,didSucceed,message = db.get(app_id+':participants',participant_uid,'alg_uid')
+        alg_label,didSucceed,message = db.get(app_id+':participants',participant_uid,'alg_label')
       else:
         raise Exception('participant_to_algorithm_management : '+participant_to_algorithm_management+' not implemented')
+
+      # figure out which queries have already been asked
+      queries,didSucceed,message = db.get_docs_with_filter(app_id+':queries',{'participant_uid':participant_uid})
+      do_not_ask_list = []
+      for q in queries:
+        h = [-1,-1,-1]
+        for t in q.get('target_indices',[]):
+          if t['label']=='center':
+            h[2] = t['index']
+          elif t['label']=='left':
+            h[0] = t['index']
+          elif t['label']=='right':
+            h[1] = t['index']
+        do_not_ask_list.append(h)
 
       # get sandboxed database for the specific app_id,alg_id,exp_uid - closing off the rest of the database to the algorithm
       rc = ResourceClient(app_id,exp_uid,alg_uid,db)
@@ -404,7 +419,7 @@ class PoolBasedTripletMDS(AppPrototype):
       alg = utils.get_app_alg(self.app_id,alg_id)
 
       # call getQuery
-      index_center,index_left,index_right,dt = utils.timeit(alg.getQuery)(resource=rc)
+      index_center,index_left,index_right,dt = utils.timeit(alg.getQuery)(resource=rc,do_not_ask_list=do_not_ask_list)
 
       log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'getQuery','duration':dt } 
       log_entry_durations.update( rc.getDurations() )

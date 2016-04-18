@@ -38,7 +38,7 @@ class STE(PoolBasedTripletMDSPrototype):
     return True
 
 
-  def getQuery(self,resource):
+  def getQuery(self,resource,do_not_ask_list):
     R = 10
     n = resource.get('n')
     d = resource.get('d')

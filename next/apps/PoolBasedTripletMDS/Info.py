@@ -70,6 +70,8 @@ def get_default_alg_list():
         raise
     elif 'STE' not in supported_alg_ids:
         raise
+    elif 'ValidationSampling' not in supported_alg_ids:
+        raise
 
     alg_list = []
 

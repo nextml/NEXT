@@ -4,12 +4,12 @@ author: Kevin Jamieson, kevin.g.jamieson@gmail.com
 last updated: 1/17/2015
 """
 import numpy.random
-from next.apps.PoolBasedTripletMDS.algs.RandomSampling import utilsMDS
+from next.apps.PoolBasedTripletMDS.algs.ValidationSampling import utilsMDS
 from next.apps.PoolBasedTripletMDS.Prototype import PoolBasedTripletMDSPrototype
 
 import time
 
-class RandomSampling(PoolBasedTripletMDSPrototype):
+class ValidationSampling(PoolBasedTripletMDSPrototype):
 
   def daemonProcess(self,resource,daemon_args_dict):
 
@@ -26,20 +26,50 @@ class RandomSampling(PoolBasedTripletMDSPrototype):
     return True
 
 
-  def initExp(self,resource,n,d,failure_probability,params):
+  def initExp(self,resource,n,d,failure_probability,params=None):
+    # params['query_list'] = [[11, 22, 0], [8, 12, 9], [14, 20, 6], [19, 6, 16], [29, 15, 24], [26, 11, 29], [22, 26, 5]]
+    # formattted as [left,right,center] or [right,left,center] (either one results in same behavior)
     X = numpy.random.randn(n,d)
 
     resource.set('n',n)
     resource.set('d',d)
     resource.set('delta',failure_probability)
     resource.set('X',X.tolist())
+
+    if params:
+      query_list = params['query_list']
+    else:
+      query_list = []
+      for i in range(1000): # generate a lot of queries. 
+        q,score = utilsMDS.getRandomQuery(X)
+        query_list.append(q)
+    resource.set('query_list',query_list)
+
+
     return True
 
 
   def getQuery(self,resource,do_not_ask_list):
-    X = numpy.array(resource.get('X'))
+    query_list = numpy.array(resource.get('query_list'))
 
-    q,score = utilsMDS.getRandomQuery(X)
+    asked_queries_hash = {}
+    for q in do_not_ask_list:
+      asked_queries_hash[ str([q[0],q[1],q[2]]) ] = True
+      asked_queries_hash[ str([q[1],q[0],q[2]]) ] = True
+
+    m=0
+    while asked_queries_hash.get( str([query_list[m][0],query_list[m][1],query_list[m][2]]), False):
+      m+=1
+      if m==len(query_list):
+        break
+    if m==len(query_list):
+      q = query_list[numpy.random.choice(m)]
+    else:
+      q = query_list[m]      
+
+    print 'sidj013dh03h01he1'
+    print asked_queries_hash
+    print q
 
     index_center = q[2]
     index_left = q[0]

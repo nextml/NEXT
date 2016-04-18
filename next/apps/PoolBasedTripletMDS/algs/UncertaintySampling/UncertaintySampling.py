@@ -36,7 +36,7 @@ class UncertaintySampling(PoolBasedTripletMDSPrototype):
     return True
 
 
-  def getQuery(self,resource):
+  def getQuery(self,resource,do_not_ask_list):
     n = resource.get('n')
     d = resource.get('d')
 
