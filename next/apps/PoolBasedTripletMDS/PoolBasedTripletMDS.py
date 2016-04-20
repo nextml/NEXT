@@ -292,6 +292,7 @@ class PoolBasedTripletMDS(AppPrototype):
         alg_id = algorithm['alg_id'] 
         alg_uid = algorithm['alg_uid']
         params = algorithm.get('params',None)
+        params['num_tries']=num_tries
 
         # get sandboxed database for the specific app_id,alg_uid,exp_uid - closing off the rest of the database to the algorithm
         rc = ResourceClient(app_id,exp_uid,alg_uid,db)
@@ -389,6 +390,7 @@ class PoolBasedTripletMDS(AppPrototype):
         if (first_participant_query) and (participant_to_algorithm_management=='one_to_one'):
           db.set(app_id+':participants',participant_uid,'alg_id',alg_id)
           db.set(app_id+':participants',participant_uid,'alg_uid',alg_uid)
+          db.set(app_id+':participants',participant_uid,'alg_label',alg_label)
 
       elif (participant_to_algorithm_management=='one_to_one'):
         # If here, then alg_uid should already be assigned in participant doc

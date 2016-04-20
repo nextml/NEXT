@@ -28,7 +28,6 @@ experiment_list = []
 # List of Algorithms currently available for
 # StochasticDuelingBanditPureExploration algorithms
 supported_alg_ids = ['RandomSampling',
-                     'LUCB',
                      'LilUCB']
 
 # Algorithm List. These algorithms are independent (no inter-connectedness
@@ -60,14 +59,13 @@ algorithm_management_settings['mode'] = 'fixed_proportions'
 algorithm_management_settings['params'] = params
 
 # Create experiment dictionary
-cap = 'cap436'
 initExp = {}
 initExp['args'] = {} # arguments to pass the algorithm
 initExp['args']['n'] = 25 # items in target set
 
 # What's the probabiity of error? Similar to "similar because p < 0.05"
 initExp['args']['failure_probability'] = .05
-initExp['args']['R'] = .5
+initExp['args']['R'] = 1.
 initExp['args']['labels'] =[{'label':'unfunny', 'reward':1},
                             {'label':'somewhat funny', 'reward':2},
                             {'label':'funny', 'reward':3}]
@@ -78,7 +76,7 @@ initExp['args']['participant_to_algorithm_management'] = 'one_to_many'
 initExp['args']['algorithm_management_settings'] = algorithm_management_settings
 initExp['args']['alg_list'] = alg_list
 
-initExp['args']['num_tries'] = 50 # How many tries does each user see?
+initExp['args']['num_tries'] = 1e5 # How many tries does each user see?
 
 # Which app are we running? (examples of other algorithms are in examples/
 initExp['app_id'] = 'CardinalBanditsPureExploration'
@@ -88,11 +86,11 @@ experiment['initExp'] = initExp
 
 # When presented with a query, the user will rate a text object
 experiment['primary_type'] = 'text'
-experiment['primary_target_file'] = curr_dir+"/cap436.txt"
+experiment['primary_target_file'] = curr_dir+"/captions.txt"
 
 # Set the context. This is the static image that the user sees. i.e., trying to
 # determine the funniest caption of a single comic, the context is the comic.
-experiment['context'] = curr_dir+"/cap436.jpg"
+experiment['context'] = curr_dir+"/cartoon.jpg"
 experiment['context_type'] = 'image'
 experiment_list.append(experiment)
 

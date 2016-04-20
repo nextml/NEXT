@@ -20,12 +20,12 @@ def run_all(assert_200):
   desired_dimension = 2
   x = numpy.linspace(0,1,num_objects)
   X_true = numpy.vstack([x,x]).transpose()
-  total_pulls_per_client = 25
+  total_pulls_per_client = 10
 
   num_experiments = 1
 
   # clients run in simultaneous fashion using multiprocessing library
-  num_clients = 25
+  num_clients = 30
 
   pool = Pool(processes=num_clients)           
 
@@ -44,8 +44,8 @@ def run_all(assert_200):
     alg_item['params'] = {} 
     if idx==0:
       alg_item['alg_label'] = 'Test'
-      query_list = [[11, 22, 0], [8, 12, 9], [14, 20, 6], [19, 6, 16], [29, 15, 24], [26, 11, 29], [22, 26, 5]]
-      alg_item['params']['query_list'] = query_list
+      # query_list = [[11, 22, 0], [8, 12, 9], [14, 20, 6], [19, 6, 16], [29, 15, 24], [26, 11, 29], [22, 26, 5]]
+      # alg_item['params']['query_list'] = query_list
     else:
       alg_item['alg_label'] = alg_id  
     alg_item['test_alg_label'] = 'Test'
@@ -67,8 +67,9 @@ def run_all(assert_200):
   initExp_args_dict['args'] = {}
   initExp_args_dict['args']['n'] = n
   initExp_args_dict['args']['d'] = d
+  initExp_args_dict['args']['num_tries'] = total_pulls_per_client
   initExp_args_dict['args']['failure_probability'] = delta
-  initExp_args_dict['args']['participant_to_algorithm_management'] = 'one_to_many' #'one_to_one'  # 'one_to_one'  #optional field
+  initExp_args_dict['args']['participant_to_algorithm_management'] = 'one_to_one' #'one_to_many' #  # 'one_to_one'  #optional field
   initExp_args_dict['args']['algorithm_management_settings'] = algorithm_management_settings #optional field
   initExp_args_dict['args']['alg_list'] = alg_list #optional field
   initExp_args_dict['args']['instructions'] = 'You want instructions, here are your test instructions'

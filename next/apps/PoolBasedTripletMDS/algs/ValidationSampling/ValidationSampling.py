@@ -37,12 +37,17 @@ class ValidationSampling(PoolBasedTripletMDSPrototype):
     resource.set('X',X.tolist())
 
     if params:
-      query_list = params['query_list']
+      if 'query_list' in params:
+        query_list = params['query_list']
+      elif 'num_tries' in params:
+        num_tries = params['num_tries']
+        query_list = []
+        for i in range(num_tries): # generate a lot of queries. 
+          q,score = utilsMDS.getRandomQuery(X)
+          query_list.append(q)
     else:
-      query_list = []
-      for i in range(1000): # generate a lot of queries. 
-        q,score = utilsMDS.getRandomQuery(X)
-        query_list.append(q)
+      raise Exception('For ValidationSampling you must specifiy \'query_list\' or \'num_tries\'')
+
     resource.set('query_list',query_list)
 
 
@@ -51,6 +56,8 @@ class ValidationSampling(PoolBasedTripletMDSPrototype):
 
   def getQuery(self,resource,do_not_ask_list):
     query_list = numpy.array(resource.get('query_list'))
+    rand_perm = numpy.random.permutation(len(query_list))
+    query_list = [query_list[i] for i in rand_perm]
 
     asked_queries_hash = {}
     for q in do_not_ask_list:
@@ -66,10 +73,6 @@ class ValidationSampling(PoolBasedTripletMDSPrototype):
       q = query_list[numpy.random.choice(m)]
     else:
       q = query_list[m]      
-
-    print 'sidj013dh03h01he1'
-    print asked_queries_hash
-    print q
 
     index_center = q[2]
     index_left = q[0]
