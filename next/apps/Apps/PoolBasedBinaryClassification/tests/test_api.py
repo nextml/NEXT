@@ -13,19 +13,19 @@ HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')+':'+os.enviro
 
 def run_all(assert_200):
 
-  num_objects = 5
-  desired_dimension = 2
-  x = numpy.linspace(0,1,num_objects)
-  X_true = numpy.vstack([x,x]).transpose()
-  total_pulls_per_client = 20
+  num_objects = 100
+  desired_dimension = 4
+  true_weights = numpy.zeros(desired_dimension)
+  true_weights[0] = 1.
+  total_pulls_per_client = 30
   num_experiments = 1
   # clients run in simultaneous fashion using multiprocessing library
-  num_clients = 5
+  num_clients = 10
 
   pool = Pool(processes=num_clients)
   # input test parameters
   delta = 0.01
-  supported_alg_ids = ['RandomSampling','RandomSampling','UncertaintySampling','CrowdKernel', 'STE']
+  supported_alg_ids = ['RandomSamplingLinearLeastSquares','RandomSamplingLinearLeastSquares']
 
   alg_list = []
   for idx,alg_id in enumerate(supported_alg_ids):
@@ -44,14 +44,22 @@ def run_all(assert_200):
   algorithm_management_settings['mode'] = 'fixed_proportions'
   algorithm_management_settings['params'] = params
 
+  targetset = []
+  for i in range(num_objects):
+    features = list(numpy.random.randn(desired_dimension))
+    targetset.append({'primary_description': str(features),
+            'primary_type':'text',
+            'alt_description':'%d' % (i),
+            'alt_type':'text',
+            'meta':{'features':features}})
+
   #################################################
   # Test POST Experiment
   #################################################
   print '\n'*2 + 'Testing POST initExp...'
   initExp_args_dict = {}
-  initExp_args_dict['app_id'] = 'PoolBasedTripletMDS'
+  initExp_args_dict['app_id'] = 'PoolBasedBinaryClassification'
   initExp_args_dict['args'] = {}
-  initExp_args_dict['args']['d'] = desired_dimension
   initExp_args_dict['args']['failure_probability'] = delta
   initExp_args_dict['args']['participant_to_algorithm_management'] = 'one_to_many' # 'one_to_one'  #optional field
   initExp_args_dict['args']['algorithm_management_settings'] = algorithm_management_settings #optional field
@@ -59,7 +67,7 @@ def run_all(assert_200):
   initExp_args_dict['args']['instructions'] = 'You want instructions, here are your test instructions'
   initExp_args_dict['args']['debrief'] = 'You want a debrief, here is your test debrief'
   initExp_args_dict['args']['targets'] = {}
-  initExp_args_dict['args']['targets']['n'] = num_objects
+  initExp_args_dict['args']['targets']['targetset'] = targetset
 
   exp_info = []
   for ell in range(num_experiments):
@@ -95,7 +103,7 @@ def run_all(assert_200):
 
     experiment = numpy.random.choice(exp_info)
     exp_uid = experiment['exp_uid']
-    pool_args.append( (exp_uid,participant_uid,total_pulls_per_client,X_true,assert_200) )
+    pool_args.append( (exp_uid,participant_uid,total_pulls_per_client,true_weights,assert_200) )
   print "participants are", participants
   results = pool.map(simulate_one_client, pool_args)
 
@@ -104,7 +112,7 @@ def run_all(assert_200):
 
 
 def simulate_one_client( input_args ):
-  exp_uid,participant_uid,total_pulls,X_true,assert_200 = input_args
+  exp_uid,participant_uid,total_pulls,true_weights,assert_200 = input_args
   avg_response_time = 1.
 
 
@@ -136,15 +144,9 @@ def simulate_one_client( input_args ):
     query_dict = json.loads(response.text)
     print "query_dict: ", query_dict
     query_uid = query_dict['query_uid']
-    targets = query_dict['target_indices']
-    print targets
-    for target in targets:
-      if target['label'] == 'center':
-        index_center = target['target_id']
-      elif target['label'] == 'left':
-        index_left = target['target_id']
-      elif target['label'] == 'right':
-        index_right = target['target_id']
+    target = query_dict['target_indices']
+    x = numpy.array(eval(target['primary_description']))
+    print target
 
     # generate simulated reward #
     #############################
@@ -153,14 +155,8 @@ def simulate_one_client( input_args ):
 
     time.sleep(  avg_response_time*numpy.log(1./numpy.random.rand())  )
 
-    direction = norm(X_true[index_left]-X_true[index_center])-norm(X_true[index_right]-X_true[index_center])
-    r = numpy.random.rand()
-    if r<.1:
-      direction = - direction
-    if direction<0.:
-      target_winner = index_left
-    else:
-      target_winner = index_right
+    target_label = numpy.sign(numpy.dot(x,true_weights))
+    
 
     response_time = time.time() - ts
 
@@ -173,7 +169,7 @@ def simulate_one_client( input_args ):
     processAnswer_args_dict["exp_uid"] = exp_uid
     processAnswer_args_dict["args"] = {}
     processAnswer_args_dict["args"]["query_uid"] = query_uid
-    processAnswer_args_dict["args"]["target_winner"] = target_winner
+    processAnswer_args_dict["args"]["target_label"] = target_label
     processAnswer_args_dict["args"]['response_time'] = response_time
 
     url = 'http://'+HOSTNAME+'/api/experiment/processAnswer'

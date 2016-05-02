@@ -25,11 +25,8 @@ from launch_experiment import *
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 experiment_list = []
 
-# List of Algorithms currently available for
-# StochasticDuelingBanditPureExploration algorithms
-supported_alg_ids = ['RandomSampling',
-                     'LUCB',
-                     'LilUCB']
+# algs in next/apps/Apps/CardinalBanditsPureExploration/algs/
+supported_alg_ids = ['RoundRobin', 'LilUCB']
 
 # Algorithm List. These algorithms are independent (no inter-connectedness
 # between algorithms) and each algorithm gets `proportion` number of queries
@@ -40,18 +37,20 @@ for alg_id in supported_alg_ids:
     alg_item = {}
     alg_item['alg_id'] = alg_id
     alg_item['alg_label'] = alg_id
-    alg_item['params'] = {}
+    #alg_item['params'] = {}
     alg_list.append(alg_item)
 
 # Algorithm management specifies the proportion of queries coming from an
 # algorithms. In this example, we specify that each algorithm recieves the same
 # proportion. The alg_label's must agree with the alg_labels in the alg_list.
 algorithm_management_settings = {}
-params = {}
-params['proportions'] = []
+params = []
+#params['proportions'] = []
 for algorithm in alg_list:
-    params['proportions'].append({'alg_label': algorithm['alg_label'] ,
-                                    'proportion':1./len(alg_list)})
+    #params['proportions'].append({'alg_label': algorithm['alg_label'] ,
+                                    #'proportion':1./len(alg_list)})
+    params += [{'alg_label': algorithm['alg_label'],
+                               'proportion': 1.0 / len(alg_list)}]
 
 # Run algorithms here in fixed proportions
 # The number of queries sampled is the ones we specify, rather than using some
@@ -63,14 +62,13 @@ algorithm_management_settings['params'] = params
 cap = 'cap436'
 initExp = {}
 initExp['args'] = {} # arguments to pass the algorithm
-initExp['args']['n'] = 25 # items in target set
 
 # What's the probabiity of error? Similar to "similar because p < 0.05"
 initExp['args']['failure_probability'] = .05
 initExp['args']['R'] = .5
-initExp['args']['labels'] =[{'label':'unfunny', 'reward':1},
-                            {'label':'somewhat funny', 'reward':2},
-                            {'label':'funny', 'reward':3}]
+initExp['args']['rating_scale'] = {'labels':[{'label':'unfunny', 'reward':1},
+                                             {'label':'somewhat funny', 'reward':2},
+                                             {'label':'funny', 'reward':3}]}
 
 # one parcipant sees many algorithms? 'one_to_many' means one participant will
 # see many algorithms
@@ -114,7 +112,6 @@ except:
     sys.exit()
 
 # Call launch_experiment module (found in NEXT/lauch_experiment.py)
-exp_info = launch_experiment(host, experiment_list, AWS_ACCESS_ID,
-                             AWS_SECRET_ACCESS_KEY, AWS_BUCKET_NAME)
+exp_uid_list = launch_experiment(host, experiment_list, AWS_ACCESS_ID,
+                                 AWS_SECRET_ACCESS_KEY, AWS_BUCKET_NAME)
 
-exp_uid_list, exp_key_list, widget_key_list = exp_info

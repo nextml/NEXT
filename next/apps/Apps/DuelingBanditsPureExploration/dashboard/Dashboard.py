@@ -1,7 +1,6 @@
 import json
 from next.utils import utils
 from next.apps.AppDashboard import AppDashboard
-import next.apps.SimpleTargetManager
 
 class DuelingBanditsPureExplorationDashboard(AppDashboard):
     def __init__(self,db,ell):
@@ -26,7 +25,6 @@ class DuelingBanditsPureExplorationDashboard(AppDashboard):
         next_app = utils.get_app(app_id, exp_uid, self.db, self.ell)
         getModel_args_dict = json.loads(next_app.getModel(exp_uid, json.dumps({'exp_uid':exp_uid, 'args':{'alg_label':alg_label}}))[0])
         item = getModel_args_dict['args']
-
         return_dict = {}
         return_dict['headers'] = [{'label':'Rank','field':'rank'},
                                   {'label':'Target','field':'index'},

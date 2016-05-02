@@ -65,7 +65,7 @@ nextbackenddocker:
    - NEXT_BACKEND_GLOBAL_PORT
    - GIT_HASH={{GIT_HASH}}
    - TERM=xterm
-   - CELERY_ON=true
+   - CELERY_ON=True
 ####################################
 
 

@@ -8,9 +8,9 @@ import numpy
 import next.apps.SimpleTargetManager
 import next.utils as utils
 class DuelingBanditsPureExploration(object):
-    def __init__(self):
+    def __init__(self,db):
         self.app_id = 'DuelingBanditsPureExploration'
-        self.TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager()
+        self.TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager(db)
 
     def initExp(self, exp_uid, exp_data, butler):
         """
@@ -36,9 +36,10 @@ class DuelingBanditsPureExploration(object):
         -------
         exp_data: The experiment data, potentially modified.
         """
+        # TODO: change this in every app type coded thus far!
         if 'targetset' in exp_data['args']['targets'].keys():
-            n  = len(exp_data['args']['targets']['targetset'])
-            self.TargetManager.set_targetset(exp_data['args']['targets']['targetset'])
+            n = len(exp_data['args']['targets']['targetset'])
+            self.TargetManager.set_targetset(exp_uid, exp_data['args']['targets']['targetset'])
         else:
             n = exp_data['args']['targets']['n']
         exp_data['args']['n'] = n
@@ -89,9 +90,9 @@ class DuelingBanditsPureExploration(object):
 
         experiment_dict = butler.experiment.get()
 
-        if 'labels' in experiment_dict['args']['rating_scale']:
-            labels = experiment_dict['args']['rating_scale']['labels']
-            return_dict.update({'labels':labels})
+        #if 'labels' in experiment_dict['args']['rating_scale']:
+            #labels = experiment_dict['args']['rating_scale']['labels']
+            #return_dict.update({'labels':labels})
 
         if 'context' in experiment_dict['args'] and 'context_type' in experiment_dict['args']:
             return_dict.update({'context':experiment_dict['args']['context'],'context_type':experiment_dict['args']['context_type']})

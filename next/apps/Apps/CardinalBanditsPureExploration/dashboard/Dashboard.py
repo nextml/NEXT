@@ -1,7 +1,6 @@
 import json
 from next.utils import utils
 from next.apps.AppDashboard import AppDashboard
-import next.apps.SimpleTargetManager
 
 class CardinalBanditsPureExplorationDashboard(AppDashboard):
     def __init__(self,db,ell):

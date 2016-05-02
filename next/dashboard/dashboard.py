@@ -8,7 +8,7 @@ Flask controller for dashboards.
 import os
 import json
 import yaml
-from flask import Blueprint, render_template, url_for, request
+from flask import Blueprint, render_template, url_for, request, jsonify
 from jinja2 import Environment, PackageLoader, ChoiceLoader
 
 import next.constants as constants
@@ -73,12 +73,8 @@ def get_stats():
     args_dict = Verifier.verify(args_dict, reference_dict['getStats']['values'])
     stat_id = args_dict['args'].pop('stat_id',None)
     # myApp
-    myApp = __import__('next.apps.Apps.'+app_id, fromlist=[''])
-    myApp = getattr(myApp, app_id)
-    myApp = myApp()
-
-    # butler
-    butler = Butler.Butler(app_id, exp_uid, myApp.TargetManager, dba, ell)
+    app = utils.get_app(app_id, exp_uid, dba, ell) #__import__('next.apps.Apps.'+app_id, fromlist=[''])
+    butler = Butler.Butler(app_id, exp_uid, app.myApp.TargetManager, dba, ell)
 
     # dashboard
     dashboard_string = 'next.apps.Apps.' + app_id + \
@@ -88,7 +84,7 @@ def get_stats():
     dashboard = dashboard(butler.db, butler.ell)
     utils.debug_print('stat_id', stat_id)
     stats_method = getattr(dashboard, stat_id)
-    return json.dumps(stats_method(exp_uid, app_id, butler, **args_dict['args']['params'])), True, ''
+    return jsonify(stats_method(app_id, exp_uid, butler, **args_dict['args']['params']))
 
 
 @dashboard.route('/system_monitor')

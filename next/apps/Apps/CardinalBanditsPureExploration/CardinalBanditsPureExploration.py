@@ -4,9 +4,9 @@ import numpy
 import next.apps.SimpleTargetManager
 import next.utils as utils
 class CardinalBanditsPureExploration(object):
-    def __init__(self):
+    def __init__(self,db):
         self.app_id = 'CardinalBanditsPureExploration'
-        self.TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager()
+        self.TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager(db)
 
     def initExp(self, exp_uid, exp_data, butler):
         """
@@ -27,7 +27,7 @@ class CardinalBanditsPureExploration(object):
         """
         if 'targetset' in exp_data['args']['targets'].keys():
             n  = len(exp_data['args']['targets']['targetset'])
-            self.TargetManager.set_targetset(exp_data['args']['targets']['targetset'])
+            self.TargetManager.set_targetset(exp_uid, exp_data['args']['targets']['targetset'])
         else:
             n = exp_data['args']['targets']['n']
         exp_data['args']['n'] = n

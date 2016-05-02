@@ -24,16 +24,14 @@
   }
 
   $.ajax({
-    url: "{{ host_url }}/api/experiment/stats",
+    url: "{{ host_url }}/dashboard/get_stats",
     type: "POST",
     contentType: "application/json",
     data: JSON.stringify({  
-        'app_id': "{{ app_id }}",
         'exp_uid': "{{ exp_uid }}",
-        'name': 'getStats',
         'args':{
             'stat_id' : 'test_error_multiline_plot',
-            'params'  : {'task':''}
+            'params'  : {}
             }
         }),
     dataType: "json"
@@ -105,13 +103,11 @@
               }
 
               $.ajax({
-                url: "{{ host_url }}/api/experiment/stats",
+                url: "{{ host_url }}/dashboard/get_stats",
                 type: "POST",
                 contentType: "application/json",
                 data: JSON.stringify({  
-                    'app_id': "{{ app_id }}",
                     'exp_uid': "{{ exp_uid }}",
-                    'name': 'getStats',
                     'args':{
                         'stat_id' : 'most_current_embedding',
                         'params'  : {'alg_label': '{{ alg.alg_label }}' }

@@ -114,6 +114,8 @@ class Butler(object):
         self.db = db
         self.ell = ell
         self.targets = targets
+        if self.targets.db==None:
+            self.targets.db = self.db
         self.queries = Collection(self.app_id+":queries", "", self.exp_uid, db)
         self.admin = Collection("experiments_admin", "", self.exp_uid, db)
         self.experiment = Collection(self.app_id+":experiments", "{exp_uid}", self.exp_uid, db)
@@ -131,10 +133,10 @@ class Butler(object):
         if self.alg_label:
             print "butler job", self.app_id, self.exp_uid, self.alg_label, self.alg_id, task
             self.db.submit_job(self.app_id,self.exp_uid,
-                               task,task_args_json,self.targets,
+                               task,task_args_json,
                                self.exp_uid+'_'+self.alg_label,
                                ignore_result,time_limit,
                                alg_id = self.alg_id, alg_label=self.alg_label)  
         else:
-            self.db.submit_job(self.app_id, self.exp_uid, task, task_args_json, self.targets, None, ignore_result, time_limit)  
+            self.db.submit_job(self.app_id, self.exp_uid, task, task_args_json, None, ignore_result, time_limit)  
 

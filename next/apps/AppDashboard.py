@@ -16,7 +16,7 @@ class AppDashboard(object):
     self.db = db
     self.ell = ell
 
-  def api_activity_histogram(self, app_id, exp_uid, butler, task):
+  def api_activity_histogram(self, app_id, exp_uid, butler):
     """
     Description: returns the data to plot all API activity (for all algorithms) in a histogram with respect to time for any task in {getQuery,processAnswer,predict}
 
@@ -26,8 +26,8 @@ class AppDashboard(object):
     Expected output (in dict):
       (dict) MPLD3 plot dictionary
     """
-
-    queries,didSucceed,message = butler.queries.get(pattern={'exp_uid':exp_uid})
+    utils.debug_print("compute duration multiline plot app_id {}, exp_uid {}".format(app_id, exp_uid))
+    queries = butler.queries.get(pattern={'exp_uid':exp_uid})
     #self.db.get_docs_with_filter(app_id+':queries',{'exp_uid':exp_uid})
     start_date = utils.str2datetime(butler.admin.get(uid=exp_uid)['start_date'])
     numerical_timestamps = [(utils.str2datetime(item['timestamp_query_generated'])-start_date).total_seconds() 
@@ -48,7 +48,7 @@ class AppDashboard(object):
 
 
 
-  def compute_duration_multiline_plot(self,app_id,exp_uid, butler, task):
+  def compute_duration_multiline_plot(self, app_id, exp_uid, butler, task):
     """
     Description: Returns multiline plot where there is a one-to-one mapping lines to
     algorithms and each line indicates the durations to complete the task (wrt to the api call)
@@ -59,6 +59,7 @@ class AppDashboard(object):
     Expected output (in dict):
       (dict) MPLD3 plot dictionary
     """
+
     alg_list = butler.experiment.get(key='args')['alg_list']
     x_min = numpy.float('inf')
     x_max = -numpy.float('inf')
@@ -68,10 +69,9 @@ class AppDashboard(object):
 
     for algorithm in alg_list:
       alg_label = algorithm['alg_label']
-
       list_of_log_dict,didSucceed,message = butler.ell.get_logs_with_filter(app_id+':ALG-DURATION',{'exp_uid':exp_uid,'alg_label':alg_label,'task':task})
       list_of_log_dict = sorted(list_of_log_dict, key=lambda item: utils.str2datetime(item['timestamp']) )
-
+      
       x = []
       y = []
       t = []
@@ -81,7 +81,9 @@ class AppDashboard(object):
         x.append(k)
         y.append( item.get('app_duration',0.) + item.get('duration_enqueued',0.) )
         t.append(str(item['timestamp'])[:-3])
-
+        
+      
+      
       x = numpy.array(x)
       y = numpy.array(y)
       t = numpy.array(t)
@@ -120,7 +122,6 @@ class AppDashboard(object):
     return_dict['y_min'] = y_min
     return_dict['y_max'] = y_max
 
-
     import matplotlib.pyplot as plt
     import mpld3
     fig, ax = plt.subplots(subplot_kw=dict(axisbg='#EEEEEE'))
@@ -137,12 +138,10 @@ class AppDashboard(object):
       label.set_fontsize('small')
     plot_dict = mpld3.fig_to_dict(fig)
     plt.close()
-
-
     return plot_dict
 
 
-  def compute_duration_detailed_stacked_area_plot(self,app_id,exp_uid,butler, task,alg_label,detailedDB=False):
+  def compute_duration_detailed_stacked_area_plot(self,app_id,exp_uid,butler,task,alg_label,detailedDB=False):
     """
     Description: Returns stacked area plot for a particular algorithm and task where the durations
     are broken down into compute,db_set,db_get (for cpu, database_set, database_get)

@@ -32,7 +32,7 @@ class App(object):
         self.helper = Helper()
         self.myApp = __import__('next.apps.Apps.'+self.app_id, fromlist=[''])
         self.myApp = getattr(self.myApp, app_id)
-        self.myApp = self.myApp()
+        self.myApp = self.myApp(db)
         self.butler = Butler(self.app_id, self.exp_uid, self.myApp.TargetManager, db, ell)
         dir,_ = os.path.split(__file__)
         with open(os.path.join(dir, "Apps/{}/{}.yaml".format(app_id, app_id)),'r') as f:
@@ -62,11 +62,17 @@ class App(object):
                 params = algorithm.get('params',None)
                 butler = Butler(self.app_id, exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, algorithm['alg_label'], algorithm['alg_id'])
                 alg = utils.get_app_alg(self.app_id, algorithm['alg_id'])
-                alg_succeed, dt = utils.timeit(alg.initExp)(butler,params=params,**algs_args_dict)
-                log_entry = {'exp_uid':exp_uid, 'alg_label':algorithm['alg_label'], 'task':'initExp', 'duration':dt, 'timestamp':utils.datetimeNow()}
-                self.butler.log('ALG-DURATION', log_entry)
-                if not alg_succeed:
+
+                # utils.debug_print("App.py:66, algs_args_dict = {}".format(algs_args_dict))
+                # I got rid of a timeit function here; it wasn't handling the
+                # argument unpacking correctly? --Scott, 2016-3-7
+                # TODO: put dt back in and change log_entry to relfect that
+                alg.initExp(butler,params=params, **algs_args_dict)
+                if not True:
                     raise Exception('Algorithm {} failed to initialize.'.format(algorithm['alg_label']))
+
+                log_entry = {'exp_uid':exp_uid, 'alg_label':algorithm['alg_label'], 'task':'initExp', 'duration':-1, 'timestamp':utils.datetimeNow()}
+                self.butler.log('ALG-DURATION', log_entry)
             return '{}', True, ''
         except Exception, error:
             exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -120,7 +126,7 @@ class App(object):
                               'timestamp_query_generated':str(utils.datetimeNow()),
                               'query_uid':query_uid})
             self.butler.queries.set(uid=query_uid, value=query_doc)
-            log_entry_durations = { 'exp_uid':exp_uid,'alg_label':alg_label,'task':'getQuery','duration':dt }
+            log_entry_durations = {'exp_uid':exp_uid,'alg_label':alg_label,'task':'getQuery','duration':dt }
             log_entry_durations.update(butler.algorithms.getDurations())
             return json.dumps({'args':query_doc,'meta':{'log_entry_durations':log_entry_durations}}), True,''
         except Exception, error:

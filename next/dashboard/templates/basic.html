@@ -53,8 +53,8 @@ popup_alert = function(text){
             'exp_uid': "{{ exp_uid }}",
             'args':{
                 'stat_id' : 'api_activity_histogram',
-                'params'  : {'task':'processAnswer'} 
-                }
+		'params':{}
+	    }
             }),
         dataType: "json"
         }).done( function(data,textStatus, jqXHR) {
@@ -484,8 +484,9 @@ popup_alert = function(text){
 
     </div>
 </div>
+
 {% endif %}
 
-{% block custom_dashboard %}{% endblock %} 
+ {% block custom_dashboard %}{% endblock %} 
 
 {% endblock %}
