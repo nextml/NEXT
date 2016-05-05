@@ -1,3 +1,18 @@
+"""
+TODO: (1) use participant_uid when choosing a query. Right now, it assumes
+      that all users have the same choice in arms.
+
+TODO: (1) Make launching an experiment more firm. Give it a script like in
+      examples/. Test with images, etc.
+
+TODO: (-1) Right now, we are given a particular arm. We need to generalize this and
+    let the user choose the initial sampling arm.
+
+(1 has priority, -1 does not)
+
+DONE: the query page works (not tested with images).
+"""
+
 from __future__ import division
 import numpy as np
 from next.apps.Apps.CardinalBanditsFeatures.Prototype import CardinalBanditsFeaturesPrototype
