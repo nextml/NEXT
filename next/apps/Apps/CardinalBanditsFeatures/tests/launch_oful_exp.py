@@ -118,27 +118,25 @@ def run_all(assert_200):
     if assert_200: assert response.status_code is 200
     initExp_response_dict = json.loads(response.text)
 
-
-
   ###################################
   # Generate participants
   ###################################
+  if False:
+    participants = []
+    pool_args = []
+    for i in range(num_clients):
+      participant_uid = '%030x' % random.randrange(16**30)
+      participants.append(participant_uid)
 
-  participants = []
-  pool_args = []
-  for i in range(num_clients):
-    participant_uid = '%030x' % random.randrange(16**30)
-    participants.append(participant_uid)
+      experiment = numpy.random.choice(exp_info)
+      exp_uid = experiment['exp_uid']
+      pool_args.append( (exp_uid,participant_uid,total_pulls_per_client,true_means,assert_200) )
 
-    experiment = numpy.random.choice(exp_info)
-    exp_uid = experiment['exp_uid']
-    pool_args.append( (exp_uid,participant_uid,total_pulls_per_client,true_means,assert_200) )
+    # results = pool.map(simulate_one_client, pool_args)
+    results = map(simulate_one_client, pool_args)
 
-  # results = pool.map(simulate_one_client, pool_args)
-  results = map(simulate_one_client, pool_args)
-
-  for result in results:
-    print result
+    for result in results:
+      print result
 
 
 def simulate_one_client( input_args ):

@@ -1,1 +1,1 @@
-from .CardinalBanditsPureExploration import *
+from .CardinalBanditsFeatures import *

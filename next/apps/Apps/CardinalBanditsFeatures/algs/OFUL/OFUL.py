@@ -1,6 +1,6 @@
 from __future__ import division
 import numpy as np
-from next.apps.Apps.CardinalBanditsPureExploration.Prototype import CardinalBanditsPureExplorationPrototype
+from next.apps.Apps.CardinalBanditsFeatures.Prototype import CardinalBanditsFeaturesPrototype
 import next.utils as utils
 
 def argmax_reward(X, theta, V, k=0):
@@ -19,7 +19,7 @@ def argmax_reward(X, theta, V, k=0):
 def calc_reward(x, theta, R=2):
     return np.inner(x, theta) + R*np.random.randn()
 
-class OFUL(CardinalBanditsPureExploration):
+class OFUL(CardinalBanditsFeaturesPrototype):
 
     def initExp(self, butler, params=None, n=None, R=None,
                 failure_probability=None):
@@ -37,6 +37,7 @@ class OFUL(CardinalBanditsPureExploration):
         Expected output (comma separated):
           (boolean) didSucceed : did everything execute correctly
         """
+        utils.debug_print('SUCCESSFUL RESTARTING DOCKER')
         # setting the target matrix, a description of each target
         X = np.asarray(params['X'])
         utils.debug_print(X.shape)
@@ -81,6 +82,9 @@ class OFUL(CardinalBanditsPureExploration):
 
         Expected output (comma separated):
           (int) target_index : idnex of arm to pull (in 0,n-1)
+
+        if we want, we can find some way to have different arms
+        pulled using the butler
         """
         args = butler.algorithms.get()
         X = np.asarray(args['X'], dtype=float)
@@ -98,6 +102,7 @@ class OFUL(CardinalBanditsPureExploration):
                              R=0.01*args['R'])
         # allow reward to propograte forward to other functions; it's used
         # later
+
         butler.algorithms.set(key='reward', value=reward)
         utils.debug_print("OFUL:102, arm_pulled = {}".format(i_x))
         return i_x
@@ -134,8 +139,8 @@ class OFUL(CardinalBanditsPureExploration):
                     .format(np.linalg.norm(theta_star - theta_hat)))
 
         # save the results
-        d = {'X': X, 'V': V, 
-             'b':b.tolist(), 
+        d = {'X': X, 'V': V,
+             'b':b.tolist(),
              'theta_hat':theta_hat.tolist()}
         for name in d:
             butler.algorithms.set(key=name, value=d[name])
