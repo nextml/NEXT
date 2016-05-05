@@ -48,7 +48,7 @@ initExp:
               params:
                 type: matrix
                 values: []
-                description: algorithm specific parameters. We have taken this to be a matrix with column i to be feature i.
+                description: algorithm specific parameters.
                 optional: true
 
         instructions:
