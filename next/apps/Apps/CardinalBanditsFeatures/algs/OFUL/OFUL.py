@@ -1,12 +1,13 @@
 """
-1. make mapping, targets to features
+* make mapping, targets to features
+* work with Zappos dataset
 2. generalize to n users, not 1 user
 3. choose initial sampling arm
     * myApp.py getQuery/processAnswer help this
-4. make launching easier
+    * V, b, theta_hat need to be stored per user
+    * add new key to butler.particpants[i]
+* make launching easier
 
-V, b, theta_hat need to be stored per user
-add new key to butler.particpants[i]
 """
 
 from __future__ import division
@@ -59,9 +60,9 @@ class OFUL(CardinalBanditsFeaturesPrototype):
         R = 2.0
 
         # initial sampling arm
-        # TODO: make this an feature vector in X (some column index)
-        theta_hat = np.random.randn(d)
-        theta_hat /= np.linalg.norm(theta_hat)
+        theta_hat = X[:, np.random.randint(X.shape[1])]
+        # theta_hat = np.random.randn(d)
+        # theta_hat /= np.linalg.norm(theta_hat)
 
         to_save = {'X': X.tolist(),
                    'R': R, 'd': d, 'n': n,
@@ -118,7 +119,7 @@ class OFUL(CardinalBanditsFeaturesPrototype):
 
 
         reward = calc_reward(arm_x, np.array(args['theta_star']), 
-                             R=0.01*args['R'])
+                             R=args['R'])
         # allow reward to propograte forward to other functions; it's used
         # later
 

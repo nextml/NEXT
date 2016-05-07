@@ -33,35 +33,12 @@ class CardinalBanditsFeatures(object):
             target_filenames = [im['alt_description'] for im in
                     targetset]
 
-            # utils.debug_print(target_filenames)
             new_target_idx = [feature_filenames.index(target)
                     for  target in target_filenames]
-
-
-            # utils.debug_print('feature_filenames')
-            # utils.debug_print(feature_filenames)
-            # utils.debug_print('target_filenames')
-            # utils.debug_print(target_filenames)
-            # utils.debug_print('reordered target filenames')
-            # utils.debug_print([target_filenames[i]
-                # for i in new_target_idx])
-
-            # self.TargetManager.set_targetset(exp_uid,
-                    # exp_data['args']['targets']['targetset']
-                # )
             self.TargetManager.set_targetset(exp_uid,
                             [exp_data['args']['targets']['targetset'][i]
                                             for i in new_target_idx]
             )
-
-            # utils.debug_print(
-                    # type(exp_data['args']['targets']['targetset'])
-                    # )
-            # utils.debug_print('CardinalBanditsFeatures.py:L30')
-            # utils.debug_print(
-                            # [exp_data['args']['targets']['targetset'][i]
-                                            # for i in new_target_idx]
-                            # )
         else:
             n = exp_data['args']['targets']['n']
         exp_data['args']['n'] = n
@@ -134,11 +111,11 @@ class CardinalBanditsFeatures(object):
         algorithm would then be called with
         ``alg.processAnswer(butler, a=1, b=2)``
         """
-        target_id = query['target_indices'][0]['target']['target_id']     
+        target_id = query['target_indices'][0]['target']['target_id']
         target_reward = answer['args']['target_reward']
 
         participant_uid = query['participant_uid']
-        butler.participants.append(uid=participant_uid,key='do_not_ask_list',value=target_id)
+        butler.participants.append(uid=participant_uid, key='do_not_ask_list', value=target_id)
 
         query_update = {'target_id':target_id,'target_reward':target_reward}
         alg_args_dict = {'target_id':target_id,'target_reward':target_reward}

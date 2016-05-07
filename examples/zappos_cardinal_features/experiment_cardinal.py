@@ -6,21 +6,27 @@ from scipy.io import loadmat
 import numpy as np
 import numpy
 from sklearn.preprocessing import normalize
+import pickle
+
+
+# filename = '/Users/scott/Dropbox/image_search_scott/Features/features_allshoes_8_normalized.mat'
+filename = './parse-output/N=10,M=4/Zappos_Caffe_Layer8.mat'
+X = loadmat(filename)['X']
 
 # X \in {num_features x num_arms}
-num_features, num_arms = (2, 4)
-
-filename = '/Users/scott/Dropbox/image_search_scott/Features/features_allshoes_8_normalized.mat'
-X = loadmat(filename)['features_all']
-
-X = np.random.rand(num_features, num_arms)
-X = normalize(X, axis=0)
-X = X[:num_features, :num_arms]
-X = np.zeros((num_features, num_arms))
-X[0] = [0, 1, 2, 3]
-feature_filenames = ['i001.png', 'i003.png', 'i005.png', 'i007.png']
-
+# num_features, num_arms = (2, 4)
+num_features, num_arms = X.shape
 n = num_arms
+
+# X = np.random.rand(num_features, num_arms)
+# X = normalize(X, axis=0)
+# X = X[:num_features, :num_arms]
+# X = np.zeros((num_features, num_arms))
+# X[0] = [0, 1, 2, 3]
+feature_filenames = pickle.load(open('./parse-output/N=10,M=4/filenames.pkl', 'rb'))
+
+images = 'parse-output/N=10,M=4/AllShoes.zip'
+
 delta = 0.05
 supported_alg_ids = ['OFUL']
 
@@ -108,7 +114,7 @@ experiment['initExp'] = initExp
 
 # When presented with a query, the user will rate a text object
 experiment['primary_type'] = 'image'
-experiment['primary_target_file'] = curr_dir+'/strangefruit4.zip'
+experiment['primary_target_file'] = curr_dir+'/' + images
 
 # Set the context. This is the static image that the user sees. i.e., trying to
 # determine the funniest caption of a single comic, the context is the comic.
@@ -124,12 +130,12 @@ try:
     host = os.environ['NEXT_BACKEND_GLOBAL_HOST'] + \
             ":" + os.environ.get('NEXT_BACKEND_GLOBAL_PORT', '8000')
 except:
-    print 'The following environment variables must be defined:'
+    print('The following environment variables must be defined:')
 
     for key in ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY',
                 'AWS_BUCKET_NAME', 'NEXT_BACKEND_GLOBAL_HOST']:
         if key not in os.environ:
-            print '    ' + key
+            print('    ' + key)
 
     sys.exit()
 
