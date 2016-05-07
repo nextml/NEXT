@@ -1,16 +1,12 @@
 """
-TODO: (1) use participant_uid when choosing a query. Right now, it assumes
-      that all users have the same choice in arms.
+1. make mapping, targets to features
+2. generalize to n users, not 1 user
+3. choose initial sampling arm
+    * myApp.py getQuery/processAnswer help this
+4. make launching easier
 
-TODO: (1) Make launching an experiment more firm. Give it a script like in
-      examples/. Test with images, etc.
-
-TODO: (-1) Right now, we are given a particular arm. We need to generalize this and
-    let the user choose the initial sampling arm.
-
-(1 has priority, -1 does not)
-
-DONE: the query page works (not tested with images).
+V, b, theta_hat need to be stored per user
+add new key to butler.particpants[i]
 """
 
 from __future__ import division
@@ -52,7 +48,6 @@ class OFUL(CardinalBanditsFeaturesPrototype):
         Expected output (comma separated):
           (boolean) didSucceed : did everything execute correctly
         """
-        utils.debug_print('SUCCESSFUL RESTARTING DOCKER')
         # setting the target matrix, a description of each target
         X = np.asarray(params['X'])
         utils.debug_print(X.shape)
@@ -64,6 +59,7 @@ class OFUL(CardinalBanditsFeaturesPrototype):
         R = 2.0
 
         # initial sampling arm
+        # TODO: make this an feature vector in X (some column index)
         theta_hat = np.random.randn(d)
         theta_hat /= np.linalg.norm(theta_hat)
 
@@ -84,7 +80,8 @@ class OFUL(CardinalBanditsFeaturesPrototype):
 
         return True
 
-    def getQuery(self, butler, do_not_ask_list, exp_uid=None, args=None):
+    def getQuery(self, butler, participant_doc, exp_uid=None, args=None,
+                 **kwargs):
         """
         A request to ask which index/arm to pull
 
@@ -97,6 +94,9 @@ class OFUL(CardinalBanditsFeaturesPrototype):
 
         Expected output (comma separated):
           (int) target_index : idnex of arm to pull (in 0,n-1)
+
+         particpant_doc is butler.participants corresponding to this
+         participant
 
         if we want, we can find some way to have different arms
         pulled using the butler
@@ -113,6 +113,10 @@ class OFUL(CardinalBanditsFeaturesPrototype):
         # arm_x = X[:, i_x]
         arm_x, i_x = argmax_reward(X, np.array(args['theta_hat']),
                                    np.array(np.array(args['V'])), k=k)
+        utils.debug_print("OFUL.py:116")
+        utils.debug_print("i_x = {}, arm_x = {}".format(i_x, arm_x))
+
+
         reward = calc_reward(arm_x, np.array(args['theta_star']), 
                              R=0.01*args['R'])
         # allow reward to propograte forward to other functions; it's used

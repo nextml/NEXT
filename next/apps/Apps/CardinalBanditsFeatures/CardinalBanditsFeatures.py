@@ -27,7 +27,41 @@ class CardinalBanditsFeatures(object):
         """
         if 'targetset' in exp_data['args']['targets'].keys():
             n  = len(exp_data['args']['targets']['targetset'])
-            self.TargetManager.set_targetset(exp_uid, exp_data['args']['targets']['targetset'])
+
+            targetset = exp_data['args']['targets']['targetset']
+            feature_filenames = exp_data['args']['feature_filenames']
+            target_filenames = [im['alt_description'] for im in
+                    targetset]
+
+            # utils.debug_print(target_filenames)
+            new_target_idx = [feature_filenames.index(target)
+                    for  target in target_filenames]
+
+
+            # utils.debug_print('feature_filenames')
+            # utils.debug_print(feature_filenames)
+            # utils.debug_print('target_filenames')
+            # utils.debug_print(target_filenames)
+            # utils.debug_print('reordered target filenames')
+            # utils.debug_print([target_filenames[i]
+                # for i in new_target_idx])
+
+            # self.TargetManager.set_targetset(exp_uid,
+                    # exp_data['args']['targets']['targetset']
+                # )
+            self.TargetManager.set_targetset(exp_uid,
+                            [exp_data['args']['targets']['targetset'][i]
+                                            for i in new_target_idx]
+            )
+
+            # utils.debug_print(
+                    # type(exp_data['args']['targets']['targetset'])
+                    # )
+            # utils.debug_print('CardinalBanditsFeatures.py:L30')
+            # utils.debug_print(
+                            # [exp_data['args']['targets']['targetset'][i]
+                                            # for i in new_target_idx]
+                            # )
         else:
             n = exp_data['args']['targets']['n']
         exp_data['args']['n'] = n
@@ -37,7 +71,7 @@ class CardinalBanditsFeatures(object):
             labels = exp_data['args']['rating_scale']['labels']
             max_label = max( label['reward'] for label in labels )
             min_label = min( label['reward'] for label in labels )
-            exp_data['args']['rating_scale']['R'] = max_label-min_label
+            exp_data['args']['rating_scale']['R'] = max_label - min_label
 
         R = exp_data['args']['rating_scale']['R']
         alg_data = {'R':R}

@@ -13,7 +13,13 @@ initExp:
         failure_probability:
           description: Confidence of result.
           type: num
-
+        feature_filenames:
+          description: We (optionally) collect a bunch of feature vectors. This parameter is a list of filenames corresponding to which column in the matrix of feature vectors correspond.
+          type: list
+          optional: true
+          values:
+            type: str
+            description: Names of the features for each column
         rating_scale:
           description: Each target will be rated by a numerical score. In some applications the returned number comes from some process that generates some number between [-1,1], for instance. Alternatively, people may not be inputting numerical scores but picking one of a finite number of options encoded by a number (i.e. ("unfunny",0.0),("somewhat funny",0.5),("funny",1.0))
           type: oneof

@@ -15,7 +15,6 @@ def verify(input_dict, reference_dict):
     - success is a boolean true if there were no problems and false otherwise
     - list_of_errors is as in verify_helper
     """
-    
     input_dict, messages = verify_helper("", input_dict, {'type':'dict','values':reference_dict})
 
     try:
