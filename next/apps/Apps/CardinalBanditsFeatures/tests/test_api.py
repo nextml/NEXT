@@ -22,10 +22,7 @@ def run_all(assert_200):
 
   app_id = 'CardinalBanditsFeatures'
 
-  num_features, num_arms = (3, 200)  # X \in {num_features x num_arms}
-
-  filename = '/Users/scott/Dropbox/image_search_scott/Features/features_allshoes_8_normalized.mat'
-  X = loadmat(filename)['features_all']
+  num_features, num_arms = (2, 400)  # X \in {num_features x num_arms}
 
   X = np.random.rand(num_features, num_arms)
   X = normalize(X, axis=0)

@@ -16,6 +16,9 @@ from next.apps.Apps.CardinalBanditsFeatures.Prototype import CardinalBanditsFeat
 import next.utils as utils
 import time
 
+# TODO: change this to 1
+reward_coeff = 0.01
+
 def argmax_reward(X, theta, V, k=0):
     r"""
     Loop over all columns of X to solve this equation:
@@ -110,7 +113,7 @@ class OFUL(CardinalBanditsFeaturesPrototype):
 
         # this is the initial sampling state
         # TODO: make this use total_pulls
-        if not 'num_tries' is participant_doc.keys():
+        if not 'num_tries' in participant_doc.keys():
             # * V, b, theta_hat need to be stored per user
             np.random.seed(int(time.time() * 100) % 2**10)
 
@@ -118,11 +121,13 @@ class OFUL(CardinalBanditsFeaturesPrototype):
             # shoe to sample
             # TODO: fix this
             i_star = np.random.randint(X.shape[1])
-            i_hat = np.random.randint(X.shape[1])
+            i_hat = i_star + 1
+            # i_hat = np.random.randint(X.shape[1])
 
             d = {'num_tries': 0,
                  'theta_hat': X[:, i_hat].tolist(),
-                 'reward': calc_reward(i_hat, X[:, i_star], R=initExp['R']),
+                 'reward': calc_reward(i_hat, X[:, i_star], R=reward_coeff
+                 * initExp['R']),
                  'theta_star': X[:, i_star].tolist(),
                  'V': (initExp['lambda_'] * np.eye(initExp['d'])).tolist(),
                  'b': [0]*initExp['d'],
@@ -147,7 +152,7 @@ class OFUL(CardinalBanditsFeaturesPrototype):
 
 
         reward = calc_reward(arm_x, np.array(participant_doc['theta_star']),
-                             R=initExp['R'])
+                             R=reward_coeff * initExp['R'])
         # allow reward to propograte forward to other functions; it's used
         # later
         participant_doc['reward'] = reward
@@ -180,22 +185,25 @@ class OFUL(CardinalBanditsFeaturesPrototype):
         b = np.array(participant_doc['b'], dtype=float)
         theta_star = np.array(participant_doc['theta_star'])
 
-        V = participant_doc['V']
+        V = np.array(participant_doc['V'])
         arm_pulled = X[:, target_id]
 
         V += np.outer(arm_pulled, arm_pulled)
         b += reward * arm_pulled
         theta_hat = np.linalg.inv(V).dot(b)
 
-        utils.debug_print("OFUL:131, ||x - est(x)||_2 = {}"
+        utils.debug_print("OFUL:131, ||theta_star - theta_hat||_2 = {}"
                     .format(np.linalg.norm(theta_star - theta_hat)))
 
         # save the results
-        d = {'V': V,
+        d = {'V': V.tolist(),
              'b':b.tolist(),
              'theta_hat':theta_hat.tolist()}
         participant_doc.update(d)
 
+        for key in participant_doc:
+            butler.participants.set(uid=participant_doc['participant_uid'],
+                                    key=key, value=participant_doc[key])
         for name, value in [('X', X)]:
             butler.algorithms.set(key=name, value=value)
         return True
