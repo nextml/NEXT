@@ -117,9 +117,15 @@ class CardinalBanditsFeatures(object):
         participant_uid = query['participant_uid']
         butler.participants.append(uid=participant_uid, key='do_not_ask_list', value=target_id)
 
+
         query_update = {'target_id':target_id,'target_reward':target_reward}
-        alg_args_dict = {'target_id':target_id,'target_reward':target_reward}
-        return query_update,alg_args_dict
+
+        participant_doc = butler.participants.get(uid=participant_uid)
+
+        alg_args_dict = {'target_id':target_id,
+                         'target_reward':target_reward,
+                         'participant_doc': participant_doc}
+        return query_update, alg_args_dict
 
     def getModel(self, exp_uid, alg_response, args_dict, butler):
         scores, precisions = alg_response

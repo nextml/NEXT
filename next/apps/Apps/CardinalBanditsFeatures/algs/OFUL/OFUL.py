@@ -56,24 +56,24 @@ class OFUL(CardinalBanditsFeaturesPrototype):
 
         d = X.shape[0]  # number of dimensions in feature
         lambda_ = 1.0 / d
-        V = lambda_ * np.eye(d)
+        # V = lambda_ * np.eye(d)
         R = 2.0
 
         # initial sampling arm
-        theta_hat = X[:, np.random.randint(X.shape[1])]
+        # theta_hat = X[:, np.random.randint(X.shape[1])]
         # theta_hat = np.random.randn(d)
         # theta_hat /= np.linalg.norm(theta_hat)
 
         to_save = {'X': X.tolist(),
                    'R': R, 'd': d, 'n': n,
-                   'theta_hat': theta_hat.tolist(),
-                   'theta_star': theta_star.tolist(),
-                   'V': V.tolist(),
+                   # 'theta_hat': theta_hat.tolist(),
+                   # 'theta_star': theta_star.tolist(),
+                   # 'V': V.tolist(),
                    'lambda_': lambda_,
                    'total_pulls': 0.0,
                    'rewards': [],
                    'arms_pulled': [],
-                   'b': [0]*d,
+                   # 'b': [0]*d,
                    'failure_probability': failure_probability}
 
         for name in to_save:
@@ -102,33 +102,49 @@ class OFUL(CardinalBanditsFeaturesPrototype):
         if we want, we can find some way to have different arms
         pulled using the butler
         """
-        args = butler.algorithms.get()
-        X = np.asarray(args['X'], dtype=float)
-
+        initExp = butler.algorithms.get()
+        X = np.asarray(initExp['X'], dtype=float)
         butler.algorithms.increment(key='total_pulls')
         t = butler.algorithms.get(key='total_pulls')
 
-        log_div = (1 + t * 1.0/args['lambda_']) * 1.0 / args['failure_probability']
-        k = args['R'] * np.sqrt(args['d'] * np.log(log_div)) + np.sqrt(args['lambda_'])
+        # this is the initial sampling state
+        # TODO: make this use total_pulls
+        if not 'num_tries' is participant_doc.keys():
+            # * V, b, theta_hat need to be stored per user
+            d = {'num_tries': 0,
+                 'theta_hat': X[:, np.random.randint(X.shape[1])].tolist(),
+                 'theta_star': X[:, np.random.randint(X.shape[1])].tolist(),
+                 'V': (initExp['lambda_'] * np.eye(initExp['d'])).tolist(),
+                 'b': [0]*initExp['d'],
+                 'participant_uid': args['participant_uid']
+                 }
+            participant_doc.update(d)
+
+        participant_doc['num_tries'] += 1
+
+
+        log_div = (1 + t * 1.0/initExp['lambda_']) * 1.0 / initExp['failure_probability']
+        k = initExp['R'] * np.sqrt(initExp['d'] * np.log(log_div)) + np.sqrt(initExp['lambda_'])
 
         # arm_x = X[:, i_x]
-        arm_x, i_x = argmax_reward(X, np.array(args['theta_hat']),
-                                   np.array(np.array(args['V'])), k=k)
-        utils.debug_print("OFUL.py:116")
-        utils.debug_print("i_x = {}, arm_x = {}".format(i_x, arm_x))
+        V = np.array(participant_doc['V'])
+        arm_x, i_x = argmax_reward(X, np.array(participant_doc['theta_hat']),
+                                   V, k=k)
 
 
-        reward = calc_reward(arm_x, np.array(args['theta_star']), 
-                             R=args['R'])
+        reward = calc_reward(arm_x, np.array(participant_doc['theta_star']),
+                             R=initExp['R'])
         # allow reward to propograte forward to other functions; it's used
         # later
+        participant_doc['reward'] = reward
 
-        butler.algorithms.set(key='reward', value=reward)
-        utils.debug_print("OFUL:102, arm_pulled = {}".format(i_x))
+        # butler.algorithms.set(key='reward', value=reward)
+        butler.participants.set(uid=participant_doc['participant_uid'],
+                                value=participant_doc)
         return i_x
 
     def processAnswer(self, butler, target_id=None,
-                      target_reward=None):
+                      target_reward=None, participant_doc=None):
         """
         reporting back the reward of pulling the arm suggested by getQuery
 
@@ -142,13 +158,13 @@ class OFUL(CardinalBanditsFeaturesPrototype):
         args = butler.algorithms.get()
 
         # this makes sure the reward propogates from getQuery to processAnswer
-        reward = butler.algorithms.get(key='reward')
+        reward = participant_doc['reward']
 
         X = np.asarray(args['X'], dtype=float)
-        b = np.array(args['b'], dtype=float)
-        theta_star = np.array(args['theta_star'])
+        b = np.array(participant_doc['b'], dtype=float)
+        theta_star = np.array(participant_doc['theta_star'])
 
-        V = args['V']
+        V = participant_doc['V']
         arm_pulled = X[:, target_id]
 
         V += np.outer(arm_pulled, arm_pulled)
@@ -159,11 +175,13 @@ class OFUL(CardinalBanditsFeaturesPrototype):
                     .format(np.linalg.norm(theta_star - theta_hat)))
 
         # save the results
-        d = {'X': X, 'V': V,
+        d = {'V': V,
              'b':b.tolist(),
              'theta_hat':theta_hat.tolist()}
-        for name in d:
-            butler.algorithms.set(key=name, value=d[name])
+        participant_doc.update(d)
+
+        for name, value in [('X', X)]:
+            butler.algorithms.set(key=name, value=value)
         return True
 
     def getModel(self, butler):
