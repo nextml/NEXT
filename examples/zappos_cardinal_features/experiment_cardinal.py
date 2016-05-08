@@ -10,7 +10,8 @@ import pickle
 
 
 # filename = '/Users/scott/Dropbox/image_search_scott/Features/features_allshoes_8_normalized.mat'
-filename = './parse-output/N=10,M=4/Zappos_Caffe_Layer8.mat'
+input_dir = 'parse-output/N=100_M=20/'
+filename = input_dir + 'Zappos_Caffe_Layer8.mat'
 X = loadmat(filename)['X']
 
 # X \in {num_features x num_arms}
@@ -23,9 +24,9 @@ n = num_arms
 # X = X[:num_features, :num_arms]
 # X = np.zeros((num_features, num_arms))
 # X[0] = [0, 1, 2, 3]
-feature_filenames = pickle.load(open('./parse-output/N=10,M=4/filenames.pkl', 'rb'))
+feature_filenames = pickle.load(open(input_dir + 'filenames.pkl', 'rb'))
 
-images = 'parse-output/N=10,M=4/AllShoes.zip'
+images = input_dir + 'AllShoes.zip'
 
 delta = 0.05
 supported_alg_ids = ['OFUL']
