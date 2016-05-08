@@ -14,6 +14,7 @@ from __future__ import division
 import numpy as np
 from next.apps.Apps.CardinalBanditsFeatures.Prototype import CardinalBanditsFeaturesPrototype
 import next.utils as utils
+import time
 
 def argmax_reward(X, theta, V, k=0):
     r"""
@@ -111,14 +112,27 @@ class OFUL(CardinalBanditsFeaturesPrototype):
         # TODO: make this use total_pulls
         if not 'num_tries' is participant_doc.keys():
             # * V, b, theta_hat need to be stored per user
+            np.random.seed(int(time.time() * 100) % 2**10)
+
+            # randomly choosing shoes that are the "ideal" shoe and the initial
+            # shoe to sample
+            # TODO: fix this
+            i_star = np.random.randint(X.shape[1])
+            i_hat = np.random.randint(X.shape[1])
+
             d = {'num_tries': 0,
-                 'theta_hat': X[:, np.random.randint(X.shape[1])].tolist(),
-                 'theta_star': X[:, np.random.randint(X.shape[1])].tolist(),
+                 'theta_hat': X[:, i_hat].tolist(),
+                 'reward': calc_reward(i_hat, X[:, i_star], R=initExp['R']),
+                 'theta_star': X[:, i_star].tolist(),
                  'V': (initExp['lambda_'] * np.eye(initExp['d'])).tolist(),
                  'b': [0]*initExp['d'],
                  'participant_uid': args['participant_uid']
                  }
             participant_doc.update(d)
+            for key in participant_doc:
+                butler.participants.set(uid=participant_doc['participant_uid'],
+                                        key=key, value=participant_doc[key])
+            return i_hat
 
         participant_doc['num_tries'] += 1
 
@@ -138,9 +152,9 @@ class OFUL(CardinalBanditsFeaturesPrototype):
         # later
         participant_doc['reward'] = reward
 
-        # butler.algorithms.set(key='reward', value=reward)
-        butler.participants.set(uid=participant_doc['participant_uid'],
-                                value=participant_doc)
+        for key in participant_doc:
+            butler.participants.set(uid=participant_doc['participant_uid'],
+                                    key=key, value=participant_doc[key])
         return i_x
 
     def processAnswer(self, butler, target_id=None,
@@ -156,6 +170,8 @@ class OFUL(CardinalBanditsFeaturesPrototype):
           (boolean) didSucceed : did everything execute correctly
         """
         args = butler.algorithms.get()
+        utils.debug_print('OFUL168')
+        utils.debug_print(participant_doc.keys())
 
         # this makes sure the reward propogates from getQuery to processAnswer
         reward = participant_doc['reward']

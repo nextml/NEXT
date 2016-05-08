@@ -15,7 +15,6 @@ query_page = Blueprint('query_page',
 @query_page.route('/query_page/<page>/<exp_uid>')
 def load_page(page, exp_uid=None, widget_key=None):
     experiment = resource_manager.get_experiment(exp_uid)
-    utils.debug_print("EXPERIMENT", experiment)
     num_tries = experiment['args']['num_tries']
     app_template = page+'.html'
 
