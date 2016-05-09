@@ -136,7 +136,7 @@ getQuery:
       type: str
 
     args:
-      description: Arguments for initExp
+      description: Arguments for getQuery
       type: dict
       values:
         participant_uid:
@@ -158,12 +158,23 @@ processAnswer:
       type: str
 
     args:
-      description: Arguments for initExp
+      description: Arguments for processAnswer
       type: dict
       values:
-        target_reward:
-          description: The reward of the target.
-          type: num
+        initial_query:
+	  description: Is this the first 
+	  type: boolean
+	  default: false
+        answer:
+	  description: Either the initial arm or the reward for a given arm
+	  type: oneof
+	  values:
+	    target_reward:
+              description: The reward of the target.
+              type: num
+	    initial_arm:
+              description: The index of the initial arm.
+              type: num
         query_uid:
           description: The unique identifier for the query.
           type: str

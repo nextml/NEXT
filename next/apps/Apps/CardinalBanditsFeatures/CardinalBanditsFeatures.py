@@ -1,5 +1,6 @@
 import json
 import numpy
+import random
 
 import next.apps.SimpleTargetManager
 import next.utils as utils
@@ -78,18 +79,25 @@ class CardinalBanditsFeatures(object):
 
         TODO: Document this further
         """
-        target = self.TargetManager.get_target_item(exp_uid, alg_response)
-        targets_list = [{'target':target}]
+        participant_doc = butler.participants.get(uid=query_request['participant_uid'])
+        if participant_doc['num_tries'] == 0:
+            N = butler.experiment.get(key='args')['n']
+            target_indices = random.sample(range(N),10) # 10 here means "show 10 random queries at the start"
+            targets_list = [{'target':butler.targets.get_target_item(exp_uid, i)} for i in target_indices]
+            return_dict = {'initial_query':True,'target_indices':targets_list}
+        else:
+            target = self.TargetManager.get_target_item(exp_uid, alg_response)
+            targets_list = [{'target':target}]
 
-        return_dict = {'target_indices':targets_list}
+            return_dict = {'initial_query':False,'target_indices':targets_list}
 
-        if 'labels' in experiment_dict['args']['rating_scale']:
-            labels = experiment_dict['args']['rating_scale']['labels']
-            return_dict.update({'labels':labels})
+            if 'labels' in experiment_dict['args']['rating_scale']:
+                labels = experiment_dict['args']['rating_scale']['labels']
+                return_dict.update({'labels':labels})
 
-        if 'context' in experiment_dict['args'] and 'context_type' in experiment_dict['args']:
-            return_dict.update({'context':experiment_dict['args']['context'],'context_type':experiment_dict['args']['context_type']})
-
+                if 'context' in experiment_dict['args'] and 'context_type' in experiment_dict['args']:
+                    return_dict.update({'context':experiment_dict['args']['context'],'context_type':experiment_dict['args']['context_type']})
+                    
         return return_dict
 
     def processAnswer(self, exp_uid, query, answer, butler):
@@ -111,20 +119,23 @@ class CardinalBanditsFeatures(object):
         algorithm would then be called with
         ``alg.processAnswer(butler, a=1, b=2)``
         """
-        target_id = query['target_indices'][0]['target']['target_id']
-        target_reward = answer['args']['target_reward']
-
         participant_uid = query['participant_uid']
-        butler.participants.append(uid=participant_uid, key='do_not_ask_list', value=target_id)
-
-
-        query_update = {'target_id':target_id,'target_reward':target_reward}
-
-        participant_doc = butler.participants.get(uid=participant_uid)
-
-        alg_args_dict = {'target_id':target_id,
-                         'target_reward':target_reward,
-                         'participant_doc': participant_doc}
+        if answer['args']['initial_query']:
+            initial_arm = answer['args']['answer']['initial_arm']
+            butler.participants.set(uid=participant_uid,key="i_hat",value=initial_arm)
+        else:
+            target_id = query['target_indices'][0]['target']['target_id']
+            target_reward = answer['args']['answer']['target_reward']
+            
+            butler.participants.append(uid=participant_uid, key='do_not_ask_list', value=target_id)
+            
+            query_update = {'target_id':target_id,'target_reward':target_reward}
+            
+            participant_doc = butler.participants.get(uid=participant_uid)
+            
+            alg_args_dict = {'target_id':target_id,
+                             'target_reward':target_reward,
+                             'participant_doc': participant_doc}
         return query_update, alg_args_dict
 
     def getModel(self, exp_uid, alg_response, args_dict, butler):
