@@ -118,18 +118,10 @@ class OFUL(CardinalBanditsFeaturesPrototype):
             # * V, b, theta_hat need to be stored per user
             # np.random.seed(int(time.time() * 100) % 2**10)
 
-            # randomly choosing shoes that are the "ideal" shoe and the initial
-            # shoe to sample
-            # TODO: fix this
-            # i_star = np.random.randint(X.shape[1])
-            # i_hat = i_star + 1
-            # i_hat = np.random.randint(X.shape[1])
+            i_hat = np.random.randint(X.shape[1])
 
             d = {'num_tries': 0,
-                 # 'theta_hat': X[:, i_hat].tolist(),
-                 # 'reward': calc_reward(i_hat, X[:, i_star], R=reward_coeff
-                 # * initExp['R']),
-                 # 'theta_star': X[:, i_star].tolist(),
+                 'theta_hat': X[:, i_hat].tolist(),
                  'V': (initExp['lambda_'] * np.eye(initExp['d'])).tolist(),
                  'b': [0]*initExp['d'],
                  'participant_uid': args['participant_uid']
@@ -138,9 +130,14 @@ class OFUL(CardinalBanditsFeaturesPrototype):
             butler.participants.set_many(uid=participant_doc['participant_uid'],
                                     key_value_dict=participant_doc)
             return None
-
-        participant_doc['num_tries'] += 1
-
+        elif participant_doc['num_tries'] == 0:
+            i_star = participant_doc['i_star']
+            d = {'reward': calc_reward(i_hat, X[:, i_star], R=reward_coeff
+                 * initExp['R']),
+                 'theta_star': X[:, i_star].tolist()}
+            participant_doc.update(d)
+            butler.participants.set_many(uid=participant_doc['participant_uid'],
+                                    key_value_dict=participant_doc)            
 
         log_div = (1 + t * 1.0/initExp['lambda_']) * 1.0 / initExp['failure_probability']
         k = initExp['R'] * np.sqrt(initExp['d'] * np.log(log_div)) + np.sqrt(initExp['lambda_'])

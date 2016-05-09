@@ -122,7 +122,7 @@ class CardinalBanditsFeatures(object):
         participant_uid = query['participant_uid']
         if answer['args']['initial_query']:
             initial_arm = answer['args']['answer']['initial_arm']
-            butler.participants.set(uid=participant_uid,key="i_hat",value=initial_arm)
+            butler.participants.set(uid=participant_uid,key="i_star",value=initial_arm)
         else:
             target_id = query['target_indices'][0]['target']['target_id']
             target_reward = answer['args']['answer']['target_reward']
