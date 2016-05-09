@@ -10,7 +10,7 @@ import pickle
 
 
 # filename = '/Users/scott/Dropbox/image_search_scott/Features/features_allshoes_8_normalized.mat'
-input_dir = 'parse-output/N=100_M=20/'
+input_dir = 'parse-output/N=10_M=4/'
 filename = input_dir + 'Zappos_Caffe_Layer8.mat'
 X = loadmat(filename)['X']
 
