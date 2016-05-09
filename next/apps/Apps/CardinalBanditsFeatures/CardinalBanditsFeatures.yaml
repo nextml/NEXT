@@ -162,17 +162,17 @@ processAnswer:
       type: dict
       values:
         initial_query:
-	  description: Is this the first 
-	  type: boolean
-	  default: false
+          description: Is this the first 
+          type: boolean
+          default: false
         answer:
-	  description: Either the initial arm or the reward for a given arm
-	  type: oneof
-	  values:
-	    target_reward:
+          description: Either the initial arm or the reward for a given arm
+          type: oneof
+          values:
+            target_reward:
               description: The reward of the target.
               type: num
-	    initial_arm:
+            initial_arm:
               description: The index of the initial arm.
               type: num
         query_uid:
