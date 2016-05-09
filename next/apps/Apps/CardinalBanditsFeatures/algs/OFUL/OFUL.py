@@ -106,6 +106,7 @@ class OFUL(CardinalBanditsFeaturesPrototype):
         X = np.asarray(initExp['X'], dtype=float)
 
         if not 'num_tries' in participant_doc.keys():
+            participant_doc['participant_uid'] = args['participant_uid']
             participant_doc['num_tries'] = 0
             butler.participants.set_many(uid=participant_doc['participant_uid'],
                                          key_value_dict=participant_doc)
