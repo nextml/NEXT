@@ -70,14 +70,10 @@ class OFUL(CardinalBanditsFeaturesPrototype):
 
         to_save = {'X': X.tolist(),
                    'R': R, 'd': d, 'n': n,
-                   # 'theta_hat': theta_hat.tolist(),
-                   # 'theta_star': theta_star.tolist(),
-                   # 'V': V.tolist(),
                    'lambda_': lambda_,
                    'total_pulls': 0.0,
                    'rewards': [],
                    'arms_pulled': [],
-                   # 'b': [0]*d,
                    'failure_probability': failure_probability}
 
         for name in to_save:
@@ -108,55 +104,56 @@ class OFUL(CardinalBanditsFeaturesPrototype):
         """
         initExp = butler.algorithms.get()
         X = np.asarray(initExp['X'], dtype=float)
-        butler.algorithms.increment(key='total_pulls')
-        t = butler.algorithms.get(key='total_pulls')
 
-        # this is the initial sampling state
-        # TODO: make this use total_pulls
         if not 'num_tries' in participant_doc.keys():
             participant_doc['num_tries'] = 0
-            # * V, b, theta_hat need to be stored per user
-            # np.random.seed(int(time.time() * 100) % 2**10)
-
-            i_hat = np.random.randint(X.shape[1])
-
-            d = {'num_tries': 0,
-                 'theta_hat': X[:, i_hat].tolist(),
-                 'V': (initExp['lambda_'] * np.eye(initExp['d'])).tolist(),
-                 'b': [0]*initExp['d'],
-                 'participant_uid': args['participant_uid']
-                 }
-            participant_doc.update(d)
             butler.participants.set_many(uid=participant_doc['participant_uid'],
-                                    key_value_dict=participant_doc)
+                                         key_value_dict=participant_doc)
             return None
-        elif participant_doc['num_tries'] == 0:
-            i_star = participant_doc['i_star']
-            d = {'reward': calc_reward(i_hat, X[:, i_star], R=reward_coeff
-                 * initExp['R']),
-                 'theta_star': X[:, i_star].tolist()}
+            
+        if not 'V' in participant_doc.keys():
+            # * V, b, theta_hat need to be stored per user
+
+            d = {'V': (initExp['lambda_'] * np.eye(initExp['d'])).tolist(),
+                 't': 0,
+                 'b': [0]*initExp['d'],
+                 'participant_uid': args['participant_uid']}
             participant_doc.update(d)
             butler.participants.set_many(uid=participant_doc['participant_uid'],
-                                    key_value_dict=participant_doc)            
+                                         key_value_dict=participant_doc)
+        # if not 'theta_star' in participant_doc:
+        #     i_star = participant_doc['i_star']
+        #     d = {'reward': calc_reward(i_hat, X[:, i_star], R=reward_coeff
+        #          * initExp['R']),
+        #          'theta_star': X[:, i_star].tolist()}
+        #     participant_doc.update(d)
+        #     butler.participants.set_many(uid=participant_doc['participant_uid'],
+        #                             key_value_dict=participant_doc)            
+        if not 'theta_hat' in participant_doc:
+            d = {'theta_hat':X[:, participant_doc['i_hat']].tolist(),}
+            participant_doc.update(d)
+            butler.participants.set_many(uid=participant_doc['participant_uid'],
+                                         key_value_dict=participant_doc)
 
+        # Figure out what query to ask
+        t = participant_doc['t']
         log_div = (1 + t * 1.0/initExp['lambda_']) * 1.0 / initExp['failure_probability']
         k = initExp['R'] * np.sqrt(initExp['d'] * np.log(log_div)) + np.sqrt(initExp['lambda_'])
-
-        # arm_x = X[:, i_x]
-        V = np.array(participant_doc['V'])
+        V = np.array(participant_doc['V'])        
         arm_x, i_x = argmax_reward(X, np.array(participant_doc['theta_hat']),
                                    V, k=k)
+        
+        # reward = calc_reward(arm_x, np.array(participant_doc['theta_star']),
+        #                      R=reward_coeff * initExp['R'])
+        
+        # # allow reward to propograte forward to other functions; it's
+        # # used later
+        
+        # participant_doc['reward'] = reward
 
-
-        reward = calc_reward(arm_x, np.array(participant_doc['theta_star']),
-                             R=reward_coeff * initExp['R'])
-        # allow reward to propograte forward to other functions; it's used
-        # later
-        participant_doc['reward'] = reward
-
-        for key in participant_doc:
-            butler.participants.set(uid=participant_doc['participant_uid'],
-                                    key=key, value=participant_doc[key])
+        # for key in participant_doc:
+        #     butler.participants.set(uid=participant_doc['participant_uid'],
+        #                             key=key, value=participant_doc[key])
         return i_x
 
     def processAnswer(self, butler, target_id=None,
@@ -172,15 +169,16 @@ class OFUL(CardinalBanditsFeaturesPrototype):
           (boolean) didSucceed : did everything execute correctly
         """
         args = butler.algorithms.get()
+        butler.participants.increment(uid=participant_doc['participant_uid'],key='tx')
         utils.debug_print('OFUL168')
         utils.debug_print(participant_doc.keys())
 
         # this makes sure the reward propogates from getQuery to processAnswer
-        reward = participant_doc['reward']
+        reward = target_reward
 
         X = np.asarray(args['X'], dtype=float)
         b = np.array(participant_doc['b'], dtype=float)
-        theta_star = np.array(participant_doc['theta_star'])
+        # theta_star = np.array(participant_doc['theta_star'])
 
         V = np.array(participant_doc['V'])
         arm_pulled = X[:, target_id]
@@ -189,20 +187,18 @@ class OFUL(CardinalBanditsFeaturesPrototype):
         b += reward * arm_pulled
         theta_hat = np.linalg.inv(V).dot(b)
 
-        utils.debug_print("OFUL:131, ||theta_star - theta_hat||_2 = {}"
-                    .format(np.linalg.norm(theta_star - theta_hat)))
+        # utils.debug_print("OFUL:131, ||theta_star - theta_hat||_2 = {}"
+        #             .format(np.linalg.norm(theta_star - theta_hat)))
 
         # save the results
         d = {'V': V.tolist(),
              'b':b.tolist(),
              'theta_hat':theta_hat.tolist()}
         participant_doc.update(d)
-
-        for key in participant_doc:
-            butler.participants.set(uid=participant_doc['participant_uid'],
-                                    key=key, value=participant_doc[key])
-        for name, value in [('X', X)]:
-            butler.algorithms.set(key=name, value=value)
+        
+        butler.participants.set_many(uid=participant_doc['participant_uid'],
+                                     key_value_dict=participant_doc)
+        
         return True
 
     def getModel(self, butler):

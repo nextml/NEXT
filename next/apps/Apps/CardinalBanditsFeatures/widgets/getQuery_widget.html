@@ -12,7 +12,7 @@ div.container{
 }
 
 div.row > div.col-xs-6 {
-	height:100%;
+	height:50%;
 	outline: 1px solid black;
 }
 
@@ -52,7 +52,7 @@ div.option{
 .image_container{
 	display:inline-block;
 	width:100%;
-	height:100%;
+	height:50%;
 }
 
 #wrapper img{
@@ -84,6 +84,16 @@ div.option{
 {% if query.context_type %}
 <div class="row" id="center">
   <div class="col-xs-12"> 
+    {% if query.initial_query %}
+    
+    {% for target in query.targets %}
+    <div class="option"
+	 id="{{target.index}}"
+	 onclick="submit_initial({{target.index}})">
+      <img src="{{target.target.primary_description}}" />
+    </div>
+    {% endfor %}
+    {% else %}
       {% if query.context_type == "text" %}
       <div style="display:table;height:100%;width:100%;">
 		<div class="center-block text"> 
@@ -101,9 +111,9 @@ div.option{
 <!-- query -->
 <div class="row" id="center_text">
   <div class="col-xs-12">
-    {% if query.target_indices[0].target.primary_type == "image" or query.target_indices[0].target.primary_type == "img"%}
+    {% if query.target_indices[0].target.primary_type == "image" or query.target_indices[0].target.primary_type == "img" %}
     <div class="image_container"> 
-      <img class="image" src={{ query.target_indices[0].target.primary_description }}> </img>
+      <img class="image" src="{{ query.targets[0].target.primary_description }}"> </img>
     </div>
     {% elif query.target_indices[0].target.primary_type == "text"%}
     <div class="text_container">
@@ -130,6 +140,10 @@ div.option{
 
 
 <script>
+  var submit_initial = function(index) {
+      next_widget.processAnswer({"initial_query": true, "initial_arm":index});
+      $("#"+index).css({'outline': '2px solid #FF0000'});
+  }
   var submit = function(reward, index) {
       next_widget.processAnswer({"target_reward": reward});
       $("#"+index).css({'outline': '2px solid #FF0000'});
