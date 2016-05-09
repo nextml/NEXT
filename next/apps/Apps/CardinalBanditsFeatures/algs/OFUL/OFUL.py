@@ -114,30 +114,30 @@ class OFUL(CardinalBanditsFeaturesPrototype):
         # this is the initial sampling state
         # TODO: make this use total_pulls
         if not 'num_tries' in participant_doc.keys():
+            participant_doc['num_tries'] = 0
             # * V, b, theta_hat need to be stored per user
-            np.random.seed(int(time.time() * 100) % 2**10)
+            # np.random.seed(int(time.time() * 100) % 2**10)
 
             # randomly choosing shoes that are the "ideal" shoe and the initial
             # shoe to sample
             # TODO: fix this
-            i_star = np.random.randint(X.shape[1])
-            i_hat = i_star + 1
+            # i_star = np.random.randint(X.shape[1])
+            # i_hat = i_star + 1
             # i_hat = np.random.randint(X.shape[1])
 
             d = {'num_tries': 0,
-                 'theta_hat': X[:, i_hat].tolist(),
-                 'reward': calc_reward(i_hat, X[:, i_star], R=reward_coeff
-                 * initExp['R']),
-                 'theta_star': X[:, i_star].tolist(),
+                 # 'theta_hat': X[:, i_hat].tolist(),
+                 # 'reward': calc_reward(i_hat, X[:, i_star], R=reward_coeff
+                 # * initExp['R']),
+                 # 'theta_star': X[:, i_star].tolist(),
                  'V': (initExp['lambda_'] * np.eye(initExp['d'])).tolist(),
                  'b': [0]*initExp['d'],
                  'participant_uid': args['participant_uid']
                  }
             participant_doc.update(d)
-            for key in participant_doc:
-                butler.participants.set(uid=participant_doc['participant_uid'],
-                                        key=key, value=participant_doc[key])
-            return i_hat
+            butler.participants.set_many(uid=participant_doc['participant_uid'],
+                                    key_value_dict=participant_doc)
+            return None
 
         participant_doc['num_tries'] += 1
 
