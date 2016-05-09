@@ -12,7 +12,6 @@ var buttonsChart = [["#A9A9C6"]];
         // Example input is:
         //     {'plot_type': 'columnar_table', 'meta': {'status': 'OK', 'code': 200}, 'data': [{'index': 0, 'target': {'target_id': 0, 'alt_type': 'text', 'primary_type': 'text', 'primary_description': 0, 'alt_description': 0}, 'rank': 0}, {'index': 2, 'target': {'target_id': 2, 'alt_type': 'text', 'primary_type': 'text', 'primary_description': 2, 'alt_description': 2}, 'rank': 1}, {'index': 3, 'target': {'target_id': 3, 'alt_type': 'text', 'primary_type': 'text', 'primary_description': 3, 'alt_description': 3}, 'rank': 2}, {'index': 4, 'target': {'target_id': 4, 'alt_type': 'text', 'primary_type': 'text', 'primary_description': 4, 'alt_description': 4}, 'rank': 3}, {'index': 6, 'target': {'target_id': 6, 'alt_type': 'text', 'primary_type': 'text', 'primary_description': 6, 'alt_description': 6}, 'rank': 4}, {'index': 5, 'target': {'target_id': 5, 'alt_type': 'text', 'primary_type': 'text', 'primary_description': 5, 'alt_description': 5}, 'rank': 5}, {'index': 1, 'target': {'target_id': 1, 'alt_type': 'text', 'primary_type': 'text', 'primary_description': 1, 'alt_description': 1}, 'rank': 6}, {'index': 8, 'target': {'target_id': 8, 'alt_type': 'text', 'primary_type': 'text', 'primary_description': 8, 'alt_description': 8}, 'rank': 7}, {'index': 9, 'target': {'target_id': 9, 'alt_type': 'text', 'primary_type': 'text', 'primary_description': 9, 'alt_description': 9}, 'rank': 8}, {'index': 7, 'target': {'target_id': 7, 'alt_type': 'text', 'primary_type': 'text', 'primary_description': 7, 'alt_description': 7}, 'rank': 9}]}
         // """
-
         if(data.data.length == 0){
             $('#'+div_id).html("<h1 style='text-align:center'> No data to rank </h1>");
         }else if(data.plot_type == 'columnar_table'){
@@ -20,12 +19,9 @@ var buttonsChart = [["#A9A9C6"]];
             var head = $('#'+div_id+' thead tr');
             // loop through headers
             for (var i=0; i < data.headers.length; i++){
-                head
-                    .append($('<th>')
-                        .html(data.headers[i].label)
+                head.append($('<th>').html(data.headers[i].label)
                 )
             }
-
 	    var body = $('#'+div_id+' tbody');
 	    var rows = [];
 	    for (var i = 0; i < data.data.length; i++) {
@@ -48,7 +44,6 @@ var buttonsChart = [["#A9A9C6"]];
 	    body.html(rows.join(''))
         }
     }
-
     
     data.plotCurrentEmbedding = function(data, div_id) {
         /**

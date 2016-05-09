@@ -650,8 +650,8 @@ class CardinalBanditsPureExploration(AppPrototype):
         # get specific algorithm to make calls to 
         alg = utils.get_app_alg(self.app_id,alg_id)
 
-        # call getQuery
-        scores,precisions,dt = utils.timeit(alg.predict)(resource=rc)
+        # call predict
+        scores,precisions,counts,dt = utils.timeit(alg.predict)(resource=rc)
 
         log_entry_durations = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'task':'predict','duration':dt } 
         log_entry_durations.update( rc.getDurations() )
@@ -664,11 +664,12 @@ class CardinalBanditsPureExploration(AppPrototype):
         indexes = numpy.array(range(n))[ranks]
         scores = numpy.array(scores)[ranks]
         precisions = numpy.array(precisions)[ranks]
+        counts = numpy.array(counts)[ranks]
         ranks = range(n)
 
         targets = []
         for index in range(n):
-          targets.append( {'index':indexes[index],'rank':ranks[index],'score':scores[index],'precision':precisions[index]} )
+          targets.append( {'index':indexes[index],'rank':ranks[index],'score':scores[index],'precision':precisions[index],'count':counts[index]} )
 
         log_entry = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'timestamp':utils.datetimeNow() } 
         log_entry.update( {'targets':targets,'num_reported_answers':num_reported_answers} )

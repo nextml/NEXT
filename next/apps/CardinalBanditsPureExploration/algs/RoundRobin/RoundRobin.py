@@ -71,7 +71,7 @@ class RoundRobin(CardinalBanditsPureExplorationPrototype):
         mu[i] = float(sumX[i]) / T[i]
         prec[i] = numpy.sqrt( float( max(R*R,sumX2[i] - T[i]*mu[i]*mu[i]) ) / ( T[i] - 1. ) / T[i] )
     
-    return mu.tolist(),prec.tolist()
+    return mu.tolist(),prec.tolist(), T
 
 
 

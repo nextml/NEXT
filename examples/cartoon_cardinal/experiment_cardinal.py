@@ -26,9 +26,10 @@ curr_dir = os.path.dirname(os.path.abspath(__file__))
 experiment_list = []
 
 # List of Algorithms currently available for
-# StochasticDuelingBanditPureExploration algorithms
 supported_alg_ids = ['RandomSampling',
-                     'LilUCB']
+                     'LilUCB',
+                     'LUCB',
+                     'RoundRobin']
 
 # Algorithm List. These algorithms are independent (no inter-connectedness
 # between algorithms) and each algorithm gets `proportion` number of queries
@@ -86,11 +87,11 @@ experiment['initExp'] = initExp
 
 # When presented with a query, the user will rate a text object
 experiment['primary_type'] = 'text'
-experiment['primary_target_file'] = curr_dir+"/captions.txt"
+experiment['primary_target_file'] = curr_dir+"/cap436.txt"
 
 # Set the context. This is the static image that the user sees. i.e., trying to
 # determine the funniest caption of a single comic, the context is the comic.
-experiment['context'] = curr_dir+"/cartoon.jpg"
+experiment['context'] = curr_dir+"/cap436.jpg"
 experiment['context_type'] = 'image'
 experiment_list.append(experiment)
 
