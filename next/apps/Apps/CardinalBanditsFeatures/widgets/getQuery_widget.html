@@ -84,26 +84,26 @@ div.option{
 {% if query.context_type %}
 <div class="row" id="center">
   <div class="col-xs-12"> 
-    {% if query.initial_query %}
-    
-    {% for target in query.targets %}
-    <div class="option"
-	 id="{{target.index}}"
-	 onclick="submit_initial({{target.index}})">
-      <img src="{{target.target.primary_description}}" />
-    </div>
-    {% endfor %}
-    {% else %}
-      {% if query.context_type == "text" %}
-      <div style="display:table;height:100%;width:100%;">
-		<div class="center-block text"> 
-		  {{ query.context }}
-		</div>
-      </div>
-      {% elif query.context_type == "image" or query.context_type == "img" %}
-      <div class="image_container">
-		<img src='{{ query.context }}'> </img>
-      </div>
+    {% if query.initial_query  %}
+        {% for target in query.targets %}
+        <div class="option"
+         id="{{target.index}}"
+         onclick="submit_initial({{target.index}})">
+          <img src="{{target.target.primary_description}}" />
+        </div>
+        {% endfor %}
+        {% else %}
+          {% if query.context_type == "text" %}
+          <div style="display:table;height:100%;width:100%;">
+            <div class="center-block text"> 
+              {{ query.context }}
+            </div>
+          </div>
+          {% elif query.context_type == "image" or query.context_type == "img" %}
+          <div class="image_container">
+            <img src='{{ query.context }}'> </img>
+          </div>
+          {% endif %}
       {% endif %}
   </div>
 </div>
@@ -111,14 +111,24 @@ div.option{
 <!-- query -->
 <div class="row" id="center_text">
   <div class="col-xs-12">
-    {% if query.target_indices[0].target.primary_type == "image" or query.target_indices[0].target.primary_type == "img" %}
-    <div class="image_container"> 
-      <img class="image" src="{{ query.targets[0].target.primary_description }}"> </img>
-    </div>
-    {% elif query.target_indices[0].target.primary_type == "text"%}
-    <div class="text_container">
-      <div class="text">{{ query.target_indices[0].target.primary_description }}</div>
-    </div>
+    {% if query.initial_query  %}
+        {% for target in query.targets %}
+        <div class="option"
+         id="{{target.index}}"
+         onclick="submit_initial({{target.index}})">
+          <img src="{{target.target.primary_description}}" />
+        </div>
+        {% endfor %}
+    {% else %}
+        {% if query.targets[0].target.primary_type == "image" or query.targets[0].target.primary_type == "img" %}
+        <div class="image_container"> 
+          <img class="image" src="{{ query.targets[0].target.primary_description }}"> </img>
+        </div>
+        {% elif query.targets[0].target.primary_type == "text"%}
+        <div class="text_container">
+          <div class="text">{{ query.targets[0].target.primary_description }}</div>
+        </div>
+        {% endif %}
     {% endif %}
   </div>
 </div>
@@ -141,11 +151,12 @@ div.option{
 
 <script>
   var submit_initial = function(index) {
-      next_widget.processAnswer({"initial_query": true, "initial_arm":index});
+      next_widget.processAnswer({"initial_query": true,
+          "answer":{"initial_arm":index}});
       $("#"+index).css({'outline': '2px solid #FF0000'});
   }
   var submit = function(reward, index) {
-      next_widget.processAnswer({"target_reward": reward});
+      next_widget.processAnswer({"answer": {"target_reward": reward}});
       $("#"+index).css({'outline': '2px solid #FF0000'});
   }
 </script>

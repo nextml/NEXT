@@ -10,9 +10,13 @@ import pickle
 
 
 # filename = '/Users/scott/Dropbox/image_search_scott/Features/features_allshoes_8_normalized.mat'
-input_dir = 'parse-output/N=10_M=4/'
+# n, m = 10, 4
+input_dir = 'parse-output/N=100_M=20/'
 filename = input_dir + 'Zappos_Caffe_Layer8.mat'
 X = loadmat(filename)['X']
+# X = X[:m, :n].copy()
+print('X.shape = {}'.format(X.shape))
+
 
 # X \in {num_features x num_arms}
 # num_features, num_arms = (2, 4)
