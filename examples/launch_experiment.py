@@ -37,6 +37,7 @@ def generate_target_blob(AWS_BUCKET_NAME,
                          primary_file,
                          primary_type,
                          alt_file=None,
+                         targets_filetype=None,
                          alt_type='text'):
     '''
     Upload targets and return a target blob for upload with the target_manager.
@@ -55,7 +56,8 @@ def generate_target_blob(AWS_BUCKET_NAME,
     is_primary_zip = ((type(primary_file) is str and primary_file.endswith('.zip'))
                       or (zipfile.is_zipfile(primary_file)))
 
-    if is_primary_zip:
+    print(os.path.isdir(primary_file))
+    if is_primary_zip or os.path.isdir(primary_file):
         target_file_dict, target_name_dict = zipfile_to_dictionary(primary_file)
         if alt_type != 'text':
             assert alt_file != None, 'Need an alt_file.'
@@ -70,24 +72,29 @@ def generate_target_blob(AWS_BUCKET_NAME,
                 raise Exception('Primary target names must'
                                 'match alt target names.')
 
-            for primary_name, primary_file, alt_name, alt_file in pairs:
-                primary_url = upload_to_S3(bucket,
+            if targets_filetype == 'zip':
+                for primary_name, primary_file, alt_name, alt_file in pairs:
+                    primary_url = upload_to_S3(bucket,
+                                               '{}_{}'.format(prefix,
+                                                              primary_name),
+                                               StringIO(primary_file))
+                    alt_url = upload_to_S3(bucket,
                                            '{}_{}'.format(prefix,
-                                                          primary_name),
-                                           StringIO(primary_file))
-                alt_url = upload_to_S3(bucket,
-                                       '{}_{}'.format(prefix,
-                                                      alt_name),
-                                       StringIO(alt_file))
+                                                          alt_name),
+                                           StringIO(alt_file))
 
-                target = {'target_id': '{}_{}'.format(prefix, primary_name),
-                          'primary_type': primary_type,
-                          'primary_description': primary_url,
-                          'alt_type': alt_type,
-                          'alt_description': alt_url}
-                targets.append(target)
+                    target = {'target_id': '{}_{}'.format(prefix, primary_name),
+                              'primary_type': primary_type,
+                              'primary_description': primary_url,
+                              'alt_type': alt_type,
+                              'alt_description': alt_url}
+                    targets.append(target)
+            else:
+                assert False, "targets_filetype not recognized"
         else:
-            if alt_type == 'text':
+            print ('\nWith many targets, install Amazon S3 Tools CLI (brew install s3cmd)'
+                   ' and use `primary_target_folder` instead of `primary_target_file`\n')
+            if targets_filetype == 'zip':
                 for key, primary_file in target_file_dict.iteritems():
                     primary_file_name = target_name_dict[key]
                     primary_url = upload_to_S3(bucket,
@@ -100,6 +107,22 @@ def generate_target_blob(AWS_BUCKET_NAME,
                               'alt_type': 'text',
                               'alt_description': primary_file_name}
                     targets.append(target)
+            elif targets_filetype == 'dir':
+                # TODO: change this to popen
+                # TODO: check to see if s3cmd installed
+                os.system('s3cmd sync {} s3://{}'.format(primary_file, bucket))
+                targets = []
+                for filename in os.listdir(primary_file):
+                    # parameters: alt_type, primary_type, prefix
+                    # define: alt_url, primary_url
+                    target = {'target_id': '{}_{}'.format(prefix, filename),
+                              'primary_type': primary_type,
+                              'primary_description': primary_url,
+                              'alt_type': alt_type,
+                              'alt_description': alt_url}
+                    targets += [target]
+            else:
+                assert False, "Did not recognize targets_filetype"
     else:
         if type(primary_file) is str:
             f = open(primary_file)
@@ -209,16 +232,26 @@ def launch_experiment(host, experiment_list, AWS_ID, AWS_KEY, AWS_BUCKET_NAME):
       experiment['initExp']['args']['context_type'] = experiment['context_type']
 
     print 'launch:211', experiment['initExp']['args'].keys()
+
     # Upload targets
-    if 'primary_target_file' in experiment.keys():
+    target_filetype = {'dir': 'primary_target_folder',
+                       'zip': 'primary_target_file'}
+    if target_filetype['dir'] in experiment.keys() or \
+               target_filetype['zip'] in experiment.keys():
+        keys_present = [target_filetype[key] in experiment.keys() for key in target_filetype]
+        assert sum(keys_present) == 1, "Do not specify both primary_target_file and primary_target_folder"
+
+        targets_kind = 'zip' if target_filetype['zip'] in experiment.keys() else 'dir'
         targets = generate_target_blob(AWS_BUCKET_NAME=AWS_BUCKET_NAME,
                                        AWS_ID=AWS_ID,
                                        AWS_KEY=AWS_KEY,
                                        prefix=str(datetime.date.today()),
-                                       primary_file=experiment['primary_target_file'],
+                                       primary_file=experiment[target_filetype[targets_kind]],
                                        primary_type=experiment['primary_type'],
+                                       targets_filetype=targets_kind,
                                        alt_file=experiment.get('alt_target_file', None),
                                        alt_type=experiment.get('alt_type','text'))
+
         experiment['initExp']['args']['targets'] = {'targetset': targets}
     else:
         experiment['initExp']['args']['targets']['n'] = n
@@ -242,9 +275,7 @@ def launch_experiment(host, experiment_list, AWS_ID, AWS_KEY, AWS_BUCKET_NAME):
     #exp_key_list.append(str(exp_key))
     #widget_key_list.append(str(perm_key))
 
-    print
-    print "Query Url is at:", "http://"+host+"/query/query_page/query_page/"+exp_uid
-    print
+    print "\nQuery Url is at: http://"+host+"/query/query_page/query_page/"+exp_uid + "\n"
 
   print "exp_uid_list:", exp_uid_list
   #print "exp_key_list:", exp_key_list

@@ -11,7 +11,7 @@ import pickle
 
 # filename = '/Users/scott/Dropbox/image_search_scott/Features/features_allshoes_8_normalized.mat'
 # n, m = 10, 4
-input_dir = 'parse-output/N=100_M=20/'
+input_dir = 'parse-output/N=10_M=4/'
 filename = input_dir + 'Zappos_Caffe_Layer8.mat'
 X = loadmat(filename)['X']
 # X = X[:m, :n].copy()
@@ -31,6 +31,8 @@ n = num_arms
 feature_filenames = pickle.load(open(input_dir + 'filenames.pkl', 'rb'))
 
 images = input_dir + 'AllShoes.zip'
+target_filekey = 'primary_target_file' if '.zip' in images else 'primary_target_folder'
+print(target_filekey)
 
 delta = 0.05
 supported_alg_ids = ['OFUL']
@@ -119,7 +121,7 @@ experiment['initExp'] = initExp
 
 # When presented with a query, the user will rate a text object
 experiment['primary_type'] = 'image'
-experiment['primary_target_file'] = curr_dir+'/' + images
+experiment[target_filekey] = curr_dir+'/' + images
 
 # Set the context. This is the static image that the user sees. i.e., trying to
 # determine the funniest caption of a single comic, the context is the comic.
