@@ -84,7 +84,7 @@ div.option{
 {% if query.context_type %}
 <div class="row" id="center">
   <div class="col-xs-12"> 
-    {% if query.initial_query  %}
+    {% if query.initial_query %}
         {% for target in query.targets %}
         <div class="option"
          id="{{target.index}}"
@@ -112,6 +112,8 @@ div.option{
 <div class="row" id="center_text">
   <div class="col-xs-12">
     {% if query.initial_query  %}
+        {{query.instructions}}
+        <br />
         {% for target in query.targets %}
         <div class="option"
          id="{{target.index}}"
@@ -123,6 +125,9 @@ div.option{
         {% if query.targets[0].target.primary_type == "image" or query.targets[0].target.primary_type == "img" %}
         <div class="image_container"> 
           <img class="image" src="{{ query.targets[0].target.primary_description }}"> </img>
+        </div>
+        <div id="init_query" style="float:right;"> 
+          Starting image: <br /><img width="50%" height="50%" class="image" src="{{ query.main_target.primary_description }}"> </img>
         </div>
         {% elif query.targets[0].target.primary_type == "text"%}
         <div class="text_container">
@@ -136,10 +141,12 @@ div.option{
 <!-- labels -->
 <div id="query" class="row">
   {% if query.labels %}
+  {{query.instructions}}
+  <br />
   {% for label in query.labels %}
   <div class="option"
 	  id="{{loop.index}}"
-	  onclick="submit({{ label.reward }}, {{loop.index}})">
+	  onclick="submit({{ label.reward }}, {{loop.index}}-1)">
     <div class="text_container">
       <div class="text">{{ label.label }}</div>
     </div>

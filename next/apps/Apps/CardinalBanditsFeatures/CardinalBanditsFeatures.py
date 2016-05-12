@@ -84,12 +84,15 @@ class CardinalBanditsFeatures(object):
             N = butler.experiment.get(key='args')['n']
             target_indices = random.sample(range(N),10) # 10 here means "show 10 random queries at the start"
             targets_list = [{'index':i,'target':self.TargetManager.get_target_item(exp_uid, i)} for i in target_indices]
-            return_dict = {'initial_query':True,'targets':targets_list}
+            return_dict = {'initial_query':True,'targets':targets_list,'instructions':butler.experiment.get(key='args')['instructions']}
         else:
             target = self.TargetManager.get_target_item(exp_uid, alg_response)
             targets_list = [{'index':alg_response,'target':target}]
 
-            return_dict = {'initial_query':False,'targets':targets_list}
+            init_index = butler.participants.get(uid=participant_uid,key="i_hat")
+            init_target = self.TargetManager.get_target_item(exp_uid, init_index)
+            
+            return_dict = {'initial_query':False,'targets':targets_list,'main_target':init_target,'instructions':butler.experiment.get(key='args')['query_instructions']}
 
             if 'labels' in experiment_dict['args']['rating_scale']:
                 labels = experiment_dict['args']['rating_scale']['labels']

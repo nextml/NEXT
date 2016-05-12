@@ -60,8 +60,12 @@ initExp:
         instructions:
           description: The instructions the particpant will see when experiment first launched.
           type: str
-          default: Please select, using your mouse or left and right arrow keys, the item on the bottom that is closest to the top.
-          optional: true
+          default: Please select a shoe that you like.
+
+        query_instructions:
+          description: The instructions the particpant will see when experiment first launched.
+          type: str
+          default: Is this shoe close to the first shoe that you chose?
 
         debrief:
           description: The message that the participant will see when done with the experiment.
