@@ -62,6 +62,7 @@ class CardinalBanditsPureExplorationDashboard(AppDashboard):
         return_dict['headers'] = [{'label':'Rank','field':'rank'},
                                   {'label':'Target','field':'index'},
                                   {'label':'Score','field':'score'},
+                                  {'label':'Standard Deviation','field':'standard_deviation'},
                                   {'label':'Precision','field':'precision'},
                                   {'label':'Count','field':'count'}]
         return_dict['data'] = item['targets']

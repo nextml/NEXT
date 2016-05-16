@@ -20,7 +20,6 @@ class RoundRobin(CardinalBanditsPureExplorationPrototype):
       resource.increment('Xsum_'+str(i),0.)
       resource.increment('X2sum_'+str(i),0.)
       resource.increment('T_'+str(i),0)
-
     return True
 
   
@@ -71,7 +70,7 @@ class RoundRobin(CardinalBanditsPureExplorationPrototype):
         mu[i] = float(sumX[i]) / T[i]
         prec[i] = numpy.sqrt( float( max(R*R,sumX2[i] - T[i]*mu[i]*mu[i]) ) / ( T[i] - 1. ) / T[i] )
     
-    return mu.tolist(),prec.tolist(), T
+    return mu.tolist(),prec.tolist(),T
 
 
 

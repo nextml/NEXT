@@ -643,7 +643,6 @@ class CardinalBanditsPureExploration(AppPrototype):
             if type(num_reported_answers)!=int:
               num_reported_answers=0
 
-
         # get sandboxed database for the specific app_id,alg_id,exp_uid - closing off the rest of the database to the algorithm
         rc = ResourceClient(app_id,exp_uid,alg_uid,db)
 
@@ -665,11 +664,16 @@ class CardinalBanditsPureExploration(AppPrototype):
         scores = numpy.array(scores)[ranks]
         precisions = numpy.array(precisions)[ranks]
         counts = numpy.array(counts)[ranks]
+        standard_deviations = precisions*numpy.sqrt(counts)
         ranks = range(n)
-
         targets = []
         for index in range(n):
-          targets.append( {'index':indexes[index],'rank':ranks[index],'score':scores[index],'precision':precisions[index],'count':counts[index]} )
+          targets.append( {'index':indexes[index],
+                           'rank':ranks[index],
+                           'score':scores[index],
+                           'precision':precisions[index],
+                           'standard_deviation':standard_deviations[index],
+                           'count':counts[index]} )
 
         log_entry = { 'exp_uid':exp_uid,'alg_uid':alg_uid,'timestamp':utils.datetimeNow() } 
         log_entry.update( {'targets':targets,'num_reported_answers':num_reported_answers} )
@@ -687,6 +691,7 @@ class CardinalBanditsPureExploration(AppPrototype):
       return predict_json,True,''
     except Exception, err:
       error = traceback.format_exc()
+      print "error", error
       log_entry = { 'exp_uid':exp_uid,'task':'predict','error':str(error),'timestamp':utils.datetimeNow(),'args_json':args_json }  
       didSucceed,message = ell.log( app_id+':APP-EXCEPTION', log_entry  )
       return '{}',False,error
