@@ -123,7 +123,6 @@ def generate_target_blob(AWS_BUCKET_NAME,
                               'alt_type': alt_type,
                               'alt_description': filename}
                     targets += [target]
-            print(targets)
         else:
             if type(primary_file) is str:
                 f = open(primary_file)
@@ -141,6 +140,7 @@ def generate_target_blob(AWS_BUCKET_NAME,
                               'alt_type': 'text',
                               'alt_description':line}
                     targets.append(target)
+        print "\ntargets formatted like \n{}\n".format(targets[0])
     return targets
 
 def get_AWS_bucket(AWS_BUCKET_NAME,AWS_ID, AWS_KEY):
