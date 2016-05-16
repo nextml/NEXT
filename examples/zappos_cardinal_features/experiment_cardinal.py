@@ -7,16 +7,19 @@ import numpy as np
 import numpy
 from sklearn.preprocessing import normalize
 import pickle
+import dropbox
 
 
 # filename = '/Users/scott/Dropbox/image_search_scott/Features/features_allshoes_8_normalized.mat'
 # n, m = 10, 4
-input_dir = 'parse-output/N=10_M=4/'
+input_dir = 'N=10_M=4/'
 filename = input_dir + 'Zappos_Caffe_Layer8.mat'
 X = loadmat(filename)['X']
 # X = X[:m, :n].copy()
 print('X.shape = {}'.format(X.shape))
 
+feature_filenames = pickle.load(open(input_dir + 'filenames.pkl', 'rb'))
+image_urls_file = input_dir + 'urls.csv'
 
 # X \in {num_features x num_arms}
 # num_features, num_arms = (2, 4)
@@ -28,11 +31,6 @@ n = num_arms
 # X = X[:num_features, :num_arms]
 # X = np.zeros((num_features, num_arms))
 # X[0] = [0, 1, 2, 3]
-feature_filenames = pickle.load(open(input_dir + 'filenames.pkl', 'rb'))
-
-images = input_dir + 'AllShoes.zip'
-target_filekey = 'primary_target_file' if '.zip' in images else 'primary_target_folder'
-print(target_filekey)
 
 delta = 0.05
 supported_alg_ids = ['OFUL']
@@ -120,8 +118,8 @@ experiment = {}
 experiment['initExp'] = initExp
 
 # When presented with a query, the user will rate a text object
-experiment['primary_type'] = 'image'
-experiment[target_filekey] = curr_dir+'/' + images
+experiment['primary_type'] = 'image-urls'
+experiment['primary_target_file'] = image_urls_file
 
 # Set the context. This is the static image that the user sees. i.e., trying to
 # determine the funniest caption of a single comic, the context is the comic.

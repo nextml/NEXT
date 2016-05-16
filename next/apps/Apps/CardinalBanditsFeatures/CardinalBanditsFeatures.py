@@ -35,7 +35,7 @@ class CardinalBanditsFeatures(object):
                     targetset]
 
             new_target_idx = [feature_filenames.index(target)
-                    for  target in target_filenames]
+                                        for  target in target_filenames]
             self.TargetManager.set_targetset(exp_uid,
                             [exp_data['args']['targets']['targetset'][i]
                                             for i in new_target_idx]
