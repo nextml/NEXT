@@ -19,21 +19,29 @@ import time
 # TODO: change this to 1
 reward_coeff = 1.00
 
-def argmax_reward(X, theta, V, k=0):
+def argmax_reward(X, theta, V, do_not_ask=[], k=0):
     r"""
     Loop over all columns of X to solve this equation:
 
         \widehat{x} = \arg \min_{x \in X} x^T theta + k x^T V^{-1} x
     """
+    utils.debug_print("OFUL28: do_not_ask = {}".format(do_not_ask))
     inv = np.linalg.inv
     norm = np.linalg.norm
     rewards = [np.inner(X[:, c], theta) + k*np.inner(X[:, c], inv(V).dot(X[:, c]))
-               for c in range(X.shape[1])]
+               for c in range(X.shape[1]) if not c in do_not_ask]
     rewards = np.asarray(rewards)
     return X[:, np.argmax(rewards)], np.argmax(rewards)
 
 def calc_reward(x, theta, R=2):
     return np.inner(x, theta) + R*np.random.randn()
+
+def get_feature_vectors(butler):
+    n = butler.experiment.get(key='args')['n']
+    X = [butler.targets.get_target_item(butler.exp_uid, i)['feature_vector']
+                                            for i in range(n)]
+    Y = np.array(X).T
+    return Y
 
 class OFUL(CardinalBanditsFeaturesPrototype):
 
@@ -54,9 +62,10 @@ class OFUL(CardinalBanditsFeaturesPrototype):
           (boolean) didSucceed : did everything execute correctly
         """
         # setting the target matrix, a description of each target
-        X = np.asarray(params['X'])
+        # X = np.asarray(params['X'])
+        X = get_feature_vectors(butler)
         utils.debug_print(X.shape)
-        theta_star = np.asarray(params['theta_star'])
+        # theta_star = np.asarray(params['theta_star'])
 
         d = X.shape[0]  # number of dimensions in feature
         lambda_ = 1.0 / d
@@ -103,11 +112,12 @@ class OFUL(CardinalBanditsFeaturesPrototype):
         pulled using the butler
         """
         initExp = butler.algorithms.get()
-        X = np.asarray(initExp['X'], dtype=float)
+        X = get_feature_vectors(butler) # np.asarray(initExp['X'], dtype=float)
 
         if not 'num_tries' in participant_doc.keys():
             participant_doc['participant_uid'] = args['participant_uid']
             participant_doc['num_tries'] = 0
+            participant_doc['do_not_ask'] = []
             butler.participants.set_many(uid=participant_doc['participant_uid'],
                                          key_value_dict=participant_doc)
             return None
@@ -126,7 +136,7 @@ class OFUL(CardinalBanditsFeaturesPrototype):
         #     i_star = participant_doc['i_star']
         #     d = {'reward': calc_reward(i_hat, X[:, i_star], R=reward_coeff
         #          * initExp['R']),
-        #          'theta_star': X[:, i_star].tolist()}
+        #          'theta_star': (X[:, i_star]).tolist()}
         #     participant_doc.update(d)
         #     butler.participants.set_many(uid=participant_doc['participant_uid'],
         #                             key_value_dict=participant_doc)            
@@ -141,8 +151,17 @@ class OFUL(CardinalBanditsFeaturesPrototype):
         log_div = (1 + t * 1.0/initExp['lambda_']) * 1.0 / initExp['failure_probability']
         k = initExp['R'] * np.sqrt(initExp['d'] * np.log(log_div)) + np.sqrt(initExp['lambda_'])
         V = np.array(participant_doc['V'])
+
+        utils.debug_print("OFUL154, {}\n {}".format(participant_doc.keys(), args.keys()))
+
+        do_not_ask = butler.participants.get(uid=participant_doc['participant_uid'],
+                                             key='do_not_ask')
+
         arm_x, i_x = argmax_reward(X, np.array(participant_doc['theta_hat']),
-                                   V, k=k)
+                                   V, do_not_ask=do_not_ask, k=k)
+
+        butler.participants.append(uid=participant_doc['participant_uid'],
+                                             key='do_not_ask', value=i_x)
         utils.debug_print('OFUL.py:146, {}'.format(i_x))
         # reward = calc_reward(arm_x, np.array(participant_doc['theta_star']),
         #                      R=reward_coeff * initExp['R'])
@@ -177,7 +196,7 @@ class OFUL(CardinalBanditsFeaturesPrototype):
         reward = target_reward
 
         # theta_star = np.array(participant_doc['theta_star'])
-        X = np.asarray(args['X'], dtype=float)
+        X = get_feature_vectors(butler) # np.asarray(args['X'], dtype=float)
         b = np.array(participant_doc['b'], dtype=float)
         V = np.array(participant_doc['V'], dtype=float)
 

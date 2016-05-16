@@ -10,6 +10,10 @@ initExp:
       description: Arguments for to help create the experiment.
       type: dict
       values:
+        features:
+          type: matrix
+          values: []
+          description: algorithm specific parameters. We have taken this to be a matrix with column i to be feature i.
         failure_probability:
           description: Confidence of result.
           type: num

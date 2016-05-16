@@ -1,6 +1,7 @@
 import json
 import numpy
 import random
+import numpy as np
 
 import next.apps.SimpleTargetManager
 import next.utils as utils
@@ -36,13 +37,24 @@ class CardinalBanditsFeatures(object):
 
             new_target_idx = [feature_filenames.index(target)
                                         for  target in target_filenames]
-            self.TargetManager.set_targetset(exp_uid,
-                            [exp_data['args']['targets']['targetset'][i]
-                                            for i in new_target_idx]
-            )
+            new_targetset = []
+            utils.debug_print(exp_data['args'].keys())
+            X = np.array(exp_data['args']['features'])
+            for col, target in zip(new_target_idx,
+                                   exp_data['args']['targets']['targetset']):
+                target['feature_vector'] = X[:, col].tolist()
+                new_targetset += [target]
+
+            self.TargetManager.set_targetset(exp_uid, new_targetset)
+
+            # old code, expanded by the for-loop above
+            # self.TargetManager.set_targetset(exp_uid,
+                            # [exp_data['args']['targets']['targetset'][i]
+                                            # for i in new_target_idx])
         else:
             n = exp_data['args']['targets']['n']
         exp_data['args']['n'] = n
+        del exp_data['args']['features']
         del exp_data['args']['targets']
 
         if 'labels' in exp_data['args']['rating_scale'].keys():
@@ -89,9 +101,9 @@ class CardinalBanditsFeatures(object):
             target = self.TargetManager.get_target_item(exp_uid, alg_response)
             targets_list = [{'index':alg_response,'target':target}]
 
-            init_index = butler.participants.get(uid=participant_uid,key="i_hat")
+            init_index = butler.participants.get(uid=query_request['args']['participant_uid'],key="i_hat")
             init_target = self.TargetManager.get_target_item(exp_uid, init_index)
-            
+
             return_dict = {'initial_query':False,'targets':targets_list,'main_target':init_target,'instructions':butler.experiment.get(key='args')['query_instructions']}
 
             if 'labels' in experiment_dict['args']['rating_scale']:
