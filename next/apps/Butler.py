@@ -1,4 +1,5 @@
 from next.utils import utils
+import numpy as np
 
 class Collection(object):
     def __init__(self, collection, uid_prefix, exp_uid, db, timing=True):

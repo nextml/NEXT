@@ -11,14 +11,20 @@ import dropbox
 
 
 # filename = '/Users/scott/Dropbox/image_search_scott/Features/features_allshoes_8_normalized.mat'
-# n, m = 10, 4
+n, m = 10, 4
 input_dir = 'N=10_M=4/'
 filename = input_dir + 'Zappos_Caffe_Layer8.mat'
 X = loadmat(filename)['X']
-# X = X[:m, :n].copy()
+X = X[:m, :n].copy()
 print('X.shape = {}'.format(X.shape))
 
 feature_filenames = pickle.load(open(input_dir + 'filenames.pkl', 'rb'))
+names = loadmat('/Users/scott/Desktop/Rudi-features-matlab/ColorLabel_new.mat')
+names = names['Names']
+feature_filenames = [name[0][0][0] for name in names]
+
+# TODO: get rid of this hard-coding, only for testing
+feature_filenames = feature_filenames[:n + 1]  # hard-coded for urls.csv
 image_urls_file = input_dir + 'urls.csv'
 
 # X \in {num_features x num_arms}
@@ -35,9 +41,9 @@ n = num_arms
 delta = 0.05
 supported_alg_ids = ['OFUL']
 
-labels = [{'label':'no', 'reward':1.0},
-          {'label':'yes','reward':2.0}]
-R = 2.0
+labels = [{'label':'no', 'reward':0.0},
+          {'label':'yes','reward':1.0}]
+R = 1.0
 
 true_means = numpy.array(range(num_arms)[::-1]) / float(num_arms)
 total_pulls_per_client = 200
@@ -66,8 +72,8 @@ for alg_id in supported_alg_ids:
     if alg_id == 'OFUL':
         theta_star = np.random.randn(X.shape[0])
         theta_star /= np.linalg.norm(theta_star)
-        alg_item['params'] = {'X': X.tolist(),
-                              'theta_star': theta_star.tolist()}
+        alg_item['params'] = {}# {'X': X.tolist(),
+                               # 'theta_star': theta_star.tolist()}
     else:
         alg_item['params'] = {}
 
@@ -99,7 +105,7 @@ initExp['args'] = {} # arguments to pass the algorithm
 
 # What's the probabiity of error? Similar to "similar because p < 0.05"
 initExp['args']['failure_probability'] = .05
-initExp['args']['R'] = .5
+initExp['args']['R'] = R
 initExp['args']['rating_scale'] = {'labels': labels}
 
 # one parcipant sees many algorithms? 'one_to_many' means one participant will
@@ -110,6 +116,7 @@ initExp['args']['alg_list'] = alg_list
 
 initExp['args']['num_tries'] = 50 # How many tries does each user see?
 initExp['args']['feature_filenames'] = feature_filenames
+initExp['args']['features'] = X.tolist()
 
 # Which app are we running? (examples of other algorithms are in examples/
 initExp['app_id'] = 'CardinalBanditsFeatures'
@@ -118,8 +125,9 @@ experiment = {}
 experiment['initExp'] = initExp
 
 # When presented with a query, the user will rate a text object
-experiment['primary_type'] = 'image-urls'
+experiment['primary_type'] = 'image'
 experiment['primary_target_file'] = image_urls_file
+experiment['image-urls'] = True
 
 # Set the context. This is the static image that the user sees. i.e., trying to
 # determine the funniest caption of a single comic, the context is the comic.

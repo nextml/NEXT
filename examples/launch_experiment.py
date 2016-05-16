@@ -101,7 +101,7 @@ def generate_target_blob(AWS_BUCKET_NAME,
                           'alt_description': primary_file_name}
                 targets.append(target)
     else:
-        if primary_type in {'image-url', 'image-urls'}:
+        if experiment.get('image-urls', False):
             # This is the section where 
             # getting rid of http://filenamestuff?dl=0 to append filenames too
             targets = []
@@ -122,6 +122,7 @@ def generate_target_blob(AWS_BUCKET_NAME,
                               'primary_description': url,
                               'alt_type': alt_type,
                               'alt_description': filename}
+
                     targets += [target]
         else:
             if type(primary_file) is str:
