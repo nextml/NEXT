@@ -11,11 +11,17 @@ import dropbox
 
 
 # filename = '/Users/scott/Dropbox/image_search_scott/Features/features_allshoes_8_normalized.mat'
+user_prefix = '/Users/scott/'
 n, m = 10, 4
 input_dir = 'N=10_M=4/'
 filename = input_dir + 'Zappos_Caffe_Layer8.mat'
-X = loadmat(filename)['X']
-X = X[:m, :n].copy()
+filename = user_prefix + \
+            'Desktop/Rudi-features-matlab/features_allshoes_8_normalized.mat'
+
+mat_file = loadmat(filename)
+X = mat_file['features_all'].T
+print(mat_file.keys())
+# X = X[:m, :n].copy()
 print('X.shape = {}'.format(X.shape))
 
 feature_filenames = pickle.load(open(input_dir + 'filenames.pkl', 'rb'))
@@ -23,9 +29,10 @@ names = loadmat('/Users/scott/Desktop/Rudi-features-matlab/ColorLabel_new.mat')
 names = names['Names']
 feature_filenames = [name[0][0][0] for name in names]
 
+image_urls_file = 'urls2k.csv'
 # TODO: get rid of this hard-coding, only for testing
-feature_filenames = feature_filenames[:n + 1]  # hard-coded for urls.csv
-image_urls_file = input_dir + 'urls.csv'
+# feature_filenames = feature_filenames[:n + 1]  # hard-coded for urls.csv
+# image_urls_file = '/Users/scott/Dropbox/Public/AllShoes50k.zip'
 
 # X \in {num_features x num_arms}
 # num_features, num_arms = (2, 4)
