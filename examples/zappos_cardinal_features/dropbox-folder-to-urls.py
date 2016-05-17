@@ -11,7 +11,7 @@ import pandas as pd
 # (I need to test that the URL remains the same but it should)
 #[1]:https://www.dropbox.com/en/help/16
 
-dropbox_folder = 'Public/AllShoes10'
+dropbox_folder = 'Public/AllShoes2.2k'
 
 assert 'DROPBOX_ACCESS_TOKEN' in os.environ, "We need this to access dropbox"
 dropbox_key = os.getenv('DROPBOX_ACCESS_TOKEN')
@@ -36,11 +36,11 @@ for i, entry in enumerate(dbx.files_list_folder(dropbox_folder).entries):
         print("Well, make sure that the folder you specified actually exists")
         print(entry, entry.name)
     urls += [r.url[:r.url.find('?')]]
-    if i % 100 == 0 and i != 0:
+    if i % 100 == 0:
         total_time = (time.time() - start) * 50e3 / 100
         print("estimated total hours = {}, assume 50k files".format(
                             total_time / (60*60)))
         start = time.time()
 
-with open('urls.csv', 'w') as file_ :
+with open('urls2.2k-python.csv', 'w') as file_ :
     print("\n".join(urls), file=file_)

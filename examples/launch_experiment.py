@@ -88,20 +88,26 @@ def generate_target_blob(AWS_BUCKET_NAME,
                           'alt_description': alt_url}
                 targets.append(target)
         else:
-            for key, primary_file in target_file_dict.iteritems():
+            # started at 9:30am 2016-05-17
+            f = open('urls-50k-launch-python.csv', 'wa')
+            for i, (key, primary_file) in enumerate(target_file_dict.iteritems()):
                 primary_file_name = target_name_dict[key]
                 primary_url = upload_to_S3(bucket,
                                            '{}_{}'.format(prefix,
                                                           primary_file_name),
                                            StringIO(primary_file))
+                if i % 100 == 0 and i != 0:
+                    print('percent done = {}'.format(i / 50e3))
+                f.write(primary_url + '\n')
                 target = {'target_id': '{}_{}'.format(prefix, primary_file_name),
                           'primary_type': primary_type,
                           'primary_description': primary_url,
                           'alt_type': 'text',
                           'alt_description': primary_file_name}
                 targets.append(target)
+            f.close()
     else:
-        if experiment.get('image-urls', False):
+        if experiment.get('image-urls', False) or experiment.get('image-url', False):
             # This is the section where 
             # getting rid of http://filenamestuff?dl=0 to append filenames too
             targets = []
@@ -111,8 +117,8 @@ def generate_target_blob(AWS_BUCKET_NAME,
                 # parameters: alt_type, primary_type, prefix
                 # define: alt_url, primary_url
                 feature_urls = [filename in url for url in urls]
-                assert sum(feature_urls) <= 1, \
-                                        "At most one image URL per filename!"
+                # assert sum(feature_urls) <= 1, \
+                                        # "At most one image URL per filename!"
                 if True in feature_urls:
                     url = urls[feature_urls.index(True)]
                     if not '?' in url:
