@@ -2,9 +2,27 @@ import json
 import numpy
 import random
 import numpy as np
+import urllib2
+import requests
+from StringIO import StringIO
+import time
 
 import next.apps.SimpleTargetManager
 import next.utils as utils
+from scipy.io import loadmat
+
+def timeit(fn_name=''):
+    def timeit_(func, *args, **kwargs):
+        def timing(*args, **kwargs):
+            start = time.time()
+            r = func(*args, **kwargs)
+            utils.debug_print('')
+            utils.debug_print("function {} took {} seconds".format(fn_name, time.time() - start))
+            utils.debug_print('')
+            return r
+        return timing
+    return timeit_
+
 class CardinalBanditsFeatures(object):
     def __init__(self):
         self.app_id = 'CardinalBanditsFeatures'
@@ -39,12 +57,22 @@ class CardinalBanditsFeatures(object):
                                         for  target in target_filenames]
             new_targetset = []
             utils.debug_print(exp_data['args'].keys())
-            X = np.array(exp_data['args']['features'])
+
+            utils.debug_print("cardinalfeatures:48, beginning to download features")
+            response = requests.get(exp_data['args']['features'])
+            variables = loadmat(StringIO(response.content))
+            utils.debug_print("done downloading features")
+
+            X = variables['features_all'].T
+            np.save('features.npy', X)
+            utils.debug_print("X.shape = {}".format(X.shape))
+
             for col, target in zip(new_target_idx,
                                    exp_data['args']['targets']['targetset']):
-                target['feature_vector'] = X[:, col].tolist()
+                # target['feature_vector'] = X[:, col].tolist()
                 new_targetset += [target]
 
+            utils.debug_print("CardFeat:64, {}".format(len(new_targetset)))
             self.TargetManager.set_targetset(exp_uid, new_targetset)
 
             # old code, expanded by the for-loop above
@@ -71,6 +99,7 @@ class CardinalBanditsFeatures(object):
 
         return exp_data,alg_data
 
+    @timeit(fn_name='myApp.py:getQuery')
     def getQuery(self, exp_uid, experiment_dict, query_request, alg_response, butler):
         """
         The function that gets the next query, given a query reguest and

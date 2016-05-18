@@ -19,6 +19,19 @@ import time
 # TODO: change this to 1
 reward_coeff = 1.00
 
+def timeit(fn_name=''):
+    def timeit_(func, *args, **kwargs):
+        def timing(*args, **kwargs):
+            start = time.time()
+            r = func(*args, **kwargs)
+            utils.debug_print('')
+            utils.debug_print("function {} took {} seconds".format(fn_name, time.time() - start))
+            utils.debug_print('')
+            return r
+        return timing
+    return timeit_
+
+@timeit(fn_name="argmax_reward")
 def argmax_reward(X, theta, V, do_not_ask=[], k=0):
     r"""
     Loop over all columns of X to solve this equation:
@@ -26,25 +39,44 @@ def argmax_reward(X, theta, V, do_not_ask=[], k=0):
         \widehat{x} = \arg \min_{x \in X} x^T theta + k x^T V^{-1} x
     """
     utils.debug_print("OFUL28: do_not_ask = {}".format(do_not_ask))
-    inv = np.linalg.inv
-    norm = np.linalg.norm
-    rewards = [np.inner(X[:, c], theta) + k*np.inner(X[:, c], inv(V).dot(X[:, c]))
-               for c in range(X.shape[1]) if not c in do_not_ask]
-    rewards = np.asarray(rewards)
+
+    sqrt = np.sqrt
+    s = time.time()
+    iV = np.linalg.inv(V)
+    utils.debug_print("time to invert {} matrix = {}".format(iV.shape, time.time() - s))
+    rewards = X.T.dot(theta) + sqrt(k)*sqrt((X * (iV.dot(X))).sum(axis=0))
+
+    mask = np.ones(X.shape[1], dtype=bool)
+    mask[do_not_ask] = False
+    rewards = rewards[mask]
     return X[:, np.argmax(rewards)], np.argmax(rewards)
 
+@timeit(fn_name="calc_reward")
 def calc_reward(x, theta, R=2):
     return np.inner(x, theta) + R*np.random.randn()
 
+@timeit(fn_name="get_feature_vectors")
 def get_feature_vectors(butler):
-    n = butler.experiment.get(key='args')['n']
-    X = [butler.targets.get_target_item(butler.exp_uid, i)['feature_vector']
-                                            for i in range(n)]
-    Y = np.array(X).T
-    return Y
+    features = np.load('features.npy')
+    utils.debug_print("OFUL 95, features.shape = {}".format(features.shape))
+    return features
+
+    # targets = butler.targets.get_targetset(butler.exp_uid, pop=False)
+    # utils.debug_print(type(targets))
+    # features_vecs = [target['feature_vector'] for target in targets]
+    # X = np.array(features_vecs).T
+    # utils.debug_print("OFUL:56, X.shape = {}".format(X.shape))
+    # return X
+    # return butler.targets.features
+    # utils.debug_print("oFUL:53, before getting X")
+    # n = butler.experiment.get(key='args')['n']
+    # X = [butler.targets.get_target_item(butler.exp_uid, i)['feature_vector']
+                                            # for i in range(n)]
+    # Y = np.array(X).T
+    # utils.debug_print("oFUL:58, done getting X")
+    # return Y
 
 class OFUL(CardinalBanditsFeaturesPrototype):
-
     def initExp(self, butler, params=None, n=None, R=None,
                 failure_probability=None):
         """
@@ -64,7 +96,7 @@ class OFUL(CardinalBanditsFeaturesPrototype):
         # setting the target matrix, a description of each target
         # X = np.asarray(params['X'])
         X = get_feature_vectors(butler)
-        utils.debug_print(X.shape)
+        utils.debug_print("OFUL88: X.shape = {}".format(X.shape))
         # theta_star = np.asarray(params['theta_star'])
 
         d = X.shape[0]  # number of dimensions in feature
@@ -77,7 +109,7 @@ class OFUL(CardinalBanditsFeaturesPrototype):
         # theta_hat = np.random.randn(d)
         # theta_hat /= np.linalg.norm(theta_hat)
 
-        to_save = {'X': X.tolist(),
+        to_save = {#'X': X.tolist(),
                    'R': R, 'd': d, 'n': n,
                    'lambda_': lambda_,
                    'total_pulls': 0.0,
@@ -145,14 +177,14 @@ class OFUL(CardinalBanditsFeaturesPrototype):
             participant_doc.update(d)
             butler.participants.set_many(uid=participant_doc['participant_uid'],
                                          key_value_dict=participant_doc)
+            butler.participants.append(uid=participant_doc['participant_uid'],
+                                         key='do_not_ask', value=participant_doc['i_hat'])
 
         # Figure out what query to ask
         t = participant_doc['t']
         log_div = (1 + t * 1.0/initExp['lambda_']) * 1.0 / initExp['failure_probability']
         k = initExp['R'] * np.sqrt(initExp['d'] * np.log(log_div)) + np.sqrt(initExp['lambda_'])
         V = np.array(participant_doc['V'])
-
-        utils.debug_print("OFUL154, {}\n {}".format(participant_doc.keys(), args.keys()))
 
         do_not_ask = butler.participants.get(uid=participant_doc['participant_uid'],
                                              key='do_not_ask')
@@ -162,7 +194,6 @@ class OFUL(CardinalBanditsFeaturesPrototype):
 
         butler.participants.append(uid=participant_doc['participant_uid'],
                                              key='do_not_ask', value=i_x)
-        utils.debug_print('OFUL.py:146, {}'.format(i_x))
         # reward = calc_reward(arm_x, np.array(participant_doc['theta_star']),
         #                      R=reward_coeff * initExp['R'])
         # # allow reward to propograte forward to other functions; it's
@@ -194,15 +225,12 @@ class OFUL(CardinalBanditsFeaturesPrototype):
 
         # this makes sure the reward propogates from getQuery to processAnswer
         reward = target_reward
+        utils.debug_print("OFUL:193:processAnswer, reward = {}".format(reward))
 
         # theta_star = np.array(participant_doc['theta_star'])
         X = get_feature_vectors(butler) # np.asarray(args['X'], dtype=float)
         b = np.array(participant_doc['b'], dtype=float)
         V = np.array(participant_doc['V'], dtype=float)
-
-        utils.debug_print('OFUL:183')
-        for v in [b, V]:
-            utils.debug_print('mean = {}, std = {}'.format(v.mean(), v.std()))
 
         arm_pulled = X[:, target_id]
 
