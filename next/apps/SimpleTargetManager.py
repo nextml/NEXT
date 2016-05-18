@@ -1,4 +1,5 @@
 from next.database_client.PermStore import PermStore
+from next.utils import utils
 db = PermStore()
 
 class SimpleTargetManager(object):
@@ -22,11 +23,13 @@ class SimpleTargetManager(object):
         """
         Gets the entire targetset for a given experiment as a list of dictionaries.
         """
-        mongotized_target_blob, didSucceed, message = db.getDocsByPattern(self.database_id,
-                                                                          self.bucket_id,
-                                                                          {'exp_uid': exp_uid})
+        mongotized_target_blob, didSucceed, message = db.getDocsByPattern(
+                                    self.database_id,
+                                    self.bucket_id,
+                                    {'exp_uid': exp_uid})
         if not didSucceed:
             raise Exception("Failed to create_target_mapping: {}".format(message))
+        utils.debug_print('SimpleTargetManager:31: {}'.format(len(mongotized_target_blob)))
         targetset = mongotized_target_blob.pop(0)
         return targetset
 
