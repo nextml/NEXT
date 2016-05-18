@@ -8,6 +8,49 @@
     * add new key to butler.particpants[i]
 * make launching easier
 
+## 2016-05-17
+### Features
+* Download features from internet, assume images have been uploaded (it takes
+about 3 hours to do via S3 from the university
+* do_not_ask is implemented
+
+### Bottlenecks
+* argmax is really slow; it uses a for loop in Python. I'll look into using
+    NumPy to speed this up. Extrapolating to 50k features, it will take about
+    25 minutes to answer one question
+
+| Trial | App.py:getQuery | myApp.py:getQuery | get_X * 2   | argmax | Total |
+| load  | 2.27            | 0.24              | 1.93 (*1)   | 0      | 2.17  |
+| q0    | 10.38           | 1.02              | 1.96 + 2.27 | 0      | 5.25  |
+| q1    | 9.3             | 1.08              | 1.97 + 1.95 | 4.49   | 9.49  |
+| q2    | 14.69           | 1.15              | 3.83 + 1.97 | 7.25   | 14.2  |
+(run on 2016-05-18 10:00 on c3.large machine with 2k shoes)
+
+| Trial | App.py:getQuery | myApp.py:getQuery | get_X * 2   | argmax | Total |
+| load  | 2.28            | 0.13              | 2.0*1       | 0      | 2.38  |
+| q0    | 9.69            | 1.28              | 2.03 + 2.04 | 4.54   | 9.89  |
+(run on 2016-05-18 11:00 on r3.large machine with 2k shoes)
+
+| Trial | App.py:getQuery | myApp.py:getQuery | get_X * 2   | argmax | Total |
+| load  | 51.57           | 0.58              | 50.8*1      | -      | 51.38 |
+| q0    | 115             | 1.11              | 50.5*1      | 58.7   |       |
+| q1    | 116             | 1.24              | 51.1 + 50.8 | 63     |       |
+(run on 2016-05-11:30 on r3.large machine with 50k shoes)
+
+inverting V does not take the most time in argmax_reward
+time to invert (1000, 1000) matrix = 0.0263409614563
+
+*summary:* from this, we need to (a) optimize getting X and (b) optimize
+argmax_reward
+
+After speeding up get_X to on the order of 0.2secs:
+
+| Trial | App.py getQuery |
+| load | 0.36 secs |
+| q0 | not written down|
+| q1 | get_X: 0.144 + 0.02, time_to_invert: 2.2secs, argmax_reward = 65secs
+
+So most of the time is spent in OFUL:argmax
 """
 
 from __future__ import division

@@ -9,7 +9,6 @@ from sklearn.preprocessing import normalize
 import pickle
 import dropbox
 
-
 # filename = '/Users/scott/Dropbox/image_search_scott/Features/features_allshoes_8_normalized.mat'
 user_prefix = '/Users/scott/'
 n, m = 10, 4
@@ -17,6 +16,7 @@ input_dir = 'N=10_M=4/'
 filename = input_dir + 'Zappos_Caffe_Layer8.mat'
 filename = user_prefix + \
             'Desktop/Rudi-features-matlab/features_allshoes_8_normalized.mat'
+features_url = 'https://dl.dropboxusercontent.com/u/9160935/features_allshoes_8_normalized.mat'
 
 mat_file = loadmat(filename)
 X = mat_file['features_all'].T
@@ -29,6 +29,8 @@ names = loadmat('/Users/scott/Desktop/Rudi-features-matlab/ColorLabel_new.mat')
 names = names['Names']
 feature_filenames = [name[0][0][0] for name in names]
 
+# image_urls_file = 'urls-50k-launch-python.csv'
+image_urls_file = 'urls-50k-launch-python.csv'
 image_urls_file = 'urls2k.csv'
 # TODO: get rid of this hard-coding, only for testing
 # feature_filenames = feature_filenames[:n + 1]  # hard-coded for urls.csv
@@ -106,7 +108,7 @@ algorithm_management_settings['mode'] = 'fixed_proportions'
 algorithm_management_settings['params'] = params
 
 # Create experiment dictionary
-cap = 'cap436'
+# cap = 'cap436'
 initExp = {}
 initExp['args'] = {} # arguments to pass the algorithm
 
@@ -123,7 +125,7 @@ initExp['args']['alg_list'] = alg_list
 
 initExp['args']['num_tries'] = 50 # How many tries does each user see?
 initExp['args']['feature_filenames'] = feature_filenames
-initExp['args']['features'] = X.tolist()
+initExp['args']['features'] = features_url
 
 # Which app are we running? (examples of other algorithms are in examples/
 initExp['app_id'] = 'CardinalBanditsFeatures'

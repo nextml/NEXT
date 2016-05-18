@@ -110,6 +110,7 @@ def generate_target_blob(AWS_BUCKET_NAME,
         if experiment.get('image-urls', False) or experiment.get('image-url', False):
             # This is the section where 
             # getting rid of http://filenamestuff?dl=0 to append filenames too
+            print('Adding urls to targets')
             targets = []
             urls = open(experiment['primary_target_file'], 'r')
             urls = [url[:-1] for url in urls.readlines()]
@@ -130,6 +131,7 @@ def generate_target_blob(AWS_BUCKET_NAME,
                               'alt_description': filename}
 
                     targets += [target]
+            print('...and done adding URLs to targets')
         else:
             if type(primary_file) is str:
                 f = open(primary_file)
