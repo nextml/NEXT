@@ -12,7 +12,7 @@ import code
 
 # TODO: update to higher dimensions, see if follows sqrt(t) curve
 
-def argmax_reward(X, theta, V, k=0):
+def argmax_reward(X, theta, invV, k=0):
     r"""
     Loop over all columns of X to solve this equation:
 
@@ -21,7 +21,7 @@ def argmax_reward(X, theta, V, k=0):
     inv = np.linalg.inv
     norm = np.linalg.norm
     rewards = [np.inner(X[:, c], theta) +
-               k*np.inner(X[:, c], inv(V).dot(X[:, c]))
+               k*np.inner(X[:, c], invV.dot(X[:, c]))
                for c in range(X.shape[1])]
     rewards = np.asarray(rewards)
     return X[:, np.argmax(rewards)], np.argmax(rewards)
@@ -29,7 +29,7 @@ def argmax_reward(X, theta, V, k=0):
 def reward(x, theta, R=2):
     return np.inner(x, theta) + R*np.random.randn()
 
-def OFUL(X=None, R=None, theta_hat=None, theta_star=None, V=None, S=1, T=25,
+def OFUL(X=None, R=None, theta_hat=None, theta_star=None, invV=None, S=1, T=25,
          d=None, n=None, lambda_=None, PRINT=False):
     """"
     X : x
@@ -52,7 +52,7 @@ def OFUL(X=None, R=None, theta_hat=None, theta_star=None, V=None, S=1, T=25,
     for t in 1 + np.arange(T):
         k = R * np.sqrt(d*np.log((1 + t/lambda_) / delta)) + np.sqrt(lambda_)
 
-        x, i_x = argmax_reward(X, theta_hat, V, k=k)
+        x, i_x = argmax_reward(X, theta_hat, invV, k=k)
         # TODO: this R needs to be tuned!
         rewards += [reward(x, theta_star, R=0.01*R)]
         arms += [i_x]
@@ -63,9 +63,11 @@ def OFUL(X=None, R=None, theta_hat=None, theta_star=None, V=None, S=1, T=25,
                    # "{:0.2}").format(np.linalg.norm(x), np.linalg.norm(theta_star),
                                     # rewards[-1])))
 
-        V += np.outer(x, x)
+        invV -= invV.dot(np.outer(x, x)).dot(invV) \
+                    / (1 + np.inner(x, invV.dot(x)))
+
         b += rewards[-1] * x
-        theta_hat = np.linalg.inv(V).dot(b)
+        theta_hat = invV.dot(b)
 
         if PRINT:
             norm = np.linalg.norm
@@ -85,13 +87,13 @@ def test_OFUL(theta_star, T=50, PRINT=False):
     theta_hat /= np.linalg.norm(theta_hat)
     # theta_hat = np.zeros(d)
 
-    V = lambda_ * np.eye(d)
+    invV = np.eye(d) / lambda_
 
     theta_hat, rewards, arms = OFUL(X=X, R=R, theta_hat=theta_hat,
-                                    theta_star=theta_star, V=V, d=d, n=n, T=T,
+                                    theta_star=theta_star, invV=invV, d=d, n=n, T=T,
                                     lambda_=lambda_, PRINT=PRINT)
 
-    x_star, _ = argmax_reward(X, theta_star, V, k=0)
+    x_star, _ = argmax_reward(X, theta_star, invV, k=0)
     rewards_star = [np.inner(X[:, col], theta_star) for col in range(X.shape[1])]
     # x_star = X[:, np.argmax(rewards_star)]
     norm = np.linalg.norm
