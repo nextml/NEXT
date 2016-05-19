@@ -120,10 +120,12 @@ class CardinalBanditsFeatures(object):
 
         TODO: Document this further
         """
+
         participant_doc = butler.participants.get(uid=query_request['args']['participant_uid'])
         if participant_doc['num_tries'] == 0:
             N = butler.experiment.get(key='args')['n']
-            target_indices = random.sample(range(N),10) # 10 here means "show 10 random queries at the start"
+            target_indices = random.sample(range(N), 9) # 10 here means "show 10 random queries at the start"
+            target_indices = [4050] + target_indices
             targets_list = [{'index':i,'target':self.TargetManager.get_target_item(exp_uid, i)} for i in target_indices]
             return_dict = {'initial_query':True,'targets':targets_list,'instructions':butler.experiment.get(key='args')['instructions']}
         else:
@@ -143,6 +145,7 @@ class CardinalBanditsFeatures(object):
                     return_dict.update({'context':experiment_dict['args']['context'],'context_type':experiment_dict['args']['context_type']})
         return return_dict
 
+    @timeit(fn_name='myApp:processAnswer')
     def processAnswer(self, exp_uid, query, answer, butler):
         """
         Parameters
