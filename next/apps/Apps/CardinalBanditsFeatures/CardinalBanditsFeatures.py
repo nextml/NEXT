@@ -24,9 +24,9 @@ def timeit(fn_name=''):
     return timeit_
 
 class CardinalBanditsFeatures(object):
-    def __init__(self):
+    def __init__(self, db):
         self.app_id = 'CardinalBanditsFeatures'
-        self.TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager()
+        self.TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager(db)
 
     def initExp(self, exp_uid, exp_data, butler):
         """

@@ -54,16 +54,16 @@ So most of the time is spent in OFUL:argmax
 
 After speeding up argmax:
 
-| Function            | Time (s) (1) | Time (s) 2 | Time (s) 3 |
-| ------------------- | --------     | ---------- | ---------- |
-| myApp:processAnswer | 1.00         | 1.1        | 0.4        |
-| alg:processAnswer   | 2.35         | 1.2        | 1.50       |
-| App:processAnswer   | 3.38         | 2.3        | 1.9        |
-| myApp:getQuery      | 1.29         | 1.43       | 0.73       |
-| alg:getQuery        | 0.49         | 0.39       | 1.56       |
-| App:getQuery        | 3.42         | 3.2        | 2.7        |
-| ------------------- | --------     |            |            |
-| Total               | 6.8          |            |            |
+| Function            | Time 1   | Time 2 | Time 3 | Time 4 |
+| ------------------- | -----    | -----  | ------ |        |
+| myApp:processAnswer | 1.00     | 1.1    | 0.4    | 0.33   |
+| alg:processAnswer   | 2.35     | 1.2    | 1.50   | 1.14   |
+| App:processAnswer   | 3.38     | 2.3    | 1.9    |        |
+| myApp:getQuery      | 1.29     | 1.43   | 0.73   | 0.497  |
+| alg:getQuery        | 0.49     | 0.39   | 1.56   | 0.45   |
+| App:getQuery        | 3.42     | 3.2    | 2.7    |        |
+| ------------------- | -------- |        |        |        |
+| Total               | 6.8      |        |        |        |
 """
 
 from __future__ import division

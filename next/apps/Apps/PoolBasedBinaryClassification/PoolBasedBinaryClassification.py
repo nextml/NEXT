@@ -2,22 +2,22 @@ import json
 import next.utils as utils
 import next.apps.SimpleTargetManager
 
-class PoolBasedTripletMDS(object):
+class PoolBasedBinaryClassification(object):
     def __init__(self,db):
-        self.app_id = 'PoolBasedTripletMDS'
+        self.app_id = 'PoolBasedBinaryClassification'
         self.TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager(db)
 
     def initExp(self, exp_uid, exp_data, butler):
         if 'targetset' in exp_data['args']['targets'].keys():
             n  = len(exp_data['args']['targets']['targetset'])
             self.TargetManager.set_targetset(exp_uid, exp_data['args']['targets']['targetset'])
-        else:
-            n = exp_data['args']['targets']['n']
+        d = len(exp_data['args']['targets']['targetset'][0]['meta']['features'])
         exp_data['args']['n'] = n
+        exp_data['args']['d'] = d
         del exp_data['args']['targets']
 
         alg_data = {}
-        algorithm_keys = ['n','d','failure_probability']
+        algorithm_keys = ['n','failure_probability']
         for key in algorithm_keys:
             if key in exp_data['args']:
                 alg_data[key]=exp_data['args'][key]
@@ -25,39 +25,29 @@ class PoolBasedTripletMDS(object):
         return exp_data,alg_data
 
     def getQuery(self, exp_uid, experiment_dict, query_request, alg_response, butler):
-        center  = self.TargetManager.get_target_item(exp_uid, alg_response[0])
-        left  = self.TargetManager.get_target_item(exp_uid, alg_response[1])
-        right  = self.TargetManager.get_target_item(exp_uid, alg_response[2])
-        center['label'] = 'center'
-        left['label'] = 'left'
-        right['label'] = 'right'
-        return {'target_indices':[center, left, right]}
+        target  = self.TargetManager.get_target_item(exp_uid, alg_response)
+        del target['meta']
+        return {'target_indices':target}
 
     def processAnswer(self, exp_uid, query, answer, butler):
-        targets = query['target_indices']
-        for target in targets:
-            if target['label'] == 'center':
-                center_id = target['target_id']
-            elif target['label'] == 'left':
-                left_id = target['target_id']
-            elif target['label'] == 'right':
-                right_id = target['target_id']
-        target_winner = answer['args']['target_winner']
-        # make a getModel call ~ every n/4 queries - note that this query will NOT be included in the predict
-        experiment = butler.experiment.get()
+        target = query['target_indices']
+        target_label = answer['args']['target_label']
+
         num_reported_answers = butler.experiment.increment(key='num_reported_answers_for_' + query['alg_label'])
         
-        n = experiment['args']['n']
-        if num_reported_answers % ((n+4)/4) == 0:
+        # make a getModel call ~ every n/4 queries - note that this query will NOT be included in the predict
+        experiment = butler.experiment.get()
+        d = experiment['args']['d']
+        if num_reported_answers % ((d+4)/4) == 0:
             butler.job('getModel', json.dumps({'exp_uid':exp_uid,'args':{'alg_label':query['alg_label'], 'logging':True}}))
-        q = [left_id, right_id,center_id] if target_winner==left_id else [right_id, left_id,center_id]
+        
 
-        algs_args_dict = {'left_id':left_id, 'right_id':right_id, 'center_id':center_id, 'target_winner':target_winner}
-        query_update = {'target_winner':target_winner, 'q':q}
+        algs_args_dict = {'target_index':target['target_id'],'target_label':target_label}
+        query_update = {'target_index':target['target_id'],'target_label':target_label}
         return query_update,algs_args_dict
 
     def getModel(self, exp_uid, alg_response, args_dict, butler):
-        return {'Xd':alg_response[0], 'num_reported_answers':alg_response[1]}
+        return {'weights':alg_response[0], 'num_reported_answers':alg_response[1]}
 
     def getStats(self, exp_uid, stats_request, dashboard, butler):
         stat_id = stats_request['args']['stat_id']
@@ -70,7 +60,6 @@ class PoolBasedTripletMDS(object):
                      'compute_duration_detailed_stacked_area_plot':dashboard.compute_duration_detailed_stacked_area_plot,
                      'response_time_histogram':dashboard.response_time_histogram,
                      'network_delay_histogram':dashboard.network_delay_histogram,
-                     'most_current_embedding':dashboard.most_current_embedding,
                      'test_error_multiline_plot':dashboard.test_error_multiline_plot}
         
         default = [self.app_id, exp_uid]
@@ -79,7 +68,6 @@ class PoolBasedTripletMDS(object):
                 'compute_duration_detailed_stacked_area_plot':default + [task, alg_label],
                 'response_time_histogram':default + [alg_label],
                 'network_delay_histogram':default + [alg_label],
-                'most_current_embedding':default + [alg_label],
                 'test_error_multiline_plot':default}
         
         return functions[stat_id](*args[stat_id])

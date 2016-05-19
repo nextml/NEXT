@@ -32,7 +32,7 @@ class App(object):
         self.helper = Helper()
         self.myApp = __import__('next.apps.Apps.'+self.app_id, fromlist=[''])
         self.myApp = getattr(self.myApp, app_id)
-        self.myApp = self.myApp()
+        self.myApp = self.myApp(db)
         self.butler = Butler(self.app_id, self.exp_uid, self.myApp.TargetManager, db, ell)
         dir,_ = os.path.split(__file__)
         with open(os.path.join(dir, "Apps/{}/{}.yaml".format(app_id, app_id)),'r') as f:

@@ -18,13 +18,11 @@ import zipfile
 from io import BytesIO as BytesIO
 
 import next.utils
-import next.broker.broker
 from next.api.api_util import *
 from next.api.api_util import APIArgument
 from next.api.resource_manager import ResourceManager
 
 resource_manager = ResourceManager()
-broker = next.broker.broker.JobBroker()
 
 # Request parser. Checks that necessary dictionary keys are available in a given resource.
 # We rely on learningLib functions to ensure that all necessary arguments are available and parsed. 
