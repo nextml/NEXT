@@ -7,8 +7,8 @@ of an app is verified before creation.
 """
 
 # TODO: include docstrings (copy and paste from PoolBasedTripletsMDS.py)
-import os, sys
-import time
+import os
+import sys
 import numpy
 import numpy.random
 import json
@@ -83,20 +83,7 @@ class App(object):
             traceback.print_tb(exc_traceback)
             return '{}', False, str(error)
 
-    def timeit(fn_name=''):
-        import time
-        def timeit_(func, *args, **kwargs):
-            def timing(*args, **kwargs):
-                start = time.time()
-                r = func(*args, **kwargs)
-                utils.debug_print('')
-                utils.debug_print("function {} took {} seconds".format(fn_name, time.time() - start))
-                utils.debug_print('')
-                return r
-            return timing
-        return timeit_
 
-    @timeit(fn_name='App.py:qetQuery')
     def getQuery(self, exp_uid, args_json):
         try:
     	    args_dict = self.helper.convert_json(args_json)
@@ -155,7 +142,6 @@ class App(object):
             traceback.print_tb(exc_traceback)
             return '{}', False, str(error)
 
-    @timeit(fn_name='App.py:processAnswer')
     def processAnswer(self, exp_uid, args_json):
         try:
             args_dict = self.helper.convert_json(args_json)
