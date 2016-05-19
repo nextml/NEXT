@@ -51,6 +51,19 @@ After speeding up get_X to on the order of 0.2secs:
 | q1 | get_X: 0.144 + 0.02, time_to_invert: 2.2secs, argmax_reward = 65secs
 
 So most of the time is spent in OFUL:argmax
+
+After speeding up argmax:
+
+| Function            | Time (s) (1) | Time (s) 2 | Time (s) 3 |
+| ------------------- | --------     | ---------- | ---------- |
+| myApp:processAnswer | 1.00         | 1.1        | 0.4        |
+| alg:processAnswer   | 2.35         | 1.2        | 1.50       |
+| App:processAnswer   | 3.38         | 2.3        | 1.9        |
+| myApp:getQuery      | 1.29         | 1.43       | 0.73       |
+| alg:getQuery        | 0.49         | 0.39       | 1.56       |
+| App:getQuery        | 3.42         | 3.2        | 2.7        |
+| ------------------- | --------     |            |            |
+| Total               | 6.8          |            |            |
 """
 
 from __future__ import division
@@ -75,7 +88,7 @@ def timeit(fn_name=''):
     return timeit_
 
 @timeit(fn_name="argmax_reward")
-def argmax_reward(X, theta, V, do_not_ask=[], k=0):
+def argmax_reward(X, theta, invV, beta, do_not_ask=[], k=0):
     r"""
     Loop over all columns of X to solve this equation:
 
@@ -88,33 +101,13 @@ def argmax_reward(X, theta, V, do_not_ask=[], k=0):
                # for c in range(X.shape[1])]
     # rewards = np.asarray(rewards)
     # return X[:, np.argmax(rewards)], np.argmax(rewards)
-    utils.debug_print("OFUL28: do_not_ask = {}".format(do_not_ask))
-
     sqrt = np.sqrt
 
-    s = time.time()
-    iV = np.linalg.inv(V)
-    utils.debug_print("time to invert {} matrix = {}".format(iV.shape, time.time() - s))
-
-    s = time.time()
-    rewards = X.T.dot(theta)
-    utils.debug_print("time to calculate rewards dot prod X.T.dot(theta) = {}".format(time.time() - s))
-
-    s = time.time()
-    # rewards += sqrt(k)*sqrt((X * (iV.dot(X))).sum(axis=0))
-    # iVX = (X * (iV.dot(X))).sum(axis=0)
-    iVX = iV.dot(X)
-    utils.debug_print("time to calculate the inner product = {}".format(time.time() - s))
-
-    s = time.time()
-    rewards += sqrt(k)*sqrt((X * iVX).sum(axis=0))
-    utils.debug_print("time to calculate addition  = {}".format(time.time() - s))
-
-    s = time.time()
+    rewards = X.T.dot(theta) + sqrt(k)*sqrt(beta)
     mask = np.ones(X.shape[1], dtype=bool)
     mask[do_not_ask] = False
     rewards = rewards[mask]
-    utils.debug_print("time to calculate mask vector = {}".format(time.time() - s))
+    utils.debug_print("OFUL28: do_not_ask = {}".format(do_not_ask))
     return X[:, np.argmax(rewards)], np.argmax(rewards)
 
 @timeit(fn_name="calc_reward")
@@ -124,7 +117,7 @@ def calc_reward(x, theta, R=2):
 @timeit(fn_name="get_feature_vectors")
 def get_feature_vectors(butler):
     features = np.load('features.npy')
-    utils.debug_print("OFUL 95, features.shape = {}".format(features.shape))
+    utils.debug_print("OFUL.py 120, features.shape = {}".format(features.shape))
     return features
 
 class OFUL(CardinalBanditsFeaturesPrototype):
@@ -147,7 +140,6 @@ class OFUL(CardinalBanditsFeaturesPrototype):
         # setting the target matrix, a description of each target
         # X = np.asarray(params['X'])
         X = get_feature_vectors(butler)
-        utils.debug_print("OFUL88: X.shape = {}".format(X.shape))
         # theta_star = np.asarray(params['theta_star'])
 
         d = X.shape[0]  # number of dimensions in feature
@@ -173,6 +165,7 @@ class OFUL(CardinalBanditsFeaturesPrototype):
 
         return True
 
+    @timeit(fn_name='alg:getQuery')
     def getQuery(self, butler, participant_doc, exp_uid=None, args=None,
                  **kwargs):
         """
@@ -205,10 +198,11 @@ class OFUL(CardinalBanditsFeaturesPrototype):
                                          key_value_dict=participant_doc)
             return None
 
-        if not 'V' in participant_doc.keys():
+        if not 'invV' in participant_doc.keys():
             # * V, b, theta_hat need to be stored per user
 
-            d = {'V': (initExp['lambda_'] * np.eye(initExp['d'])).tolist(),
+            d = {'invV': (np.eye(initExp['d']) / initExp['lambda_']),
+                 'beta': (np.ones(X.shape[1]) / initExp['lambda_']),
                  't': 0,
                  'b': [0]*initExp['d'],
                  'participant_uid': args['participant_uid']}
@@ -219,12 +213,12 @@ class OFUL(CardinalBanditsFeaturesPrototype):
         #     i_star = participant_doc['i_star']
         #     d = {'reward': calc_reward(i_hat, X[:, i_star], R=reward_coeff
         #          * initExp['R']),
-        #          'theta_star': (X[:, i_star]).tolist()}
+        #          'theta_star': (X[:, i_star])}
         #     participant_doc.update(d)
         #     butler.participants.set_many(uid=participant_doc['participant_uid'],
         #                             key_value_dict=participant_doc)            
         if not 'theta_hat' in participant_doc:
-            d = {'theta_hat':X[:, participant_doc['i_hat']].tolist(),}
+            d = {'theta_hat':X[:, participant_doc['i_hat']]}
             participant_doc.update(d)
             butler.participants.set_many(uid=participant_doc['participant_uid'],
                                          key_value_dict=participant_doc)
@@ -235,13 +229,15 @@ class OFUL(CardinalBanditsFeaturesPrototype):
         t = participant_doc['t']
         log_div = (1 + t * 1.0/initExp['lambda_']) * 1.0 / initExp['failure_probability']
         k = initExp['R'] * np.sqrt(initExp['d'] * np.log(log_div)) + np.sqrt(initExp['lambda_'])
-        V = np.array(participant_doc['V'])
+        invV = np.array(participant_doc['invV'])
+        beta = np.array(participant_doc['beta'])
 
         do_not_ask = butler.participants.get(uid=participant_doc['participant_uid'],
                                              key='do_not_ask')
 
-        arm_x, i_x = argmax_reward(X, np.array(participant_doc['theta_hat']),
-                                   V, do_not_ask=do_not_ask, k=k)
+        theta_hat = np.array(participant_doc['theta_hat'])
+        arm_x, i_x = argmax_reward(X, theta_hat, invV, beta,
+                                    do_not_ask=do_not_ask, k=k)
 
         butler.participants.append(uid=participant_doc['participant_uid'],
                                              key='do_not_ask', value=i_x)
@@ -256,6 +252,7 @@ class OFUL(CardinalBanditsFeaturesPrototype):
         #                             key=key, value=participant_doc[key])
         return i_x
 
+    @timeit(fn_name='alg:processAnswer')
     def processAnswer(self, butler, target_id=None,
                       target_reward=None, participant_doc=None):
         """
@@ -276,27 +273,37 @@ class OFUL(CardinalBanditsFeaturesPrototype):
 
         # this makes sure the reward propogates from getQuery to processAnswer
         reward = target_reward
-        utils.debug_print("OFUL:193:processAnswer, reward = {}".format(reward))
 
         # theta_star = np.array(participant_doc['theta_star'])
         X = get_feature_vectors(butler) # np.asarray(args['X'], dtype=float)
         b = np.array(participant_doc['b'], dtype=float)
-        V = np.array(participant_doc['V'], dtype=float)
+        invV = np.array(participant_doc['invV'], dtype=float)
+        beta = np.array(participant_doc['beta'], dtype=float)
+
 
         arm_pulled = X[:, target_id]
 
-        V += np.outer(arm_pulled, arm_pulled)
+        u = invV.dot(arm_pulled)
+
+        invV -= np.outer(u, u) / (1 + np.inner(arm_pulled, u))
+
+        beta -= (X.T.dot(u))**2 / (1 + beta[target_id])
+
+
         b += reward * arm_pulled
-        theta_hat = np.linalg.inv(V).dot(b)
+        theta_hat = invV.dot(b)
 
         # save the results
-        d = {'V': V.tolist(),
-             'b': b.tolist(),
-             'theta_hat':theta_hat.tolist()}
+        d = {'invV': invV,
+             'beta': beta,
+             'b': b,
+             'theta_hat':theta_hat}
         participant_doc.update(d)
 
+        start = time.time()
         butler.participants.set_many(uid=participant_doc['participant_uid'],
                                      key_value_dict=participant_doc)
+        print("set_many {}".format(time.time() - start))
         return True
 
     def getModel(self, butler):

@@ -31,7 +31,7 @@ feature_filenames = [name[0][0][0] for name in names]
 
 image_urls_file = 'urls-50k-launch-python.csv'
 # image_urls_file = 'urls-50k-launch-python.csv'
-image_urls_file = 'urls2k.csv'
+# image_urls_file = 'urls2k.csv'
 # TODO: get rid of this hard-coding, only for testing
 # feature_filenames = feature_filenames[:n + 1]  # hard-coded for urls.csv
 # image_urls_file = '/Users/scott/Dropbox/Public/AllShoes50k.zip'
