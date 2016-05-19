@@ -58,17 +58,18 @@ def OFUL(X=None, R=None, theta_hat=None, theta_star=None, V=None, S=1, T=25,
         arms += [i_x]
         # print(t, "-- arm #", i_x, "reward =", r[-1])
 
-        if PRINT:
-            print((("||x|| = {:0.2}, ||optimal arm|| = {:0.2}, reward(x) = " +
-                   "{:0.2}").format(np.linalg.norm(x), np.linalg.norm(theta_star),
-                                    rewards[-1])))
+        # if PRINT:
+            # print((("||x|| = {:0.2}, ||optimal arm|| = {:0.2}, reward(x) = " +
+                   # "{:0.2}").format(np.linalg.norm(x), np.linalg.norm(theta_star),
+                                    # rewards[-1])))
 
         V += np.outer(x, x)
         b += rewards[-1] * x
         theta_hat = np.linalg.inv(V).dot(b)
 
-        # if PRINT:
-        # print("theta = {}, x = {}, k = {}".format(theta_hat, x, k_t))
+        if PRINT:
+            norm = np.linalg.norm
+            print("||theta_hat - theta_star|| = {}".format(norm(theta_hat - theta_star)))
     return theta_hat, np.asarray(rewards), arms
 
 def test_OFUL(theta_star, T=50, PRINT=False):
@@ -97,8 +98,6 @@ def test_OFUL(theta_star, T=50, PRINT=False):
     reward_star = np.inner(theta_star, x_star)
 
     diff = np.linalg.norm(theta_star - theta_hat)
-    if PRINT:
-        print([np.linalg.norm(t) for t in [theta_star, theta_hat, theta_star - theta_hat]])
 
     return rewards, reward_star, diff, theta_hat
 
@@ -109,7 +108,7 @@ def test_OFUL(theta_star, T=50, PRINT=False):
 # np.random.seed(43)  # again quick convergence
 np.random.seed(42)
 T = 50
-d, n = (3, 200)
+d, n = (10, 2000)
 
 delta = 0.1  # failure probability
 
@@ -121,8 +120,8 @@ theta_star /= np.linalg.norm(theta_star)
 X = np.random.randn(d, n)
 X = normalize(X, axis=0)
 
-N_trials = 100
-output = [test_OFUL(theta_star, T=T) for _ in range(N_trials)]
+N_trials = 1
+output = [test_OFUL(theta_star, T=T, PRINT=True) for _ in range(N_trials)]
 rewards = np.array([o[0] for o in output]).sum(axis=0) / N_trials
 reward_star = np.array([o[1] for o in output]).sum() / N_trials
 diffs = np.array([o[2] for o in output])
@@ -136,19 +135,19 @@ theory = fn(x, *variables)
 
 print(r"average ||theta - theta_hat||_2 = {}".format(diff))
 
-plt.figure()
-plt.subplot(1, 2, 1)
-plt.hist(diffs, bins=20)
-plt.title(r'Histogram of $||\theta - \hat{\theta}||$')
-plt.xlabel(r'$||\theta - \hat{\theta}||$')
-plt.ylabel('Number of occurences')
+# plt.figure()
+# plt.subplot(1, 2, 1)
+# plt.hist(diffs, bins=20)
+# plt.title(r'Histogram of $||\theta - \hat{\theta}||$')
+# plt.xlabel(r'$||\theta - \hat{\theta}||$')
+# plt.ylabel('Number of occurences')
 
-plt.subplot(1, 2, 2)
-# plt.plot([reward_star] * len(rewards), '--', label='Maximum reward')
-plt.plot(rewards, label='Rewards @ each iteration')
-plt.plot(theory, label='least squares sqrt fit')
-plt.title('Rewards (d={}, n_arms={})'.format(d, n))
-plt.xlabel('Iteration')
-plt.ylabel('Reward')
-plt.legend(loc='best')
-plt.show()
+# plt.subplot(1, 2, 2)
+# # plt.plot([reward_star] * len(rewards), '--', label='Maximum reward')
+# plt.plot(rewards, label='Rewards @ each iteration')
+# plt.plot(theory, label='least squares sqrt fit')
+# plt.title('Rewards (d={}, n_arms={})'.format(d, n))
+# plt.xlabel('Iteration')
+# plt.ylabel('Reward')
+# plt.legend(loc='best')
+# plt.show()

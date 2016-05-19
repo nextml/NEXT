@@ -81,17 +81,40 @@ def argmax_reward(X, theta, V, do_not_ask=[], k=0):
 
         \widehat{x} = \arg \min_{x \in X} x^T theta + k x^T V^{-1} x
     """
+    # inv = np.linalg.inv
+    # norm = np.linalg.norm
+    # iV = np.linalg.inv(V)
+    # rewards = [np.inner(X[:, c], theta) + k*np.inner(X[:, c], iV.dot(X[:, c]))
+               # for c in range(X.shape[1])]
+    # rewards = np.asarray(rewards)
+    # return X[:, np.argmax(rewards)], np.argmax(rewards)
     utils.debug_print("OFUL28: do_not_ask = {}".format(do_not_ask))
 
     sqrt = np.sqrt
+
     s = time.time()
     iV = np.linalg.inv(V)
     utils.debug_print("time to invert {} matrix = {}".format(iV.shape, time.time() - s))
-    rewards = X.T.dot(theta) + sqrt(k)*sqrt((X * (iV.dot(X))).sum(axis=0))
 
+    s = time.time()
+    rewards = X.T.dot(theta)
+    utils.debug_print("time to calculate rewards dot prod X.T.dot(theta) = {}".format(time.time() - s))
+
+    s = time.time()
+    # rewards += sqrt(k)*sqrt((X * (iV.dot(X))).sum(axis=0))
+    # iVX = (X * (iV.dot(X))).sum(axis=0)
+    iVX = iV.dot(X)
+    utils.debug_print("time to calculate the inner product = {}".format(time.time() - s))
+
+    s = time.time()
+    rewards += sqrt(k)*sqrt((X * iVX).sum(axis=0))
+    utils.debug_print("time to calculate addition  = {}".format(time.time() - s))
+
+    s = time.time()
     mask = np.ones(X.shape[1], dtype=bool)
     mask[do_not_ask] = False
     rewards = rewards[mask]
+    utils.debug_print("time to calculate mask vector = {}".format(time.time() - s))
     return X[:, np.argmax(rewards)], np.argmax(rewards)
 
 @timeit(fn_name="calc_reward")
@@ -103,21 +126,6 @@ def get_feature_vectors(butler):
     features = np.load('features.npy')
     utils.debug_print("OFUL 95, features.shape = {}".format(features.shape))
     return features
-
-    # targets = butler.targets.get_targetset(butler.exp_uid, pop=False)
-    # utils.debug_print(type(targets))
-    # features_vecs = [target['feature_vector'] for target in targets]
-    # X = np.array(features_vecs).T
-    # utils.debug_print("OFUL:56, X.shape = {}".format(X.shape))
-    # return X
-    # return butler.targets.features
-    # utils.debug_print("oFUL:53, before getting X")
-    # n = butler.experiment.get(key='args')['n']
-    # X = [butler.targets.get_target_item(butler.exp_uid, i)['feature_vector']
-                                            # for i in range(n)]
-    # Y = np.array(X).T
-    # utils.debug_print("oFUL:58, done getting X")
-    # return Y
 
 class OFUL(CardinalBanditsFeaturesPrototype):
     def initExp(self, butler, params=None, n=None, R=None,
