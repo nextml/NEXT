@@ -54,7 +54,7 @@ So most of the time is spent in OFUL:argmax
 
 After speeding up argmax:
 
-| Function            | Time 1   | Time 2 | Time 3 | Time 4 |
+| Function            | Time 0   | Time 1 | Time 2 | Time 3 |
 | ------------------- | -----    | -----  | ------ |        |
 | myApp:processAnswer | 1.00     | 1.1    | 0.4    | 0.33   |
 | alg:processAnswer   | 2.35     | 1.2    | 1.50   | 1.14   |
@@ -64,6 +64,22 @@ After speeding up argmax:
 | App:getQuery        | 3.42     | 3.2    | 2.7    |        |
 | ------------------- | -------- |        |        |        |
 | Total               | 6.8      |        |        |        |
+
+0. speeds up calculating V^{-1}
+1. speeds up arg max
+2.5 Moves from 2k to 50k shoes?
+2. speeds up storing long lists in database
+3. merge Kevin's changes from #101 in.
+
+| Task                  | Time |
+| load                  | 1.7  |
+| choosing initial shoe | 6.5  |
+| q1 yes/no             | 3.6  |
+| q2 yes/no             | 3.6  |
+| q3 yes/no             | 3.8  |
+
+alg:processAnswer bottleneck: PermStore:set_many, MongoDB:update_one
+alg:getQuery 0.5s in PermStore:get, MongoDB:find_one
 """
 
 from __future__ import division
@@ -87,7 +103,6 @@ def timeit(fn_name=''):
         return timing
     return timeit_
 
-@timeit(fn_name="argmax_reward")
 def argmax_reward(X, theta, invV, beta, do_not_ask=[], k=0):
     r"""
     Loop over all columns of X to solve this equation:
@@ -198,15 +213,20 @@ class OFUL(CardinalBanditsFeaturesPrototype):
                                          key_value_dict=participant_doc)
             return None
 
-        if not 'invV' in participant_doc.keys():
+        if not 'invV_filename' in participant_doc.keys():
             # * V, b, theta_hat need to be stored per user
 
-            d = {'invV': (np.eye(initExp['d']) / initExp['lambda_']),
-                 'beta': (np.ones(X.shape[1]) / initExp['lambda_']),
+            d = {'invV_filename': '{}.npy'.format(time.time() * 100), #np.eye(initExp['d']) / initExp['lambda_'],
+                 'beta': np.ones(X.shape[1]) / initExp['lambda_'],
                  't': 0,
-                 'b': [0]*initExp['d'],
+                 'b': np.zeros(initExp['d']),
                  'participant_uid': args['participant_uid']}
             participant_doc.update(d)
+
+            invV = np.eye(initExp['d']) / initExp['lambda_']
+            utils.debug_print("232 saving " + participant_doc['invV_filename'])
+            np.save(participant_doc['invV_filename'], invV)
+
             butler.participants.set_many(uid=participant_doc['participant_uid'],
                                          key_value_dict=participant_doc)
         # if not 'theta_star' in participant_doc:
@@ -218,6 +238,7 @@ class OFUL(CardinalBanditsFeaturesPrototype):
         #     butler.participants.set_many(uid=participant_doc['participant_uid'],
         #                             key_value_dict=participant_doc)            
         if not 'theta_hat' in participant_doc:
+            utils.debug_print("OFUL:242, opening DB connection?")
             d = {'theta_hat':X[:, participant_doc['i_hat']]}
             participant_doc.update(d)
             butler.participants.set_many(uid=participant_doc['participant_uid'],
@@ -229,7 +250,10 @@ class OFUL(CardinalBanditsFeaturesPrototype):
         t = participant_doc['t']
         log_div = (1 + t * 1.0/initExp['lambda_']) * 1.0 / initExp['failure_probability']
         k = initExp['R'] * np.sqrt(initExp['d'] * np.log(log_div)) + np.sqrt(initExp['lambda_'])
-        invV = np.array(participant_doc['invV'])
+
+        # invV = np.array(participant_doc['invV'])
+        utils.debug_print("268 loading " + participant_doc['invV_filename'])
+        invV = np.load(participant_doc['invV_filename'])
         beta = np.array(participant_doc['beta'])
 
         do_not_ask = butler.participants.get(uid=participant_doc['participant_uid'],
@@ -241,6 +265,7 @@ class OFUL(CardinalBanditsFeaturesPrototype):
 
         butler.participants.append(uid=participant_doc['participant_uid'],
                                              key='do_not_ask', value=i_x)
+
         # reward = calc_reward(arm_x, np.array(participant_doc['theta_star']),
         #                      R=reward_coeff * initExp['R'])
         # # allow reward to propograte forward to other functions; it's
@@ -277,7 +302,9 @@ class OFUL(CardinalBanditsFeaturesPrototype):
         # theta_star = np.array(participant_doc['theta_star'])
         X = get_feature_vectors(butler) # np.asarray(args['X'], dtype=float)
         b = np.array(participant_doc['b'], dtype=float)
-        invV = np.array(participant_doc['invV'], dtype=float)
+        # invV = np.array(participant_doc['invV'], dtype=float)
+        utils.debug_print("325 loading " + participant_doc['invV_filename'])
+        invV = np.load(participant_doc['invV_filename'])
         beta = np.array(participant_doc['beta'], dtype=float)
 
 
@@ -294,16 +321,17 @@ class OFUL(CardinalBanditsFeaturesPrototype):
         theta_hat = invV.dot(b)
 
         # save the results
-        d = {'invV': invV,
+        d = {#'invV': invV,
              'beta': beta,
              'b': b,
              'theta_hat':theta_hat}
         participant_doc.update(d)
 
-        start = time.time()
+        utils.debug_print("348 saving " + participant_doc['participant_uid'])
+        np.save(participant_doc['invV_filename'], invV)
+
         butler.participants.set_many(uid=participant_doc['participant_uid'],
                                      key_value_dict=participant_doc)
-        print("set_many {}".format(time.time() - start))
         return True
 
     def getModel(self, butler):
