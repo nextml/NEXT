@@ -211,6 +211,9 @@ class PermStore(object):
         elif isinstance(input_val, np.ndarray):
             input_val = input_val.tolist()
         elif isinstance(input_val,list):
+            start = time.time()
+            if len(input_val) > 100 and type(input_val) in {int, float, complex, long}:
+                return input_val
             for idx in range(len(input_val)):
                 input_val[idx] = self.makeProperDatabaseFormat(input_val[idx])
         elif isinstance(input_val, basestring):
@@ -230,7 +233,7 @@ class PermStore(object):
             for key in input_val:
                 input_val[key] = self.undoDatabaseFormat(input_val[key])
         elif isinstance(input_val,list):
-            if len(input_val) > 900 and type(input_val[0]) in {int, float, long, complex}:
+            if len(input_val) > 100 and type(input_val[0]) in {int, float, long, complex}:
                 return input_val
             for idx in range(len(input_val)):
                 input_val[idx] = self.undoDatabaseFormat(input_val[idx])
