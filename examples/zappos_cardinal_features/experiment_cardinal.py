@@ -50,7 +50,7 @@ n = num_arms
 delta = 0.05
 supported_alg_ids = ['OFUL']
 
-labels = [{'label':'no', 'reward':0.0},
+labels = [{'label':'no', 'reward':-1.0},
           {'label':'yes','reward':1.0}]
 R = 1.0
 

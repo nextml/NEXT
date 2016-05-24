@@ -236,7 +236,7 @@ class OFUL(CardinalBanditsFeaturesPrototype):
         #          'theta_star': (X[:, i_star])}
         #     participant_doc.update(d)
         #     butler.participants.set_many(uid=participant_doc['participant_uid'],
-        #                             key_value_dict=participant_doc)            
+        #                             key_value_dict=participant_doc)
         if not 'theta_hat' in participant_doc:
             utils.debug_print("OFUL:242, opening DB connection?")
             d = {'theta_hat':X[:, participant_doc['i_hat']]}
@@ -298,6 +298,7 @@ class OFUL(CardinalBanditsFeaturesPrototype):
 
         # this makes sure the reward propogates from getQuery to processAnswer
         reward = target_reward
+        utils.debug_print("OFUL:301 reward of answer = {}".format(reward))
 
         # theta_star = np.array(participant_doc['theta_star'])
         X = get_feature_vectors(butler) # np.asarray(args['X'], dtype=float)
@@ -315,7 +316,6 @@ class OFUL(CardinalBanditsFeaturesPrototype):
         invV -= np.outer(u, u) / (1 + np.inner(arm_pulled, u))
 
         beta -= (X.T.dot(u))**2 / (1 + beta[target_id])
-
 
         b += reward * arm_pulled
         theta_hat = invV.dot(b)
