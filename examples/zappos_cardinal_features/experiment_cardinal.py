@@ -28,6 +28,7 @@ feature_filenames = pickle.load(open(input_dir + 'filenames.pkl', 'rb'))
 names = loadmat('/Users/scott/Desktop/Rudi-features-matlab/ColorLabel_new.mat')
 names = names['Names']
 feature_filenames = [name[0][0][0] for name in names]
+feature_filenames = feature_filenames[:10]
 
 image_urls_file = 'urls-50k-launch-python.csv'
 # image_urls_file = 'urls-50k-launch-python.csv'
@@ -48,11 +49,10 @@ n = num_arms
 # X[0] = [0, 1, 2, 3]
 
 delta = 0.05
-supported_alg_ids = ['OFUL']
 
 labels = [{'label':'no', 'reward':-1.0},
           {'label':'yes','reward':1.0}]
-R = 1.0
+R = 2.0
 
 true_means = numpy.array(range(num_arms)[::-1]) / float(num_arms)
 total_pulls_per_client = 200
@@ -68,6 +68,7 @@ experiment_list = []
 
 # algs in next/apps/Apps/CardinalBanditsPureExploration/algs/
 supported_alg_ids = ['OFUL']
+supported_alg_ids = ['RandomSampling']
 
 # Algorithm List. These algorithms are independent (no inter-connectedness
 # between algorithms) and each algorithm gets `proportion` number of queries
