@@ -26,6 +26,7 @@ import sys
 from sklearn.preprocessing import normalize
 import pickle
 import os
+norm = np.linalg.norm
 
 HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')+':'+os.environ.get('NEXT_BACKEND_GLOBAL_PORT', '8000')
 
@@ -39,140 +40,42 @@ def run_all(assert_200, home_dir='/Users/scott/', total_pulls_per_client=5,
     num_clients: Using multiprocessing library, how many simultaneous clients
     to run?
     """
-    # feature matrix
-    features_matrix_url = 'https://dl.dropboxusercontent.com/u/9160935/features_allshoes_8_normalized.mat'
+    ### BEGIN params to change
+    # The experiment we have launched via the `NEXT/examples/zappos/` dir
+    exp_uid = '4158d26749ae14ab4191cb1c29b6b7'
 
-    # The filenames of the images to each filename
-    names = loadmat('/Users/scott/Desktop/Rudi-features-matlab/ColorLabel_new.mat')
-    names = names['Names']
-    feature_filenames = [name[0][0][0] for name in names]
-
-    # the locations of the images
-    image_urls_file = 'urls-50k-launch-python.csv'
-
-    # for testing purposes only
-    num_arms = n = 100
-    feature_filenames = feature_filenames[:num_arms]
-
-    # this experiment will only be performed over one experiment
-    supported_alg_ids = ['OFUL']#, 'RandomSampling']
+    # We need X and i_star to decide what answer to give
+    # the feature matrix
+    X = np.load('results/features_matrix.npy')
 
     # the index of the "ground truth" arm
-    i_star = num_arms // 2
-    X = loadmat(home_dir + 'Desktop/Rudi-features-matlab/features_allshoes_8_normalized.mat')['features_all']
+    i_star = X.shape[1] // 2
+    # END parameter to tune
 
-    app_id = 'ImageSearch'
+    num_arms = n = X.shape[1]
 
-    # loading the filenames of which columns in feature_matrix correspond
-    # to which images
-    # input_dir =
-    # '/Users/scott/Developer/NEXT/examples/zappos_cardinal_features/'
-    # feature_filenames = pickle.load(open(input_dir + 'filenames.pkl', 'rb'))
-
-    # num_features, num_arms = (2, 400)    # X \in {num_features x num_arms}
-
-    # X = np.random.rand(num_features, num_arms)
-    # X = normalize(X, axis=0)
-    # X = X[:num_features, :num_arms]
-    # print "X \in R^{}".format(X.shape)
-
-    true_means = numpy.array(range(num_arms)[::-1]) / float(num_arms)
+    # Because the filenames are in a .mat file, play with formatting them
+    # names = names['Names']
+    # feature_filenames = [name[0][0][0] for name in names]
 
     pool = Pool(processes=num_clients)
 
-
-    # input test parameters
-    # n = num_arms
-    delta = 0.05
-
-    labels = [{'label':'no','reward':-1.}, {'label':'yes','reward':1.}]
-
-    alg_list = []
-    for i, alg_id in enumerate(supported_alg_ids):
-        alg_item = {}
-        alg_item['alg_id'] = alg_id
-        alg_item['alg_label'] = alg_id+'_'+str(i)
-        # if 'OFUL' in supported_alg_ids:
-            # theta_star = np.random.randn(X.shape[0])
-            # theta_star /= np.linalg.norm(theta_star)
-            # print(X.shape)
-        alg_item['params'] = {}#{'X':X.tolist(), 'theta_star':theta_star.tolist() }
-        #alg_item['params'] = {}
-        alg_list.append(alg_item)
-    params = []
-    #params['proportions'] = []
-    for algorithm in alg_list:
-        params.append(    { 'alg_label': algorithm['alg_label'] , 'proportion':1./len(alg_list) }    )
-    algorithm_management_settings = {}
-    algorithm_management_settings['mode'] = 'fixed_proportions'
-    algorithm_management_settings['params'] = params
-
-    # print algorithm_management_settings
-
-    #################################################
-    # Test POST Experiment
-    #################################################
-    initExp_args_dict = {}
-    initExp_args_dict['args'] = {}
-
-    initExp_args_dict['args']['features'] = features_matrix_url
-    initExp_args_dict['args']['feature_filenames'] = feature_filenames
-    initExp_args_dict['args']['targets'] = {'n':n}
-    initExp_args_dict['args']['failure_probability'] = delta
-    initExp_args_dict['args']['participant_to_algorithm_management'] = 'one_to_many' # 'one_to_one'    #optional field
-    initExp_args_dict['args']['algorithm_management_settings'] = algorithm_management_settings #optional field
-    initExp_args_dict['args']['alg_list'] = alg_list #optional field
-    initExp_args_dict['args']['instructions'] = 'You want instructions, here are your test instructions'
-    initExp_args_dict['args']['debrief'] = 'You want a debrief, here is your test debrief'
-    initExp_args_dict['args']['context_type'] = 'text'
-    initExp_args_dict['args']['context'] = 'This is a context'
-    initExp_args_dict['args']['rating_scale'] = {'labels':labels}
-    initExp_args_dict['app_id'] = app_id
-
-    exp_info = []
-    for ell in range(num_experiments):
-        url = "http://"+HOSTNAME+"/api/experiment"
-        response = requests.post(url, json.dumps(initExp_args_dict), headers={'content-type':'application/json'})
-        if PRINT:
-            print "POST initExp response =", response.text, response.status_code
-
-        if assert_200: assert response.status_code is 200
-        initExp_response_dict = json.loads(response.text)
-        if 'fail' in initExp_response_dict['meta']['status'].lower():
-                print initExp_response_dict
-                print 'The experiment initialization failed... exiting'
-                sys.exit()
-
-        exp_uid = initExp_response_dict['exp_uid']
-
-        exp_info.append( {'exp_uid':exp_uid,} )
-
-        #################################################
-        # Test GET Experiment
-        #################################################
-        url = "http://"+HOSTNAME+"/api/experiment/"+exp_uid
-        response = requests.get(url)
-        if PRINT:
-            print "GET experiment response =",response.text, response.status_code
-        if assert_200: assert response.status_code is 200
-        initExp_response_dict = json.loads(response.text)
+    # Testing the responses
+    url = "http://"+HOSTNAME+"/api/experiment/"+exp_uid
+    response = requests.get(url)
+    if PRINT:
+        print "GET experiment response =",response.text, response.status_code
+    if assert_200: assert response.status_code is 200
+    initExp_response_dict = json.loads(response.text)
+    alg_list = initExp_response_dict['args']['alg_list']
+    alg_names = [alg['alg_label'] for alg in alg_list]
 
 
-
-    ###################################
-    # Generate participants
-    ###################################
-
-    participants = []
-    pool_args = []
-    for i in range(num_clients):
-        participant_uid = '%030x' % random.randrange(16**30)
-        participants.append(participant_uid)
-
-        experiment = numpy.random.choice(exp_info)
-        exp_uid = experiment['exp_uid']
-        pool_args.append((exp_uid, participant_uid, total_pulls_per_client,
-                          i_star, X, assert_200))
+    # TODO: use more participants to average the errors.
+    # Generate a single participant
+    participant_uid = '%030x' % random.randrange(16**30)
+    pool_args = [(exp_uid, participant_uid, total_pulls_per_client,
+                 i_star, X, assert_200)]
 
     # results = pool.map(simulate_one_client, pool_args)
     results = map(simulate_one_client, pool_args)
@@ -183,7 +86,7 @@ def run_all(assert_200, home_dir='/Users/scott/', total_pulls_per_client=5,
     time_id = datetime.now().isoformat()[:10]
     if not time_id in os.listdir('results/'):
         os.mkdir('results/{}'.format(time_id))
-    filename = 'results/{}/i_hats_{}.pkl'.format(time_id, supported_alg_ids)
+    filename = 'results/{}/i_hats_{}.pkl'.format(time_id, alg_names)
     filename = filename.strip(' ').strip("'").strip('[').strip(']')
     print('\nWriting results to file {}\n'.format(filename))
     pickle.dump(exp_params_to_save, open(filename, 'w'))
@@ -193,9 +96,8 @@ def run_all(assert_200, home_dir='/Users/scott/', total_pulls_per_client=5,
 
 
 
-def simulate_one_client(input_args):
+def simulate_one_client(input_args, avg_response_time=0.1):
     exp_uid, participant_uid, total_pulls, i_star, X, assert_200 = input_args
-    avg_response_time = 1.
 
     getQuery_times = []
     processAnswer_times = []
@@ -236,7 +138,7 @@ def simulate_one_client(input_args):
             # targets = query_dict['targets'][0]['index']
             i_hat = query_dict['targets'][0]['index']
             i_hats += [i_hat]
-            answer = 1 if random.random() > 0.5 else -1
+            answer = 1 if norm(X[:, i_star] - X[:, i_hat]) < 0.1 else 0
             answer_key = 'target_reward'
 
         # generate simulated reward #

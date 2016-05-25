@@ -1,0 +1,17 @@
+(dp0
+S'i_star'
+p1
+I50
+sS'i_hats'
+p2
+(lp3
+I93
+aI40
+aI29590
+aI37607
+aI44
+asS'features_matrix_url'
+p4
+S'https://dl.dropboxusercontent.com/u/9160935/features_allshoes_8_normalized.mat'
+p5
+s.
