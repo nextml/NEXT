@@ -5,6 +5,7 @@ from pprint import pprint
 import traceback
 import sys
 import os
+import next.utils as utils
 
 def verify(input_dict, reference_dict):
     """
@@ -73,7 +74,7 @@ def verify_helper(name, input_element, reference_dict):
             ans += [{"name":name, "message":"invalid boolean"}]
 
     elif reference_dict['type'] == 'num':
-        if not isinstance(input_element, (int, long, float)):
+        if not isinstance(input_element, (int, long, float, complex)):
             ans += [{"name":name, "message":"invalid number"}]
 
     elif reference_dict['type'] == 'str' or reference_dict['type'] == 'multiline':
