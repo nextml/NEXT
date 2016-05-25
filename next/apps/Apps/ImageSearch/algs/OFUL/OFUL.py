@@ -123,7 +123,6 @@ def argmax_reward(X, theta, invV, beta, do_not_ask=[], k=0):
     rewards[do_not_ask] = -np.inf
     return X[:, np.argmax(rewards)], np.argmax(rewards)
 
-@timeit(fn_name="calc_reward")
 def calc_reward(x, theta, R=2):
     return np.inner(x, theta) + R*np.random.randn()
 
@@ -214,7 +213,7 @@ class OFUL(ImageSearchPrototype):
         if not 'invV_filename' in participant_doc.keys():
             # * V, b, theta_hat need to be stored per user
 
-            d = {'invV_filename': '{}.npy'.format(time.time() * 100), #np.eye(initExp['d']) / initExp['lambda_'],
+            d = {'invV_filename': 'invV_{}.npy'.format(time.time() * 100), #np.eye(initExp['d']) / initExp['lambda_'],
                  'beta': np.ones(X.shape[1]) / initExp['lambda_'],
                  't': 0,
                  'b': np.zeros(initExp['d']),
@@ -222,7 +221,6 @@ class OFUL(ImageSearchPrototype):
             participant_doc.update(d)
 
             invV = np.eye(initExp['d']) / initExp['lambda_']
-            utils.debug_print("232 saving " + participant_doc['invV_filename'])
             np.save(participant_doc['invV_filename'], invV)
 
             butler.participants.set_many(uid=participant_doc['participant_uid'],
