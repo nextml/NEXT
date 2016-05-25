@@ -56,7 +56,6 @@ class ImageSearch(object):
             new_target_idx = [feature_filenames.index(target)
                                         for  target in target_filenames]
             new_targetset = []
-            utils.debug_print(exp_data['args'].keys())
 
             utils.debug_print("image search:48, beginning to download features")
             response = requests.get(exp_data['args']['features'])
@@ -65,14 +64,13 @@ class ImageSearch(object):
 
             X = variables['features_all'].T
             np.save('features.npy', X)
-            utils.debug_print("X.shape = {}".format(X.shape))
+            utils.debug_print("X.shape = {}, meaning {} shoes with {} features".format(X.shape, X.shape[1], X.shape[0]))
 
             for col, target in zip(new_target_idx,
                                    exp_data['args']['targets']['targetset']):
                 # target['feature_vector'] = X[:, col].tolist()
                 new_targetset += [target]
 
-            utils.debug_print("CardFeat:64, {}".format(len(new_targetset)))
             self.TargetManager.set_targetset(exp_uid, new_targetset)
 
             # old code, expanded by the for-loop above

@@ -117,12 +117,10 @@ def argmax_reward(X, theta, invV, beta, do_not_ask=[], k=0):
     # rewards = np.asarray(rewards)
     # return X[:, np.argmax(rewards)], np.argmax(rewards)
     sqrt = np.sqrt
+    utils.debug_print("OFUL28: do_not_ask = {}".format(do_not_ask))
 
     rewards = X.T.dot(theta) + sqrt(k)*sqrt(beta)
-    mask = np.ones(X.shape[1], dtype=bool)
-    mask[do_not_ask] = False
-    rewards = rewards[mask]
-    utils.debug_print("OFUL28: do_not_ask = {}".format(do_not_ask))
+    rewards[do_not_ask] = -np.inf
     return X[:, np.argmax(rewards)], np.argmax(rewards)
 
 @timeit(fn_name="calc_reward")
@@ -238,7 +236,6 @@ class OFUL(ImageSearchPrototype):
         #     butler.participants.set_many(uid=participant_doc['participant_uid'],
         #                             key_value_dict=participant_doc)
         if not 'theta_hat' in participant_doc:
-            utils.debug_print("OFUL:242, opening DB connection?")
             d = {'theta_hat':X[:, participant_doc['i_hat']]}
             participant_doc.update(d)
             butler.participants.set_many(uid=participant_doc['participant_uid'],
@@ -252,7 +249,6 @@ class OFUL(ImageSearchPrototype):
         k = initExp['R'] * np.sqrt(initExp['d'] * np.log(log_div)) + np.sqrt(initExp['lambda_'])
 
         # invV = np.array(participant_doc['invV'])
-        utils.debug_print("268 loading " + participant_doc['invV_filename'])
         invV = np.load(participant_doc['invV_filename'])
         beta = np.array(participant_doc['beta'])
 
@@ -304,7 +300,6 @@ class OFUL(ImageSearchPrototype):
         X = get_feature_vectors(butler) # np.asarray(args['X'], dtype=float)
         b = np.array(participant_doc['b'], dtype=float)
         # invV = np.array(participant_doc['invV'], dtype=float)
-        utils.debug_print("325 loading " + participant_doc['invV_filename'])
         invV = np.load(participant_doc['invV_filename'])
         beta = np.array(participant_doc['beta'], dtype=float)
 
@@ -312,7 +307,6 @@ class OFUL(ImageSearchPrototype):
         arm_pulled = X[:, target_id]
 
         u = invV.dot(arm_pulled)
-
         invV -= np.outer(u, u) / (1 + np.inner(arm_pulled, u))
 
         beta -= (X.T.dot(u))**2 / (1 + beta[target_id])
@@ -327,7 +321,6 @@ class OFUL(ImageSearchPrototype):
              'theta_hat':theta_hat}
         participant_doc.update(d)
 
-        utils.debug_print("348 saving " + participant_doc['participant_uid'])
         np.save(participant_doc['invV_filename'], invV)
 
         butler.participants.set_many(uid=participant_doc['participant_uid'],

@@ -13,7 +13,10 @@ import time
 
 # TODO: update to higher dimensions, see if follows sqrt(t) curve
 
-def argmax_reward(X, theta, invV, beta, k=1):
+TAKE_SIGN = False
+USE_DO_NOT_ASK = True
+
+def argmax_reward(X, theta, invV, beta, k=1, do_not_ask=None):
     r"""
     Loop over all columns of X to solve this equation:
 
@@ -23,27 +26,37 @@ def argmax_reward(X, theta, invV, beta, k=1):
     norm = np.linalg.norm
     sqrt = np.sqrt
 
-    start = time.time()
-    rewards1 = [np.inner(X[:, c], theta) +
-               sqrt(k)*sqrt(np.inner(X[:, c], invV.dot(X[:, c])))
-               for c in range(X.shape[1])]
-    print("naïve approach: {:0.3e}".format(time.time() - start))
+    # start = time.time()
+    # rewards1 = [np.inner(X[:, c], theta) +
+               # sqrt(k)*sqrt(np.inner(X[:, c], invV.dot(X[:, c])))
+               # for c in range(X.shape[1])]
+    # print("naïve approach: {:0.3e}".format(time.time() - start))
 
-    start = time.time()
-    rewards2 = X.T.dot(theta) + sqrt(k)*sqrt((X * (invV.dot(X))).sum(axis=0))
-    print("matrix approach: {:0.3e}".format(time.time() - start))
+    # start = time.time()
+    # rewards2 = X.T.dot(theta) + sqrt(k)*sqrt((X * (invV.dot(X))).sum(axis=0))
+    # print("matrix approach: {:0.3e}".format(time.time() - start))
 
     start = time.time()
     rewards = X.T.dot(theta) + sqrt(k)*sqrt(beta)
-    print("beta approach: {:0.3e}".format(time.time() - start))
+    # print("beta approach: {:0.3e}".format(time.time() - start))
 
-    assert np.allclose(rewards1, rewards2)
-    assert np.allclose(rewards2, rewards)
+    # assert np.allclose(rewards1, rewards2)
+    # assert np.allclose(rewards2, rewards)
     rewards = np.asarray(rewards)
+
+    if USE_DO_NOT_ASK:
+        rewards[do_not_ask] = -np.inf
+
+    # mask = np.ones(rewards.shape[0], dtype=bool)
+    # mask[do_not_ask] = False
+    # rewards[~mask] = -np.inf
     return X[:, np.argmax(rewards)], np.argmax(rewards)
 
 def reward(x, theta, R=2):
-    return np.inner(x, theta) + R*np.random.randn()
+    r = np.inner(x, theta) + R*np.random.randn()
+    if TAKE_SIGN:
+        return np.sign(r)
+    return r
 
 def OFUL(X=None, R=None, theta_hat=None, theta_star=None, invV=None, S=1, T=25,
          d=None, n=None, lambda_=None, PRINT=False):
@@ -68,13 +81,16 @@ def OFUL(X=None, R=None, theta_hat=None, theta_star=None, invV=None, S=1, T=25,
     beta = np.ones(n) / lambda_
     print("Arms = \n{}".format(X.T))
     V = lambda_ * np.eye(d)
+    rel_errors = []
     for t in 1 + np.arange(T):
         k = R * np.sqrt(d*np.log((1 + t/lambda_) / delta)) + np.sqrt(lambda_)
 
-        x, i_x = argmax_reward(X, theta_hat, invV, beta, k=k)
+        x, i_x = argmax_reward(X, theta_hat, invV, beta, k=k,
+                               do_not_ask=arms)
         # TODO: this R needs to be tuned!
-        rewards += [reward(x, theta_star, R=0.01*R)]
+        rewards += [reward(x, theta_star, R=R)]
         arms += [i_x]
+        print("arm pulled = {}".format(i_x))
         # print(t, "-- arm #", i_x, "reward =", r[-1])
 
         # if PRINT:
@@ -101,9 +117,9 @@ def OFUL(X=None, R=None, theta_hat=None, theta_star=None, invV=None, S=1, T=25,
 
         if PRINT:
             norm = np.linalg.norm
-            print("||theta_hat - theta_star|| = {}".format(norm(theta_hat - theta_star)))
-
-    return theta_hat, np.asarray(rewards), arms
+            print("||theta_hat - theta_star|| = {} @ {}".format(norm(theta_hat - theta_star), t)) 
+        rel_errors += [norm(theta_hat - theta_star)]
+    return theta_hat, np.asarray(rewards), arms, rel_errors
 
 def test_OFUL(theta_star, T=50, PRINT=False):
     R = 2  # the std.dev for a sub-gaussian random variable
@@ -122,14 +138,32 @@ def test_OFUL(theta_star, T=50, PRINT=False):
 
     invV = np.eye(d) / lambda_
 
-    theta_hat, rewards, arms = OFUL(X=X, R=R, theta_hat=theta_hat,
+    theta_hat, rewards, arms, rel_errors = OFUL(X=X, R=R, theta_hat=theta_hat,
                                     theta_star=theta_star, invV=invV, d=d, n=n, T=T,
                                     lambda_=lambda_, PRINT=PRINT)
     norm = np.linalg.norm
     print("||theta_final - theta_star|| = {}".format(norm(theta_hat -
         theta_star)))
-    plt.figure()
+    plt.figure(figsize=(16, 8))
+    plt.subplot(1, 3, 1)
+    plt.title('Rewards')
     plt.plot(np.cumsum(r_star - rewards))
+    plt.ylabel('cumsum(reward_star - rewards)')
+    plt.xticks(rotation=90)
+
+    plt.subplot(1, 3, 2)
+    plt.title('Relative error between\n truth $\\theta^\\star$ and estimate $\\widehat{\\theta}$')
+    plt.ylabel(r'$\|\theta^\star - \widehat{\theta} \|_2$')
+    plt.plot(rel_errors)
+    plt.xticks(rotation=90)
+
+    plt.subplot(1, 3, 3)
+    plt.plot(rewards, 'o')
+    print(sum(rewards == 1))
+    print(sum(rewards == -1))
+    plt.title('Answers at each iteration')
+    plt.savefig('take.sign={}_use.do.not.ask={}.png'.format(TAKE_SIGN,
+                                                            USE_DO_NOT_ASK))
     plt.show()
 
     # x_star, _ = argmax_reward(X, theta_star, invV, k=0)
@@ -149,7 +183,7 @@ def test_OFUL(theta_star, T=50, PRINT=False):
 # np.random.seed(43)  # again quick convergence
 np.random.seed(42)
 T = 4000
-d, n = (int(1e3), int(50e3))
+d, n = (int(5e0), int(1e4))
 
 delta = 0.1  # failure probability
 

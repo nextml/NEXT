@@ -32,7 +32,11 @@ HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')+':'+os.enviro
 
 PRINT = False
 
-def run_all(assert_200, home_dir='/Users/scott/', total_pulls_per_client=5,
+def reward(x, theta, R=2):
+    r = np.inner(x, theta) + R*np.random.randn()
+    return r
+
+def run_all(assert_200, home_dir='/Users/scott/', total_pulls_per_client=500,
         num_experiments=1, num_clients=1):
     """
     total_pulls_per_client: number of answers each participant gives
@@ -82,11 +86,11 @@ def run_all(assert_200, home_dir='/Users/scott/', total_pulls_per_client=5,
 
     exp_params_to_save = results[0][1]
     print(exp_params_to_save)
-    exp_params_to_save['features_matrix_url'] = features_matrix_url
     time_id = datetime.now().isoformat()[:10]
     if not time_id in os.listdir('results/'):
         os.mkdir('results/{}'.format(time_id))
-    filename = 'results/{}/i_hats_{}.pkl'.format(time_id, alg_names)
+    filename = 'results/{}/i_hats_{}_{}.pkl'.format(time_id, alg_names,
+                                                    total_pulls_per_client)
     filename = filename.strip(' ').strip("'").strip('[').strip(']')
     print('\nWriting results to file {}\n'.format(filename))
     pickle.dump(exp_params_to_save, open(filename, 'w'))
@@ -98,6 +102,8 @@ def run_all(assert_200, home_dir='/Users/scott/', total_pulls_per_client=5,
 
 def simulate_one_client(input_args, avg_response_time=0.1):
     exp_uid, participant_uid, total_pulls, i_star, X, assert_200 = input_args
+
+    theta_star = X[:, i_star]
 
     getQuery_times = []
     processAnswer_times = []
@@ -130,15 +136,22 @@ def simulate_one_client(input_args, avg_response_time=0.1):
             initial_indices = [query_dict['targets'][i]['index'] 
                                     for i in range(len(query_dict['targets']))]
             i_hat = random.choice(initial_indices)
+            i_hat = i_star - 10
             i_hats += [i_hat]
             answer = i_hat
             answer_key = 'initial_arm'
+            rewards = [1]
         else:
             # print(query_dict['targets'][0]['index'])
             # targets = query_dict['targets'][0]['index']
             i_hat = query_dict['targets'][0]['index']
             i_hats += [i_hat]
-            answer = 1 if norm(X[:, i_star] - X[:, i_hat]) < 0.1 else 0
+            sqrt = np.sqrt
+            # decision = np.inner(X[:, i_hat], theta) + R*np.random.randn()
+            answer = 1 if norm(X[:, i_star] - X[:, i_hat]) < 0.5 / sqrt(1)\
+                       else -1
+            # answer = np.sign(reward(X[:, i_hat], theta_star))
+            rewards += [answer]
             answer_key = 'target_reward'
 
         # generate simulated reward #
@@ -177,6 +190,7 @@ def simulate_one_client(input_args, avg_response_time=0.1):
         processAnswer_json_response = eval(response.text)
 
     exp_params_to_save = {'i_hats': i_hats,
+                          'rewards': rewards,
                           'i_star': i_star}
 
     processAnswer_times.sort()
