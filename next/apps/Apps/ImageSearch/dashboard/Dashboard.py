@@ -3,7 +3,7 @@ from next.utils import utils
 from next.apps.AppDashboard import AppDashboard
 import next.apps.SimpleTargetManager
 
-class CardinalBanditsFeaturesDashboard(AppDashboard):
+class ImageSearchDashboard(AppDashboard):
     def __init__(self,db,ell):
         AppDashboard.__init__(self,db,ell)
 

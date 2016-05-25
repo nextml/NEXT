@@ -1,3 +1,15 @@
+"""
+This script does the following:
+
+1. Launches an expirement
+2. Tests the experiment using the computer.
+3. Writes a file containing the feature vectors at each arm pull
+
+Variables at the top of each function declare the location of
+
+* the feature vector matrix
+* the image of URLs
+"""
 import numpy
 import numpy as np
 import numpy.random
@@ -20,16 +32,17 @@ PRINT = False
 
 def run_all(assert_200):
 
-  app_id = 'CardinalBanditsFeatures'
+  app_id = 'ImageSearch'
+  feature_matrix_url = ''
 
   num_features, num_arms = (2, 400)  # X \in {num_features x num_arms}
 
-  X = np.random.rand(num_features, num_arms)
-  X = normalize(X, axis=0)
-  X = X[:num_features, :num_arms]
-  print "X \in R^{}".format(X.shape)
+  # X = np.random.rand(num_features, num_arms)
+  # X = normalize(X, axis=0)
+  # X = X[:num_features, :num_arms]
+  # print "X \in R^{}".format(X.shape)
 
-  true_means = numpy.array(range(num_arms)[::-1]) / float(num_arms)
+  # true_means = numpy.array(range(num_arms)[::-1]) / float(num_arms)
   total_pulls_per_client = 200
 
   num_experiments = 1
@@ -52,11 +65,11 @@ def run_all(assert_200):
     alg_item = {}
     alg_item['alg_id'] = alg_id
     alg_item['alg_label'] = alg_id+'_'+str(i)
-    if 'OFUL' in supported_alg_ids:
-      theta_star = np.random.randn(X.shape[0])
-      theta_star /= np.linalg.norm(theta_star)
-      print(X.shape)
-      alg_item['params'] = {'X':X.tolist(), 'theta_star':theta_star.tolist() }
+    # if 'OFUL' in supported_alg_ids:
+      # theta_star = np.random.randn(X.shape[0])
+      # theta_star /= np.linalg.norm(theta_star)
+      # print(X.shape)
+      # alg_item['params'] = {'X':X.tolist(), 'theta_star':theta_star.tolist() }
     #alg_item['params'] = {}
     alg_list.append(alg_item)
   params = []
@@ -75,6 +88,8 @@ def run_all(assert_200):
   initExp_args_dict = {}
   initExp_args_dict['args'] = {}
 
+  initExp_args_dict['args']['features'] = feature_matrix_url
+  initExp_args_dict['args']['feature_filenames'] = feature_matrix_url
   initExp_args_dict['args']['targets'] = {'n':n}
   initExp_args_dict['args']['failure_probability'] = delta
   initExp_args_dict['args']['participant_to_algorithm_management'] = 'one_to_many' # 'one_to_one'  #optional field

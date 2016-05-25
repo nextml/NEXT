@@ -84,7 +84,7 @@ alg:getQuery 0.5s in PermStore:get, MongoDB:find_one
 
 from __future__ import division
 import numpy as np
-from next.apps.Apps.CardinalBanditsFeatures.Prototype import CardinalBanditsFeaturesPrototype
+from next.apps.Apps.ImageSearch.Prototype import ImageSearchPrototype
 import next.utils as utils
 import time
 

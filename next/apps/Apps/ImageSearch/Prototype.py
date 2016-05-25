@@ -1,18 +1,7 @@
-"""
-CardinalBanditsPureExploration app of the Online Learning Library for Next.Discovery
-author: Kevin Jamieson
-last updated: 11/13/2015
 
-CardinalBanditsPureExplorationPrototype
-
-This interface must be implemented by an app that solves the multi-armed bandit, pure 
-exploration problem. 
-"""
-
-
-class CardinalBanditsFeaturesPrototype(object):
+class ImageSearchPrototype(object):
   def __init__(self): 
-    self.app_id = 'CardinalBanditsFeatures'
+    self.app_id = 'ImageSearch'
 
   def initExp(self,resource,n,R,failure_probability,params):
     """

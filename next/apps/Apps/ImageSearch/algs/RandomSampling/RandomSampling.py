@@ -1,13 +1,10 @@
 from __future__ import division
 import numpy as np
-from next.apps.Apps.CardinalBanditsFeatures.Prototype import CardinalBanditsFeaturesPrototype
+from next.apps.Apps.ImageSearch.Prototype import ImageSearchPrototype
 import next.utils as utils
 import time
 
-# TODO: change this to 1
-reward_coeff = 1.00
-
-class RandomSampling(CardinalBanditsFeaturesPrototype):
+class RandomSampling(ImageSearchPrototype):
     def initExp(self, butler, params=None, n=None, R=None,
                 failure_probability=None):
         """
