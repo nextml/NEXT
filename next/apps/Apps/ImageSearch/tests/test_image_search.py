@@ -25,33 +25,49 @@ from multiprocessing import Pool
 import sys
 from sklearn.preprocessing import normalize
 import pickle
-
 import os
+
 HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')+':'+os.environ.get('NEXT_BACKEND_GLOBAL_PORT', '8000')
 
 PRINT = False
 
-def run_all(assert_200):
-
-    app_id = 'ImageSearch'
+def run_all(assert_200, home_dir='/Users/scott/', total_pulls_per_client=5,
+        num_experiments=1, num_clients=1):
+    """
+    total_pulls_per_client: number of answers each participant gives
+    num_experiments: How many experiments do we want to test?
+    num_clients: Using multiprocessing library, how many simultaneous clients
+    to run?
+    """
     # feature matrix
     features_matrix_url = 'https://dl.dropboxusercontent.com/u/9160935/features_allshoes_8_normalized.mat'
+
+    # The filenames of the images to each filename
+    names = loadmat('/Users/scott/Desktop/Rudi-features-matlab/ColorLabel_new.mat')
+    names = names['Names']
+    feature_filenames = [name[0][0][0] for name in names]
+
+    # the locations of the images
+    image_urls_file = 'urls-50k-launch-python.csv'
+
+    # for testing purposes only
+    num_arms = n = 100
+    feature_filenames = feature_filenames[:num_arms]
+
+    # this experiment will only be performed over one experiment
+    supported_alg_ids = ['OFUL']#, 'RandomSampling']
+
+    # the index of the "ground truth" arm
+    i_star = num_arms // 2
+    X = loadmat(home_dir + 'Desktop/Rudi-features-matlab/features_allshoes_8_normalized.mat')['features_all']
+
+    app_id = 'ImageSearch'
 
     # loading the filenames of which columns in feature_matrix correspond
     # to which images
     # input_dir =
     # '/Users/scott/Developer/NEXT/examples/zappos_cardinal_features/'
     # feature_filenames = pickle.load(open(input_dir + 'filenames.pkl', 'rb'))
-    names = loadmat('/Users/scott/Desktop/Rudi-features-matlab/ColorLabel_new.mat')
-    names = names['Names']
-    feature_filenames = [name[0][0][0] for name in names]
-
-    # for testing purposes only
-    num_arms = n = 10
-    feature_filenames = feature_filenames[:num_arms]
-
-    # the locations of the images
-    image_urls_file = 'urls-50k-launch-python.csv'
 
     # num_features, num_arms = (2, 400)    # X \in {num_features x num_arms}
 
@@ -61,12 +77,6 @@ def run_all(assert_200):
     # print "X \in R^{}".format(X.shape)
 
     true_means = numpy.array(range(num_arms)[::-1]) / float(num_arms)
-    total_pulls_per_client = 200
-
-    num_experiments = 1
-
-    # clients run in simultaneous fashion using multiprocessing library
-    num_clients = 1
 
     pool = Pool(processes=num_clients)
 
@@ -74,7 +84,6 @@ def run_all(assert_200):
     # input test parameters
     # n = num_arms
     delta = 0.05
-    supported_alg_ids = ['OFUL', 'RandomSampling']
 
     labels = [{'label':'no','reward':-1.}, {'label':'yes','reward':1.}]
 
@@ -125,7 +134,7 @@ def run_all(assert_200):
         url = "http://"+HOSTNAME+"/api/experiment"
         response = requests.post(url, json.dumps(initExp_args_dict), headers={'content-type':'application/json'})
         if PRINT:
-                print "POST initExp response =", response.text, response.status_code
+            print "POST initExp response =", response.text, response.status_code
 
         if assert_200: assert response.status_code is 200
         initExp_response_dict = json.loads(response.text)
@@ -144,7 +153,7 @@ def run_all(assert_200):
         url = "http://"+HOSTNAME+"/api/experiment/"+exp_uid
         response = requests.get(url)
         if PRINT:
-                print "GET experiment response =",response.text, response.status_code
+            print "GET experiment response =",response.text, response.status_code
         if assert_200: assert response.status_code is 200
         initExp_response_dict = json.loads(response.text)
 
@@ -162,17 +171,30 @@ def run_all(assert_200):
 
         experiment = numpy.random.choice(exp_info)
         exp_uid = experiment['exp_uid']
-        pool_args.append( (exp_uid,participant_uid,total_pulls_per_client,true_means,assert_200) )
+        pool_args.append((exp_uid, participant_uid, total_pulls_per_client,
+                          i_star, X, assert_200))
 
     # results = pool.map(simulate_one_client, pool_args)
     results = map(simulate_one_client, pool_args)
+
+    exp_params_to_save = results[0][1]
+    print(exp_params_to_save)
+    exp_params_to_save['features_matrix_url'] = features_matrix_url
+    time_id = datetime.now().isoformat()[:10]
+    if not time_id in os.listdir('results/'):
+        os.mkdir('results/{}'.format(time_id))
+    filename = 'results/{}/i_hats_{}.pkl'.format(time_id, supported_alg_ids)
+    filename = filename.strip(' ').strip("'").strip('[').strip(']')
+    print('\nWriting results to file {}\n'.format(filename))
+    pickle.dump(exp_params_to_save, open(filename, 'w'))
 
     for result in results:
         print result
 
 
-def simulate_one_client( input_args ):
-    exp_uid,participant_uid,total_pulls,true_means,assert_200 = input_args
+
+def simulate_one_client(input_args):
+    exp_uid, participant_uid, total_pulls, i_star, X, assert_200 = input_args
     avg_response_time = 1.
 
     getQuery_times = []
@@ -253,13 +275,12 @@ def simulate_one_client( input_args ):
         processAnswer_json_response = eval(response.text)
 
     exp_params_to_save = {'i_hats': i_hats,
-                          'i_star': i_star,
-                          'features_matrix_url': features_matrix_url}
+                          'i_star': i_star}
 
     processAnswer_times.sort()
     getQuery_times.sort()
     return_str = '%s \n\t getQuery\t : %f (5),        %f (50),        %f (95)\n\t processAnswer\t : %f (5),        %f (50),        %f (95)\n' % (participant_uid,getQuery_times[int(.05*total_pulls)],getQuery_times[int(.50*total_pulls)],getQuery_times[int(.95*total_pulls)],processAnswer_times[int(.05*total_pulls)],processAnswer_times[int(.50*total_pulls)],processAnswer_times[int(.95*total_pulls)])
-    return return_str
+    return return_str, exp_params_to_save
 
 
 def timeit(f):
