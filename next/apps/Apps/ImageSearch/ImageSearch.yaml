@@ -3,9 +3,9 @@ initExp:
   type: dict
   values:
     app_id:
-      description: CardinalBanditsFeatures
+      description: ImageSearch
       type: str
-      values: [CardinalBanditsFeatures]
+      values: [ImageSearch]
     args:
       description: Arguments for to help create the experiment.
       type: dict

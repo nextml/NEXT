@@ -135,7 +135,7 @@ def get_feature_vectors(butler):
     utils.debug_print("OFUL.py 120, features.shape = {}".format(features.shape))
     return features
 
-class OFUL(CardinalBanditsFeaturesPrototype):
+class OFUL(ImageSearchPrototype):
     def initExp(self, butler, params=None, n=None, R=None,
                 failure_probability=None):
         """

@@ -23,9 +23,9 @@ def timeit(fn_name=''):
         return timing
     return timeit_
 
-class CardinalBanditsFeatures(object):
+class ImageSearch(object):
     def __init__(self, db):
-        self.app_id = 'CardinalBanditsFeatures'
+        self.app_id = 'ImageSearch'
         self.TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager(db)
 
     def initExp(self, exp_uid, exp_data, butler):
@@ -58,7 +58,7 @@ class CardinalBanditsFeatures(object):
             new_targetset = []
             utils.debug_print(exp_data['args'].keys())
 
-            utils.debug_print("cardinalfeatures:48, beginning to download features")
+            utils.debug_print("image search:48, beginning to download features")
             response = requests.get(exp_data['args']['features'])
             variables = loadmat(StringIO(response.content))
             utils.debug_print("done downloading features")
