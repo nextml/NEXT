@@ -23,10 +23,10 @@ cadvisor:
 #    - next_backend:/database
 
 minionworker:
-  build: /home/devin/NEXT/next/base_docker_image
+  build: /home/ubuntu/NEXT/next/base_docker_image
   command: ./next/broker/next_worker_startup.sh
   volumes:
-   - /home/devin/NEXT:/next_backend
+   - /home/ubuntu/NEXT:/next_backend
   working_dir: /next_backend
   links:
     - mongodb:MONGODB
@@ -44,10 +44,10 @@ minionworker:
 
 ######### API #########
 nextbackenddocker:
-  build: /home/devin/NEXT/next/base_docker_image
+  build: /home/ubuntu/NEXT/next/base_docker_image
   command: gunicorn  --worker-class=gevent -R --log-level=debug --logger-class=simple --reload -b 0.0.0.0:8000 -w 1 next.api.api:app
   volumes:
-   - /home/devin/NEXT:/next_backend
+   - /home/ubuntu/NEXT:/next_backend
   working_dir: /next_backend
   ports:
     - "0.0.0.0:8000:8000" # gunicorn
@@ -69,10 +69,10 @@ nextbackenddocker:
 
 ######### PERSISTENT STORE #########
 mongodb:
-  build: /home/devin/NEXT/next/base_docker_image
+  build: /home/ubuntu/NEXT/next/base_docker_image
   command: /usr/bin/mongod --smallfiles --rest
   volumes:
-   - /home/devin/NEXT:/next_backend
+   - /home/ubuntu/NEXT:/next_backend
    - /dump
    - /data/db
   working_dir: /next_backend
@@ -82,10 +82,10 @@ mongodb:
    - "0.0.0.0:28017:28017" # mongo http monitor
 
 mongodbbackup:
-  build: /home/devin/NEXT/next/base_docker_image
+  build: /home/ubuntu/NEXT/next/base_docker_image
   command: python ./next/database/daemon_database_backup.py
   volumes:
-   - /home/devin/NEXT:/next_backend
+   - /home/ubuntu/NEXT:/next_backend
   volumes_from:
    - mongodb
   working_dir: /next_backend
@@ -111,10 +111,10 @@ rabbitmqredis:
   image: redis
 
 rabbitmqmonitor:
-  build: /home/devin/NEXT/next/base_docker_image
+  build: /home/ubuntu/NEXT/next/base_docker_image
   command: python ./next/broker/cluster_monitor.py
   volumes:
-   - /home/devin/NEXT:/next_backend
+   - /home/ubuntu/NEXT:/next_backend
   working_dir: /next_backend
   links:
     - rabbitmq:RABBIT
