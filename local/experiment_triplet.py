@@ -4,7 +4,7 @@ import os, sys
 # We assume that it is located in next/examples
 # This function is used at the very bottom of this file
 sys.path.append("../")
-from launch_experiment_redux import *
+from launch_experiment import *
 
 experiment_list = []
 
