@@ -116,7 +116,11 @@ class App(object):
             # Deal with the issue of not giving a repeat query
             butler = Butler(self.app_id, exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, alg_label, alg_id)
             alg = utils.get_app_alg(self.app_id, alg_id)
+
+            # call myAlg
             alg_response,dt = utils.timeit(alg.getQuery)(butler,participant_doc,**args_dict)
+
+            # call myApp
             query_doc = self.myApp.getQuery(exp_uid, experiment_dict, args_dict, alg_response, self.butler)
             query_uid = utils.getNewUID()
             query_doc.update({'participant_uid':participant_uid,
@@ -150,11 +154,17 @@ class App(object):
             response_time = float(args_dict['args'].get('response_time',0.))
             butler = Butler(self.app_id, exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, query['alg_label'], query['alg_id'])
             alg = utils.get_app_alg(self.app_id, query['alg_id'])
+
+            # call myApp
             query_update,algs_args_dict = self.myApp.processAnswer(exp_uid, query, args_dict, self.butler)
+
             query_update.update({'response_time':response_time,'network_delay':round_trip_time - response_time})
             self.butler.queries.set_many(uid=args_dict['args']['query_uid'],key_value_dict=query_update)
+
+            # call algorithm
             # Push query back to algorithm
             alg_succeed, dt = utils.timeit(alg.processAnswer)(butler, **algs_args_dict)
+
             log_entry_durations = {'exp_uid':exp_uid, 'alg_label':query['alg_label'], 'task':'processAnswer','duration':dt }
             log_entry_durations.update(butler.algorithms.getDurations())
             if not alg_succeed:

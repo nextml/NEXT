@@ -30,8 +30,10 @@ api_interface.add_resource(processAnswer, '/experiment/processAnswer')
 from next.api.resources.stats import Stats
 api_interface.add_resource(Stats, '/experiment/stats')
 
-from next.api.resources.predict import Predict
-api_interface.add_resource(Predict, '/experiment/predict')
+# predict.py has been deleted as part of #101 on GitHub... These lines aren't
+# necessary?
+# from next.api.resources.predict import Predict
+# api_interface.add_resource(Predict, '/experiment/predict')
 
 from next.api.resources.about import About
 api_interface.add_resource(About, '/about', '/about/<string:app_id>')

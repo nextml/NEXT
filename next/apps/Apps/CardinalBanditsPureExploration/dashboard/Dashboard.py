@@ -6,7 +6,7 @@ class CardinalBanditsPureExplorationDashboard(AppDashboard):
     def __init__(self,db,ell):
         AppDashboard.__init__(self,db,ell)
 
-    def most_current_ranking(self,app_id,exp_uid,alg_label):
+    def most_current_ranking(self,app_id,exp_uid,butler,alg_label):
         """
         Description: Returns a ranking of arms in the form of a list of dictionaries, which is conveneint for downstream applications
 
@@ -23,8 +23,8 @@ class CardinalBanditsPureExplorationDashboard(AppDashboard):
             (int) ranking : rank (0 to number of targets - 1) representing belief of being best arm
         """
         next_app = utils.get_app(app_id, exp_uid, self.db, self.ell)
-        getModel_args_dict = json.loads(next_app.getModel(exp_uid, json.dumps({'exp_uid':exp_uid, 'args':{'alg_label':alg_label}}))[0])
-        item = getModel_args_dict['args']
+        args_out_dict,_,_ = json.loads(next_app.getModel(exp_uid, json.dumps({'exp_uid':exp_uid, 'args':{'alg_label':alg_label}})))
+        item = args_out_dict['args']
 
         return_dict = {}
         return_dict['headers'] = [{'label':'Rank','field':'rank'},

@@ -1,4 +1,4 @@
-import next.utils
+import next.utils as utils
 import hashlib
 import bisect
 
@@ -45,7 +45,7 @@ class JobBroker:
             if ignore_result:
                 return True
             else:
-                return result.get(interval=.001) 
+                return result.get(interval=0.001)
         else:
             result = tasks.apply(app_id,exp_uid,task_name, args, submit_timestamp)
             if ignore_result:

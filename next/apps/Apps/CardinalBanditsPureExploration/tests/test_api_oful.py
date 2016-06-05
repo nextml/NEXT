@@ -11,6 +11,7 @@ from scipy.io import loadmat
 import time
 from multiprocessing import Pool
 import sys
+from sklearn.preprocessing import normalize
 
 import os
 HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')+':'+os.environ.get('NEXT_BACKEND_GLOBAL_PORT', '8000')
@@ -21,14 +22,18 @@ def run_all(assert_200):
 
   app_id = 'CardinalBanditsPureExploration'
 
+  num_features, num_arms = (3, 200)  # X \in {num_features x num_arms}
+
   filename = '/Users/scott/Dropbox/image_search_scott/Features/features_allshoes_8_normalized.mat'
   X = loadmat(filename)['features_all']
-  num_features, num_arms = (10, 100)  # X \in {num_features x num_arms}
+
+  X = np.random.rand(num_features, num_arms)
+  X = normalize(X, axis=0)
   X = X[:num_features, :num_arms]
   print "X \in R^{}".format(X.shape)
 
   true_means = numpy.array(range(num_arms)[::-1]) / float(num_arms)
-  total_pulls_per_client = 2
+  total_pulls_per_client = 100
 
   num_experiments = 1
 
@@ -52,7 +57,10 @@ def run_all(assert_200):
     alg_item['alg_id'] = alg_id
     alg_item['alg_label'] = alg_id+'_'+str(i)
     if 'OFUL' in supported_alg_ids:
-      alg_item['params'] = X.tolist()
+      theta_star = np.random.randn(X.shape[0])
+      theta_star /= np.linalg.norm(theta_star)
+      print(X.shape)
+      alg_item['params'] = {'X':X.tolist(), 'theta_star':theta_star.tolist() }
     #alg_item['params'] = {}
     alg_list.append(alg_item)
   params = []
@@ -64,7 +72,6 @@ def run_all(assert_200):
   algorithm_management_settings['params'] = params
 
   # print algorithm_management_settings
-
 
   #################################################
   # Test POST Experiment

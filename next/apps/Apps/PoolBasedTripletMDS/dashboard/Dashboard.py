@@ -1,8 +1,6 @@
 import json
 import numpy
 import numpy.random
-from datetime import datetime
-from datetime import timedelta
 from next.utils import utils
 from next.apps.AppDashboard import AppDashboard
 
@@ -21,13 +19,9 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
         Expected output (in dict):
           (dict) MPLD3 plot dictionary
         """
-
         # get list of algorithms associated with project
-        args = butler.experiment.get(key='args')
-        
-        #TODO: This is bullshit. We are assuming they are all the same I guess?
-        for algorithm in args['alg_list']:
-            test_alg_label = algorithm['test_alg_label']
+        args = butler.experiment.get(key='args')        
+        test_alg_label = args['alg_list'][0]['test_alg_label']
 
         test_S = butler.queries.get(pattern={'exp_uid':exp_uid, 'alg_label':test_alg_label})
         x_min = numpy.float('inf')

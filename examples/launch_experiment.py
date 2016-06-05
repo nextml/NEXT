@@ -36,6 +36,7 @@ def generate_target_blob(AWS_BUCKET_NAME,
                          prefix,
                          primary_file,
                          primary_type,
+                         experiment=None,
                          alt_file=None,
                          alt_type='text'):
     '''
@@ -87,36 +88,68 @@ def generate_target_blob(AWS_BUCKET_NAME,
                           'alt_description': alt_url}
                 targets.append(target)
         else:
-            if alt_type == 'text':
-                for key, primary_file in target_file_dict.iteritems():
-                    primary_file_name = target_name_dict[key]
-                    primary_url = upload_to_S3(bucket,
-                                               '{}_{}'.format(prefix,
-                                                              primary_file_name),
-                                               StringIO(primary_file))
-                    target = {'target_id': '{}_{}'.format(prefix, primary_file_name),
-                              'primary_type': primary_type,
-                              'primary_description': primary_url,
-                              'alt_type': 'text',
-                              'alt_description': primary_file_name}
-                    targets.append(target)
-    else:
-        if type(primary_file) is str:
-            f = open(primary_file)
-        else:
-            f = primary_file
-            f.seek(0)
-        i = 0
-        for line in f.read().splitlines():
-            line = line.strip()
-            if line:
-                i += 1
-                target = {'target_id': str(i),
-                          'primary_type': 'text',
-                          'primary_description':line,
+            # started at 9:30am 2016-05-17
+            f = open('urls-50k-launch-python.csv', 'wa')
+            for i, (key, primary_file) in enumerate(target_file_dict.iteritems()):
+                primary_file_name = target_name_dict[key]
+                primary_url = upload_to_S3(bucket,
+                                           '{}_{}'.format(prefix,
+                                                          primary_file_name),
+                                           StringIO(primary_file))
+                if i % 100 == 0 and i != 0:
+                    print('percent done = {}'.format(i / 50e3))
+                f.write(primary_url + '\n')
+                target = {'target_id': '{}_{}'.format(prefix, primary_file_name),
+                          'primary_type': primary_type,
+                          'primary_description': primary_url,
                           'alt_type': 'text',
-                          'alt_description':line}
+                          'alt_description': primary_file_name}
                 targets.append(target)
+            f.close()
+    else:
+        if experiment.get('image-urls', False) or experiment.get('image-url', False):
+            # This is the section where 
+            # getting rid of http://filenamestuff?dl=0 to append filenames too
+            print('Adding urls to targets')
+            targets = []
+            urls = open(experiment['primary_target_file'], 'r')
+            urls = [url[:-1] for url in urls.readlines()]
+            for filename in experiment['initExp']['args']['feature_filenames']:
+                # parameters: alt_type, primary_type, prefix
+                # define: alt_url, primary_url
+                feature_urls = [filename in url for url in urls]
+                # assert sum(feature_urls) <= 1, \
+                                        # "At most one image URL per filename!"
+                if True in feature_urls:
+                    url = urls[feature_urls.index(True)]
+                    if not '?' in url:
+                        url = url + '?dl=1'
+                    target = {'target_id': '{}_{}'.format(prefix, filename),
+                              'primary_type': primary_type,
+                              'primary_description': url,
+                              'alt_type': alt_type,
+                              'alt_description': filename}
+
+                    targets += [target]
+            print('...and done adding URLs to targets')
+        else:
+            if type(primary_file) is str:
+                f = open(primary_file)
+            else:
+                f = primary_file
+                f.seek(0)
+            i = 0
+            for line in f.read().splitlines():
+                line = line.strip()
+                if line:
+                    i += 1
+                    target = {'target_id': str(i),
+                              'primary_type': 'text',
+                              'primary_description':line,
+                              'alt_type': 'text',
+                              'alt_description':line}
+                    targets.append(target)
+        print "\ntargets formatted like \n{}\n".format(targets[0])
     return targets
 
 def get_AWS_bucket(AWS_BUCKET_NAME,AWS_ID, AWS_KEY):
@@ -209,6 +242,7 @@ def launch_experiment(host, experiment_list, AWS_ID, AWS_KEY, AWS_BUCKET_NAME):
       experiment['initExp']['args']['context_type'] = experiment['context_type']
 
     print 'launch:211', experiment['initExp']['args'].keys()
+
     # Upload targets
     if 'primary_target_file' in experiment.keys():
         targets = generate_target_blob(AWS_BUCKET_NAME=AWS_BUCKET_NAME,
@@ -218,7 +252,9 @@ def launch_experiment(host, experiment_list, AWS_ID, AWS_KEY, AWS_BUCKET_NAME):
                                        primary_file=experiment['primary_target_file'],
                                        primary_type=experiment['primary_type'],
                                        alt_file=experiment.get('alt_target_file', None),
+                                       experiment=experiment,
                                        alt_type=experiment.get('alt_type','text'))
+
         experiment['initExp']['args']['targets'] = {'targetset': targets}
     else:
         experiment['initExp']['args']['targets']['n'] = n
@@ -227,7 +263,7 @@ def launch_experiment(host, experiment_list, AWS_ID, AWS_KEY, AWS_BUCKET_NAME):
     n = targets['n'] if 'n' in targets.keys() else len(targets)
 
     url = 'http://{}/api/experiment'.format(host)
-    print 'Initializing experiment', experiment['initExp']
+    print 'Initializing experiment', experiment['initExp'].keys()
     response = requests.post(url,
                              json.dumps(experiment['initExp']),
                              headers={'content-type':'application/json'})
@@ -242,9 +278,7 @@ def launch_experiment(host, experiment_list, AWS_ID, AWS_KEY, AWS_BUCKET_NAME):
     #exp_key_list.append(str(exp_key))
     #widget_key_list.append(str(perm_key))
 
-    print
-    print "Query Url is at:", "http://"+host+"/query/query_page/query_page/"+exp_uid
-    print
+    print "\nQuery Url is at: http://"+host+"/query/query_page/query_page/"+exp_uid + "\n"
 
   print "exp_uid_list:", exp_uid_list
   #print "exp_key_list:", exp_key_list

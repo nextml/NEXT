@@ -121,10 +121,13 @@ Doc retrival with time ::\n
 
 from pymongo import MongoClient
 import next.constants as constants
+import next.utils as utils
 from bson.binary import Binary
 import cPickle
 import traceback
 from datetime import datetime
+import numpy as np
+import time
 
 
 class PermStore(object):
@@ -205,7 +208,12 @@ class PermStore(object):
         if isinstance(input_val,dict):
             for key in input_val:
                 input_val[key] = self.makeProperDatabaseFormat(input_val[key])
+        elif isinstance(input_val, np.ndarray):
+            input_val = input_val.tolist()
         elif isinstance(input_val,list):
+            start = time.time()
+            if len(input_val) > 100 and type(input_val) in {int, float, complex, long}:
+                return input_val
             for idx in range(len(input_val)):
                 input_val[idx] = self.makeProperDatabaseFormat(input_val[idx])
         elif isinstance(input_val, basestring):
@@ -225,6 +233,8 @@ class PermStore(object):
             for key in input_val:
                 input_val[key] = self.undoDatabaseFormat(input_val[key])
         elif isinstance(input_val,list):
+            if len(input_val) > 100 and type(input_val[0]) in {int, float, long, complex}:
+                return input_val
             for idx in range(len(input_val)):
                 input_val[idx] = self.undoDatabaseFormat(input_val[idx])
         elif isinstance(input_val, Binary):
@@ -594,7 +604,6 @@ class PermStore(object):
                 return False,message
 
         try:
-            
             for key in key_value_dict:
                 key_value_dict[key] = self.makeProperDatabaseFormat(key_value_dict[key])
 

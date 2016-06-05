@@ -155,7 +155,7 @@ getModel:
           default: false
 
 getStats:
-  description: getStats yeahhhh!
+  description: getStats for pool based binary classification
   type: dict
   values:
     exp_uid:

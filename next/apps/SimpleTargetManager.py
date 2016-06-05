@@ -1,3 +1,5 @@
+from next.utils import utils
+
 class SimpleTargetManager(object):
     def __init__(self,db):
         self.bucket_id = 'targets'
