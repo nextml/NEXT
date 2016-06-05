@@ -13,11 +13,11 @@ HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')+':'+os.enviro
 
 def run_all(assert_200):
 
-  num_objects = 10
+  num_objects = 5
   desired_dimension = 2
   x = numpy.linspace(0,1,num_objects)
   X_true = numpy.vstack([x,x]).transpose()
-  total_pulls_per_client = 100
+  total_pulls_per_client = 20
   num_experiments = 1
   # clients run in simultaneous fashion using multiprocessing library
   num_clients = 5

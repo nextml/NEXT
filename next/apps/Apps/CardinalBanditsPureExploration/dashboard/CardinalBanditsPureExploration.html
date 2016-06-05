@@ -34,22 +34,17 @@
                     </div>
                 {% endif %}
             <!-- <div role="tabpanel" class="tab-pane active" id="home"> -->
-            
-
             <script>
                 most_current_ranking_{{ alg.alg_label_clean }} = function(data) {
                     charts.createDynamicTable(data, "most_current_ranking_{{ alg.alg_label_clean }}")
                 }
 
                 $.ajax({
-                    url: "{{ host_url }}/api/experiment/stats",
+                    url: "{{ host_url }}/dashboard/get_stats",
                     type: "POST",
                     contentType: "application/json",
                     data: JSON.stringify({  
-                        'app_id': "{{ app_id }}",
                         'exp_uid': "{{ exp_uid }}",
-                        'exp_key': "{{ exp_key }}",
-                        'name': 'getStats',
                         'args':{
                             'stat_id' : 'most_current_ranking',
                             'params'  : {'alg_label': "{{ alg.alg_label }}" }

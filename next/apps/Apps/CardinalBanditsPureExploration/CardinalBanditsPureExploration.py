@@ -1,8 +1,8 @@
 import json
 import numpy
-
 import next.apps.SimpleTargetManager
 import next.utils as utils
+
 class CardinalBanditsPureExploration(object):
     def __init__(self,db):
         self.app_id = 'CardinalBanditsPureExploration'
@@ -118,7 +118,6 @@ class CardinalBanditsPureExploration(object):
         scores = numpy.array(scores)[ranks]
         precisions = numpy.array(precisions)[ranks]
         ranks = range(n)
-
         targets = []
         for index in range(n):
           targets.append( {'index':indexes[index],
@@ -129,26 +128,3 @@ class CardinalBanditsPureExploration(object):
         num_reported_answers = butler.experiment.get('num_reported_answers')
         return {'targets': targets, 'num_reported_answers':num_reported_answers} 
         
-    def getStats(self, exp_uid, stats_request, dashboard, butler):
-        """
-        Get statistics to display on the dashboard.
-        """
-        stat_id = stats_request['args']['stat_id']
-        task = stats_request['args']['params'].get('task', None)
-        alg_label = stats_request['args']['params'].get('alg_label', None)
-        functions = {'api_activity_histogram':dashboard.api_activity_histogram,
-                     'compute_duration_multiline_plot':dashboard.compute_duration_multiline_plot,
-                     'compute_duration_detailed_stacked_area_plot':dashboard.compute_duration_detailed_stacked_area_plot,
-                     'response_time_histogram':dashboard.response_time_histogram,
-                     'network_delay_histogram':dashboard.network_delay_histogram,
-                     'most_current_ranking':dashboard.most_current_ranking}
-
-        default = [self.app_id, exp_uid]
-        args = {'api_activity_histogram':default + [task],
-                'compute_duration_multiline_plot':default + [task],
-                'compute_duration_detailed_stacked_area_plot':default + [task, alg_label],
-                'response_time_histogram':default + [alg_label],
-                'network_delay_histogram':default + [alg_label],
-                'most_current_ranking':default + [alg_label]}
-        return functions[stat_id](*args[stat_id])
-

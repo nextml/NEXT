@@ -49,27 +49,5 @@ class PoolBasedBinaryClassification(object):
     def getModel(self, exp_uid, alg_response, args_dict, butler):
         return {'weights':alg_response[0], 'num_reported_answers':alg_response[1]}
 
-    def getStats(self, exp_uid, stats_request, dashboard, butler):
-        stat_id = stats_request['args']['stat_id']
-        task = stats_request['args']['params'].get('task', None)
-        alg_label = stats_request['args']['params'].get('alg_label', None)
-
-        # These are the functions corresponding to stat_id
-        functions = {'api_activity_histogram':dashboard.api_activity_histogram,
-                     'compute_duration_multiline_plot':dashboard.compute_duration_multiline_plot,
-                     'compute_duration_detailed_stacked_area_plot':dashboard.compute_duration_detailed_stacked_area_plot,
-                     'response_time_histogram':dashboard.response_time_histogram,
-                     'network_delay_histogram':dashboard.network_delay_histogram,
-                     'test_error_multiline_plot':dashboard.test_error_multiline_plot}
-        
-        default = [self.app_id, exp_uid]
-        args = {'api_activity_histogram':default + [task],
-                'compute_duration_multiline_plot':default + [task],
-                'compute_duration_detailed_stacked_area_plot':default + [task, alg_label],
-                'response_time_histogram':default + [alg_label],
-                'network_delay_histogram':default + [alg_label],
-                'test_error_multiline_plot':default}
-        
-        return functions[stat_id](*args[stat_id])
 
 

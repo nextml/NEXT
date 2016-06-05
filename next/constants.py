@@ -75,9 +75,10 @@ CELERY_TASK_SERIALIZER='json'
 CELERY_ACCEPT_CONTENT=['json']  # Ignore other content
 CELERY_RESULT_SERIALIZER='json'
 
-CELERY_ON = eval(os.environ.get('CELERY_ON',"True"))
+CELERY_ON = eval(os.environ.get('CELERY_ON','True'))
 
 CELERY_SYNC_WORKER_COUNT = int(os.environ.get('CELERY_SYNC_WORKER_COUNT',1))
+
 # from kombu import Exchange, Queue
 # exchange_name = 'sync@{hostname}'.format(
 #         hostname=os.environ.get('HOSTNAME', 'localhost'))

@@ -8,9 +8,7 @@ from flask.ext.restful import Resource, reqparse
 import json
 import next.utils
 import next.broker.broker
-import next.api.api_util as api_util
 from next.api.api_util import *
-from next.api.api_util import APIArgument
 import next.utils as utils
 from next.api.resource_manager import ResourceManager
 from jinja2 import Environment, FileSystemLoader
@@ -49,7 +47,7 @@ class getQuery(Resource):
         # Validate args with post_parser
         args_data = post_parser.parse_args()
         # Pull app_id and exp_uid from parsed args
-        exp_uid = args_data["exp_uid"]
+        exp_uid = args_data['exp_uid']
         # Fetch app_id data from resource manager
         app_id = resource_manager.get_app_id(exp_uid)
         # Standardized participant_uid

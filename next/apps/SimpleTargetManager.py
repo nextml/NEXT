@@ -20,8 +20,7 @@ class SimpleTargetManager(object):
         """
         Gets the entire targetset for a given experiment as a list of dictionaries.
         """
-        targetset, didSucceed, message = self.db.get_docs_with_filter(self.bucket_id,
-                                                                          {'exp_uid': exp_uid})
+        targetset, didSucceed, message = self.db.get_docs_with_filter(self.bucket_id, {'exp_uid': exp_uid})
         if not didSucceed:
             raise Exception("Failed to create_target_mapping: {}".format(message))
         # targetset = mongotized_target_blob.pop(0)
@@ -33,8 +32,8 @@ class SimpleTargetManager(object):
         """
         # Get an individual target form the DB given exp_uid and index
         got_target, didSucceed, message = self.db.get_docs_with_filter(self.bucket_id,
-                                                              {'exp_uid': exp_uid,
-                                                               'target_id': target_id})
+                                                                       {'exp_uid': exp_uid,
+                                                                        'target_id': target_id})
         try:
             # targets are something else
             target = got_target.pop(0)
