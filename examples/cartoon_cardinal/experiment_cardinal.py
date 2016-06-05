@@ -26,7 +26,7 @@ curr_dir = os.path.dirname(os.path.abspath(__file__))
 experiment_list = []
 
 # algs in next/apps/Apps/CardinalBanditsPureExploration/algs/
-supported_alg_ids = ['RoundRobin', 'LilUCB']
+supported_alg_ids = ['LilUCB']
 
 # Algorithm List. These algorithms are independent (no inter-connectedness
 # between algorithms) and each algorithm gets `proportion` number of queries
@@ -65,7 +65,7 @@ initExp['args'] = {} # arguments to pass the algorithm
 
 # What's the probabiity of error? Similar to "similar because p < 0.05"
 initExp['args']['failure_probability'] = .05
-initExp['args']['R'] = .5
+initExp['args']['R'] = 1.
 initExp['args']['rating_scale'] = {'labels':[{'label':'unfunny', 'reward':1},
                                              {'label':'somewhat funny', 'reward':2},
                                              {'label':'funny', 'reward':3}]}
@@ -76,7 +76,7 @@ initExp['args']['participant_to_algorithm_management'] = 'one_to_many'
 initExp['args']['algorithm_management_settings'] = algorithm_management_settings
 initExp['args']['alg_list'] = alg_list
 
-initExp['args']['num_tries'] = 50 # How many tries does each user see?
+initExp['args']['num_tries'] = 500 # How many tries does each user see?
 
 # Which app are we running? (examples of other algorithms are in examples/
 initExp['app_id'] = 'CardinalBanditsPureExploration'
@@ -86,11 +86,11 @@ experiment['initExp'] = initExp
 
 # When presented with a query, the user will rate a text object
 experiment['primary_type'] = 'text'
-experiment['primary_target_file'] = curr_dir+"/cap436.txt"
+experiment['primary_target_file'] = curr_dir+"/516_captions_output.txt"
 
 # Set the context. This is the static image that the user sees. i.e., trying to
 # determine the funniest caption of a single comic, the context is the comic.
-experiment['context'] = curr_dir+"/cap436.jpg"
+experiment['context'] = curr_dir+"/516.jpg"
 experiment['context_type'] = 'image'
 experiment_list.append(experiment)
 

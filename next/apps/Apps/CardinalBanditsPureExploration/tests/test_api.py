@@ -18,12 +18,12 @@ def run_all(assert_200):
   app_id = 'CardinalBanditsPureExploration'
   num_arms = 5000
   true_means = numpy.array(range(num_arms)[::-1])/float(num_arms)
-  total_pulls_per_client = 10000
+  total_pulls_per_client = 50
 
   num_experiments = 1
 
   # clients run in simultaneous fashion using multiprocessing library
-  num_clients = 500
+  num_clients = 10
 
   pool = Pool(processes=num_clients)           
 
@@ -120,7 +120,7 @@ def run_all(assert_200):
 
 def simulate_one_client( input_args ):
   exp_uid,participant_uid,total_pulls,true_means,assert_200 = input_args
-  avg_response_time = 1.
+  avg_response_time = 3.
 
   getQuery_times = []
   processAnswer_times = []

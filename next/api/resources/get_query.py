@@ -48,7 +48,6 @@ class getQuery(Resource):
         post_parser.add_argument('args', type=dict, required=False)
         # Validate args with post_parser
         args_data = post_parser.parse_args()
-        utils.debug_print("args_data", args_data)
         # Pull app_id and exp_uid from parsed args
         exp_uid = args_data["exp_uid"]
         # Fetch app_id data from resource manager
