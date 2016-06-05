@@ -41,7 +41,13 @@ class JobBroker:
         submit_timestamp = utils.datetimeNow('string')
         domain = self.__get_domain_for_job(app_id+"_"+exp_uid)
         if next.constants.CELERY_ON:
-            result = tasks.apply.apply_async(args=[app_id,exp_uid,task_name,args,submit_timestamp], exchange='async@'+domain, routing_key='async@'+domain)
+            result = tasks.apply.apply_async(args=[app_id,
+                                                   exp_uid,
+                                                   task_name,
+                                                   args,
+                                                   submit_timestamp],
+                                             exchange='async@'+domain,
+                                             routing_key='async@'+domain)
             if ignore_result:
                 return True
             else:
@@ -52,6 +58,39 @@ class JobBroker:
                 return True
             else:
                 return result
+
+    def dashboardAsync(self, app_id, exp_uid, args, ignore_result=False):
+        """
+        Run a task (task_name) on a set of args with a given app_id, and exp_uid. 
+        Waits for computation to finish and returns the answer unless ignore_result=True in which case its a non-blocking call. 
+        No guarantees about order of execution.
+        
+        Inputs: ::\n
+            (string) app_id, (string) exp_id, (string) task_name, (json) args
+        Outputs: ::\n
+            task_name(app_id, exp_id, args)
+
+        """
+        submit_timestamp = utils.datetimeNow('string')
+        domain = self.__get_domain_for_job(app_id+"_"+exp_uid)
+        if next.constants.CELERY_ON:
+            result = tasks.apply_dashboard.apply_async(args=[app_id,
+                                                             exp_uid,
+                                                             args,
+                                                             submit_timestamp],
+                                                       exchange='dashboard@'+domain,
+                                                       routing_key='dashboard@'+domain)
+            if ignore_result:
+                return True
+            else:
+                return result.get(interval=0.001)
+        else:
+            result = tasks.apply_dashboard(app_id,exp_uid, args, submit_timestamp)
+            if ignore_result:
+                return True
+            else:
+                return result
+
             
     def applySyncByNamespace(self, app_id, exp_uid, alg_id, alg_label, task_name, args, namespace=None, ignore_result=False,time_limit=0):
         """
@@ -77,7 +116,6 @@ class JobBroker:
             while 1:
                 try:
                     pipe.watch(namespace+"_cnt","namespace_counter")
-
                     if not pipe.exists(namespace+"_cnt"):
                         if not pipe.exists('namespace_counter'):
                             namespace_counter = 0
@@ -97,7 +135,6 @@ class JobBroker:
             namespace_cnt = int(self.r.get(namespace+"_cnt"))
         queue_number = (namespace_cnt % num_queues) + 1
         queue_name = 'sync_queue_'+str(queue_number)+'@'+domain
-
         job_uid = utils.getNewUID()
         if time_limit == 0:
             soft_time_limit = None
@@ -106,7 +143,14 @@ class JobBroker:
             soft_time_limit = time_limit
             hard_time_limit = time_limit + .01
         if next.constants.CELERY_ON:
-            result = tasks.apply_sync_by_namespace.apply_async(args=[app_id,exp_uid,alg_id,alg_label, task_name, args, namespace, job_uid, submit_timestamp, time_limit], queue=queue_name,soft_time_limit=soft_time_limit,time_limit=hard_time_limit)
+            result = tasks.apply_sync_by_namespace.apply_async(args=[app_id,exp_uid,
+                                                                     alg_id,alg_label,
+                                                                     task_name, args,
+                                                                     namespace, job_uid,
+                                                                     submit_timestamp, time_limit],
+                                                               queue=queue_name,
+                                                               soft_time_limit=soft_time_limit,
+                                                               time_limit=hard_time_limit)
             if ignore_result:
                 return True
             else:

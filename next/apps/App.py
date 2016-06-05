@@ -182,8 +182,7 @@ class App(object):
     def getModel(self, exp_uid, args_json):
         try:
             args_dict = self.helper.convert_json(args_json)
-            args_dict = Verifier.verify(args_dict, self.reference_dict['getModel']['values'])
-            
+            args_dict = Verifier.verify(args_dict, self.reference_dict['getModel']['values']) 
             alg_label = args_dict['args']['alg_label']
             args = self.butler.experiment.get(key='args')
             for algorithm in args['alg_list']:
@@ -200,7 +199,7 @@ class App(object):
                 alg_log_entry = {'exp_uid': exp_uid, 'alg_label':alg_label, 'task': 'getModel', 'timestamp': str(utils.datetimeNow())}
                 alg_log_entry.update(myapp_response)
                 self.butler.log('ALG-EVALUATION', alg_log_entry)
-            log_entry_durations = { 'exp_uid':exp_uid,'alg_label':alg_label,'task':'getModel','duration':dt }
+            log_entry_durations = { 'exp_uid':exp_uid,'alg_label':alg_label,'task':'getModel', 'duration':dt }
             log_entry_durations.update(butler.algorithms.getDurations())
             return json.dumps({'args': myapp_response,
                                'meta': {'log_entry_durations':log_entry_durations, 'timestamp': str(utils.datetimeNow())}}), True, ''

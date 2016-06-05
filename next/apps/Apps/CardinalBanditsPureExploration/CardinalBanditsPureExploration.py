@@ -1,6 +1,5 @@
 import json
 import numpy
-
 import next.apps.SimpleTargetManager
 import next.utils as utils
 
