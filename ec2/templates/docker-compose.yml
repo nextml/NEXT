@@ -60,6 +60,7 @@ nextbackenddocker:
     - rabbitmq:RABBIT
     - rabbitmqredis:RABBITREDIS
     - mongodb:MONGODB
+    - minionworker:MINIONWORKER
   environment:
    - PYTHONUNBUFFERED=TRUE
    - PYTHONPATH=:/next_backend 
@@ -115,19 +116,6 @@ rabbitmq:
 
 rabbitmqredis:
   image: redis
-
-rabbitmqmonitor:
-  build: next/base_docker_image
-  command: python ./next/broker/cluster_monitor.py
-  volumes:
-   - .:/next_backend 
-  working_dir: /next_backend
-  links:
-    - rabbitmq:RABBIT
-    - rabbitmqredis:RABBITREDIS
-  environment:
-   - PYTHONPATH=:/next_backend
-   - PYTHONUNBUFFERED=TRUE
 ###########################
 
 

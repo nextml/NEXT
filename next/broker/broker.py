@@ -1,6 +1,4 @@
 import next.utils as utils
-import hashlib
-import bisect
 
 from datetime import datetime,timedelta
 
@@ -8,6 +6,8 @@ import celery
 from next.broker.celery_app import tasks as tasks
 
 from next.broker.celery_app.celery_broker import app
+
+import os 
 
 import next.constants
 import redis
@@ -20,8 +20,7 @@ class JobBroker:
     # Initialization method for the broker
     def __init__(self):
 
-        # parameter of consistent hashing. The larger the number, the more uniform the routing gets
-        self.num_replicas = 5
+        self.hostname = None
 
         # location of hashes
         self.r = redis.StrictRedis(host=next.constants.RABBITREDIS_HOSTNAME, port=next.constants.RABBITREDIS_PORT, db=0)
@@ -40,6 +39,7 @@ class JobBroker:
         """
         submit_timestamp = utils.datetimeNow('string')
         domain = self.__get_domain_for_job(app_id+"_"+exp_uid)
+        print "AE#)JD#@)DJ@# domain=%s" % domain
         if next.constants.CELERY_ON:
             result = tasks.apply.apply_async(args=[app_id,
                                                    exp_uid,
@@ -165,68 +165,21 @@ class JobBroker:
     def __get_domain_for_job(self,job_id):
         """
         Computes which domain to run a given job_id on.
+        Git Commit: c1e4f8aacaa42fae80e111979e3f450965643520 has support
+        for multiple worker nodes. See the code in broker.py, cluster_monitor.py, and the docker-compose 
+        file in that commit to see how to get that up and running. It uses 
+        a simple circular hashing scheme to load balance getQuery/processAnswer calls.
+        This implementation assumes just a single master node and no workers
+        so only a single hostname (e.g. localhost) has celery workers.
         """
-        while not self.r.exists('replicated_domains_hash'):
-            print "failed to retrieve domain_hashes from redis"
-            time.sleep(.1)
+        if self.hostname==None:
+            fid = open('/etc/hosts','r')
+            line = fid.readline()
+            while line!='':
+                if 'MINIONWORKER' in line:
+                    self.hostname = line.split('\t')[1].split(' ')[1]
+                    break
+                line = fid.readline()
 
-        replicated_domains_hash = json.loads(self.r.get('replicated_domains_hash'))
-
-        h = self.hash(job_id)
-        # Edge case where we cycle past hash value of 1 and back to 0.
-        if h > replicated_domains_hash[-1][1]: return replicated_domains_hash[0][0]
-        # Find the index of the worker
-        hash_values = map(lambda x: x[1],replicated_domains_hash)
-        index = bisect.bisect_left(hash_values,h)
-        return replicated_domains_hash[index][0]
-
-
-    def refresh_domain_hashes(self):
-
-        # see what workers are out there
-        worker_pings = None
-        while worker_pings==None:
-            try:
-                # one could also use app.control.inspect().active_queues()
-                worker_pings = app.control.inspect().ping()
-            except:
-                worker_pings = None
-        worker_names = worker_pings.keys()
-        domain_names_with_dups = [ item.split('@')[1] for item in worker_names]
-        domain_names = list(set(domain_names_with_dups)) # remove duplicates!
-
-        timestamp = utils.datetime2str(utils.datetimeNow())
-        print "[ %s ] domains with active workers = %s" % (timestamp,str(domain_names))
-
-        replicated_domains_hash = []
-        for domain in domain_names:
-            for i in range(self.num_replicas):
-                replicated_domains_hash.append((domain, self.hash(domain+'_replica_'+str(i)), i))
-        replicated_domains_hash = sorted( replicated_domains_hash, key = lambda x: x[1])  
-
-        self.r.set('replicated_domains_hash',json.dumps(replicated_domains_hash))
-    
-    def hash(self,key):
-        """
-        Provides a simple hash of a key between 0 and 1. Used in the consistent hashing scheme.
-        """
-        return (int(hashlib.md5(key).hexdigest(),16) % 1000000)/1000000.0
-
-
-
-    # # TODO
-    # def add_worker(self, worker_id):
-    # #Add a worker with a given id.
-    #     return 0
-
-    # # TODO
-    # def remove_worker(self, worker_id):
-    # #Remove a worker with a given id.
-    #     return 0
-    
-    # # Completely reshuffle the workers and the jobs they are on
-    # def refresh_workers(self):
-    # #Refresh the full set of workers.
-    #     self.__initialize_worker_hashes()
-        
+        return self.hostname
     
