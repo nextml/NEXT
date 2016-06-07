@@ -1,55 +1,81 @@
 import os, sys
 
-# import launch_experiment. We assume that it is located in the next-discovery top level directory.
+# The line below imports launch_experiment.py.
+# We assume that it is located in next/examples
+# This function is used at the very bottom of this file
 sys.path.append("../")
 from launch_experiment import *
 
 experiment_list = []
-alg_ids = ['RandomSampling','RandomSampling','UncertaintySampling','CrowdKernel','STE']
 
-# Create common alg_list
+# List of Algorithms currently available for this app type
+alg_ids = ['RandomSampling','RandomSampling','UncertaintySampling','CrowdKernel','STE']
+alg_ids = ['CrowdKernel', 'STE', 'RandomSampling', 'UncertaintySampling']
+
+# Algorithm List. These algorithms are independent (no inter-connectedness
+# between algorithms) and each algorithm gets `proportion` number of queries
+# (i.e., if proportions is set to 0.33 for each algorithm, each algorithm will
+# sample 1/3 of the time)
 alg_list = []
 for idx,alg_id in enumerate(alg_ids):
-  alg_item = {}
-  alg_item['alg_id'] = alg_id
-  if idx==0:
-    alg_item['alg_label'] = 'Test'
-  else:
-    alg_item['alg_label'] = alg_id    
-  alg_item['test_alg_label'] = 'Test'
-  alg_item['params'] = {}
-  alg_list.append(alg_item)
+    alg_item = {}
+    alg_item['alg_id'] = alg_id
+    if idx==0:
+        alg_item['alg_label'] = 'Test'
+    else:
+        alg_item['alg_label'] = alg_id
+    alg_item['test_alg_label'] = 'Test'
+    #alg_item['params'] = {}
+    alg_list.append(alg_item)
 
-# Create common algorithm management settings  
-params = {}
-params['proportions'] = []
+# Algorithm management specifies the proportion of queries coming from an
+# algorithms. In this example, we specify that each algorithm recieves the same
+# proportion. The alg_label's must agree with the alg_labels in the alg_list.
+params = []
+#params['proportions'] = []
 for algorithm in alg_list:
-    params['proportions'].append(  { 'alg_label': algorithm['alg_label'] , 'proportion':1./len(alg_list) }  )
+    #params['proportions'].append({'alg_label': algorithm['alg_label'] ,'proportion':1./len(alg_list)})
+    params += [{'alg_label': algorithm['alg_label'],
+                               'proportion': 1.0 / len(alg_list)}]
 
+# Run algorithms here in fixed proportions
+# The number of queries sampled is the ones we specify, rather than using some
+# more complicated scheme.
 algorithm_management_settings = {}
 algorithm_management_settings['mode'] = 'fixed_proportions'
 algorithm_management_settings['params'] = params
 
-
 # Create experiment dictionary
 initExp = {}
 initExp['args'] = {}
-initExp['args']['n'] = 30
+#initExp['args']['n'] = 30 # how many targets? (/number of fruits?)
+
+# how many dimensions should we embed in? This is for the final results
 initExp['args']['d'] = 2
+
+# probability of error. similar to "significant because p < 0.05"
 initExp['args']['failure_probability'] = .01
-initExp['args']['participant_to_algorithm_management'] = 'one_to_many' 
-initExp['args']['algorithm_management_settings'] = algorithm_management_settings 
-initExp['args']['alg_list'] = alg_list 
+
+# one parcipant sees many algorithms? 'one_to_many' means one participant
+# will see many algorithms. 'one_to_many' is the other option
+initExp['args']['participant_to_algorithm_management'] = 'one_to_many'
+
+initExp['args']['algorithm_management_settings'] = algorithm_management_settings
+initExp['args']['alg_list'] = alg_list
+
+# What does the user see at start and finish? These are the instructions/debreif
+# (they have default values)
 initExp['args']['instructions'] = 'Test instructions'
 initExp['args']['debrief'] = 'Test debrief'
-initExp['app_id'] = 'PoolBasedTripletMDS'
-initExp['site_id'] = 'replace this with working site id'
-initExp['site_key'] = 'replace this with working site key'
 
+# Which app are we running? (examples of other algorithms are in examples/
+initExp['app_id'] = 'PoolBasedTripletMDS'
 
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 experiment = {}
 experiment['initExp'] = initExp
+
+# The user chooses between two images. This could be text or video as well.
 experiment['primary_type'] = 'image'
 experiment['primary_target_file'] = sys.argv[1]
 experiment_list.append(experiment)
@@ -57,15 +83,5 @@ experiment_list.append(experiment)
 # Launch the experiment
 host = "localhost:8000"
 print "It's happening"
-exp_uid_list, exp_key_list, widget_key_list = launch_experiment(host, experiment_list)
-print exp_uid_list, exp_key_list, widget_key_list
-# Update the cartoon_dueling.html file wit the exp_uid_list and widget_key_list
-# with open('strange_fruit_triplet.html','r') as page:
-#   print "opended file"
-#   page_string = page.read()
-#   page_string = page_string.replace("{{exp_uid_list}}", str(exp_uid_list))
-#   page_string = page_string.replace("{{widget_key_list}}", str(widget_key_list))
-#   with open('../../next_frontend_base/next_frontend_base/templates/strange_fruit_triplet.html','w') as out:
-#     out.write(page_string)
-#     out.flush()
-#     out.close()
+exp_uid_list = launch_experiment(host, experiment_list)
+print exp_uid_list
