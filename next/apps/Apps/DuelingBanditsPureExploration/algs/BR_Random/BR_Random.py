@@ -9,9 +9,9 @@ Jamieson et al "Sparse Borda Bandits," AISTATS 2015.
 
 import numpy
 import numpy.random
-from next.apps.Apps.CardinalBanditsPureExploration.Prototype import CardinalBanditsPureExplorationPrototype
+# from next.apps.Apps.CardinalBanditsPureExploration.Prototype import CardinalBanditsPureExplorationPrototype
 
-class RoundRobin(CardinalBanditsPureExplorationPrototype):
+class RoundRobin:
 
   def initExp(self, butler, n, R, failure_probability, params, **kwargs):
     """
