@@ -9,7 +9,8 @@ RUN apt-get update && apt-get install -y \
     python-numpy \
     python-scipy \
     python-gevent \
-    python-matplotlib 
+    python-matplotlib \ 
+    numactl 
 
 # Install MongoDB and its tools
 RUN \

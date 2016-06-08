@@ -20,8 +20,8 @@ done
 
 export i=1
 celery -A next.broker.celery_app worker -l info --loglevel=WARNING --concurrency=${CELERY_THREADS_PER_ASYNC_WORKER} -n async_worker_${i}@${HOSTNAME} -Q async@${HOSTNAME} -- celeryd.prefetch_multiplier=${CELERY_ASYNC_WORKER_PREFETCH} &
-celery -A next.broker.celery_app worker -l info --loglevel=WARNING --concurrency=1 -n sync_worker_${i}@${HOSTNAME} -Q sync_queue_${i}@${HOSTNAME} -- celeryd.prefetch_multiplier=1 
-celery -A next.broker.celery_app worker -l info --loglevel=WARNING --concurrency=${CELERY_THREADS_PER_DASHBOARD_WORKER} -n dashboard_worker_${i}@${HOSTNAME} -Q dashboard@${HOSTNAME} -- celeryd.prefetch_multiplier=${CELERY_DASHBOARD_WORKER_PREFETCH} &
+celery -A next.broker.celery_app worker -l info --loglevel=WARNING --concurrency=1 -n sync_worker_${i}@${HOSTNAME} -Q sync_queue_${i}@${HOSTNAME} -- celeryd.prefetch_multiplier=1 &
+celery -A next.broker.celery_app worker -l info --loglevel=WARNING --concurrency=${CELERY_THREADS_PER_DASHBOARD_WORKER} -n dashboard_worker_${i}@${HOSTNAME} -Q dashboard@${HOSTNAME} -- celeryd.prefetch_multiplier=${CELERY_DASHBOARD_WORKER_PREFETCH} 
 
 
 # celery -A next.broker.celery_app worker -l info --loglevel=info --concurrency=1 -n async_queue_worker_$i@%h -Q global_pool,async_queue_$HOSTNAME &

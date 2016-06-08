@@ -18,12 +18,13 @@ def run_all(assert_200):
   app_id = 'CardinalBanditsPureExploration'
   num_arms = 5000
   true_means = numpy.array(range(num_arms)[::-1])/float(num_arms)
-  total_pulls_per_client = 10000
+  total_pulls_per_client = 100
 
   num_experiments = 1
 
   # clients run in simultaneous fashion using multiprocessing library
-  num_clients = 500
+  num_clients = 100
+  total_pulls = 1000
 
   pool = Pool(processes=num_clients)           
 
@@ -110,7 +111,7 @@ def run_all(assert_200):
 
     experiment = numpy.random.choice(exp_info)
     exp_uid = experiment['exp_uid']
-    pool_args.append( (exp_uid,participant_uid,total_pulls_per_client,true_means,assert_200) )
+    pool_args.append( (exp_uid,participant_uid,total_pulls_per_client,total_pulls,true_means,assert_200) )
 
   results = pool.map(simulate_one_client, pool_args)
 
@@ -119,16 +120,19 @@ def run_all(assert_200):
 
 
 def simulate_one_client( input_args ):
-  exp_uid,participant_uid,total_pulls,true_means,assert_200 = input_args
-  avg_response_time = 1.
+  exp_uid,participant_uid,total_pulls_per_client,total_pulls,true_means,assert_200 = input_args
+  avg_response_time = 2.
+  verbose = False
 
   getQuery_times = []
   processAnswer_times = []
   for t in range(total_pulls):
-    if (t % 50) == 0:
+    if (t % total_pulls_per_client) == 0:
       participant_uid = '%030x' % random.randrange(16**30)
+      print participant_uid
 
-    print "    Participant {} had {} total pulls: ".format(participant_uid, t)
+
+    if verbose: print "    Participant {} had {} total pulls: ".format(participant_uid, t)
 
     #######################################
     # test POST getQuery #
@@ -141,11 +145,11 @@ def simulate_one_client( input_args ):
 
     url = 'http://'+HOSTNAME+'/api/experiment/getQuery'
     response,dt = timeit(requests.post)(url, json.dumps(getQuery_args_dict),headers={'content-type':'application/json'})
-    print "POST getQuery response = ", response.text, response.status_code
+    if verbose: print "POST getQuery response = ", response.text, response.status_code
     if assert_200: assert response.status_code is 200
-    print "POST getQuery duration = ", dt
+    if verbose: print "POST getQuery duration = ", dt
     getQuery_times.append(dt)
-    print 
+    if verbose: print 
     
 
     query_dict = json.loads(response.text)
@@ -178,13 +182,13 @@ def simulate_one_client( input_args ):
     processAnswer_args_dict["args"]['response_time'] = response_time
 
     url = 'http://'+HOSTNAME+'/api/experiment/processAnswer'
-    print "POST processAnswer args = ", processAnswer_args_dict
+    if verbose: print "POST processAnswer args = ", processAnswer_args_dict
     response,dt = timeit(requests.post)(url, json.dumps(processAnswer_args_dict), headers={'content-type':'application/json'})
-    print "POST processAnswer response", response.text, response.status_code
+    if verbose: print "POST processAnswer response", response.text, response.status_code
     if assert_200: assert response.status_code is 200
-    print "POST processAnswer duration = ", dt
+    if verbose: print "POST processAnswer duration = ", dt
     processAnswer_times.append(dt)
-    print
+    if verbose: print
     processAnswer_json_response = eval(response.text)
 
   processAnswer_times.sort()
