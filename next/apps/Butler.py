@@ -50,6 +50,14 @@ class Collection(object):
         else:
             return self.timed(self.db.get_docs_with_filter, get=True)(self.collection, pattern)
 
+    def get_and_delete(self, uid="", key=None, exp=None):
+        """
+        Get a value from the collection corresponding to the key and then delete the (key,value).
+        """
+        uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp == None else exp))
+        value = self.timed(self.db.get_and_delete, get=True)(self.collection, uid, key)
+        return value
+
     def exists(self, uid="", key='_id', exp=None):
         """
         Check if an object with the specified uid exists
@@ -133,7 +141,6 @@ class Butler(object):
     
     def job(self,task,task_args_json,ignore_result=True,time_limit=0):
         if self.alg_label:
-            print "butler job", self.app_id, self.exp_uid, self.alg_label, self.alg_id, task
             self.db.submit_job(self.app_id,self.exp_uid,
                                task,task_args_json,
                                self.exp_uid+'_'+self.alg_label,

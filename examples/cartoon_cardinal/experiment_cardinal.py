@@ -26,7 +26,7 @@ curr_dir = os.path.dirname(os.path.abspath(__file__))
 experiment_list = []
 
 # algs in next/apps/Apps/CardinalBanditsPureExploration/algs/
-supported_alg_ids = ['LilUCB']
+supported_alg_ids = ['LilUCB_fast']
 
 # Algorithm List. These algorithms are independent (no inter-connectedness
 # between algorithms) and each algorithm gets `proportion` number of queries

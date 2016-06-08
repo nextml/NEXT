@@ -39,7 +39,6 @@ class JobBroker:
         """
         submit_timestamp = utils.datetimeNow('string')
         domain = self.__get_domain_for_job(app_id+"_"+exp_uid)
-        print "AE#)JD#@)DJ@# domain=%s" % domain
         if next.constants.CELERY_ON:
             result = tasks.apply.apply_async(args=[app_id,
                                                    exp_uid,
@@ -133,7 +132,8 @@ class JobBroker:
                 finally:
                     pipe.reset()
             namespace_cnt = int(self.r.get(namespace+"_cnt"))
-        queue_number = (namespace_cnt % num_queues) + 1
+        queue_number = (namespace_cnt % num_queues) + 1  
+
         queue_name = 'sync_queue_'+str(queue_number)+'@'+domain
         job_uid = utils.getNewUID()
         if time_limit == 0:
@@ -172,14 +172,26 @@ class JobBroker:
         This implementation assumes just a single master node and no workers
         so only a single hostname (e.g. localhost) has celery workers.
         """
-        if self.hostname==None:
-            fid = open('/etc/hosts','r')
-            line = fid.readline()
-            while line!='':
-                if 'MINIONWORKER' in line:
-                    self.hostname = line.split('\t')[1].split(' ')[1]
-                    break
+        ttw = 0
+        while self.hostname==None:
+            time.sleep(ttw)
+            tmp = self.r.get('MINIONWORKER_HOSTNAME')
+            if tmp!=None:
+                self.hostname=tmp
+                print 'Hostname = %s  from Redis' % self.hostname
+                break
+            else:
+                fid = open('/etc/hosts','r')
                 line = fid.readline()
+                while line!='':
+                    if 'MINIONWORKER' in line:
+                        self.hostname = line.split('\t')[1].split(' ')[1]
+                        self.r.set('MINIONWORKER_HOSTNAME',self.hostname)
+                        print 'Hostname = %s  from /etc/hosts' % self.hostname 
+                        break
+                    line = fid.readline()
+            ttw += 1
+            print 'Failed to retrieve hostname... trying again in %d seconds' % ttw
 
         return self.hostname
     

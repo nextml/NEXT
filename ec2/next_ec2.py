@@ -757,6 +757,8 @@ def rsync_docker_config(opts, master_nodes, slave_nodes):
 
 
     docker_compose_template_vars = {
+        "CELERY_ON": os.getenv('CELERY_ON',True),
+
         "CELERY_SYNC_WORKER_COUNT": 6,
 
         "CELERY_ASYNC_WORKER_COUNT":4,
