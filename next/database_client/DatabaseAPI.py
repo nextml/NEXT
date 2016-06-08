@@ -319,6 +319,37 @@ class DatabaseAPI(object):
         except:
             return None,False,'DatabaseAPI.get Failed with unknown exception'
 
+    def get_and_delete(self,bucket_id,doc_uid,key):
+        """
+        returns value associated with key and then deltes {key:value}. 
+        If key does not exist, returns None
+        
+        Inputs: 
+            (string) bucket_id, (string) doc_uid, (string) key
+        
+        Outputs:
+            (bool) didSucceed, (string) message 
+        
+        Usage: ::\n
+            didSucceed,message = db.get_and_delete(bucket_id,doc_uid,key)
+        """
+        try:
+
+            if USE_CACHE:
+                # not implemented
+                raise
+            else:
+                # not using cache
+                response,dt = utils.timeit(self.permStore.get_and_delete)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                value,didSucceed,message = response
+                self.duration_permStoreGet += dt
+                if not didSucceed:
+                    return None,False,message
+                return value,True,'Hit PermStore'
+
+        except:
+            return None,False,'DatabaseAPI.get Failed with unknown exception'
+
     def get_many(self,bucket_id,doc_uid,key_list):
         """
         Get values corresponding to keys in key_list, returns None if no key exists

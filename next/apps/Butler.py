@@ -42,10 +42,11 @@ class Collection(object):
         if key==None and pattern==None:
             return self.timed(self.db.get_doc, get=True)(self.collection, uid)
         elif key:
+            doc = self.timed(self.db.get_doc, get=True)(self.collection, uid)
             if(type(key) == list):
-                return [self.timed(self.db.get, get=True)(self.collection, uid, k) for k in key]
+                return [doc[key] for k in key]
             else:
-                return self.timed(self.db.get, get=True)(self.collection, uid, key)
+                return doc[key]
         else:
             return self.timed(self.db.get_docs_with_filter, get=True)(self.collection, pattern)
 

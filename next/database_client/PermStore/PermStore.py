@@ -353,6 +353,39 @@ class PermStore(object):
         except:
             return None,False,'MongoDB.get Failed with unknown exception'
 
+    def get_and_delete(self,database_id,bucket_id,doc_uid,key):
+        """
+        returns value associated with key and then deltes {key:value}. 
+        If key does not exist, returns None
+        
+        Inputs: 
+            (string) database_id, (string) bucket_id, (string) doc_uid, (string) key
+        
+        Outputs:
+            (bool) didSucceed, (string) message 
+        
+        Usage: ::\n
+            didSucceed,message = db.get_and_delete(database_id,bucket_id,doc_uid,key)
+        """
+        if self.client == None:
+            didSucceed,message = self.connectToMongoServer()
+            if not didSucceed:
+                return False,message
+
+        try:
+            doc = self.client[database_id][bucket_id].find_and_modify( {"_id":doc_uid} , { '$unset': {key:''} } )
+            if doc==None or key not in doc:
+                return_value = None
+            else:
+                value = doc[key]
+                return_value = self.undoDatabaseFormat(value)
+
+            return return_value,True,'From MongoDB'
+        except:
+            raise
+            error = "MongoDB.get_and_delete Failed with unknown exception"
+            return None,False,error
+
     def getDoc(self,database_id,bucket_id,doc_uid):
         """
         get a doc (dictionary of string values) corresponding to a doc_uid with {"doc_uid":doc_uid} (if none, returns None)

@@ -17,8 +17,6 @@ import next.constants
 import next.apps.Butler as Butler
 import next.apps.Verifier as Verifier
 
-import redis 
-r = redis.StrictRedis(host=next.constants.RABBITREDIS_HOSTNAME, port=next.constants.RABBITREDIS_PORT, db=0)
 Butler = Butler.Butler
 
 # Main application task
