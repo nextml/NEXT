@@ -56,42 +56,7 @@ var next_widget = (function($){
 		_callbacks.widget_failure();
 	    });
 	},
-
 	
-	getStats : function(args, callbacks){
-	    $.ajax({
-		type : "POST",
-		url : _url+"/api/experiment/getStats",
-		data : JSON.stringify(args),
-		contentType: "application/json",
-		dataType: "json",
-		crossDomain: true
-	    }).done( function(data) {
-		console.log("inner data",data); 
-		callbacks.getStats_success()  
-		    response(data);
-	    }).fail(function(error){
-		console.log("Error in communicating with next_backend",jqXHR, textStatus, errorThrown);
-		callbacks.getStats_failure();
-	    });
-	},
-
-	
-	getInfo: function(args, callbacks) {
-	    $.ajax({
-		url: _url+"/api/widgets/getwidget",
-		type: "POST",
-		contentType: "application/json",
-		data: JSON.stringify(args)
-	    }).done( function(data, textStatus,XHR){
-		console.log("getInfo success", data);
-		callbacks.getInfo_success(data);
-	    } ).fail(function(error){
-		console.log("Error in communicating with next_backend");
-		callbacks.widget_failure();
-	    });
-	},
-
 	shuffle: function(array) {
 	    var currentIndex = array.length, temporaryValue, randomIndex ;
 	    while (0 !== currentIndex) {

@@ -26,15 +26,6 @@ api_interface.add_resource(getQuery,
 
 from next.api.resources.process_answer import processAnswer
 api_interface.add_resource(processAnswer, '/experiment/processAnswer')
-
-from next.api.resources.stats import Stats
-api_interface.add_resource(Stats, '/experiment/stats')
-
-# predict.py has been deleted as part of #101 on GitHub... These lines aren't
-# necessary?
-# from next.api.resources.predict import Predict
-# api_interface.add_resource(Predict, '/experiment/predict')
-
 from next.api.resources.about import About
 api_interface.add_resource(About, '/about', '/about/<string:app_id>')
 
@@ -46,13 +37,6 @@ api_interface.add_resource(Logs,
 from next.api.resources.participants import Participants
 api_interface.add_resource(Participants,
                            '/experiment/<string:exp_uid>/participants')
-
-from next.api.resources.targets import Targets
-
-api_interface.add_resource(Targets,
-                           '/targets/<string:exp_uid>',
-                           '/targets/createtargetmapping')
-
 
 from next.api.resources.database import DatabaseBackup, DatabaseRestore
 api_interface.add_resource(DatabaseBackup,'/database/databasebackup')

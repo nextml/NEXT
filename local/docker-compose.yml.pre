@@ -35,8 +35,14 @@ minionworker:
   environment:
    - PYTHONUNBUFFERED=TRUE
    - CELERY_SYNC_WORKER_COUNT=6
-   - CELERY_ASYNC_WORKER_COUNT=2
+   - CELERY_ASYNC_WORKER_COUNT=4
    - CELERY_THREADS_PER_ASYNC_WORKER=1
+   # Should be max(1,int(.25*master_num_cpus))
+   - CELERY_ASYNC_WORKER_PREFETCH=4
+   - CELERY_DASHBOARD_WORKER_COUNT=1
+   - CELERY_THREADS_PER_DASHBOARD_WORKER=2
+   - CELERY_DASHBOARD_WORKER_PREFETCH=1
+   - GIT_HASH={{GIT_HASH}}
    - PYTHONPATH=:/next_backend
 ####################################
 
@@ -55,6 +61,7 @@ nextbackenddocker:
     - rabbitmq:RABBIT
     - rabbitmqredis:RABBITREDIS
     - mongodb:MONGODB
+    - minionworker:MINIONWORKER
   environment:
    - PYTHONUNBUFFERED=TRUE
    - PYTHONPATH=:/next_backend
@@ -62,6 +69,7 @@ nextbackenddocker:
    - NEXT_BACKEND_GLOBAL_HOST
    - NEXT_BACKEND_GLOBAL_PORT
    - TERM=xterm
+   - CELERY_ON=True
 ####################################
 
 
@@ -109,18 +117,6 @@ rabbitmq:
 rabbitmqredis:
   image: redis
 
-rabbitmqmonitor:
-  build: {{NEXT_DIR}}/next/base_docker_image
-  command: python ./next/broker/cluster_monitor.py
-  volumes:
-   - {{NEXT_DIR}}:/next_backend
-  working_dir: /next_backend
-  links:
-    - rabbitmq:RABBIT
-    - rabbitmqredis:RABBITREDIS
-  environment:
-   - PYTHONPATH=:/next_backend
-   - PYTHONUNBUFFERED=TRUE
 ###########################
 
 
