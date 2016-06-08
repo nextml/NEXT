@@ -87,12 +87,21 @@ div.row > div.col-xs-12 {
       <div class="image_container">
 		<img src='{{ query.context }}'> </img>
       </div>
+      {% elif query.context_type == "video" %}
+      <div class="image_container">
+      <video width="320" height="240" poster="http://jimpunk.net/Loading/wp-content/uploads/loading1.gif" controls autoplay loop>
+        <source src='{{ query.context }}' type="video/mp4">
+      Your browser does not support the video tag.
+      </video>
+      </div>
+      {% else %}
+      context_type not recognized
       {% endif %}
   </div>
 </div>
 {% endif %}
 
-<div id="query" class="row">
+<div id="query" class="row" style="height: 50%;">
   <!-- Left Target -->
   <div class="col-xs-6" id="left">
 	{% if query.target_indices[0].target.primary_type == "image" or query.target_indices[0].target.primary_type == "img"%}
@@ -101,6 +110,13 @@ div.row > div.col-xs-12 {
 	  <div class="text">
 	    {{ query.target_indices[0].target.primary_description }}
 	  </div>
+      {% elif query.target_indices[0].target.primary_type == "video" %}
+      <div class="image_container">
+      <video width="320" height="240"  poster="http://jimpunk.net/Loading/wp-content/uploads/loading1.gif" controls autoplay loop>
+        <source src='{{ query.target_indices[0].target.primary_description }}' type="video/mp4">
+      Your browser does not support the video tag.
+      </video>
+      </div>
 	{% endif %}
   </div>
   <!-- Right Target -->
@@ -111,6 +127,13 @@ div.row > div.col-xs-12 {
 	  <div class="text">
 	    {{ query.target_indices[1].target.primary_description }}
 	  </div>
+      {% elif query.target_indices[1].target.primary_type == "video" %}
+      <div class="image_container">
+      <video width="320" height="240"  poster="http://jimpunk.net/Loading/wp-content/uploads/loading1.gif" controls autoplay loop>
+        <source src='{{ query.target_indices[1].target.primary_description }}' type="video/mp4">
+      Your browser does not support the video tag.
+      </video>
+      </div>
 	{% endif %}
   </div>
 </div>
