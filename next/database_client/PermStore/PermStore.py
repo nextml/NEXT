@@ -312,7 +312,7 @@ class PermStore(object):
                 return None,False,message
 
         try:
-            doc = self.client[database_id][bucket_id].find_one({"_id":doc_uid,key: { '$exists': True }})
+            doc = self.client[database_id][bucket_id].find_one({"_id":doc_uid,key: { '$exists': True }},{})
 
             key_exists = (doc!=None)
 
@@ -340,7 +340,7 @@ class PermStore(object):
                 return None,False,message
 
         try:
-            doc = self.client[database_id][bucket_id].find_one({"_id":doc_uid,key: { '$exists': True }})
+            doc = self.client[database_id][bucket_id].find_one({"_id":doc_uid},{key:1})
             if doc == None:
                 message = 'MongoDB.get Key '+bucket_id+'.'+doc_uid+'.'+key+' does not exist'
                 return None,True,message
@@ -373,7 +373,7 @@ class PermStore(object):
                 return False,message
 
         try:
-            doc = self.client[database_id][bucket_id].find_and_modify( {"_id":doc_uid} , { '$unset': {key:''} } )
+            doc = self.client[database_id][bucket_id].find_one_and_update(filter={"_id":doc_uid},update={'$unset': {key:''}},projection={key:1})
             if doc==None or key not in doc:
                 return_value = None
             else:
@@ -476,7 +476,7 @@ class PermStore(object):
                 return False,message
 
         try:
-            new_doc = self.client[database_id][bucket_id].find_and_modify(query={"_id":doc_uid} , update={ '$inc': {key:value} },upsert = True,new=True )
+            new_doc = self.client[database_id][bucket_id].find_one_and_update(filter={"_id":doc_uid},update={'$inc': {key:value}},projection={key:1},new=True,upsert=True)
             new_value = new_doc[key]
             return new_value,True,'From Mongo'
         except:
@@ -503,7 +503,8 @@ class PermStore(object):
                 return False,message
 
         try:
-            new_doc = self.client[database_id][bucket_id].find_and_modify(query={"_id":doc_uid} , update={ '$inc': key_value_dict },upsert = True,new=True )
+            key_value_dict_ind={key:1 for key in key_value_dict.keys()}
+            new_doc = self.client[database_id][bucket_id].find_one_and_update(filter={"_id":doc_uid},update={'$inc': key_value_dict},projection=key_value_dict_ind,new=True,upsert=True)
             new_key_value_dict = {}
             for key in key_value_dict:
                 new_key_value_dict[key] = new_doc[key]
