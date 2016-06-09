@@ -1,46 +1,6 @@
-"""
-Utilities for using the Online Learning Library for Next.Discovery
-author: Kevin Jamieson, kevin.g.jamieson@gmail.com
-last updated: 2/17/2015
+import yaml
 
-######################################
-Serves as a library of utilities for all the adaptive and online learning applications on next.dicovery.
-
-There exist a few distinct sections:
-- Learning Library Utilties, utilities for app and alg including lists of implemnted algs and how to get alg objects
-- Namespace Utilities, utilities for interacting with namespaces used in the database
-- Time Utilities, utilities dealing with timing code and timestamps
-
-Usage: ::\n
-  import next.utils as utils
-
-  app_id_list = utils.supportedApps()
-  for app_id in app_id_list:
-    print app_id
-    alg_id_list = utils.supportedAlgs(app_id)
-    for alg_id in alg_id_list:
-      print "\t-> "+alg_id
-
-which outputs: ::\n
-  StochasticBanditsPureExploration
-    -> LilUCB
-    -> LUCB
-    -> SuccElim
-  DuelingBanditsPureExploration
-    -> BR_LilUCB
-  StochasticLinearBanditsExploreExploit
-    -> OFUL
-    -> UE
-  PoolBasedTripletMDS
-    -> UncertaintySampling
-    -> RandomSampling
-"""
-
-"""
-Learning Library Utilties
-#########################
-"""
-def get_supported_apps():
+def get_supported_apps(apps_path='next/apps/Apps/'):
   """
   Returns a list of strings correspdoning to the app_id's that are fully operational in the learning library.
 
@@ -49,74 +9,9 @@ def get_supported_apps():
     print app_id_list
     >>> ['StochasticBanditsPureExploration', 'DuelingBanditsPureExploration', 'StochasticLinearBanditsExploreExploit', 'PoolBasedTripletMDS']
   """
-  apps_path = 'next/apps/Apps/'
   import os
   return next(os.walk(os.path.dirname(apps_path)))[1]
 
-def get_app_about(app_id):
-  """
-  Returns a string with a high-level description of the app
-
-  Usage: ::\n
-    about = utils.get_default_alg_list('PoolBasedTripletMDS')
-    print about
-  """
-  app_id = str(app_id) # sometimes input is unicode formatted which causes error
-  next_path = 'next.apps.'
-  app_module = __import__(next_path+app_id,fromlist=[''])
-  return app_module.get_about()
-
-def get_app_info_object(app_id):
-  """
-  Returns a string with a high-level description of the app
-
-  Usage: ::\n
-    about = utils.get_default_alg_list('PoolBasedTripletMDS')
-    print about
-  """
-  app_id = str(app_id) # soemtimes input is unicode formatted which causes error
-  next_path = 'next.apps.'
-  app_module = __import__(next_path+app_id,fromlist=[''])
-  return app_module.get_info_object()
-
-def get_app_default_instructions(app_id):
-  """
-  Returns a string with default instructions for the app (can be overwritten on initExp)
-
-  Usage: ::\n
-    about = utils.get_app_default_instructions('PoolBasedTripletMDS')
-    print about
-  """
-  app_id = str(app_id) # soemtimes input is unicode formatted which causes error
-  next_path = 'next.apps.'
-  app_module = __import__(next_path+app_id,fromlist=[''])
-  return app_module.get_default_instructions()
-
-def get_app_default_debrief(app_id):
-  """
-  Returns a string with default debrief for the app (can be overwritten on initExp)
-
-  Usage: ::\n
-    about = utils.get_default_debrief('PoolBasedTripletMDS')
-    print about
-  """
-  app_id = str(app_id) # soemtimes input is unicode formatted which causes error
-  next_path = 'next.apps.'
-  app_module = __import__(next_path+app_id,fromlist=[''])
-  return app_module.get_default_debrief()
-
-def get_app_default_num_tries(app_id):
-  """
-  Returns an int with default num_tries for the app (can be overwritten on initExp)
-
-  Usage: ::\n
-    about = utils.get_app_default_num_tries('PoolBasedTripletMDS')
-    print about
-  """
-  app_id = str(app_id) # soemtimes input is unicode formatted which causes error
-  next_path = 'next.apps.'
-  app_module = __import__(next_path+app_id,fromlist=[''])
-  return app_module.get_default_num_tries()
 
 def get_app(app_id, exp_uid, db, ell):
   """
@@ -150,69 +45,7 @@ def get_app_alg(app_id,alg_id):
   alg_class = getattr(alg_module, alg_id)
   return alg_class()
 
-def get_app_supported_algs(app_id):
-  """
-  Returns a list of strings correspdoning to the alg_id's that are fully operational in the learning library for the given app_id.
 
-  Usage: ::\n
-    alg_id_list = utils.get_app_supported_algs('StochasticBanditsPureExploration')
-    print alg_id_list
-    >>> ['LilUCB', 'LUCB', 'SuccElim']
-  """
-  app_id = str(app_id) # soemtimes input is unicode formatted which causes error
-  next_path = 'next.apps.'
-  app_module = __import__(next_path+app_id,fromlist=[''])
-  return app_module.get_implemented_algs()
-
-
-def get_app_default_alg_list(app_id):
-  """
-  The NEXT system was designed with evaluation in mind meaning that users would upload their own algorithms or
-  compare exsiting algorithms on their use cases. However, a number of users just want to use NEXT as a system
-  to adaptively collect data or just organized their data collection task. For this purpose, we have a set of defaults
-  for the algorithms and input parameters.
-
-  This script is primarily used for the internals of the system but may be of interest to those wondering what an example alg_list looks like.
-
-  Usage: ::\n
-    alg_list = utils.get_app_default_alg_list('PoolBasedTripletMDS')
-    print json.dumps(alg_list,indent=2)
-    [
-      {
-        "alg_label": "Test",
-        "alg_id": "RandomSampling",
-        "proportion": 0.1,
-        "test_alg_label": "Test",
-        "params": {}
-      },
-      {
-        "alg_label": "Random",
-        "alg_id": "RandomSampling",
-        "proportion": 0.45,
-        "test_alg_label": "Test",
-        "params": {}
-      },
-      {
-        "alg_label": "Uncertainty Sampling",
-        "alg_id": "UncertaintySampling",
-        "proportion": 0.45,
-        "test_alg_label": "Test",
-        "params": {}
-      }
-    ]
-  """
-  app_id = str(app_id) # soemtimes input is unicode formatted which causes error
-  next_path = 'next.apps.'
-  app_module = __import__(next_path+app_id,fromlist=[''])
-  return app_module.get_default_alg_list()
-
-
-
-
-"""
-Namespace Utilties
-#########################
-"""
 def getDocUID(exp_uid,alg_uid=None):
   """
   Each instance of an app (with an (app_id,exp_uid) pair) and an algorithm (with an (app_id,exp_uid,alg_id,alg_uid) tuple)
@@ -243,10 +76,6 @@ def getNewUID():
 
 
 
-"""
-Time Utilities
-#########################
-"""
 from datetime import datetime
 def datetimeNow(format='datetime'):
   """
@@ -262,19 +91,6 @@ def datetimeNow(format='datetime'):
     return datetime2str(date)
   else:
     return date
-
-def datetime2filename(obj_datetime):
-  """
-  Converts a datetime string into a datetime object in the system.
-  For consistency, one should never use their own method of converting to string, always use this method.
-
-  Usage: ::\n
-    date = utils.datetimeNow()
-    date_str = utils.datetime2str(date)
-    print date_str
-    >>> '2015-02-17 11:11:07.489925'
-  """
-  return obj_datetime.strftime("%Y-%m-%d_%H:%M:%S")
 
 def datetime2str(obj_datetime):
   """
@@ -308,7 +124,7 @@ def debug_print(*args):
   for a in args:
     print '\033[93m\033[1m'+str(a)+'\033[0m',
   print ''
-  
+
 import time
 def timeit(f):
   """
@@ -334,8 +150,3 @@ def timeit(f):
     # `a, dt = utils.timeit(...)(...)`.    
     return result, (te-ts)
   return timed
-
-
-
-
-

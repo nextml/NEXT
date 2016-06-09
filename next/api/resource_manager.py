@@ -1,4 +1,5 @@
 import next.utils as utils
+import yaml
 
 from next.database_client.DatabaseAPI import DatabaseAPI
 db = DatabaseAPI()
@@ -6,7 +7,6 @@ from next.logging_client.LoggerAPI import LoggerAPI
 ell = LoggerAPI()
 
 class ResourceManager:
-
     """
     resource_manager
     Author: Lalit Jain, Kevin Jamieson, Chris Fernandez
@@ -47,7 +47,7 @@ class ResourceManager:
         """
         return utils.get_supported_apps()
 
-    def get_app_about(self,app_id):
+    def get_app_about(self,app_id, apps_dir='next/apps/Apps/'):
         """
         Returns a string description of the app defined by app_id (good for a blurb on a website perhaps)
 
@@ -60,9 +60,11 @@ class ResourceManager:
         Usage: ::\n
             rm.get_app_about('DuelingBanditsPureExploration')
         """
-        return utils.get_app_about(app_id)
+        filename = apps_dir + '{0}/{0}.yaml'.format(app_id)
+        info = yaml.load(open(filename, 'rb'))
+        return info['initExp']['description']
 
-    def get_app_alg_ids(self,app_id):
+    def get_app_alg_ids(self,app_id, app_dir='next/apps/Apps/'):
         """
         Returns a list of all implemented alg_id's for a particular app_id
 
@@ -75,8 +77,10 @@ class ResourceManager:
         Usage: ::\n
             rm.get_app_alg_ids('PoolBasedTripletMDS')
         """
-        return utils.get_app_supported_algs(app_id)
-
+        filename = app_dir + '{0}/{0}.yaml'.format(app_id)
+        exp = yaml.load(open(filename, 'rb'))
+        args = exp['initExp']['values']['args']['values']
+        return args['alg_list']['values']['values']['alg_id']['values']
 
     def get_app_exp_uids(self,app_id):
         """
@@ -306,8 +310,6 @@ class ResourceManager:
         logs,didSucceed,message = ell.get_logs_with_filter(app_id+':'+log_type,{'exp_uid':exp_uid})
 
         return logs
-
-
 
 
 
