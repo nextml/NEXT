@@ -369,14 +369,9 @@ class DatabaseAPI(object):
                 raise
             else:
                 # not using cache
-                doc,didSucceed,message = self.get_doc(bucket_id,doc_uid)
-
-                return_dict = {}
-                for key in key_list:
-                    try:
-                        return_dict[key] = doc[key]
-                    except:
-                        pass
+                response,dt = utils.timeit(self.permStore.get_many)(constants.app_data_database_id,bucket_id,doc_uid,key_list)
+                return_dict,didSucceed,message = response
+                self.duration_permStoreSet += dt
 
                 if not didSucceed:
                     return None,False,message

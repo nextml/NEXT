@@ -23,28 +23,22 @@ class LilUCB(CardinalBanditsPureExplorationPrototype):
     priority_list = numpy.random.permutation(n).tolist()
     butler.algorithms.set(key='priority_list',value=priority_list)
 
-    butler.algorithms.increment(key='total_pulls',value=0)
-
     return True
 
   
   def getQuery(self,butler,participant_dict,**kwargs):
     do_not_ask_hash = {key: True for key in participant_dict.get('do_not_ask_list',[])}
 
-    priority_list = butler.algorithms.get(key='priority_list')
-    
-    A = []
-    k = 0
-    while k<len(priority_list):
-      if not do_not_ask_hash.get(priority_list[k],False):  
-        A.append(k)
-        if len(A)>=10: # tradeoff number: the larger it is the less likely it is to have collisions, but the algorithm is not as greedy. The delay between updates in processAnswer should be considered when setting this number
-          break
+    kv_dict = butler.algorithms.increment_many(key_value_dict={'priority_list':0,'priority_list_cnt':1}) 
+    priority_list = kv_dict['priority_list']
+    priority_list_cnt = kv_dict['priority_list_cnt']
+
+    k = (priority_list_cnt-1) % len(priority_list)
+    while k<len(priority_list) and do_not_ask_hash.get(priority_list[k],False):
       k+=1
-    if len(A)==0:
-      index = numpy.random.randint(n)
+    if k==len(priority_list):
+      index = numpy.random.choice(priority_list)
     else:
-      k = numpy.random.choice(A)
       index = priority_list[k]
 
     return index
@@ -108,9 +102,9 @@ class LilUCB(CardinalBanditsPureExplorationPrototype):
           mu[i] = Xsum[i] / T[i]
           UCB[i] = mu[i] + numpy.sqrt( 2.0*R*R*numpy.log( 4*T[i]*T[i]/delta ) / T[i] )
 
-      priority_list = numpy.argsort(-UCB).tolist()
+      # sort by -UCB first then break ties randomly
+      priority_list = numpy.lexsort((numpy.random.randn(n),-UCB)).tolist() 
 
-      butler.algorithms.set_many(key_value_dict={'priority_list':priority_list,'Xsum':Xsum,'X2sum':X2sum,'T':T})
-
+      butler.algorithms.set_many(key_value_dict={'priority_list':priority_list,'priority_list_cnt':0,'Xsum':Xsum,'X2sum':X2sum,'T':T})
 
 

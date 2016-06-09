@@ -23,7 +23,7 @@ def run_all(assert_200):
   num_experiments = 1
 
   # clients run in simultaneous fashion using multiprocessing library
-  num_clients = 200
+  num_clients = 100
   total_pulls = 4000
 
   pool = Pool(processes=num_clients)           

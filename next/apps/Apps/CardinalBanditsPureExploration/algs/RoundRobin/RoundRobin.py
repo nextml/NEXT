@@ -14,26 +14,20 @@ class RoundRobin(CardinalBanditsPureExplorationPrototype):
     butler.algorithms.set(key='n', value=n)
     butler.algorithms.set(key='failure_probability',value=failure_probability)
     butler.algorithms.set(key='R',value=R)
-    arm_key_value_dict = {}
-    for i in range(n):
-      arm_key_value_dict['Xsum_'+str(i)] = 0.
-      arm_key_value_dict['X2sum_'+str(i)] = 0.
-      arm_key_value_dict['T_'+str(i)] = 0.
-    arm_key_value_dict.update({'total_pulls':0,'generated_queries_cnt':-1})
-    butler.algorithms.increment_many(key_value_dict=arm_key_value_dict)
 
+    empty_list = numpy.zeros(n).tolist()
+    butler.algorithms.set(key='Xsum',value=empty_list)
+    butler.algorithms.set(key='X2sum',value=empty_list)
+    butler.algorithms.set(key='T',value=empty_list)
     return True
 
   
   def getQuery(self,butler,participant_dict,**kwargs):
     do_not_ask_hash = {key: True for key in participant_dict.get('do_not_ask_list',[])}
     
-    # n = butler.algorithms.get(key='n')
-    # cnt = butler.algorithms.increment(key='generated_queries_cnt',value=1)
-    # The following line performs the previous two lines in one query to the database
     kv_dict = butler.algorithms.increment_many(key_value_dict={'n':0,'generated_queries_cnt':1})
     n = kv_dict['n']
-    cnt = kv_dict['generated_queries_cnt']
+    cnt = kv_dict['generated_queries_cnt']-1
 
     k=0
     while k<n and do_not_ask_hash.get(((cnt+k)%n),False):
@@ -46,17 +40,20 @@ class RoundRobin(CardinalBanditsPureExplorationPrototype):
     return index
 
   def processAnswer(self,butler,target_id,target_reward): 
-    butler.algorithms.increment_many(key_value_dict={'Xsum_'+str(target_id):target_reward,'X2sum_'+str(target_id):target_reward*target_reward,'T_'+str(target_id):1,'total_pulls':1})
-    
+    butler.algorithms.append(key='S',value=(target_id,target_reward))
+
+    if numpy.random.rand()<.1: # occurs about 1/10 of trials
+      butler.job('update_priority_list', {},time_limit=5)
+
     return True
 
   def getModel(self,butler):
     key_value_dict = butler.algorithms.get()
     R = key_value_dict['R']
     n = key_value_dict['n']
-    sumX = [key_value_dict['Xsum_'+str(i)] for i in range(n)]
-    sumX2 = [key_value_dict['X2sum_'+str(i)] for i in range(n)]
-    T = [key_value_dict['T_'+str(i)] for i in range(n)]
+    sumX = key_value_dict['Xsum']
+    sumX2 = key_value_dict['X2sum']
+    T = key_value_dict['T']
 
     mu = numpy.zeros(n)
     prec = numpy.zeros(n)
@@ -72,3 +69,22 @@ class RoundRobin(CardinalBanditsPureExplorationPrototype):
         prec[i] = numpy.sqrt( float( max(1.,sumX2[i] - T[i]*mu[i]*mu[i]) ) / ( T[i] - 1. ) / T[i] )
     
     return mu.tolist(),prec.tolist()
+
+  def update_priority_list(self,butler,args):
+    S = butler.algorithms.get_and_delete(key='S')
+
+    if S!=None:
+      doc = butler.algorithms.get()
+
+      Xsum = doc['Xsum']
+      X2sum = doc['X2sum']
+      T = doc['T']
+
+      for q in S:
+        Xsum[q[0]] += q[1]
+        X2sum[q[0]] += q[1]*q[1]
+        T[q[0]] += 1
+
+      butler.algorithms.set_many(key_value_dict={'Xsum':Xsum,'X2sum':X2sum,'T':T})
+
+
