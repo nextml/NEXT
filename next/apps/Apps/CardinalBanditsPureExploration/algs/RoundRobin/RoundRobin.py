@@ -28,8 +28,12 @@ class RoundRobin(CardinalBanditsPureExplorationPrototype):
   def getQuery(self,butler,participant_dict,**kwargs):
     do_not_ask_hash = {key: True for key in participant_dict.get('do_not_ask_list',[])}
     
-    n = butler.algorithms.get(key='n')
-    cnt = butler.algorithms.increment(key='generated_queries_cnt',value=1)
+    # n = butler.algorithms.get(key='n')
+    # cnt = butler.algorithms.increment(key='generated_queries_cnt',value=1)
+    # The following line performs the previous two lines in one query to the database
+    kv_dict = butler.algorithms.increment_many(key_value_dict={'n':0,'generated_queries_cnt':1})
+    n = kv_dict['n']
+    cnt = kv_dict['generated_queries_cnt']
 
     k=0
     while k<n and do_not_ask_hash.get(((cnt+k)%n),False):
@@ -48,19 +52,23 @@ class RoundRobin(CardinalBanditsPureExplorationPrototype):
 
   def getModel(self,butler):
     key_value_dict = butler.algorithms.get()
+    R = key_value_dict['R']
     n = key_value_dict['n']
     sumX = [key_value_dict['Xsum_'+str(i)] for i in range(n)]
+    sumX2 = [key_value_dict['X2sum_'+str(i)] for i in range(n)]
     T = [key_value_dict['T_'+str(i)] for i in range(n)]
 
     mu = numpy.zeros(n)
+    prec = numpy.zeros(n)
     for i in range(n):
       if T[i]==0 or mu[i]==float('inf'):
         mu[i] = -1
+        prec[i] = -1
+      elif T[i]==1:
+        mu[i] = float(sumX[i]) / T[i]
+        prec[i] = R
       else:
-        mu[i] = sumX[i] / T[i]
-
-    prec = [numpy.sqrt(1.0/max(1,t)) for t in T]
+        mu[i] = float(sumX[i]) / T[i]
+        prec[i] = numpy.sqrt( float( max(1.,sumX2[i] - T[i]*mu[i]*mu[i]) ) / ( T[i] - 1. ) / T[i] )
     
-    return mu.tolist(),prec
-
-
+    return mu.tolist(),prec.tolist()

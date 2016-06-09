@@ -23,8 +23,8 @@ def run_all(assert_200):
   num_experiments = 1
 
   # clients run in simultaneous fashion using multiprocessing library
-  num_clients = 100
-  total_pulls = 1000
+  num_clients = 200
+  total_pulls = 4000
 
   pool = Pool(processes=num_clients)           
 
@@ -32,7 +32,7 @@ def run_all(assert_200):
   # input test parameters
   n = num_arms
   delta = 0.05
-  supported_alg_ids = ['RoundRobin','LilUCB','LilUCB_fast']
+  supported_alg_ids = ['RoundRobin','LilUCB']
   # supported_alg_ids = []
 
   labels = [{'label':'bad','reward':1.},{'label':'neutral','reward':2.},{'label':'good','reward':3.}]
@@ -124,6 +124,8 @@ def simulate_one_client( input_args ):
   exp_uid,participant_uid,total_pulls_per_client,total_pulls,true_means,assert_200 = input_args
   avg_response_time = 2.
   verbose = False
+
+  time.sleep(  2*avg_response_time*numpy.log(1./numpy.random.rand())  )
 
   getQuery_times = []
   processAnswer_times = []
