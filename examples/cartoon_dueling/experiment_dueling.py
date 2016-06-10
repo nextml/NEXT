@@ -33,7 +33,7 @@ supported_alg_ids = ['BR_LilUCB', 'BR_Random', 'BR_SuccElim',
                      'BeatTheMean', 'BR_Thompson']
 
 # TODO: implement the other algs!
-supported_alg_ids = ['BR_LilUCB']
+supported_alg_ids = ['BR_LilUCB', 'BR_Random']
 
 # Algorithm List. These algorithms are independent (no inter-connectedness
 # between algorithms) and each algorithm gets `proportion` number of queries

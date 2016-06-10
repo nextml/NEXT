@@ -29,7 +29,7 @@ class BR_LilUCB:
     butler.algorithms.increment_many(key_value_dict=arm_key_value_dict)
 
     return True
-  
+
   def getQuery(self,butler,participant_dict,**kwargs):
     beta = 0.0 # algorithm parameter
 
