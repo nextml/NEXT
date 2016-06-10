@@ -253,11 +253,10 @@ body {
 		                      "response_time": Date.now()/1000.0 - Config.timestamp}
 		              }),
 		        dataType: "json"
-		        }).done( function(data,textStatus, jqXHR) {
-		        Contest.updateCaption(data)
 		        }).fail( function(error){
 		        console.log("Failed to get process answer", error);
 		        });
+		    Contest.updateCaption()
 		}
 	};
 	Contest.init();

@@ -67,6 +67,9 @@ class CardinalBanditsPureExploration(object):
 
         TODO: Document this further
         """
+        participant_uid = query_request['args'].get('participant_uid', query_request['exp_uid'])
+        butler.participants.append(uid=participant_uid,key='do_not_ask_list',value=alg_response)
+
         target = self.TargetManager.get_target_item(exp_uid, alg_response)
         targets_list = [{'target':target}]
 
@@ -102,9 +105,6 @@ class CardinalBanditsPureExploration(object):
         """
         target_id = query['target_indices'][0]['target']['target_id']     
         target_reward = answer['args']['target_reward']
-
-        participant_uid = query['participant_uid']
-        butler.participants.append(uid=participant_uid,key='do_not_ask_list',value=target_id)
 
         query_update = {'target_id':target_id,'target_reward':target_reward}
         alg_args_dict = {'target_id':target_id,'target_reward':target_reward}
