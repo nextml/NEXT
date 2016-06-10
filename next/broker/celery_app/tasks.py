@@ -47,7 +47,6 @@ def apply(app_id, exp_uid, task_name, args_in_json, enqueue_timestamp):
 			log_entry_durations['app_duration'] = dt
 			log_entry_durations['duration_enqueued'] = time_enqueued
 			log_entry_durations['timestamp'] = next.utils.datetimeNow()
-                        next.utils.debug_print("LOGGING",log_entry_durations)
 			ell.log( app_id+':ALG-DURATION', log_entry_durations  )
 	else:
 		return_value = (args_out_json,didSucceed,message)

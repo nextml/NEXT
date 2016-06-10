@@ -230,6 +230,8 @@ class Helper(object):
 
     def ensure_indices(self,app_id,db,ell):
         # add indexes (only adds them if they do not already exist)
+        didSucceed,message = db.ensure_index('targets',{'exp_uid':1})
+        didSucceed,message = db.ensure_index('targets',{'exp_uid':1,'target_id':1})
         didSucceed,message = db.ensure_index('experiments_admin',{'exp_uid':1})
         didSucceed,message = db.ensure_index(app_id+':experiments',{'exp_uid':1})
         didSucceed,message = db.ensure_index(app_id+':queries',{'exp_uid':1})

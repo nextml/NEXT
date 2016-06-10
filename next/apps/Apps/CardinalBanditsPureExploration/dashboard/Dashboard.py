@@ -23,9 +23,21 @@ class CardinalBanditsPureExplorationDashboard(AppDashboard):
             (int) ranking : rank (0 to number of targets - 1) representing belief of being best arm
         """
         next_app = utils.get_app(app_id, exp_uid, self.db, self.ell)
-        args_out_dict = json.loads(next_app.getModel(exp_uid, json.dumps({'exp_uid':exp_uid, 'args':{'alg_label':alg_label}}))[0])
-        item = args_out_dict['args']
+        # args_out_dict = json.loads(next_app.getModel(exp_uid, json.dumps({'exp_uid':exp_uid, 'args':{'alg_label':alg_label}}))[0])
+        args_in_json = json.dumps({'exp_uid':exp_uid, 'args':{'alg_label':alg_label}})
+        response,dt = utils.timeit(next_app.getModel)(exp_uid, args_in_json)
+        args_out_json,didSucceed,message = response
+        args_out_dict = json.loads(args_out_json)
 
+        meta = args_out_dict.get('meta',{})
+        if 'log_entry_durations' in meta:
+          log_entry_durations = meta['log_entry_durations']
+          log_entry_durations['app_duration'] = dt
+          log_entry_durations['duration_enqueued'] = 0.
+          log_entry_durations['timestamp'] = utils.datetimeNow()
+          butler.ell.log( app_id+':ALG-DURATION', log_entry_durations  )
+        
+        item = args_out_dict['args']
         return_dict = {}
         return_dict['headers'] = [{'label':'Rank','field':'rank'},
                                   {'label':'Target','field':'index'},

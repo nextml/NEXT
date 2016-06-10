@@ -118,13 +118,14 @@ class CardinalBanditsPureExploration(object):
         scores = numpy.array(scores)[ranks]
         precisions = numpy.array(precisions)[ranks]
         ranks = range(n)
+        target_set = self.TargetManager.get_targetset(exp_uid)
+        target_set = sorted(target_set,key=lambda x: x['target_id'])
         targets = []
         for index in range(n):
-          targets.append( {'index':indexes[index],
-                           'target':self.TargetManager.get_target_item(exp_uid, indexes[index]),
+            targets.append( {'index':indexes[index],
+                           'target':target_set[indexes[index]],
                            'rank':ranks[index],
                            'score':scores[index],
                            'precision':precisions[index]} )
-        num_reported_answers = butler.experiment.get('num_reported_answers')
-        return {'targets': targets, 'num_reported_answers':num_reported_answers} 
+        return {'targets': targets} 
         

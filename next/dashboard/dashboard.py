@@ -36,9 +36,7 @@ def experiment_list():
     # Experiments set
     experiments = []
     for app_id in rm.get_app_ids():
-        print "app_id", app_id
         for exp_uid in rm.get_app_exp_uids(app_id):
-            print "exp_uid", exp_uid
             start_date = rm.get_app_exp_uid_start_date(exp_uid)
             try:
                 experiments.append({'exp_uid': exp_uid,
@@ -62,7 +60,6 @@ def get_stats():
                                                              exp_uid,
                                                              args_dict)
     
-    print "response json getStats"
     return response_json
     #with open(os.path.join('next/apps', 'Apps/{}/{}.yaml'.format(app_id, app_id)),'r') as f:
     #    reference_dict = yaml.load(f)        

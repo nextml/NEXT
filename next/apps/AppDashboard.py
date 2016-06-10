@@ -26,7 +26,6 @@ class AppDashboard(object):
     Expected output (in dict):
       (dict) MPLD3 plot dictionary
     """
-    utils.debug_print("compute duration multiline plot app_id {}, exp_uid {}".format(app_id, exp_uid))
     queries = butler.queries.get(pattern={'exp_uid':exp_uid})
     #self.db.get_docs_with_filter(app_id+':queries',{'exp_uid':exp_uid})
     start_date = utils.str2datetime(butler.admin.get(uid=exp_uid)['start_date'])
