@@ -1,11 +1,13 @@
 from __future__ import absolute_import
 from .celery_broker import app
+import celery.signals
 import os
 import sys
 import time
 import json
 import yaml
 import traceback
+import numpy
 
 # import next.logging_client.LoggerHTTP as ell
 from next.database_client.DatabaseAPI import DatabaseAPI
@@ -129,6 +131,14 @@ def apply_sync_by_namespace(app_id, exp_uid, alg_id, alg_label, task_name, args,
 		# log_entry = { 'exp_uid':exp_uid,'task':'daemonProcess','error':error,'timestamp':next.utils.datetimeNow() } 
 		# ell.log( app_id+':APP-EXCEPTION', log_entry  )
 		return None
+
+# forces each worker to get its own random seed. 
+@celery.signals.worker_process_init.connect()
+def seed_rng(**_):
+    """
+    Seeds the numpy random number generator.
+    """
+    numpy.random.seed()
 
 # If celery isn't off, celery-wrap the functions so they can be called with apply_async
 if next.constants.CELERY_ON:
