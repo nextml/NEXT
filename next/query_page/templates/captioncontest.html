@@ -171,7 +171,7 @@ body {
 	};
 
 	var Config = {
-		// "cartoon_url": 	'http://4226e77ce409c0899a25e8f53ceda7.s3.amazonaws.com/516.jpg',
+		"cartoon_url": 	'',  // if empty will be filled in by url contained in first query
 		"host_url": 	 "{{ host_url }}", // includes port
 		"exp_uid": 		"{{exp_uid}}",
 		"query_uid": 	'null',
@@ -186,8 +186,6 @@ body {
 
 		init: function() {
 			this.addEvents();
-			// this.revealRatingButtons();
-			// document.getElementById("ratings").className = "enabled";
 			this.updateCaption();
 		},
 
@@ -210,7 +208,10 @@ body {
 			drawCaption = function(data) {
 		        document.getElementById("the_caption").innerHTML = "&ldquo;"+data['target_indices'][0]['target']['primary_description']+"&rdquo;"
 		        Config.query_uid = data['query_uid']
-		        document.getElementById("the_cartoon").src = data['context'];
+		        if (Config.cartoon_url=='') {
+		        	Config.cartoon_url = data['context'];
+		        }
+		        document.getElementById("the_cartoon").src = Config.cartoon_url
 		        document.getElementById("ratings").className = "enabled";
 		        Config.timestamp = Date.now()/1000.0
 		    }
@@ -229,12 +230,6 @@ body {
 		        }).fail( function(error){
 		        console.log("Failed to get new caption", error);
 		        });
-		},
-
-		revealRatingButtons: function() {
-			// var t = setTimeout(function(){
-			document.getElementById("ratings").className = "enabled";
-			// }, 499);
 		},
 
 		submitAnswer: function(answer) {

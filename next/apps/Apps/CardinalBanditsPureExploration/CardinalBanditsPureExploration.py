@@ -121,11 +121,23 @@ class CardinalBanditsPureExploration(object):
         target_set = self.TargetManager.get_targetset(exp_uid)
         target_set = sorted(target_set,key=lambda x: x['target_id'])
         targets = []
-        for index in range(n):
-            targets.append( {'index':indexes[index],
-                           'target':target_set[indexes[index]],
-                           'rank':ranks[index],
-                           'score':scores[index],
-                           'precision':precisions[index]} )
+        if len(target_set)==0:
+            for index in range(n):
+                targets.append( {'index':indexes[index],
+                               'target':{'target_id':indexes[index],
+                                          'primary_description':str(indexes[index]),
+                                          'primary_type':'text',
+                                          'alt_description':str(indexes[index]),
+                                          'alt_type':'text'},
+                               'rank':ranks[index],
+                               'score':scores[index],
+                               'precision':precisions[index]} )
+        else:
+            for index in range(n):
+                targets.append( {'index':indexes[index],
+                               'target':target_set[indexes[index]],
+                               'rank':ranks[index],
+                               'score':scores[index],
+                               'precision':precisions[index]} )
         return {'targets': targets} 
         
