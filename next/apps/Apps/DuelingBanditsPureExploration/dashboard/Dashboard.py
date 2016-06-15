@@ -24,13 +24,19 @@ class DuelingBanditsPureExplorationDashboard(AppDashboard):
             (int) ranking : rank (0 to number of targets - 1) representing belief of being best arm
         """
         next_app = utils.get_app(app_id, exp_uid, self.db, self.ell)
-        args_out_dict = json.loads(next_app.getModel(exp_uid, json.dumps({'exp_uid':exp_uid, 'args':{'alg_label':alg_label}}))[0])
+        args_out_dict = json.loads(next_app.getModel(exp_uid, 
+                                    json.dumps({'exp_uid':exp_uid, 
+                                            'args': {'alg_label':alg_label}}))[0])
         item = args_out_dict['args']
         return_dict = {}
         return_dict['headers'] = [{'label':'Rank','field':'rank'},
                                   {'label':'Target','field':'index'},
                                   {'label':'Score','field':'score'},
                                   {'label':'Precision','field':'precision'}]
+        for target in item['targets']:
+            for key in ['score', 'precision']:
+                target[key] = '{:0.5f}'.format(target[key])
+
         return_dict['data'] = item['targets']
         return_dict['plot_type'] = 'columnar_table'
         return return_dict

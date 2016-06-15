@@ -9,9 +9,10 @@ Jamieson et al "Sparse Borda Bandits," AISTATS 2015.
 
 import numpy
 import numpy.random
+import next.utils as utils
 
 class BR_Random:
-    self.app_id = 'DuelingBanditsPureExploration'
+    app_id = 'DuelingBanditsPureExploration'
     def initExp(self, butler, n=None, R=None, failure_probability=None, params=None):
         """
         This function is meant to set keys used later by the algorith implemented
@@ -27,7 +28,9 @@ class BR_Random:
             arm_key_value_dict['T_'+str(i)] = 0.
 
         arm_key_value_dict.update({'total_pulls':0})
-        butler.algorithms.increment_many(key_value_dict=arm_key_value_dict)
+
+        butler.algorithms.set(key='keys', value=list(arm_key_value_dict.keys()))
+        butler.algorithms.set_many(key_value_dict=arm_key_value_dict)
 
         return True
 
@@ -54,24 +57,29 @@ class BR_Random:
         if painted_id==winner_id:
             reward = 1.
 
-        butler.algorithms.increment_many(key_value_dict={'Xsum_'+str(painted_id):reward, 'T_'+str(painted_id):1., 'total_pulls':1})
+        butler.algorithms.increment_many(key_value_dict=
+                                            {'Xsum_'+str(painted_id):reward,
+                                             'T_'+str(painted_id):1.0,
+                                             'total_pulls':1})
 
         return True
 
     def getModel(self,butler):
-        key_value_dict = butler.algorithms.get()
-        n = key_value_dict['n']
+        keys = butler.algorithms.get(key='keys')
+        key_value_dict = butler.algorithms.get(key=keys)
+        n = butler.algorithms.get(key='n')
+
         sumX = [key_value_dict['Xsum_'+str(i)] for i in range(n)]
         T = [key_value_dict['T_'+str(i)] for i in range(n)]
 
-        mu = numpy.zeros(n)
+        mu = numpy.zeros(n, dtype='float')
         for i in range(n):
             if T[i]==0 or mu[i]==float('inf'):
                 mu[i] = -1
             else:
-                mu[i] = sumX[i] / T[i]
+                mu[i] = sumX[i] * 1.0 / T[i]
 
         prec = [numpy.sqrt(1.0/max(1,t)) for t in T]
-        return mu.tolist(),prec
+        return mu.tolist(), prec
 
 

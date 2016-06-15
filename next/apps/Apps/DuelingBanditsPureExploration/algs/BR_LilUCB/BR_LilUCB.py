@@ -26,19 +26,23 @@ class BR_LilUCB:
       arm_key_value_dict['Xsum_'+str(i)] = 0.
       arm_key_value_dict['T_'+str(i)] = 0.
     arm_key_value_dict.update({'total_pulls':0})
-    butler.algorithms.increment_many(key_value_dict=arm_key_value_dict)
+
+    butler.algorithms.set(key='keys', value=list(arm_key_value_dict.keys()))
+    butler.algorithms.set_many(key_value_dict=arm_key_value_dict)
 
     return True
 
-  def getQuery(self,butler,participant_dict,**kwargs):
+  def getQuery(self, butler, participant_dict, args=None, **kwargs):
     beta = 0.0 # algorithm parameter
 
-    key_value_dict = butler.algorithms.get()
-    n = key_value_dict['n']
+    keys = butler.algorithms.get(key='keys')
+    key_value_dict = butler.algorithms.get(key=keys)
+    delta = butler.algorithms.get(key='failure_probability')
+    n = butler.algorithms.get(key='n')
+
     sumX = [key_value_dict['Xsum_'+str(i)] for i in range(n)]
     T = [key_value_dict['T_'+str(i)] for i in range(n)]
 
-    delta = key_value_dict['failure_probability']
     sigma_sq = 0.25
 
     mu = numpy.zeros(n)
@@ -79,13 +83,18 @@ class BR_LilUCB:
     if painted_id==winner_id:
       reward = 1.
 
-    butler.algorithms.increment_many(key_value_dict={'Xsum_'+str(painted_id):reward, 'T_'+str(painted_id):1., 'total_pulls':1})
-    
+    butler.algorithms.increment_many(key_value_dict={'Xsum_'+str(painted_id):reward, 
+                                                     'T_'+str(painted_id):1., 
+                                                     'total_pulls':1})
+
     return True
 
   def getModel(self,butler):
-    key_value_dict = butler.algorithms.get()
-    n = key_value_dict['n']
+    keys = butler.algorithms.get(key='keys')
+    key_value_dict = butler.algorithms.get(key=keys)
+
+    n = butler.algorithms.get(key='n')
+
     sumX = [key_value_dict['Xsum_'+str(i)] for i in range(n)]
     T = [key_value_dict['T_'+str(i)] for i in range(n)]
 
@@ -97,8 +106,5 @@ class BR_LilUCB:
         mu[i] = sumX[i] / T[i]
 
     prec = [numpy.sqrt(1.0/max(1,t)) for t in T]
-    
-    return mu.tolist(),prec
-    
-  
- 
+
+    return mu.tolist(), prec

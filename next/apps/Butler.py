@@ -10,7 +10,7 @@ class Collection(object):
         self.get_durations = 0.0
         self.set_durations = 0.0
         self.timing = timing
-        
+
     def set(self, uid="", key=None, value=None, exp=None):
         """
         Set an object in the collection, or an entry in an object in the collection.
@@ -29,13 +29,13 @@ class Collection(object):
         """
         uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp == None else exp))
         return self.timed(self.db.set_many)(self.collection, uid, key_value_dict)
-        
+
     def get(self, uid="", key=None, pattern=None, exp=None):
         """
         Get an object from the collection (possibly by pattern), or an entry (or entries) from an object in the collection.
         * key == None and pattern == None:                         return collection[uid]
         * key != None and pattern == None and type(key) != list:   return collection[uid][key]
-        * key != None and pattern == None and type(key) == list:   return [collection[uid][k] for k in key]
+        * key != None and pattern == None and type(key) == list:   return {k: collection[uid][k] for k in key}
         * pattern != None:                                         return collection[uid] matching pattern
         """
         uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp == None else exp))
@@ -91,7 +91,7 @@ class Collection(object):
         """
         uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp == None else exp))
         self.timed(self.db.append_list)(self.collection,uid,key,value)
-            
+
     def getDurations(self):
         """
         For book keeping purposes only
@@ -101,7 +101,7 @@ class Collection(object):
     def timed(self, f, get=False):
         if not self.timing:
             return f
-        
+
         def timed_f(*args, **kw):
             result,dt = utils.timeit(f)(*args, **kw)
             res = None
@@ -113,7 +113,7 @@ class Collection(object):
                 didSucceed, message = result
             return res
         return timed_f
-        
+
 class Butler(object):
     def __init__(self, app_id, exp_uid, targets, db, ell, alg_label=None, alg_id=None):
         self.app_id = app_id
@@ -137,7 +137,7 @@ class Butler(object):
 
     def log(self, log_name, log_value):
         self.ell.log(self.app_id+":"+log_name, log_value)
-    
+
     def job(self,task,task_args_json,ignore_result=True,time_limit=0):
         if self.alg_label:
             self.db.submit_job(self.app_id,self.exp_uid,

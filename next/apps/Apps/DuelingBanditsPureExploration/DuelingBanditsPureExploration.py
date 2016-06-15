@@ -156,7 +156,7 @@ class DuelingBanditsPureExploration(object):
                            'precision':precisions[index]} )
         num_reported_answers = butler.experiment.get('num_reported_answers')
         return {'targets': targets, 'num_reported_answers':num_reported_answers} 
-        
+
     def getStats(self, exp_uid, stats_request, dashboard, butler):
         """
         Get statistics to display on the dashboard.
