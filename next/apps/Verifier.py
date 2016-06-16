@@ -5,15 +5,16 @@ from pprint import pprint
 import traceback
 import sys
 import os
+import next.utils as utils
 
-def load_doc(filename):
-    with open(filename) as f:
-        ref = yaml.load(f.read())
-    
-    ds = [load_doc(f) for f in ref['extends']]
-    ref.pop('extends',None)
-    for d in ds:
-        ref = merge_dict(ref,d)
+def load_doc(file_):
+    ref = yaml.load(file_.read())
+
+    if 'extends' in ref.keys():
+        ds = [load_doc(ext) for ext in ref['extends']]
+        ref.pop('extends',None)
+        for d in ds:
+            ref = merge_dict(ref, d)
 
     return ref
 
