@@ -6,11 +6,11 @@ import traceback
 import sys
 import os
 
-def assemble_dict(filename):
+def load_doc(filename):
     with open(filename) as f:
         ref = yaml.load(f.read())
     
-    ds = [assemble_dict(f) for f in ref['extends']]
+    ds = [load_doc(f) for f in ref['extends']]
     ref.pop('extends',None)
     for d in ds:
         ref = merge_dict(ref,d)

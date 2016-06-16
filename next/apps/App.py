@@ -36,7 +36,7 @@ class App(object):
         self.butler = Butler(self.app_id, self.exp_uid, self.myApp.TargetManager, db, ell)
         dir,_ = os.path.split(__file__)
         with open(os.path.join(dir, "Apps/{}/{}.yaml".format(app_id, app_id)),'r') as f:
-            self.reference_dict = yaml.load(f)
+            self.reference_dict = Verifier.load_doc(f)
         dashboard_string = 'next.apps.Apps.' + self.app_id + \
                            '.dashboard.Dashboard'
         dashboard_module = __import__(dashboard_string, fromlist=[''])
