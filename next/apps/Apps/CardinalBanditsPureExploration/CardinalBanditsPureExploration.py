@@ -8,7 +8,7 @@ class CardinalBanditsPureExploration(object):
         self.app_id = 'CardinalBanditsPureExploration'
         self.TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager(db)
 
-    def initExp(self, exp_uid, exp_data, butler):
+    def initExp(self, butler, exp_data):
         """
         This function is meant to store any additional components in the
         databse.
@@ -47,7 +47,7 @@ class CardinalBanditsPureExploration(object):
 
         return exp_data,alg_data
 
-    def getQuery(self, exp_uid, experiment_dict, query_request, alg_response, butler):
+    def getQuery(self, butler, query_request, alg_response):
         """
         The function that gets the next query, given a query reguest and
         algorithm response.
@@ -70,11 +70,11 @@ class CardinalBanditsPureExploration(object):
         participant_uid = query_request['args'].get('participant_uid', query_request['exp_uid'])
         butler.participants.append(uid=participant_uid,key='do_not_ask_list',value=alg_response)
 
-        target = self.TargetManager.get_target_item(exp_uid, alg_response)
+        target = self.TargetManager.get_target_item(butler.exp_uid, alg_response)
         targets_list = [{'target':target}]
 
         return_dict = {'target_indices':targets_list}
-
+        experiment_dict = butler.experiment.get()
         if 'labels' in experiment_dict['args']['rating_scale']:
             labels = experiment_dict['args']['rating_scale']['labels']
             return_dict.update({'labels':labels})
@@ -84,7 +84,7 @@ class CardinalBanditsPureExploration(object):
 
         return return_dict
 
-    def processAnswer(self, exp_uid, query, answer, butler):
+    def processAnswer(self, butler, query, answer):
         """
         Parameters
         ----------
@@ -110,7 +110,7 @@ class CardinalBanditsPureExploration(object):
         alg_args_dict = {'target_id':target_id,'target_reward':target_reward}
         return query_update,alg_args_dict
 
-    def getModel(self, exp_uid, alg_response, args_dict, butler):
+    def getModel(self, butler, args_dict, alg_response):
         scores, precisions = alg_response
         ranks = (-numpy.array(scores)).argsort().tolist()
         n = len(scores)
@@ -118,7 +118,7 @@ class CardinalBanditsPureExploration(object):
         scores = numpy.array(scores)[ranks]
         precisions = numpy.array(precisions)[ranks]
         ranks = range(n)
-        target_set = self.TargetManager.get_targetset(exp_uid)
+        target_set = self.TargetManager.get_targetset(butler.exp_uid)
         target_set = sorted(target_set,key=lambda x: x['target_id'])
         targets = []
         if len(target_set)==0:

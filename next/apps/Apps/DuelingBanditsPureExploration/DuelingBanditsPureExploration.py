@@ -12,7 +12,7 @@ class DuelingBanditsPureExploration(object):
         self.app_id = 'DuelingBanditsPureExploration'
         self.TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager(db)
 
-    def initExp(self, exp_uid, exp_data, butler):
+    def initExp(self, butler, exp_data):
         """
         This function is meant to store an additional components in the
         databse.
@@ -39,7 +39,7 @@ class DuelingBanditsPureExploration(object):
         # TODO: change this in every app type coded thus far!
         if 'targetset' in exp_data['args']['targets'].keys():
             n = len(exp_data['args']['targets']['targetset'])
-            self.TargetManager.set_targetset(exp_uid, exp_data['args']['targets']['targetset'])
+            self.TargetManager.set_targetset(butler.exp_uid, exp_data['args']['targets']['targetset'])
         else:
             n = exp_data['args']['targets']['n']
         exp_data['args']['n'] = n
@@ -52,7 +52,7 @@ class DuelingBanditsPureExploration(object):
 
         return exp_data,alg_data
 
-    def getQuery(self, exp_uid, experiment_dict, query_request, alg_response, butler):
+    def getQuery(self, butler, query_request, alg_response):
         """
         The function that gets the next query, given a query reguest and
         algorithm response.
@@ -72,7 +72,7 @@ class DuelingBanditsPureExploration(object):
 
         TODO: Document this further
         """
-        targets = [self.TargetManager.get_target_item(exp_uid, alg_response[i])
+        targets = [self.TargetManager.get_target_item(butler.exp_uid, alg_response[i])
                                                  for i in [0, 1, 2]]
 
         targets_list = [{'target':targets[0],'label':'left'}, 
@@ -99,7 +99,7 @@ class DuelingBanditsPureExploration(object):
 
         return return_dict
 
-    def processAnswer(self, exp_uid, query, answer, butler):
+    def processAnswer(self, butler, query, answer):
         """
         Parameters
         ----------
@@ -138,7 +138,7 @@ class DuelingBanditsPureExploration(object):
         return query_update,algs_args_dict
                 
 
-    def getModel(self, exp_uid, alg_response, args_dict, butler):
+    def getModel(self, butler, args_dict, alg_response):
         scores, precisions = alg_response
         ranks = (-numpy.array(scores)).argsort().tolist()
         n = len(scores)
@@ -150,33 +150,11 @@ class DuelingBanditsPureExploration(object):
         targets = []
         for index in range(n):
           targets.append( {'index':indexes[index],
-                           'target':self.TargetManager.get_target_item(exp_uid, indexes[index]),
+                           'target':self.TargetManager.get_target_item(butler.exp_uid, indexes[index]),
                            'rank':ranks[index],
                            'score':scores[index],
                            'precision':precisions[index]} )
         num_reported_answers = butler.experiment.get('num_reported_answers')
         return {'targets': targets, 'num_reported_answers':num_reported_answers} 
 
-    def getStats(self, exp_uid, stats_request, dashboard, butler):
-        """
-        Get statistics to display on the dashboard.
-        """
-        stat_id = stats_request['args']['stat_id']
-        task = stats_request['args']['params'].get('task', None)
-        alg_label = stats_request['args']['params'].get('alg_label', None)
-        functions = {'api_activity_histogram':dashboard.api_activity_histogram,
-                     'compute_duration_multiline_plot':dashboard.compute_duration_multiline_plot,
-                     'compute_duration_detailed_stacked_area_plot':dashboard.compute_duration_detailed_stacked_area_plot,
-                     'response_time_histogram':dashboard.response_time_histogram,
-                     'network_delay_histogram':dashboard.network_delay_histogram,
-                     'most_current_ranking':dashboard.most_current_ranking}
-
-        default = [self.app_id, exp_uid]
-        args = {'api_activity_histogram':default + [task],
-                'compute_duration_multiline_plot':default + [task],
-                'compute_duration_detailed_stacked_area_plot':default + [task, alg_label],
-                'response_time_histogram':default + [alg_label],
-                'network_delay_histogram':default + [alg_label],
-                'most_current_ranking':default + [alg_label]}
-        return functions[stat_id](*args[stat_id])
 

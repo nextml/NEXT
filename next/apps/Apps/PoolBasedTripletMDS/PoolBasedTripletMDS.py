@@ -7,7 +7,8 @@ class PoolBasedTripletMDS(object):
         self.app_id = 'PoolBasedTripletMDS'
         self.TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager(db)
 
-    def initExp(self, exp_uid, exp_data, butler):
+    def initExp(self, butler, exp_data):
+        exp_uid = butler.exp_uid
         if 'targetset' in exp_data['args']['targets'].keys():
             n  = len(exp_data['args']['targets']['targetset'])
             self.TargetManager.set_targetset(exp_uid, exp_data['args']['targets']['targetset'])
@@ -24,7 +25,8 @@ class PoolBasedTripletMDS(object):
 
         return exp_data,alg_data
 
-    def getQuery(self, exp_uid, experiment_dict, query_request, alg_response, butler):
+    def getQuery(self, butler, query_request, alg_response):
+        exp_uid = butler.exp_uid
         center  = self.TargetManager.get_target_item(exp_uid, alg_response[0])
         left  = self.TargetManager.get_target_item(exp_uid, alg_response[1])
         right  = self.TargetManager.get_target_item(exp_uid, alg_response[2])
@@ -33,7 +35,7 @@ class PoolBasedTripletMDS(object):
         right['label'] = 'right'
         return {'target_indices':[center, left, right]}
 
-    def processAnswer(self, exp_uid, query, answer, butler):
+    def processAnswer(self, butler, query, answer):
         targets = query['target_indices']
         for target in targets:
             if target['label'] == 'center':
@@ -49,39 +51,16 @@ class PoolBasedTripletMDS(object):
         
         n = experiment['args']['n']
         if num_reported_answers % ((n+4)/4) == 0:
-            butler.job('getModel', json.dumps({'exp_uid':exp_uid,'args':{'alg_label':query['alg_label'], 'logging':True}}))
+            butler.job('getModel', json.dumps({'exp_uid':butler.exp_uid,'args':{'alg_label':query['alg_label'], 'logging':True}}))
         q = [left_id, right_id,center_id] if target_winner==left_id else [right_id, left_id,center_id]
 
         algs_args_dict = {'left_id':left_id, 'right_id':right_id, 'center_id':center_id, 'target_winner':target_winner}
         query_update = {'target_winner':target_winner, 'q':q}
         return query_update,algs_args_dict
 
-    def getModel(self, exp_uid, alg_response, args_dict, butler):
+    def getModel(self, butler, args_dict, alg_response):
         return alg_response
 
-    def getStats(self, exp_uid, stats_request, dashboard, butler):
-        stat_id = stats_request['args']['stat_id']
-        task = stats_request['args']['params'].get('task', None)
-        alg_label = stats_request['args']['params'].get('alg_label', None)
 
-        # These are the functions corresponding to stat_id
-        functions = {'api_activity_histogram':dashboard.api_activity_histogram,
-                     'compute_duration_multiline_plot':dashboard.compute_duration_multiline_plot,
-                     'compute_duration_detailed_stacked_area_plot':dashboard.compute_duration_detailed_stacked_area_plot,
-                     'response_time_histogram':dashboard.response_time_histogram,
-                     'network_delay_histogram':dashboard.network_delay_histogram,
-                     'most_current_embedding':dashboard.most_current_embedding,
-                     'test_error_multiline_plot':dashboard.test_error_multiline_plot}
-        
-        default = [self.app_id, exp_uid]
-        args = {'api_activity_histogram':default + [task],
-                'compute_duration_multiline_plot':default + [task],
-                'compute_duration_detailed_stacked_area_plot':default + [task, alg_label],
-                'response_time_histogram':default + [alg_label],
-                'network_delay_histogram':default + [alg_label],
-                'most_current_embedding':default + [alg_label],
-                'test_error_multiline_plot':default}
-        
-        return functions[stat_id](*args[stat_id])
 
 
