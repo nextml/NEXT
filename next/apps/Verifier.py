@@ -68,7 +68,7 @@ def verify_helper(name, input_element, reference_dict):
                 for k in l2:
                     if 'default' in reference_dict['values'][k]:
                         input_element[k] = reference_dict['values'][k]['default']
-                        if reference_dict['values'][k]['type'] == 'num':
+                        if reference_dict['values'][k]['type'] in {'num', 'number'}:
                             input_element[k] = float(input_element[k])
                     elif (not 'optional' in reference_dict['values'][k]) or reference_dict['values'][k]['optional'] == False:
                         ans += [{"name":name+'/'+k, "message":"required key is absent"}]
@@ -86,15 +86,27 @@ def verify_helper(name, input_element, reference_dict):
                 input_element[i],temp_ans = verify_helper(name+'/'+str(i), input_element[i], reference_dict['values'])
                 ans += temp_ans
 
-    elif reference_dict['type'] == 'boolean':
+    elif reference_dict['type'] == 'tuple':
+        if not isinstance(input_element, (list,tuple)):
+            ans += [{"name":name, "message":"invalid list"}]
+        else:
+            for i in range(len(input_element)):
+                input_element[i],temp_ans = verify_helper(name+'/'+str(i), input_element[i], reference_dict['values'][str(i)])
+                ans += temp_ans
+
+    elif reference_dict['type'] in {'bool', 'boolean'}:
         if not isinstance(input_element, (bool)):
             ans += [{"name":name, "message":"invalid boolean"}]
+        elif 'values' in reference_dict and not input_element == reference_dict['values']:
+            ans += [{"name":name, "message":"argument must be the following: "+reference_dict['values']}]
 
-    elif reference_dict['type'] == 'num':
+    elif reference_dict['type'] in {'num', 'number'}:
         if not isinstance(input_element, (int, long, float)):
             ans += [{"name":name, "message":"invalid number"}]
+        elif 'values' in reference_dict and not input_element in reference_dict['values']:
+            ans += [{"name":name, "message":"argument must be one of the specified numbers: "+", ".join(reference_dict['values'])}]
 
-    elif reference_dict['type'] == 'str' or reference_dict['type'] == 'multiline':
+    elif reference_dict['type'] in {'str', 'string', 'multiline'}:
         if not isinstance(input_element, (str, unicode)):
             ans += [{"name":name, "message":"expected a string, got {}".format(type(input_element))}]
         elif 'values' in reference_dict and not input_element in reference_dict['values']:
