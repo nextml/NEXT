@@ -39,7 +39,7 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
             y = []
             for item in list_of_log_dict:
                 num_reported_answers = item['num_reported_answers']
-                Xd = item['Xd']
+                Xd = item['X']
 
                 err = 0.5
                 if len(test_S)>0:
@@ -116,7 +116,7 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
         getModel_args_dict = json.loads(args_out_json)
         item = getModel_args_dict['args']
 
-        embedding = item['Xd']
+        embedding = item['X']
 
         data = []
         x_min = numpy.float('inf')

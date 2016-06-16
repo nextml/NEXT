@@ -7,6 +7,23 @@ import sys
 import os
 import next.utils as utils
 
+def load_doc(filename):
+    with open(filename) as f:
+        ref = yaml.load(f.read())
+
+        ds = [load_doc(ext) for ext in ref.pop('extends',[])]
+        for d in ds:
+            ref = merge_dict(ref, d)
+
+    return ref
+
+def merge_dict(d1,d2):
+    for k in d2:
+        if k in d1:
+            d1[k] = merge_dict(d1[k],d2[k])
+        else:
+            d1[k] = d2[k]
+
 def verify(input_dict, reference_dict):
     """
     Returns: modified_input, success, list_of_errors
@@ -74,7 +91,7 @@ def verify_helper(name, input_element, reference_dict):
             ans += [{"name":name, "message":"invalid boolean"}]
 
     elif reference_dict['type'] == 'num':
-        if not isinstance(input_element, (int, long, float, complex)):
+        if not isinstance(input_element, (int, long, float)):
             ans += [{"name":name, "message":"invalid number"}]
 
     elif reference_dict['type'] == 'str' or reference_dict['type'] == 'multiline':

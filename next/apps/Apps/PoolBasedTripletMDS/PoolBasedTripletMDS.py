@@ -59,7 +59,8 @@ class PoolBasedTripletMDS(object):
         return query_update,algs_args_dict
 
     def getModel(self, butler, args_dict, alg_response):
-        return {'Xd':alg_response[0], 'num_reported_answers':alg_response[1]}
+        return alg_response
+
 
 
 

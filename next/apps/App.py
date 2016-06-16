@@ -34,9 +34,11 @@ class App(object):
         self.myApp = getattr(self.myApp, app_id)
         self.myApp = self.myApp(db)
         self.butler = Butler(self.app_id, self.exp_uid, self.myApp.TargetManager, db, ell)
-        dir,_ = os.path.split(__file__)
-        with open(os.path.join(dir, "Apps/{}/{}.yaml".format(app_id, app_id)),'r') as f:
-            self.reference_dict = yaml.load(f)
+        dir, _ = os.path.split(__file__)
+
+        with open(os.path.join(dir, "Apps/{}/{}.yaml".format(app_id, app_id)), 'r') as f:
+            self.reference_dict = Verifier.load_doc(f)
+
         dashboard_string = 'next.apps.Apps.' + self.app_id + \
                            '.dashboard.Dashboard'
         dashboard_module = __import__(dashboard_string, fromlist=[''])
@@ -67,8 +69,8 @@ class App(object):
                 # I got rid of a timeit function here; it wasn't handling the
                 # argument unpacking correctly? --Scott, 2016-3-7
                 # TODO: put dt back in and change log_entry to relfect that
-                alg.initExp(butler,params=params, **algs_args_dict)
-                if not True:
+                alg_succeed = alg.initExp(butler, params=params, **algs_args_dict)
+                if not alg_succeed:
                     raise Exception('Algorithm {} failed to initialize.'.format(algorithm['alg_label']))
 
                 log_entry = {'exp_uid':exp_uid, 'alg_label':algorithm['alg_label'], 'task':'initExp', 'duration':-1, 'timestamp':utils.datetimeNow()}
