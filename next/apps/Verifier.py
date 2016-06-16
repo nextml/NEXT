@@ -7,12 +7,11 @@ import sys
 import os
 import next.utils as utils
 
-def load_doc(file_):
-    ref = yaml.load(file_.read())
+def load_doc(filename):
+    with open(filename) as f:
+        ref = yaml.load(f.read())
 
-    if 'extends' in ref.keys():
-        ds = [load_doc(ext) for ext in ref['extends']]
-        ref.pop('extends',None)
+        ds = [load_doc(ext) for ext in ref.pop('extends',[])]
         for d in ds:
             ref = merge_dict(ref, d)
 
