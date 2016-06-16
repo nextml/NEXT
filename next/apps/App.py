@@ -51,7 +51,7 @@ class App(object):
             args_dict['exp_uid'] = exp_uid # to get doc from db
             args_dict['start_date'] = utils.datetime2str(utils.datetimeNow())
             self.butler.admin.set(uid=exp_uid,value={'exp_uid': exp_uid, 'app_id':self.app_id, 'start_date':str(utils.datetimeNow())}) 
-            args_dict,algs_args_dict = self.myApp.initExp(exp_uid, args_dict, self.butler)
+            args_dict,algs_args_dict = self.myApp.initExp(self.butler, args_dict)
             # Set doc in algorithms bucket. These objects are used by the algorithms to store data.
             for algorithm in args_dict['args']['alg_list']:
                 algorithm['exp_uid'] = exp_uid
@@ -120,7 +120,7 @@ class App(object):
             alg_response,dt = utils.timeit(alg.getQuery)(butler,participant_doc,**args_dict)
 
             # call myApp
-            query_doc = self.myApp.getQuery(exp_uid, experiment_dict, args_dict, alg_response, self.butler)
+            query_doc = self.myApp.getQuery(self.butler, args_dict, alg_response)
             query_uid = utils.getNewUID()
             query_doc.update({'participant_uid':participant_uid,
                               'alg_id':alg_id,
@@ -155,7 +155,7 @@ class App(object):
             alg = utils.get_app_alg(self.app_id, query['alg_id'])
 
             # call myApp
-            query_update,algs_args_dict = self.myApp.processAnswer(exp_uid, query, args_dict, self.butler)
+            query_update,algs_args_dict = self.myApp.processAnswer(self.butler, query, args_dict)
 
             query_update.update({'response_time':response_time,'network_delay':round_trip_time - response_time})
             self.butler.queries.set_many(uid=args_dict['args']['query_uid'],key_value_dict=query_update)
@@ -190,7 +190,7 @@ class App(object):
             alg = utils.get_app_alg(self.app_id, alg_id)
             butler = Butler(self.app_id, exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, alg_label, alg_id)
             alg_response, dt = utils.timeit(alg.getModel)(butler)
-            myapp_response = self.myApp.getModel(exp_uid, alg_response, args_dict, self.butler)
+            myapp_response = self.myApp.getModel(self.butler, args_dict, alg_response)
             myapp_response['exp_uid'] = exp_uid
             myapp_response['alg_label'] = alg_label
             # Log the response of the getModel in ALG-EVALUATION
