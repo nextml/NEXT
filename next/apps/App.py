@@ -67,8 +67,8 @@ class App(object):
                 # I got rid of a timeit function here; it wasn't handling the
                 # argument unpacking correctly? --Scott, 2016-3-7
                 # TODO: put dt back in and change log_entry to relfect that
-                alg.initExp(butler,params=params, **algs_args_dict)
-                if not True:
+                alg_succeed = alg.initExp(butler, params=params, **algs_args_dict)
+                if not alg_succeed:
                     raise Exception('Algorithm {} failed to initialize.'.format(algorithm['alg_label']))
 
                 log_entry = {'exp_uid':exp_uid, 'alg_label':algorithm['alg_label'], 'task':'initExp', 'duration':-1, 'timestamp':utils.datetimeNow()}

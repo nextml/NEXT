@@ -246,7 +246,7 @@ class AppDashboard(object):
     import matplotlib.pyplot as plt
     import mpld3
     fig, ax = plt.subplots(subplot_kw=dict(axisbg='#FFFFFF'))
-    ax.hist(t,MAX_SAMPLES_PER_PLOT,range=(0,30),alpha=0.5,color='black')
+    ax.hist(t, bins=min(len(t), MAX_SAMPLES_PER_PLOT), range=(0,30),alpha=0.5,color='black')
     ax.set_xlim(0, 30)
     ax.set_axis_off()
     ax.set_xlabel('Durations (s)')
