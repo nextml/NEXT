@@ -46,8 +46,8 @@ class PoolBasedBinaryClassification(object):
         query_update = {'target_index':target['target_id'],'target_label':target_label}
         return query_update,algs_args_dict
 
-    def getModel(self, butler, args_dict, alg_response):
-        return {'weights':alg_response[0], 'num_reported_answers':alg_response[1]}
+    def getModel(self, exp_uid, alg_response, args_dict, butler):
+        return alg_response
 
 
 

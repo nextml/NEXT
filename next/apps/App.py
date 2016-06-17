@@ -36,8 +36,8 @@ class App(object):
         self.butler = Butler(self.app_id, self.exp_uid, self.myApp.TargetManager, db, ell)
         dir, _ = os.path.split(__file__)
 
-        with open(os.path.join(dir, "Apps/{}/{}.yaml".format(app_id, app_id)), 'r') as f:
-            self.reference_dict = Verifier.load_doc(f)
+        self.reference_dict = Verifier.load_doc(os.path.join(dir, "Apps/{}/{}.yaml".format(app_id, app_id)), 'r'))
+        self.algs_reference_dict = Verifier.load_doc(os.path.join(dir, "Apps/{}/algs/Algs.yaml".format(app_id, app_id)), 'r'))
 
         dashboard_string = 'next.apps.Apps.' + self.app_id + \
                            '.dashboard.Dashboard'
@@ -54,6 +54,7 @@ class App(object):
             args_dict['start_date'] = utils.datetime2str(utils.datetimeNow())
             self.butler.admin.set(uid=exp_uid,value={'exp_uid': exp_uid, 'app_id':self.app_id, 'start_date':str(utils.datetimeNow())}) 
             args_dict,algs_args_dict = self.myApp.initExp(self.butler, args_dict)
+            algs_args_dict = Verifier.verify(algs_args_dict, self.algs_reference_dict['initExp']['args']['values'])
             # Set doc in algorithms bucket. These objects are used by the algorithms to store data.
             for algorithm in args_dict['args']['alg_list']:
                 algorithm['exp_uid'] = exp_uid
@@ -61,7 +62,7 @@ class App(object):
             args_dict['git_hash'] = git_hash
             self.butler.experiment.set(value=args_dict)
             for algorithm in args_dict['args']['alg_list']:
-                params = algorithm.get('params',None)
+                # params = algorithm.get('params',None)
                 butler = Butler(self.app_id, exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, algorithm['alg_label'], algorithm['alg_id'])
                 alg = utils.get_app_alg(self.app_id, algorithm['alg_id'])
 
@@ -69,10 +70,11 @@ class App(object):
                 # I got rid of a timeit function here; it wasn't handling the
                 # argument unpacking correctly? --Scott, 2016-3-7
                 # TODO: put dt back in and change log_entry to relfect that
-                alg_succeed = alg.initExp(butler, params=params, **algs_args_dict)
-                if not alg_succeed:
-                    raise Exception('Algorithm {} failed to initialize.'.format(algorithm['alg_label']))
-
+                alg_response = alg.initExp(butler, **algs_args_dict)
+                alg_response = Verifier.verify(alg_response, self.algs_reference_dict['initExp']['returns']['values'])
+                # if not alg_succeed:
+                #     raise Exception('Algorithm {} failed to initialize.'.format(algorithm['alg_label']))
+                
                 log_entry = {'exp_uid':exp_uid, 'alg_label':algorithm['alg_label'], 'task':'initExp', 'duration':-1, 'timestamp':utils.datetimeNow()}
                 self.butler.log('ALG-DURATION', log_entry)
             return '{}', True, ''
@@ -108,7 +110,7 @@ class App(object):
                     chosen_alg = numpy.random.choice(alg_list, p=prop)
                 alg_id = chosen_alg['alg_id']
                 alg_label = chosen_alg['alg_label']
-                if  (first_participant_query) and (participant_to_algorithm_management=='one_to_one'):
+                if (first_participant_query) and (participant_to_algorithm_management=='one_to_one'):
                     self.butler.participants.set(uid=participant_uid, key='alg_id',value=alg_id)
                     self.butler.participants.set(uid=participant_uid, key='alg_label',value=alg_label)
             elif (participant_to_algorithm_management=='one_to_one'):
@@ -119,7 +121,9 @@ class App(object):
             alg = utils.get_app_alg(self.app_id, alg_id)
 
             # call myAlg
-            alg_response,dt = utils.timeit(alg.getQuery)(butler,participant_doc,**args_dict)
+            args_dict = Verifier.verify(args_dict, self.algs_reference_dict['getQuery']['args']['values'])
+            alg_response,dt = utils.timeit(alg.getQuery)(butler, **alg_args_dict)
+            alg_response = Verifier.verify(alg_response, self.algs_reference_dict['getQuery']['returns']['values'])
 
             # call myApp
             query_doc = self.myApp.getQuery(self.butler, args_dict, alg_response)
@@ -158,18 +162,19 @@ class App(object):
 
             # call myApp
             query_update,algs_args_dict = self.myApp.processAnswer(self.butler, query, args_dict)
-
+            algs_args_dict = Verifier.verify(algs_args_dict, self.algs_reference_dict['processAnswer']['args']['values'])
+            
             query_update.update({'response_time':response_time,'network_delay':round_trip_time - response_time})
             self.butler.queries.set_many(uid=args_dict['args']['query_uid'],key_value_dict=query_update)
 
             # call algorithm
             # Push query back to algorithm
-            alg_succeed, dt = utils.timeit(alg.processAnswer)(butler, **algs_args_dict)
+            alg_response, dt = utils.timeit(alg.processAnswer)(butler, **algs_args_dict)
 
             log_entry_durations = {'exp_uid':exp_uid, 'alg_label':query['alg_label'], 'task':'processAnswer','duration':dt }
             log_entry_durations.update(butler.algorithms.getDurations())
-            if not alg_succeed:
-                raise Exception('Algorithm {} failed to processAnswer.'.format(query['alg_label']))
+            
+            alg_response = Verifier.verify(alg_response, self.algs_reference_dict['processAnswer']['returns']['values'])
             return json.dumps({'args': {}, 'meta': {'log_entry_durations':log_entry_durations}}), True, ''
         except Exception, error:
             exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -191,7 +196,12 @@ class App(object):
                     alg_id = algorithm['alg_id']
             alg = utils.get_app_alg(self.app_id, alg_id)
             butler = Butler(self.app_id, exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, alg_label, alg_id)
+
+            # Call MyApp
+            # TODO: put alg args verification here once pre-alg hook exists
             alg_response, dt = utils.timeit(alg.getModel)(butler)
+            alg_response = Verifier.verify(alg_response, self.algs_reference_dict['getModel']['returns']['values'])
+            
             myapp_response = self.myApp.getModel(self.butler, args_dict, alg_response)
             myapp_response['exp_uid'] = exp_uid
             myapp_response['alg_label'] = alg_label
