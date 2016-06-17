@@ -13,16 +13,19 @@ def load_doc(filename):
 
         dir, _ = os.path.split(__file__)
         ds = [load_doc(os.path.join(dir, ext)) for ext in ref.pop('extends',[])]
-        utils.debug_print("Reference from myapp.yaml alone: {}".format(ref))
+        utils.debug_print("Loaded {}: {}".format(filename,ref))
         for d in ds:
             ref = merge_dict(ref, d)
-            utils.debug_print("Reference ettended: {}".format(ref))
+            utils.debug_print("Reference dict to date: {}".format(ref))
     return ref
 
-def merge_dict(d1,d2):
+def merge_dict(d1,d2,prefer=1):
     for k in d2:
         if k in d1:
-            d1[k] = merge_dict(d1[k],d2[k])
+            if type(d1[k]) == dict:
+                d1[k] = merge_dict(d1[k],d2[k])
+            if prefer == 2:
+                d1[k] = d2[k]
         else:
             d1[k] = d2[k]
 
