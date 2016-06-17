@@ -11,7 +11,8 @@ def load_doc(filename):
     with open(filename) as f:
         ref = yaml.load(f.read())
 
-        ds = [load_doc(ext) for ext in ref.pop('extends',[])]
+        dir, _ = os.path.split(__file__)
+        ds = [load_doc(os.path.join(dir, ext)) for ext in ref.pop('extends',[])]
         utils.debug_print("Reference from myapp.yaml alone: {}".format(ref))
         for d in ds:
             ref = merge_dict(ref, d)
