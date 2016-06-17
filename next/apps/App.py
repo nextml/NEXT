@@ -62,7 +62,7 @@ class App(object):
             args_dict['git_hash'] = git_hash
             self.butler.experiment.set(value=args_dict)
             for algorithm in args_dict['args']['alg_list']:
-                params = algorithm.get('params',None)
+                # params = algorithm.get('params',None)
                 butler = Butler(self.app_id, exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, algorithm['alg_label'], algorithm['alg_id'])
                 alg = utils.get_app_alg(self.app_id, algorithm['alg_id'])
 
@@ -70,7 +70,8 @@ class App(object):
                 # I got rid of a timeit function here; it wasn't handling the
                 # argument unpacking correctly? --Scott, 2016-3-7
                 # TODO: put dt back in and change log_entry to relfect that
-                alg_response = alg.initExp(butler, params=params, **algs_args_dict)
+                alg_response = alg.initExp(butler, **algs_args_dict)
+                alg_response = Verifier.verify(alg_response, self.algs_reference_dict['initExp']['returns']['values'])
                 # if not alg_succeed:
                 #     raise Exception('Algorithm {} failed to initialize.'.format(algorithm['alg_label']))
                 
@@ -120,8 +121,7 @@ class App(object):
             alg = utils.get_app_alg(self.app_id, alg_id)
 
             # call myAlg
-            alg_args_dict == dict(participant_uid=participant_uid, **args_dict)
-            alg_args_dict = Verifier.verify(alg_args_dict, self.algs_reference_dict['getQuery']['args']['values'])
+            args_dict = Verifier.verify(args_dict, self.algs_reference_dict['getQuery']['args']['values'])
             alg_response,dt = utils.timeit(alg.getQuery)(butler, **alg_args_dict)
             alg_response = Verifier.verify(alg_response, self.algs_reference_dict['getQuery']['returns']['values'])
 
@@ -196,7 +196,12 @@ class App(object):
                     alg_id = algorithm['alg_id']
             alg = utils.get_app_alg(self.app_id, alg_id)
             butler = Butler(self.app_id, exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, alg_label, alg_id)
+
+            # Call MyApp
+            # TODO: put alg args verification here once pre-alg hook exists
             alg_response, dt = utils.timeit(alg.getModel)(butler)
+            alg_response = Verifier.verify(alg_response, self.algs_reference_dict['getModel']['returns']['values'])
+            
             myapp_response = self.myApp.getModel(self.butler, args_dict, alg_response)
             myapp_response['exp_uid'] = exp_uid
             myapp_response['alg_label'] = alg_label
