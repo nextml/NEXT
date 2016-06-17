@@ -6,10 +6,6 @@ initExp:
     failure_probability:
       type: num
       description:
-    params:
-      type: dict
-      optional: true
-      description: These are values specified in initExp['alg_list']['params']
   returns:
     type: bool
     description: A boolean indiciating if the algorithm succeeded or failed.
