@@ -1,4 +1,4 @@
-extends: base.yaml
+extends: [base.yaml]
 
 initExp:
   description: Dictionary for initialization of experiment.
