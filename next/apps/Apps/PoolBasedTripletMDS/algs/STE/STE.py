@@ -13,7 +13,7 @@ import time
 class STE(PoolBasedTripletMDSPrototype):
 
 
-  def initExp(self,butler,n,d,failure_probability,params):
+  def initExp(self,butler,n,d,failure_probability):
     X = numpy.random.randn(n,d)*.0001
     tau = numpy.random.rand(n,n)
 
@@ -25,10 +25,9 @@ class STE(PoolBasedTripletMDSPrototype):
     return True
 
 
-  def getQuery(self,butler,participant_dict,**kwargs):
+  def getQuery(self,butler):
     R = 10
     n = butler.algorithms.get(key='n')
-    d = butler.algorithms.get(key='d')
     num_reported_answers = butler.algorithms.get(key='num_reported_answers')
 
     if num_reported_answers == None:
@@ -107,8 +106,6 @@ class STE(PoolBasedTripletMDSPrototype):
   def incremental_embedding_update(self,butler,args):
     verbose = False
 
-    n = butler.algorithms.get(key='n')
-    d = butler.algorithms.get(key='d')
     S = butler.algorithms.get(key='S')
 
     X = numpy.array(butler.algorithms.get(key='X'))

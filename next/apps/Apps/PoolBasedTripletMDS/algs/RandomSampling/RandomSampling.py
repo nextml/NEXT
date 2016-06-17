@@ -4,7 +4,7 @@ from next.apps.Apps.PoolBasedTripletMDS.algs.RandomSampling import utilsMDS
 from next.apps.Apps.PoolBasedTripletMDS.Prototype import PoolBasedTripletMDSPrototype
 
 class RandomSampling(PoolBasedTripletMDSPrototype):
-  def initExp(self,butler, n, d, failure_probability,params):
+  def initExp(self,butler, n, d, failure_probability):
     X = numpy.random.randn(n,d)
     butler.algorithms.set(key='n',value= n)
     butler.algorithms.set(key='d',value= d)
@@ -13,7 +13,7 @@ class RandomSampling(PoolBasedTripletMDSPrototype):
     return True
 
 
-  def getQuery(self,butler,participant_dict,**kwargs):
+  def getQuery(self,butler):
     X = numpy.array(butler.algorithms.get(key='X'))
     q,score = utilsMDS.getRandomQuery(X)
     index_center = q[2]
@@ -27,16 +27,13 @@ class RandomSampling(PoolBasedTripletMDSPrototype):
       q = [left_id,right_id,center_id]
     else:
       q = [right_id,left_id,center_id]
-
     butler.algorithms.append(key='S',value=q)
     n = butler.algorithms.get(key='n')
-    d = butler.algorithms.get(key='d')
     num_reported_answers = butler.algorithms.increment(key='num_reported_answers')
     if num_reported_answers % int(n) == 0:
       butler.job('full_embedding_update', {}, time_limit=30)
     else:
       butler.job('incremental_embedding_update', {},time_limit=5)
-
     return True
 
 
@@ -45,16 +42,11 @@ class RandomSampling(PoolBasedTripletMDSPrototype):
 
 
   def incremental_embedding_update(self,butler,args):
-    verbose = False
-    n = butler.algorithms.get(key='n')
-    d = butler.algorithms.get(key='d')
     S = butler.algorithms.get(key='S')
-    
     X = numpy.array(butler.algorithms.get(key='X'))
     # set maximum time allowed to update embedding
     t_max = 1.0
     epsilon = 0.01 # a relative convergence criterion, see computeEmbeddingWithGD documentation
-
     # take a single gradient step
     t_start = time.time()
     X,emp_loss_new,hinge_loss_new,acc = utilsMDS.computeEmbeddingWithGD(X,S,max_iters=1)
@@ -62,12 +54,9 @@ class RandomSampling(PoolBasedTripletMDSPrototype):
     while (time.time()-t_start<0.5*t_max) and (acc > epsilon):
       X,emp_loss_new,hinge_loss_new,acc = utilsMDS.computeEmbeddingWithGD(X,S,max_iters=2**k)
       k += 1
-
     butler.algorithms.set(key='X',value=X.tolist())
 
   def full_embedding_update(self,butler,args):
-    verbose = False
-
     n = butler.algorithms.get(key='n')
     d = butler.algorithms.get(key='d')
     S = butler.algorithms.get(key='S')
@@ -78,7 +67,7 @@ class RandomSampling(PoolBasedTripletMDSPrototype):
     epsilon = 0.01 # a relative convergence criterion, see computeEmbeddingWithGD documentation
 
     emp_loss_old,hinge_loss_old = utilsMDS.getLoss(X_old,S)
-    X,tmp = utilsMDS.computeEmbeddingWithEpochSGD(n,d,S,max_num_passes=16,epsilon=0,verbose=verbose)
+    X,tmp = utilsMDS.computeEmbeddingWithEpochSGD(n,d,S,max_num_passes=16,epsilon=0,verbose=False)
     t_start = time.time()
     X,emp_loss_new,hinge_loss_new,acc = utilsMDS.computeEmbeddingWithGD(X,S,max_iters=1)
     k = 1

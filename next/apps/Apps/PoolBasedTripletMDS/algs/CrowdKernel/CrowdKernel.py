@@ -12,7 +12,7 @@ import time
 
 class CrowdKernel(PoolBasedTripletMDSPrototype):
 
-  def initExp(self,butler,n,d,failure_probability,params):
+  def initExp(self,butler,n,d,failure_probability):
     X = numpy.random.randn(n,d)*.0001
     tau = numpy.random.rand(n,n)
 
@@ -26,7 +26,7 @@ class CrowdKernel(PoolBasedTripletMDSPrototype):
     return True
 
 
-  def getQuery(self,butler,participant_dict,**kwargs):
+  def getQuery(self,butler):
     R = 10
     n = butler.algorithms.get(key='n')
     num_reported_answers = butler.algorithms.get(key='num_reported_answers')
@@ -46,7 +46,6 @@ class CrowdKernel(PoolBasedTripletMDSPrototype):
 
     X = numpy.array(butler.algorithms.get(key='X'))
     tau = numpy.array(butler.algorithms.get(key='tau'))
-
 
     # set maximum time allowed to search for a query
     t_max = .05
@@ -79,7 +78,6 @@ class CrowdKernel(PoolBasedTripletMDSPrototype):
     index_center = best_q[2]
     index_left = best_q[0]
     index_right = best_q[1]
-
     return [index_center, index_left, index_right]
 
 
@@ -105,8 +103,6 @@ class CrowdKernel(PoolBasedTripletMDSPrototype):
 
   def incremental_embedding_update(self,butler,args):
     verbose = False
-    n = butler.algorithms.get(key='n')
-    d = butler.algorithms.get(key='d')
     S = butler.algorithms.get(key='S')
 
     X = numpy.array(butler.algorithms.get(key='X'))
@@ -128,7 +124,6 @@ class CrowdKernel(PoolBasedTripletMDSPrototype):
     butler.algorithms.set(key='X',value=X.tolist())
     butler.algorithms.set(key='tau',value=tau.tolist())
     
-
 
   def full_embedding_update(self,butler,args):
     verbose = False
