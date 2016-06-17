@@ -164,7 +164,7 @@ class App(object):
 
             # call myApp
             query_update,algs_args_dict = self.myApp.processAnswer(self.butler, query, args_dict)
-            algs_args_dict = Verifier.verify(algs_args_dict, self.algs_reference_dict['processAnswer']['args'])
+            algs_args_dict = Verifier.verify(algs_args_dict, self.algs_reference_dict['processAnswer']['args']['values'])
             
             query_update.update({'response_time':response_time,'network_delay':round_trip_time - response_time})
             self.butler.queries.set_many(uid=args_dict['args']['query_uid'],key_value_dict=query_update)
