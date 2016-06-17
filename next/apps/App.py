@@ -54,7 +54,7 @@ class App(object):
             args_dict['start_date'] = utils.datetime2str(utils.datetimeNow())
             self.butler.admin.set(uid=exp_uid,value={'exp_uid': exp_uid, 'app_id':self.app_id, 'start_date':str(utils.datetimeNow())}) 
             args_dict,algs_args_dict = self.myApp.initExp(self.butler, args_dict)
-            algs_args_dict = Verifier.verify(algs_args_dict, self.algs_reference_dict['initExp']['args']['values'])
+            algs_args_dict = Verifier.verify(algs_args_dict, self.algs_reference_dict['initExp']['args'])
             # Set doc in algorithms bucket. These objects are used by the algorithms to store data.
             for algorithm in args_dict['args']['alg_list']:
                 algorithm['exp_uid'] = exp_uid
@@ -123,7 +123,7 @@ class App(object):
             # call myAlg
             alg_args_dict = args_dict['args']
             alg_args_dict.pop('widget',None)
-            alg_args_dict = Verifier.verify(alg_args_dict, self.algs_reference_dict['getQuery']['args']['values'])
+            alg_args_dict = Verifier.verify(alg_args_dict, self.algs_reference_dict['getQuery']['args'])
             alg_response,dt = utils.timeit(alg.getQuery)(butler, **alg_args_dict)
             alg_response = Verifier.verify({'returns':alg_response}, {'returns':self.algs_reference_dict['getQuery']['returns']})
 
@@ -164,7 +164,7 @@ class App(object):
 
             # call myApp
             query_update,algs_args_dict = self.myApp.processAnswer(self.butler, query, args_dict)
-            algs_args_dict = Verifier.verify(algs_args_dict, self.algs_reference_dict['processAnswer']['args']['values'])
+            algs_args_dict = Verifier.verify(algs_args_dict, self.algs_reference_dict['processAnswer']['args'])
             
             query_update.update({'response_time':response_time,'network_delay':round_trip_time - response_time})
             self.butler.queries.set_many(uid=args_dict['args']['query_uid'],key_value_dict=query_update)
