@@ -38,3 +38,12 @@ processAnswer:
         target_label:
           description: The label in {-1,1} provided by participant of the target.
           type: num
+
+getModel:
+  values:
+    args:
+      values:
+        logging:
+          description: whether you want this logged in app_id:APP-EVALUATION
+          type: boolean
+          default: false
