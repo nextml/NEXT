@@ -1,0 +1,56 @@
+initExp:
+  args:
+    n:
+      type: num
+      description: Number of targets available.
+    failure_probability:
+      type: num
+      description:
+    params:
+      type: dict
+      optional: true
+      description: These are values specified in initExp['alg_list']['params']
+  returns:
+    type: bool
+    description: A boolean indiciating if the algorithm succeeded or failed.
+    values: true
+
+getQuery:
+  args:
+    description: 
+    values:
+      participant_uid:
+        type: str
+        description: participant unique identifier. Use the butler to pull out more information about the participant
+
+  returns:
+    type: num
+    description: The index of the target to ask about
+
+processAnswer:
+  args:
+    description:
+    type: dict
+    values:
+      target_label:
+        type: num
+        description:
+      target_index:
+        type: num
+        description:
+  returns:
+    description: Indicates if the alg succeeded
+    type: bool
+    values: true
+
+getModel:
+  description:
+  returns:
+    description: Update the model that helps getQuery
+    values:
+      weights:
+        type: list
+        description: The linear model weights
+      num_reported_answers:
+        type: num
+        description: The number of reported answers for this participant under this algorithm

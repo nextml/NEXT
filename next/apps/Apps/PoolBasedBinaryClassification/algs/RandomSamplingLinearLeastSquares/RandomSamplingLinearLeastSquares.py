@@ -16,11 +16,9 @@ class RandomSamplingLinearLeastSquares(PoolBasedBinaryClassificationPrototype):
     return True
 
 
-  def getQuery(self,butler,participant_dict,**kwargs):
+  def getQuery(self,butler, participant_uid):
     n = butler.algorithms.get(key='n')
     idx = numpy.random.choice(n)
-    # target = butler.targets.get_target_item(butler.exp_uid,idx)
-    # x = numpy.array(target['meta']['features'])   # target['meta']['features'] is a list
 
     return idx
 
