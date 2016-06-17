@@ -205,7 +205,9 @@ class App(object):
             alg_response, dt = utils.timeit(alg.getModel)(butler)
             alg_response = Verifier.verify({'returns':alg_response}, {'returns':self.algs_reference_dict['getModel']['returns']})
             
-            myapp_response = self.myApp.getModel(self.butler, args_dict, alg_response)
+            myapp_response = self.myApp.getModel(self.butler, args_dict,
+                                                 alg_response['returns'])
+            utils.debug_print("210 myApp_re.keys() = {} {}".format(myapp_response.keys(), alg_response))
             myapp_response['exp_uid'] = exp_uid
             myapp_response['alg_label'] = alg_label
             # Log the response of the getModel in ALG-EVALUATION

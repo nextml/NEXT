@@ -37,18 +37,21 @@ class PoolBasedBinaryClassificationDashboard(AppDashboard):
         args = butler.experiment.get(key='args')
         alg_list = args['alg_list']
         test_alg_label = alg_list[0]['test_alg_label']
-        
-        test_queries,didSucceed, message = self.db.get_docs_with_filter(app_id+':queries',{'exp_uid':exp_uid, 'alg_label':test_alg_label})
-        test_S=[ (query['target_index'],query['target_label']) for query in test_queries ]
+
+        test_queries, didSucceed, message = self.db.get_docs_with_filter(app_id+':queries',{'exp_uid':exp_uid, 'alg_label':test_alg_label})
+
+        test_S = [(query['target_index'], query['target_label']) 
+                            for query in test_queries
+                            if 'target_index' in query.keys()]
 
         targets = butler.targets.get_targetset(exp_uid)
         targets = sorted(targets,key=lambda x: x['target_id'])
         target_features = []
 
         for target_index in range(len(targets)):
-          target_vec = targets[target_index]['meta']['features']
-          target_vec.append(1.)
-          target_features.append(target_vec)
+            target_vec = targets[target_index]['meta']['features']
+            target_vec.append(1.)
+            target_features.append(target_vec)
 
         x_min = numpy.float('inf')
         x_max = -numpy.float('inf')
@@ -107,7 +110,7 @@ class PoolBasedBinaryClassificationDashboard(AppDashboard):
         ax.set_title('Test Error', size=14)
         legend = ax.legend(loc=2,ncol=3,mode="expand")
         for label in legend.get_texts():
-          label.set_fontsize('small')
+            label.set_fontsize('small')
         plot_dict = mpld3.fig_to_dict(fig)
         plt.close()
 
