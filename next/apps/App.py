@@ -121,7 +121,9 @@ class App(object):
             alg = utils.get_app_alg(self.app_id, alg_id)
 
             # call myAlg
-            args_dict = Verifier.verify(args_dict, self.algs_reference_dict['getQuery']['args']['values'])
+            alg_args_dict = args_dict['args']
+            alg_args_dict.pop('widget',None)
+            alg_args_dict = Verifier.verify(alg_args_dict, self.algs_reference_dict['getQuery']['args']['values'])
             alg_response,dt = utils.timeit(alg.getQuery)(butler, **alg_args_dict)
             alg_response = Verifier.verify({'returns':alg_response}, {'returns':self.algs_reference_dict['getQuery']['returns']})
 
