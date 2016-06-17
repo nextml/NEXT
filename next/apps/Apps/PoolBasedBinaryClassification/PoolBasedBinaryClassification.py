@@ -7,10 +7,10 @@ class PoolBasedBinaryClassification(object):
         self.app_id = 'PoolBasedBinaryClassification'
         self.TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager(db)
 
-    def initExp(self, exp_uid, exp_data, butler):
+    def initExp(self, butler, exp_data):
         if 'targetset' in exp_data['args']['targets'].keys():
             n  = len(exp_data['args']['targets']['targetset'])
-            self.TargetManager.set_targetset(exp_uid, exp_data['args']['targets']['targetset'])
+            self.TargetManager.set_targetset(butler.exp_uid, exp_data['args']['targets']['targetset'])
         d = len(exp_data['args']['targets']['targetset'][0]['meta']['features'])
         exp_data['args']['n'] = n
         exp_data['args']['d'] = d
@@ -24,12 +24,12 @@ class PoolBasedBinaryClassification(object):
 
         return exp_data,alg_data
 
-    def getQuery(self, exp_uid, experiment_dict, query_request, alg_response, butler):
-        target  = self.TargetManager.get_target_item(exp_uid, alg_response)
+    def getQuery(self, butler, query_request, alg_response):
+        target  = self.TargetManager.get_target_item(butler.exp_uid, alg_response)
         del target['meta']
         return {'target_indices':target}
 
-    def processAnswer(self, exp_uid, query, answer, butler):
+    def processAnswer(self, butler, query, answer):
         target = query['target_indices']
         target_label = answer['args']['target_label']
 
@@ -39,7 +39,7 @@ class PoolBasedBinaryClassification(object):
         experiment = butler.experiment.get()
         d = experiment['args']['d']
         if num_reported_answers % ((d+4)/4) == 0:
-            butler.job('getModel', json.dumps({'exp_uid':exp_uid,'args':{'alg_label':query['alg_label'], 'logging':True}}))
+            butler.job('getModel', json.dumps({'exp_uid':butler.exp_uid,'args':{'alg_label':query['alg_label'], 'logging':True}}))
         
 
         algs_args_dict = {'target_index':target['target_id'],'target_label':target_label}
