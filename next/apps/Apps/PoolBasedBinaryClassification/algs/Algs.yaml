@@ -43,6 +43,8 @@ getModel:
       weights:
         type: list
         description: The linear model weights
+        values:
+          type: num
       num_reported_answers:
         type: num
         description: The number of reported answers for this participant under this algorithm
