@@ -61,8 +61,8 @@ def apply_dashboard(app_id, exp_uid, args_in_json, enqueue_timestamp):
 	delta_datetime = dequeue_datetime - enqueue_datetime
 	time_enqueued = delta_datetime.seconds + delta_datetime.microseconds/1000000.
         next.utils.debug_print(args_in_json)
-        with open(os.path.join('next/apps', 'Apps/{}/{}.yaml'.format(app_id, app_id)),'r') as f:
-                reference_dict = yaml.load(f)        
+        dir, _ = os.path.split(__file__)
+        reference_dict = Verifier.load_doc(os.path.join('next/apps', 'Apps/{}/{}.yaml'.format(app_id, app_id)))
         args_dict = Verifier.verify(args_in_json, reference_dict['getStats']['values'])
         stat_id = args_dict['args'].pop('stat_id',None)
         # myApp
