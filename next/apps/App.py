@@ -36,8 +36,8 @@ class App(object):
         self.butler = Butler(self.app_id, self.exp_uid, self.myApp.TargetManager, db, ell)
         dir, _ = os.path.split(__file__)
 
-        self.reference_dict = Verifier.load_doc(os.path.join(dir, "Apps/{}/{}.yaml".format(app_id, app_id)), 'r'))
-        self.algs_reference_dict = Verifier.load_doc(os.path.join(dir, "Apps/{}/algs/Algs.yaml".format(app_id, app_id)), 'r'))
+        self.reference_dict = Verifier.load_doc(os.path.join(dir, "Apps/{}/{}.yaml".format(app_id, app_id)))
+        self.algs_reference_dict = Verifier.load_doc(os.path.join(dir, "Apps/{}/algs/Algs.yaml".format(app_id, app_id)))
 
         dashboard_string = 'next.apps.Apps.' + self.app_id + \
                            '.dashboard.Dashboard'

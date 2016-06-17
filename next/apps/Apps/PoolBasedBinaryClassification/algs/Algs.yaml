@@ -1,11 +1,13 @@
 initExp:
   args:
-    n:
-      type: num
-      description: Number of targets available.
-    failure_probability:
-      type: num
-      description:
+    description: 
+    values:
+      n:
+        type: num
+        description: Number of targets available.
+      failure_probability:
+        type: num
+        description:
   returns:
     type: bool
     description: A boolean indiciating if the algorithm succeeded or failed.
