@@ -28,6 +28,7 @@ def merge_dict(d1,d2,prefer=1):
                 d1[k] = d2[k]
         else:
             d1[k] = d2[k]
+    return d1
 
 def verify(input_dict, reference_dict):
     """
