@@ -1,3 +1,5 @@
+extends: base.yaml
+
 initExp:
   description: Dictionary for initialization of experiment.
   type: dict
