@@ -11,6 +11,11 @@ class PoolBasedBinaryClassification(object):
         if 'targetset' in exp_data['args']['targets'].keys():
             n  = len(exp_data['args']['targets']['targetset'])
             self.TargetManager.set_targetset(butler.exp_uid, exp_data['args']['targets']['targetset'])
+
+        targetset = [self.TargetManager.get_target_item(butler.exp_uid, i) for i in range(n)]
+        for target in targetset:
+            utils.debug_print("myApp:17 {}".format(target.keys()))
+
         d = len(exp_data['args']['targets']['targetset'][0]['meta']['features'])
         exp_data['args']['n'] = n
         exp_data['args']['d'] = d
@@ -22,7 +27,7 @@ class PoolBasedBinaryClassification(object):
             if key in exp_data['args']:
                 alg_data[key]=exp_data['args'][key]
 
-        return exp_data,alg_data
+        return exp_data, alg_data
 
     def getQuery(self, butler, query_request, alg_response):
         target  = self.TargetManager.get_target_item(butler.exp_uid, alg_response)

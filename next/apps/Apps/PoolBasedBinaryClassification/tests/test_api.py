@@ -51,7 +51,7 @@ def run_all(assert_200):
             'primary_type':'text',
             'alt_description':'%d' % (i),
             'alt_type':'text',
-            'meta':{'features':features}})
+            'meta': {'features':features}})
 
   #################################################
   # Test POST Experiment
@@ -105,7 +105,7 @@ def run_all(assert_200):
     exp_uid = experiment['exp_uid']
     pool_args.append( (exp_uid,participant_uid,total_pulls_per_client,true_weights,assert_200) )
   print "participants are", participants
-  results = pool.map(simulate_one_client, pool_args)
+  results = map(simulate_one_client, pool_args)
 
   for result in results:
     print result
@@ -132,6 +132,9 @@ def simulate_one_client( input_args ):
     # getQuery_args_dict['args']['participant_uid'] = numpy.random.choice(participants)
     getQuery_args_dict['args']['participant_uid'] = participant_uid
 
+    #  getQuery_args_dict = {}
+    #  getQuery_args_dict['participant_uid'] = participant_uid
+
     url = 'http://'+HOSTNAME+'/api/experiment/getQuery'
     response,dt = timeit(requests.post)(url, json.dumps(getQuery_args_dict),headers={'content-type':'application/json'})
     print "POST getQuery response = ", response.text, response.status_code
@@ -143,6 +146,7 @@ def simulate_one_client( input_args ):
 
     query_dict = json.loads(response.text)
     print "query_dict: ", query_dict
+    print(query_dict.keys())
     query_uid = query_dict['query_uid']
     target = query_dict['target_indices']
     x = numpy.array(eval(target['primary_description']))

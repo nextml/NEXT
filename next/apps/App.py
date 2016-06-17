@@ -128,7 +128,7 @@ class App(object):
             alg_response = Verifier.verify({'returns':alg_response}, {'returns':self.algs_reference_dict['getQuery']['returns']})
 
             # call myApp
-            query_doc = self.myApp.getQuery(self.butler, args_dict, alg_response)
+            query_doc = self.myApp.getQuery(self.butler, args_dict, alg_response['returns'])
             query_uid = utils.getNewUID()
             query_doc.update({'participant_uid':participant_uid,
                               'alg_id':alg_id,
