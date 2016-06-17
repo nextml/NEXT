@@ -71,7 +71,7 @@ class App(object):
                 # argument unpacking correctly? --Scott, 2016-3-7
                 # TODO: put dt back in and change log_entry to relfect that
                 alg_response = alg.initExp(butler, **algs_args_dict)
-                alg_response = Verifier.verify({'returns':alg_response}, {'type':'dict','values':{'returns':self.algs_reference_dict['initExp']['returns']}})
+                alg_response = Verifier.verify({'returns':alg_response}, {'returns':self.algs_reference_dict['initExp']['returns']})
                 # if not alg_succeed:
                 #     raise Exception('Algorithm {} failed to initialize.'.format(algorithm['alg_label']))
                 
@@ -123,7 +123,7 @@ class App(object):
             # call myAlg
             args_dict = Verifier.verify(args_dict, self.algs_reference_dict['getQuery']['args']['values'])
             alg_response,dt = utils.timeit(alg.getQuery)(butler, **alg_args_dict)
-            alg_response = Verifier.verify({'returns':alg_response}, {'type':'dict','values':{'returns':self.algs_reference_dict['getQuery']['returns']}})
+            alg_response = Verifier.verify({'returns':alg_response}, {'returns':self.algs_reference_dict['getQuery']['returns']})
 
             # call myApp
             query_doc = self.myApp.getQuery(self.butler, args_dict, alg_response)
@@ -173,7 +173,7 @@ class App(object):
 
             log_entry_durations = {'exp_uid':exp_uid, 'alg_label':query['alg_label'], 'task':'processAnswer','duration':dt }
             log_entry_durations.update(butler.algorithms.getDurations())
-            alg_response = Verifier.verify({'returns':alg_response}, {'type':'dict','values':{'returns':self.algs_reference_dict['processAnswer']['returns']}})
+            alg_response = Verifier.verify({'returns':alg_response}, {'returns':self.algs_reference_dict['processAnswer']['returns']})
 
             return json.dumps({'args': {}, 'meta': {'log_entry_durations':log_entry_durations}}), True, ''
         
@@ -201,7 +201,7 @@ class App(object):
             # Call MyApp
             # TODO: put alg args verification here once pre-alg hook exists
             alg_response, dt = utils.timeit(alg.getModel)(butler)
-            alg_response = Verifier.verify({'returns':alg_response}, {'type':'dict','values':{'returns':self.algs_reference_dict['getModel']['returns']}})
+            alg_response = Verifier.verify({'returns':alg_response}, {'returns':self.algs_reference_dict['getModel']['returns']})
             
             myapp_response = self.myApp.getModel(self.butler, args_dict, alg_response)
             myapp_response['exp_uid'] = exp_uid
