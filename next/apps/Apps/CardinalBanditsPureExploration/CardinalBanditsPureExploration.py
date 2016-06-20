@@ -111,12 +111,15 @@ class CardinalBanditsPureExploration(object):
         return query_update,alg_args_dict
 
     def getModel(self, exp_uid, alg_response, args_dict, butler):
-        scores, precisions = alg_response
+        scores, precisions,counts = alg_response
+        print counts
         ranks = (-numpy.array(scores)).argsort().tolist()
         n = len(scores)
         indexes = numpy.array(range(n))[ranks]
         scores = numpy.array(scores)[ranks]
         precisions = numpy.array(precisions)[ranks]
+        counts = numpy.array(counts)[ranks]
+        standard_deviations = precisions*numpy.sqrt(counts)
         ranks = range(n)
         target_set = self.TargetManager.get_targetset(exp_uid)
         target_set = sorted(target_set,key=lambda x: x['target_id'])
@@ -129,15 +132,19 @@ class CardinalBanditsPureExploration(object):
                                           'primary_type':'text',
                                           'alt_description':str(indexes[index]),
                                           'alt_type':'text'},
-                               'rank':ranks[index],
-                               'score':scores[index],
-                               'precision':precisions[index]} )
+                                 'rank':ranks[index],
+                                 'score':scores[index],
+                                 'precision':precisions[index],
+                                 'standard_deviation':standard_deviations[index],
+                                 'count':counts[index]} )
         else:
             for index in range(n):
                 targets.append( {'index':indexes[index],
-                               'target':target_set[indexes[index]],
-                               'rank':ranks[index],
-                               'score':scores[index],
-                               'precision':precisions[index]} )
+                                 'target':target_set[indexes[index]],
+                                 'rank':ranks[index],
+                                 'score':scores[index],
+                                 'precision':precisions[index],
+                                 'standard_deviation':standard_deviations[index],
+                                 'count':counts[index]} )
         return {'targets': targets} 
         

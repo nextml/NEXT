@@ -42,7 +42,9 @@ class CardinalBanditsPureExplorationDashboard(AppDashboard):
         return_dict['headers'] = [{'label':'Rank','field':'rank'},
                                   {'label':'Target','field':'index'},
                                   {'label':'Score','field':'score'},
-                                  {'label':'Precision','field':'precision'}]
+                                  {'label':'Standard Deviation','field':'standard_deviation'},
+                                  {'label':'Precision','field':'precision'},
+                                  {'label':'Count','field':'count'}]
         return_dict['data'] = item['targets']
         return_dict['plot_type'] = 'columnar_table'
         return return_dict
