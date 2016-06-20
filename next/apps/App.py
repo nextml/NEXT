@@ -44,6 +44,24 @@ class App(object):
         dashboard_module = __import__(dashboard_string, fromlist=[''])
         self.dashboard = getattr(dashboard_module, app_id+'Dashboard')
 
+    def run_alg(self, butler, alg_label, alg, func_name, alg_args):
+        alg_args = Verifier.verify(alg_args, self.algs_reference_dict[func_name]['args'])
+        alg_response, dt = utils.timeit(getattr(alg, func_name))(butler, **alg_args)
+        alg_response = Verifier.verify({'returns':alg_response},
+                                       {'returns':self.algs_reference_dict[func_name]['returns']})
+        log_entry_durations = {'exp_uid':exp_uid,
+                               'alg_label':alg_label,
+                               'task':func_name,
+                               'duration':dt}
+        log_entry_durations.update(butler.algorithms.getDurations())
+        self.log_entry_durations = log_entry_durations
+        return alg_response
+
+    def call_app_fn(self, alg_label, alg_id, func_name, args):
+        butler = Butler(self.app_id, exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, alg_label, alg_id)
+        alg = utils.get_app_alg(self.app_id, alg_id)
+        alg_wrapper = lambda args: self.run_alg(butler, alg_label, alg, func_name, args)
+        return getattr(self.myApp, func_name)(alg_wrapper, args), self.log_entry_durations
 
     def initExp(self, exp_uid, args_json):
         try:
@@ -116,19 +134,9 @@ class App(object):
             elif (participant_to_algorithm_management=='one_to_one'):
                 alg_id = participant_doc['alg_id']
                 alg_label = participant_doc['alg_label']
-                
-            butler = Butler(self.app_id, exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, alg_label, alg_id)
-            alg = utils.get_app_alg(self.app_id, alg_id)
 
-            # call myAlg
-            alg_args_dict = args_dict['args']
-            alg_args_dict.pop('widget',None)
-            alg_args_dict = Verifier.verify(alg_args_dict, self.algs_reference_dict['getQuery']['args'])
-            alg_response,dt = utils.timeit(alg.getQuery)(butler, **alg_args_dict)
-            alg_response = Verifier.verify({'returns':alg_response}, {'returns':self.algs_reference_dict['getQuery']['returns']})
-
-            # call myApp
-            query_doc = self.myApp.getQuery(self.butler, args_dict, alg_response['returns'])
+            query_doc = self.call_app_fn(alg_label, alg_id, 'getQuery', args_dict)
+            
             query_uid = utils.getNewUID()
             query_doc.update({'participant_uid':participant_uid,
                               'alg_id':alg_id,
@@ -137,9 +145,8 @@ class App(object):
                               'timestamp_query_generated':str(utils.datetimeNow()),
                               'query_uid':query_uid})
             self.butler.queries.set(uid=query_uid, value=query_doc)
-            log_entry_durations = {'exp_uid':exp_uid,'alg_label':alg_label,'task':'getQuery','duration':dt }
-            log_entry_durations.update(butler.algorithms.getDurations())
-            return json.dumps({'args':query_doc,'meta':{'log_entry_durations':log_entry_durations}}), True,''
+            self.log_entry_durations.update(butler.algorithms.getDurations())
+            return json.dumps({'args':query_doc,'meta':{'log_entry_durations':self.log_entry_durations}}), True,''
         except Exception, error:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             full_error = str(traceback.format_exc())+'\n'+str(error)
@@ -159,25 +166,13 @@ class App(object):
                               utils.str2datetime(query['timestamp_query_generated']))
             round_trip_time = delta_datetime.seconds + delta_datetime.microseconds/1000000.
             response_time = float(args_dict['args'].get('response_time',0.))
-            butler = Butler(self.app_id, exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, query['alg_label'], query['alg_id'])
-            alg = utils.get_app_alg(self.app_id, query['alg_id'])
 
-            # call myApp
-            query_update,algs_args_dict = self.myApp.processAnswer(self.butler, query, args_dict)
-            algs_args_dict = Verifier.verify(algs_args_dict, self.algs_reference_dict['processAnswer']['args'])
-            
+            query_update = self.call_app_fn(query['alg_label'], query['alg_id'], 'processAnswer', args_dict)
             query_update.update({'response_time':response_time,'network_delay':round_trip_time - response_time})
             self.butler.queries.set_many(uid=args_dict['args']['query_uid'],key_value_dict=query_update)
+            self.log_entry_durations.update(butler.algorithms.getDurations())
 
-            # call algorithm
-            # Push query back to algorithm
-            alg_response, dt = utils.timeit(alg.processAnswer)(butler, **algs_args_dict)
-
-            log_entry_durations = {'exp_uid':exp_uid, 'alg_label':query['alg_label'], 'task':'processAnswer','duration':dt }
-            log_entry_durations.update(butler.algorithms.getDurations())
-            alg_response = Verifier.verify({'returns':alg_response}, {'returns':self.algs_reference_dict['processAnswer']['returns']})
-
-            return json.dumps({'args': {}, 'meta': {'log_entry_durations':log_entry_durations}}), True, ''
+            return json.dumps({'args': {}, 'meta': {'log_entry_durations':self.log_entry_durations}}), True, ''
         
         except Exception, error:
             exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -197,15 +192,8 @@ class App(object):
             for algorithm in args['alg_list']:
                 if alg_label == algorithm['alg_label']:
                     alg_id = algorithm['alg_id']
-            alg = utils.get_app_alg(self.app_id, alg_id)
-            butler = Butler(self.app_id, exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, alg_label, alg_id)
 
-            # Call MyApp
-            # TODO: put alg args verification here once pre-alg hook exists
-            alg_response, dt = utils.timeit(alg.getModel)(butler)
-            alg_response = Verifier.verify({'returns':alg_response}, {'returns':self.algs_reference_dict['getModel']['returns']})
-            
-            myapp_response = self.myApp.getModel(self.butler, args_dict, alg_response)
+            self.call_app_fn(query['alg_label'], query['alg_id'], 'getModel', args_dict)
             myapp_response['exp_uid'] = exp_uid
             myapp_response['alg_label'] = alg_label
             # Log the response of the getModel in ALG-EVALUATION
@@ -213,10 +201,10 @@ class App(object):
                 alg_log_entry = {'exp_uid': exp_uid, 'alg_label':alg_label, 'task': 'getModel', 'timestamp': str(utils.datetimeNow())}
                 alg_log_entry.update(myapp_response)
                 self.butler.log('ALG-EVALUATION', alg_log_entry)
-            log_entry_durations = { 'exp_uid':exp_uid,'alg_label':alg_label,'task':'getModel', 'duration':dt }
-            log_entry_durations.update(butler.algorithms.getDurations())
+            self.log_entry_durations.update(butler.algorithms.getDurations())
             return json.dumps({'args': myapp_response,
-                               'meta': {'log_entry_durations':log_entry_durations, 'timestamp': str(utils.datetimeNow())}}), True, ''
+                               'meta': {'log_entry_durations':self.log_entry_durations,
+                                        'timestamp': str(utils.datetimeNow())}}), True, ''
         except Exception, error:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             full_error = str(traceback.format_exc())+'\n'+str(error)
