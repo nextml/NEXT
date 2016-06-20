@@ -129,6 +129,8 @@ def verify_helper(name, input_element, reference_dict):
             else:
                 ans += [{"name":name, "message":"no argument provided for 'oneof' arg"}]
 
+    elif reference_dict['type'] in {'stuff','any'}:
+        pass
     elif reference_dict['type'] == 'target':
         pass
     elif reference_dict['type'] == 'targetset':

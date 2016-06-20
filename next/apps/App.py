@@ -45,23 +45,26 @@ class App(object):
         self.dashboard = getattr(dashboard_module, app_id+'Dashboard')
 
     def run_alg(self, butler, alg_label, alg, func_name, alg_args):
-        alg_args = Verifier.verify(alg_args, self.algs_reference_dict[func_name]['args'])
+        if 'args' in self.algs_reference_dict[func_name]:
+            alg_args = Verifier.verify(alg_args, self.algs_reference_dict[func_name]['args'])
         alg_response, dt = utils.timeit(getattr(alg, func_name))(butler, **alg_args)
         alg_response = Verifier.verify({'returns':alg_response},
                                        {'returns':self.algs_reference_dict[func_name]['returns']})
-        log_entry_durations = {'exp_uid':exp_uid,
+        log_entry_durations = {'exp_uid':self.exp_uid,
                                'alg_label':alg_label,
                                'task':func_name,
                                'duration':dt}
         log_entry_durations.update(butler.algorithms.getDurations())
         self.log_entry_durations = log_entry_durations
-        return alg_response
+        return alg_response['returns']
 
     def call_app_fn(self, alg_label, alg_id, func_name, args):
-        butler = Butler(self.app_id, exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, alg_label, alg_id)
+        butler = Butler(self.app_id, self.exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, alg_label, alg_id)
         alg = utils.get_app_alg(self.app_id, alg_id)
-        alg_wrapper = lambda args: self.run_alg(butler, alg_label, alg, func_name, args)
-        return getattr(self.myApp, func_name)(alg_wrapper, args), self.log_entry_durations
+        def alg_wrapper(args):
+            utils.debug_print(args)
+            return self.run_alg(butler, alg_label, alg, func_name, args)
+        return getattr(self.myApp, func_name)(self.butler, alg_wrapper, args['args'])
 
     def initExp(self, exp_uid, args_json):
         try:
@@ -145,7 +148,6 @@ class App(object):
                               'timestamp_query_generated':str(utils.datetimeNow()),
                               'query_uid':query_uid})
             self.butler.queries.set(uid=query_uid, value=query_doc)
-            self.log_entry_durations.update(butler.algorithms.getDurations())
             return json.dumps({'args':query_doc,'meta':{'log_entry_durations':self.log_entry_durations}}), True,''
         except Exception, error:
             exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -170,7 +172,6 @@ class App(object):
             query_update = self.call_app_fn(query['alg_label'], query['alg_id'], 'processAnswer', args_dict)
             query_update.update({'response_time':response_time,'network_delay':round_trip_time - response_time})
             self.butler.queries.set_many(uid=args_dict['args']['query_uid'],key_value_dict=query_update)
-            self.log_entry_durations.update(butler.algorithms.getDurations())
 
             return json.dumps({'args': {}, 'meta': {'log_entry_durations':self.log_entry_durations}}), True, ''
         
@@ -193,7 +194,7 @@ class App(object):
                 if alg_label == algorithm['alg_label']:
                     alg_id = algorithm['alg_id']
 
-            self.call_app_fn(query['alg_label'], query['alg_id'], 'getModel', args_dict)
+            myapp_response = self.call_app_fn(alg_label, alg_id, 'getModel', args_dict)
             myapp_response['exp_uid'] = exp_uid
             myapp_response['alg_label'] = alg_label
             # Log the response of the getModel in ALG-EVALUATION
@@ -201,7 +202,6 @@ class App(object):
                 alg_log_entry = {'exp_uid': exp_uid, 'alg_label':alg_label, 'task': 'getModel', 'timestamp': str(utils.datetimeNow())}
                 alg_log_entry.update(myapp_response)
                 self.butler.log('ALG-EVALUATION', alg_log_entry)
-            self.log_entry_durations.update(butler.algorithms.getDurations())
             return json.dumps({'args': myapp_response,
                                'meta': {'log_entry_durations':self.log_entry_durations,
                                         'timestamp': str(utils.datetimeNow())}}), True, ''

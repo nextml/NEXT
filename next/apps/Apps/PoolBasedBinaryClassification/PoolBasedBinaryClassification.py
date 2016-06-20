@@ -25,14 +25,18 @@ class PoolBasedBinaryClassification(object):
 
         return exp_data, alg_data
 
-    def getQuery(self, butler, query_request, alg_response):
-        target  = self.TargetManager.get_target_item(butler.exp_uid, alg_response)
+    def getQuery(self, butler, alg, args):
+        args.pop('widget',None)
+        alg_response = alg(args)
+        utils.debug_print(alg_response)
+        target = self.TargetManager.get_target_item(butler.exp_uid, alg_response)
         del target['meta']
         return {'target_indices':target}
 
-    def processAnswer(self, butler, query, answer):
+    def processAnswer(self, butler, alg, args):
+        query = butler.queries.get(uid=args['query_uid'])
         target = query['target_indices']
-        target_label = answer['args']['target_label']
+        target_label = args['target_label']
 
         num_reported_answers = butler.experiment.increment(key='num_reported_answers_for_' + query['alg_label'])
         
@@ -41,14 +45,12 @@ class PoolBasedBinaryClassification(object):
         d = experiment['args']['d']
         if num_reported_answers % ((d+4)/4) == 0:
             butler.job('getModel', json.dumps({'exp_uid':butler.exp_uid,'args':{'alg_label':query['alg_label'], 'logging':True}}))
-        
 
-        algs_args_dict = {'target_index':target['target_id'],'target_label':target_label}
-        query_update = {'target_index':target['target_id'],'target_label':target_label}
-        return query_update,algs_args_dict
+        alg({'target_index':target['target_id'],'target_label':target_label})
+        return {'target_index':target['target_id'],'target_label':target_label}
 
-    def getModel(self, butler, args_dict, alg_response):
-        return alg_response
+    def getModel(self, butler, alg, args):
+        return alg({})
 
 
 
