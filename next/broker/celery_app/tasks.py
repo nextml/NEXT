@@ -92,9 +92,8 @@ def apply_dashboard(app_id, exp_uid, args_in_json, enqueue_timestamp):
 	# 		ell.log( app_id+':ALG-DURATION', log_entry_durations  )
 	# else:
 	# 	return_value = (args_out_json,didSucceed,message)
-	print '#### Finished Dashboard %s,  time_enqueued=%s,  execution_time=%s ####' % (stat_id,
-                                                                                          time_enqueued,
-                                                                                          dt)
+        if DEBUG_ON:
+            utils.debug_print('#### Finished Dashboard %s, time_enqueued=%s,  execution_time=%s ####' % (stat_id, time_enqueued, dt), color='white')
 	return json.dumps(response), True, ''
 
 

@@ -18,6 +18,7 @@ import next.utils as utils
 import next.apps.Verifier as Verifier
 import next.constants
 import next.apps.Butler as Butler
+from next.utils import NextException
 
 Butler = Butler.Butler
 git_hash = next.constants.GIT_HASH
@@ -142,7 +143,7 @@ class App(object):
         except Exception, error:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             full_error = str(traceback.format_exc())+'\n'+str(error)
-            print "getQuery Exception: " + full_error
+            utils.debug_print("getQuery Exception: " + full_error, color='red')
             log_entry = { 'exp_uid':exp_uid,'task':'getQuery','error':full_error,'timestamp':utils.datetimeNow(),'args_json':args_json } 
             self.butler.ell.log( self.app_id+':APP-EXCEPTION', log_entry  )
             traceback.print_tb(exc_traceback)
@@ -181,11 +182,11 @@ class App(object):
         except Exception, error:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             full_error = str(traceback.format_exc())+'\n'+str(error)
-            print "processAnswer Exception: " + full_error
+            utils.debug_print("processAnswer Exception: " + full_error, color='red')
             log_entry = { 'exp_uid':exp_uid,'task':'processAnswer','error':full_error,'timestamp':utils.datetimeNow(),'args_json':args_json } 
             self.butler.ell.log( self.app_id+':APP-EXCEPTION', log_entry  )
     	    traceback.print_tb(exc_traceback)
-    	    raise Exception(error)
+    	    raise NextException(error)
 
     def getModel(self, exp_uid, args_json):
         try:
@@ -220,7 +221,7 @@ class App(object):
         except Exception, error:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             full_error = str(traceback.format_exc())+'\n'+str(error)
-            print "getModel Exception: " + full_error
+            utils.debug_print("getModel Exception: " + full_error, color='red')
             log_entry = { 'exp_uid':exp_uid,'task':'getModel','error':full_error,'timestamp':utils.datetimeNow(),'args_json':args_json } 
             self.butler.ell.log( self.app_id+':APP-EXCEPTION', log_entry  )
             traceback.print_tb(exc_traceback)       
@@ -269,4 +270,4 @@ class Helper(object):
             return json.loads(args_json)
         except:
             error = "%s.initExp input args_json is in improper format" % self.app_id
-            raise Exception(error)
+            raise NextException(error)

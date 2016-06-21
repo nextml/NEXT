@@ -1,5 +1,21 @@
 import yaml
 
+color_ansi = {'yellow': '\x1b[33m',
+              'red': '\x1b[31m',
+              'blue': '\x1b[34m',
+              'green': '\x1b[32m',
+              'white': '\x1b[37m',
+              'black': '\x1b[30m',
+              'purple': '\x1b[35m',
+              'reset all': '\x1b[0m'}
+
+class NextException:
+    def __init__(self, message):
+        message = color_ansi['red'] + message + color_ansi['reset all']
+        debug_print(message, color='red')
+        raise Exception(message)
+
+
 def get_supported_apps(apps_path='next/apps/Apps/'):
   """
   Returns a list of strings correspdoning to the app_id's that are fully operational in the learning library.
@@ -120,10 +136,14 @@ def str2datetime(str_time):
   except:
     return datetime.strptime(str_time,'%Y-%m-%d %H:%M:%S')
 
-def debug_print(*args):
-  for a in args:
-    print '\033[93m\033[1m'+str(a)+'\033[0m',
-  print ''
+def debug_print(*args, **kwargs):
+    """
+    """
+    color = kwargs.get('color', 'yellow')
+
+    for a in args:
+        print '{}{}{}'.format(color_ansi[color], a, color_ansi['reset all'])
+    print ''
 
 import time
 def timeit(f):
