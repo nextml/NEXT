@@ -50,7 +50,5 @@ class PoolBasedBinaryClassification(object):
         return {'target_index':target['target_id'],'target_label':target_label}
 
     def getModel(self, butler, alg, args):
-        return alg({})
-
-
+        return alg()
 

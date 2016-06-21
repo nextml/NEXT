@@ -10,9 +10,9 @@ initExp:
       type: dict
       values:
         alg_list:
-	  values:
-	    values:
-	      alg_id:
+          values:
+            values:
+              alg_id:
                 values: [CrowdKernel, RandomSampling, STE, UncertaintySampling]
               test_alg_label:
                 description: Which algorithm to test against.

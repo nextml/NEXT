@@ -61,7 +61,7 @@ class App(object):
     def call_app_fn(self, alg_label, alg_id, func_name, args):
         butler = Butler(self.app_id, self.exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, alg_label, alg_id)
         alg = utils.get_app_alg(self.app_id, alg_id)
-        def alg_wrapper(args):
+        def alg_wrapper(args={}):
             utils.debug_print(args)
             return self.run_alg(butler, alg_label, alg, func_name, args)
         return getattr(self.myApp, func_name)(self.butler, alg_wrapper, args['args'])

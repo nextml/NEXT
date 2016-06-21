@@ -106,7 +106,13 @@ def verify_helper(name, input_element, reference_dict):
 
     elif reference_dict['type'] in {'num', 'number'}:
         if not isinstance(input_element, (int, long, float)):
-            ans += [{"name":name, "message":"invalid number"}]
+            if isinstance(input_element, (str, unicode)):
+                try:
+                    input_element = float(input_element)
+                except:
+                    ans += [{"name":name, "message":"invalid number"}]
+            else:
+                ans += [{"name":name, "message":"invalid number"}]
         elif 'values' in reference_dict and not input_element in reference_dict['values']:
             ans += [{"name":name, "message":"argument must be one of the specified numbers: "+", ".join(reference_dict['values'])}]
 
