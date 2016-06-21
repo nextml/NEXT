@@ -64,8 +64,6 @@ def get_stats():
     #with open(os.path.join('next/apps', 'Apps/{}/{}.yaml'.format(app_id, app_id)),'r') as f:
     #    reference_dict = yaml.load(f)        
     # verification
-    #utils.debug_print('args_dict', args_dict)
-    #utils.debug_print('exp_uid', 'app_id', exp_uid, app_id)
     #args_dict = Verifier.verify(args_dict, reference_dict['getStats']['values'])
     #stat_id = args_dict['args'].pop('stat_id',None)
     # myApp
@@ -78,7 +76,6 @@ def get_stats():
     #dashboard_module = __import__(dashboard_string, fromlist=[''])
     #dashboard = getattr(dashboard_module, app_id+'Dashboard')
     #dashboard = dashboard(butler.db, butler.ell)
-    #utils.debug_print('stat_id', stat_id)
     #stats_method = getattr(dashboard, stat_id)
     #return jsonify(stats_method(app_id, exp_uid, butler, **args_dict['args']['params']))
 

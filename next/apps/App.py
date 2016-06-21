@@ -66,7 +66,6 @@ class App(object):
                 butler = Butler(self.app_id, exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, algorithm['alg_label'], algorithm['alg_id'])
                 alg = utils.get_app_alg(self.app_id, algorithm['alg_id'])
 
-                # utils.debug_print("App.py:66, algs_args_dict = {}".format(algs_args_dict))
                 # I got rid of a timeit function here; it wasn't handling the
                 # argument unpacking correctly? --Scott, 2016-3-7
                 # TODO: put dt back in and change log_entry to relfect that
@@ -207,7 +206,6 @@ class App(object):
             
             myapp_response = self.myApp.getModel(self.butler, args_dict,
                                                  alg_response['returns'])
-            utils.debug_print("210 myApp_re.keys() = {} {}".format(myapp_response.keys(), alg_response))
             myapp_response['exp_uid'] = exp_uid
             myapp_response['alg_label'] = alg_label
             # Log the response of the getModel in ALG-EVALUATION
