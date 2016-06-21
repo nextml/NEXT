@@ -9,12 +9,6 @@ color_ansi = {'yellow': '\x1b[33m',
               'purple': '\x1b[35m',
               'reset all': '\x1b[0m'}
 
-class NextException:
-    def __init__(self, message):
-        message = color_ansi['red'] + message + color_ansi['reset all']
-        debug_print(message, color='red')
-        raise Exception(message)
-
 
 def get_supported_apps(apps_path='next/apps/Apps/'):
   """
@@ -142,7 +136,8 @@ def debug_print(*args, **kwargs):
     color = kwargs.get('color', 'yellow')
 
     for a in args:
-        print '{}{}{}'.format(color_ansi[color], a, color_ansi['reset all'])
+        for line in a.split('\n'):
+            print '{}{}{}'.format(color_ansi[color], line, color_ansi['reset all'])
     print ''
 
 import time

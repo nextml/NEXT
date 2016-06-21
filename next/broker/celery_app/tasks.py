@@ -8,6 +8,7 @@ import json
 import yaml
 import traceback
 import numpy
+from next.constants import DEBUG_ON
 
 # import next.logging_client.LoggerHTTP as ell
 from next.database_client.DatabaseAPI import DatabaseAPI

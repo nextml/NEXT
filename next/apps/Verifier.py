@@ -6,7 +6,6 @@ import traceback
 import sys
 import os
 import next.utils as utils
-from next.utils import NextException
 
 def load_doc(filename):
     with open(filename) as f:
@@ -42,14 +41,16 @@ def verify(input_dict, reference_dict):
 
     try:
       if len(messages)>0:
-        raise NextException("Failed to verify: {}".format(messages))
+        message = "Failed to verify: {}".format(messages)
+        utils.debug_print(message + '\n\n', color='red')
+        raise Exception(utils.color_ansi['red'] + message + utils.color_ansi['reset all'])
       else:
         return input_dict
-    except NextException, error:
+    except Exception, error:
       exc_type, exc_value, exc_traceback = sys.exc_info()
-      print "Exception: {} {}".format(error, traceback.format_exc())
+      utils.debug_print("Exception: {} {}".format(error, traceback.format_exc()), color='red')
       traceback.print_tb(exc_traceback)
-      raise NextException(error)
+      raise Exception(error)
 
 def verify_helper(name, input_element, reference_dict):
     """

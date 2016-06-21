@@ -10,6 +10,7 @@ import json
 import yaml
 from flask import Blueprint, render_template, url_for, request, jsonify
 from jinja2 import Environment, PackageLoader, ChoiceLoader
+import requests
 
 import next.broker.broker 
 import next.constants as constants
@@ -107,19 +108,19 @@ def experiment_dashboard(exp_uid, app_id):
     simple_flag = int(request.args.get('simple',0))
 
     if simple_flag<2:
-      git_hash = rm.get_git_hash_for_exp_uid(exp_uid)
-      exp_start_data = rm.get_app_exp_uid_start_date(exp_uid)+' UTC'
-      participant_uids = rm.get_participant_uids(exp_uid)
-      num_participants = len(participant_uids)
-      num_queries = 0
-      for participant_uid in participant_uids:
-        queries = rm.get_participant_data(participant_uid, exp_uid)
-        num_queries += len(queries)
+        git_hash = rm.get_git_hash_for_exp_uid(exp_uid)
+        exp_start_data = rm.get_app_exp_uid_start_date(exp_uid)+' UTC'
+        participant_uids = rm.get_participant_uids(exp_uid)
+        num_participants = len(participant_uids)
+        num_queries = 0
+        for participant_uid in participant_uids:
+            queries = rm.get_participant_data(participant_uid, exp_uid)
+            num_queries += len(queries)
     else:
-      git_hash = ''
-      exp_start_data = ''
-      num_participants = -1
-      num_queries = -1
+        git_hash = ''
+        exp_start_data = ''
+        num_participants = -1
+        num_queries = -1
 
     # Not a particularly good way to do this.
     alg_label_list = rm.get_algs_for_exp_uid(exp_uid)
@@ -144,6 +145,7 @@ def experiment_dashboard(exp_uid, app_id):
                            git_hash=git_hash,
                            alg_list=alg_list,
                            host_url=host_url,
+                           exceptions_present=exceptions_present(exp_uid, host_url),
                            url_for=url_for,
                            exp_start_data=exp_start_data,
                            num_participants=num_participants,
@@ -151,7 +153,10 @@ def experiment_dashboard(exp_uid, app_id):
                            simple_flag=int(simple_flag))
 
 
-
-
-
+def exceptions_present(exp_uid, host_url):
+    import yaml
+    url = '{}/api/experiment/{}/logs/APP-EXCEPTION'.format(host_url, exp_uid)
+    r = requests.get(url)
+    logs = yaml.load(r.content)['log_data']
+    return True if len(logs) > 0 else False
 
