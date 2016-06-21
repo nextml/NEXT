@@ -1,0 +1,48 @@
+initExp:
+  args:
+    n:
+      type: num
+      description: Number of targets
+    R:
+      type: num
+      description:
+    failure_probability:
+      type: num
+      description:
+  returns:
+    type: bool
+    description: Did initExp succeed?
+    value: true
+
+getQuery:
+  args:
+    participant_uid:
+      type: str
+    participant_dict:
+      type: dict
+      optional: true
+  returns:
+    type: num
+    description: Index of arm to pull
+
+processAnswer:
+  args:
+    target_id:
+      type: num
+    target_reward:
+      type: num
+  returns:
+    type: bool
+    values: true
+    description: did the alg succeed?
+
+getModel:
+  returns:
+    type: dict
+    values:
+      means:
+        type: list
+        description: The score of each target element
+      prec:
+        type: list
+        description: How accurate is each score?

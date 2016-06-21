@@ -22,7 +22,8 @@ class RoundRobin(CardinalBanditsPureExplorationPrototype):
     return True
 
   
-  def getQuery(self,butler,participant_dict,**kwargs):
+  def getQuery(self,butler,participant_uid):
+    participant_dict = butler.participants.get(uid=participant_uid)
     do_not_ask_hash = {key: True for key in participant_dict.get('do_not_ask_list',[])}
     
     kv_dict = butler.algorithms.increment_many(key_value_dict={'n':0,'generated_queries_cnt':1})
@@ -68,7 +69,7 @@ class RoundRobin(CardinalBanditsPureExplorationPrototype):
         mu[i] = float(sumX[i]) / T[i]
         prec[i] = numpy.sqrt( float( max(1.,sumX2[i] - T[i]*mu[i]*mu[i]) ) / ( T[i] - 1. ) / T[i] )
     
-    return mu.tolist(),prec.tolist()
+    return {'means': mu.tolist(), 'prec': prec.tolist()}
 
   def update_priority_list(self,butler,args):
     S = butler.algorithms.get_and_delete(key='S')
