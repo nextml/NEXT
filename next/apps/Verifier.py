@@ -92,11 +92,13 @@ def verify_helper(name, input_element, reference_dict):
 
     elif reference_dict['type'] == 'tuple':
         if not isinstance(input_element, (list,tuple)):
-            ans += [{"name":name, "message":"invalid list"}]
+            ans += [{"name":name, "message":"invalid tuple"}]
         else:
+            new_tuple = list(input_element)
             for i in range(len(input_element)):
-                input_element[i],temp_ans = verify_helper(name+'/'+str(i), input_element[i], reference_dict['values'][i])
+                new_tuple[i], temp_ans = verify_helper(name+'/'+str(i), input_element[i], reference_dict['values'][i])
                 ans += temp_ans
+            new_tuple = tuple(new_tuple)
 
     elif reference_dict['type'] in {'bool', 'boolean'}:
         if not isinstance(input_element, (bool)):
@@ -135,7 +137,7 @@ def verify_helper(name, input_element, reference_dict):
             else:
                 ans += [{"name":name, "message":"no argument provided for 'oneof' arg"}]
 
-    elif reference_dict['type'] in {'stuff','any'}:
+    elif reference_dict['type'] in {'stuff', 'any', 'anything'}:
         pass
     elif reference_dict['type'] == 'target':
         pass
