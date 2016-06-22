@@ -38,7 +38,7 @@ class PoolBasedBinaryClassification(object):
         target_label = args['target_label']
 
         num_reported_answers = butler.experiment.increment(key='num_reported_answers_for_' + query['alg_label'])
-        
+
         # make a getModel call ~ every n/4 queries - note that this query will NOT be included in the predict
         experiment = butler.experiment.get()
         d = experiment['args']['d']

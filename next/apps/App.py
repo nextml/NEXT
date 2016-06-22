@@ -198,6 +198,7 @@ class App(object):
                     alg_id = algorithm['alg_id']
 
             myapp_response = self.call_app_fn(alg_label, alg_id, 'getModel', args_dict)
+
             myapp_response['exp_uid'] = exp_uid
             myapp_response['alg_label'] = alg_label
             # Log the response of the getModel in ALG-EVALUATION

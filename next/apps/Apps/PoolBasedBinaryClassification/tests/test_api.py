@@ -105,7 +105,7 @@ def run_all(assert_200):
     exp_uid = experiment['exp_uid']
     pool_args.append( (exp_uid,participant_uid,total_pulls_per_client,true_weights,assert_200) )
   print "participants are", participants
-  results = map(simulate_one_client, pool_args)
+  results = pool.map(simulate_one_client, pool_args)
 
   for result in results:
     print result
