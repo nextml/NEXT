@@ -1,23 +1,18 @@
 initExp:
   args:
     n:
-      description: Dimension of embedding.
       type: num
+      description: Number of targets
     R:
-      description: R.
       type: num
+      description:
     failure_probability:
-      description: Confidence of result.
       type: num
-    params:
-      description: Params.
-      type: any
-      optional: true
+      description:
   returns:
     type: bool
-    description: A boolean indicating success.
-    values: true
-
+    description: Did initExp succeed?
+    value: true
 
 getQuery:
   args:

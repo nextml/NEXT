@@ -89,6 +89,14 @@ popup_alert = function(text){
 </div>
 {% endif %}
 
+{% if exceptions_present %}
+<div class="alert alert-danger">
+    <strong>Background exceptions have occured!</strong>
+    <code>docker_login</code> to this machine or click link above for more detail.
+</div>
+
+{% endif %}
+
 {% if simple_flag<1 %}
 <!--################## compute_duration_multiline_plot #################### -->
 <div class="container-fluid" style ='background-color: #FFFFFF; padding-bottom: 1cm'>

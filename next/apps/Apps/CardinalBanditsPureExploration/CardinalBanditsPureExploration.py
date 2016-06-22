@@ -27,7 +27,7 @@ class CardinalBanditsPureExploration(object):
         """
         if 'targetset' in exp_data['args']['targets'].keys():
             n  = len(exp_data['args']['targets']['targetset'])
-            self.TargetManager.set_targetset(exp_uid, exp_data['args']['targets']['targetset'])
+            self.TargetManager.set_targetset(butler.exp_uid, exp_data['args']['targets']['targetset'])
         else:
             n = exp_data['args']['targets']['n']
         exp_data['args']['n'] = n

@@ -8,6 +8,7 @@ import json
 import yaml
 import traceback
 import numpy
+from next.constants import DEBUG_ON
 
 # import next.logging_client.LoggerHTTP as ell
 from next.database_client.DatabaseAPI import DatabaseAPI
@@ -60,7 +61,6 @@ def apply_dashboard(app_id, exp_uid, args_in_json, enqueue_timestamp):
 	dequeue_datetime = next.utils.datetimeNow()
 	delta_datetime = dequeue_datetime - enqueue_datetime
 	time_enqueued = delta_datetime.seconds + delta_datetime.microseconds/1000000.
-        next.utils.debug_print(args_in_json)
         dir, _ = os.path.split(__file__)
         reference_dict = Verifier.load_doc(os.path.join('next/apps', 'Apps/{}/{}.yaml'.format(app_id, app_id)))
         args_dict = Verifier.verify(args_in_json, reference_dict['getStats']['values'])
@@ -90,13 +90,11 @@ def apply_dashboard(app_id, exp_uid, args_in_json, enqueue_timestamp):
 	# 		log_entry_durations['app_duration'] = dt
 	# 		log_entry_durations['duration_enqueued'] = time_enqueued
 	# 		log_entry_durations['timestamp'] = next.utils.datetimeNow()
-        #                 next.utils.debug_print("LOGGING",log_entry_durations)
 	# 		ell.log( app_id+':ALG-DURATION', log_entry_durations  )
 	# else:
 	# 	return_value = (args_out_json,didSucceed,message)
-	print '#### Finished Dashboard %s,  time_enqueued=%s,  execution_time=%s ####' % (stat_id,
-                                                                                          time_enqueued,
-                                                                                          dt)
+        if DEBUG_ON:
+            utils.debug_print('#### Finished Dashboard %s, time_enqueued=%s,  execution_time=%s ####' % (stat_id, time_enqueued, dt), color='white')
 	return json.dumps(response), True, ''
 
 
