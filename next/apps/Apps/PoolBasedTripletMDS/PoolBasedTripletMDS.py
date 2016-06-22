@@ -26,7 +26,7 @@ class PoolBasedTripletMDS(object):
         return exp_data,alg_data
 
     def getQuery(self, butler, alg, args):
-        alg_response = alg(args)
+        alg_response = alg()
         exp_uid = butler.exp_uid
         center  = self.TargetManager.get_target_item(exp_uid, alg_response[0])
         left  = self.TargetManager.get_target_item(exp_uid, alg_response[1])
@@ -46,7 +46,7 @@ class PoolBasedTripletMDS(object):
                 left_id = target['target_id']
             elif target['label'] == 'right':
                 right_id = target['target_id']
-        target_winner = answer['args']['target_winner']
+        target_winner = args['target_winner']
         # make a getModel call ~ every n/4 queries - note that this query will NOT be included in the predict
         experiment = butler.experiment.get()
         num_reported_answers = butler.experiment.increment(key='num_reported_answers_for_' + query['alg_label'])

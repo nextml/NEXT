@@ -16,7 +16,6 @@ initExp:
 
 
 getQuery:
-  args:
   returns:
     description: the fucking query dumbass
     type: tuple
@@ -36,10 +35,10 @@ processAnswer:
       center_id:
         description: center id
         type: num
-      left_id: left id
+      left_id: 
         description: left id
         type: num
-      right_id: right id
+      right_id: 
         description: right id
         type: num
       target_winner:
@@ -51,10 +50,9 @@ processAnswer:
       values: true
 
 getModel:
-  args:
   returns:
     type: dict
-    keys:
+    values:
       X:
         description: The embedding.
         type: stuff

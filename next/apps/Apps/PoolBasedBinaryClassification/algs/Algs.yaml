@@ -35,7 +35,6 @@ processAnswer:
     values: true
 
 getModel:
-  description:
   returns:
     type: dict
     description: Update the model that helps getQuery

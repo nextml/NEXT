@@ -95,7 +95,7 @@ def verify_helper(name, input_element, reference_dict):
             ans += [{"name":name, "message":"invalid list"}]
         else:
             for i in range(len(input_element)):
-                input_element[i],temp_ans = verify_helper(name+'/'+str(i), input_element[i], reference_dict['values'][str(i)])
+                input_element[i],temp_ans = verify_helper(name+'/'+str(i), input_element[i], reference_dict['values'][i])
                 ans += temp_ans
 
     elif reference_dict['type'] in {'bool', 'boolean'}:
