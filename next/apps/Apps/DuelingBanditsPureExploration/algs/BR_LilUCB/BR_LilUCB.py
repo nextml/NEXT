@@ -13,7 +13,7 @@ import numpy.random
 import next.utils as utils
 
 class BR_LilUCB:
-  def initExp(self, butler, n, failure_probability, params):
+  def initExp(self, butler, n, failure_probability, params=None):
     """
     This function is meant to set keys used later by the algorith implemented
     in this file.
@@ -32,7 +32,7 @@ class BR_LilUCB:
 
     return True
 
-  def getQuery(self, butler, participant_dict, args=None, **kwargs):
+  def getQuery(self, butler, participant_uid):
     beta = 0.0 # algorithm parameter
 
     keys = butler.algorithms.get(key='keys')
