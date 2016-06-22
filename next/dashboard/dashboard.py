@@ -59,6 +59,8 @@ def get_stats():
     response_json,didSucceed,message = broker.dashboardAsync(app_id,
                                                              exp_uid,
                                                              args_dict)
+    response_dict = json.loads(response_json,parse_float=lambda o:round(float(o),4))
+    response_json = json.dumps(response_dict)
     
     return response_json
     #with open(os.path.join('next/apps', 'Apps/{}/{}.yaml'.format(app_id, app_id)),'r') as f:
