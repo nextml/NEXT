@@ -10,7 +10,7 @@ from next.apps.Apps.CardinalBanditsPureExploration.Prototype import CardinalBand
 
 class RoundRobin(CardinalBanditsPureExplorationPrototype):
 
-  def initExp(self,butler,n,R,failure_probability,params):
+  def initExp(self,butler,n,R,failure_probability,params={}):
     butler.algorithms.set(key='n', value=n)
     butler.algorithms.set(key='failure_probability',value=failure_probability)
     butler.algorithms.set(key='R',value=R)
@@ -22,7 +22,8 @@ class RoundRobin(CardinalBanditsPureExplorationPrototype):
     return True
 
   
-  def getQuery(self,butler,participant_dict,**kwargs):
+  def getQuery(self,butler,participant_uid):
+    participant_dict = butler.participants.get(uid=participant_uid)
     do_not_ask_hash = {key: True for key in participant_dict.get('do_not_ask_list',[])}
     
     kv_dict = butler.algorithms.increment_many(key_value_dict={'n':0,'generated_queries_cnt':1})
