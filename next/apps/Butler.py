@@ -138,13 +138,13 @@ class Butler(object):
     def log(self, log_name, log_value):
         self.ell.log(self.app_id+":"+log_name, log_value)
 
-    def job(self,task,task_args_json,ignore_result=True,time_limit=0):
+    def job(self, task, task_args_json, ignore_result=True, time_limit=0):
         if self.alg_label:
-            self.db.submit_job(self.app_id,self.exp_uid,
-                               task,task_args_json,
-                               self.exp_uid+'_'+self.alg_label,
-                               ignore_result,time_limit,
-                               alg_id = self.alg_id, alg_label=self.alg_label)  
+            self.db.submit_job(self.app_id, self.exp_uid,
+                               task, task_args_json,
+                               self.exp_uid + '_' + self.alg_label,
+                               ignore_result, time_limit,
+                               alg_id=self.alg_id, alg_label=self.alg_label)  
         else:
             self.db.submit_job(self.app_id, self.exp_uid, task, task_args_json, None, ignore_result, time_limit)  
 

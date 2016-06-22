@@ -77,10 +77,12 @@ class App(object):
             self.butler.admin.set(uid=exp_uid,value={'exp_uid': exp_uid, 'app_id':self.app_id, 'start_date':str(utils.datetimeNow())}) 
             args_dict,algs_args_dict = self.myApp.initExp(self.butler, args_dict)
             algs_args_dict = Verifier.verify(algs_args_dict, self.algs_reference_dict['initExp']['args'])
+
             # Set doc in algorithms bucket. These objects are used by the algorithms to store data.
             for algorithm in args_dict['args']['alg_list']:
                 algorithm['exp_uid'] = exp_uid
                 self.butler.algorithms.set(uid=algorithm['alg_label'], value=algorithm)
+
             args_dict['git_hash'] = git_hash
             self.butler.experiment.set(value=args_dict)
             for algorithm in args_dict['args']['alg_list']:

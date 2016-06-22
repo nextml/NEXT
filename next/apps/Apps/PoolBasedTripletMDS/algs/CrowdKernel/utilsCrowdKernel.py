@@ -158,9 +158,9 @@ def getCrowdKernelTripletProbability(b,c,a,mu=0):
     pabc = (mu + || c - a||^2)/(2*mu + || b - a ||^2+|| c - a ||^2)
     
     Inputs:
-    	(numpy.ndarray) a : numpy array
-    	(numpy.ndarray) b : numpy array
-	(numpy.ndarray) c : numpy array
+        (numpy.ndarray) a : numpy array
+        (numpy.ndarray) b : numpy array
+    (numpy.ndarray) c : numpy array
         (float) mu : regularization parameter
     """
     ca = norm(c-a)
@@ -176,7 +176,7 @@ def getEntropy(tau):
     H(tau) = sum -tau[i]*log(tau[i])
     
     Inputs:
-    	(numpy.ndarray) tau : numpy array representing a probability distribution
+        (numpy.ndarray) tau : numpy array representing a probability distribution
     """
     e = 0
     for i in range(len(tau)):
@@ -191,11 +191,11 @@ def getCrowdKernelTauDistribution(X, S, mu=.01):
     Returns a len(X)xlen(X) two dimensional arrray. The ith row of a is the tau distribution corresponding to the posterior distribution of a.
    
     Inputs:
-	(numpy.ndarray) X: current embedding of points
-	(list) S: list of triplets
-	(float) mu: regularization parameter
+    (numpy.ndarray) X: current embedding of points
+    (list) S: list of triplets
+    (float) mu: regularization parameter
     Usage:
-    	tau = getCrowdKernelDistribution(X,S) 
+        tau = getCrowdKernelDistribution(X,S) 
     """
     n,d = X.shape
     tau = zeros((n,n))
@@ -271,7 +271,7 @@ def computeEmbedding(n, d, S, mu=.01, num_random_restarts=0,max_num_passes=0,max
         (int) n : number of objects in embedding
         (int) d : desired dimension
         (list [(int) i, (int) j,(int) k]) S : list of triplets, i,j,k must be in [n].
-    	(float) mu : regularization value 
+        (float) mu : regularization value 
         (int) num_random_restarts : number of random restarts (nonconvex optimization, may converge to local minima)
         (int) max_num_passes : maximum number of passes over data SGD makes before proceeding to GD (default equals 16)
         (float) max_norm : the maximum allowed norm of any one object (default equals 10*d)
@@ -328,7 +328,7 @@ def computeEmbeddingWithEpochSGD(n,d,S,mu, max_num_passes=0,max_norm=0,epsilon=0
         (int) n : number of objects in embedding
         (int) d : desired dimension
         (list [(int) i, (int) j,(int) k]) S : list of triplets, i,j,k must be in [n].
-    	(float) mu : regularization value 
+        (float) mu : regularization value 
         (int) max_num_passes : maximum number of passes over data (default equals 16)
         (float) max_norm : the maximum allowed norm of any one object (default equals 10*d)
         (float) epsilon : parameter that controls stopping condition (default = 0.01)
@@ -430,12 +430,12 @@ def computeEmbeddingWithGD(X, S, mu, max_iters=0, max_norm=0, epsilon=0.01, c1=0
         (numpy.ndarray) X : input embedding
         (list [(int) i, (int) j,(int) k]) S : list of triplets, i,j,k must be in [n]. 
         (float) mu : regularization parameter
-    	(int) max_iters : maximum number of iterations of SGD (default equals 40*len(S))
-    	(float) max_norm : the maximum allowed norm of any one object (default equals 10*d)
-    	(float) epsilon : parameter that controls stopping condition, exits if gamma<epsilon (default = 0.01)
+        (int) max_iters : maximum number of iterations of SGD (default equals 40*len(S))
+        (float) max_norm : the maximum allowed norm of any one object (default equals 10*d)
+        (float) epsilon : parameter that controls stopping condition, exits if gamma<epsilon (default = 0.01)
         (float) c1 : Amarijo stopping condition parameter (default equals 0.0001)
         (float) rho : Backtracking line search parameter (default equals 0.5)
-    	(boolean) verbose : output iteration progress or not (default equals False)
+        (boolean) verbose : output iteration progress or not (default equals False)
 
     Outputs:
         (numpy.ndarray) X : output embedding
