@@ -52,28 +52,10 @@ class DuelingBanditsPureExploration(object):
 
         return exp_data,alg_data
 
-    def getQuery(self, butler, query_request, alg_response):
-        """
-        The function that gets the next query, given a query reguest and
-        algorithm response.
-
-        Inputs
-        ------
-        exp_uid : The unique identiefief for the exp.
-        query_request :
-        alg_response : The response from the algorithm. The algorithm should
-                       return only one value, be it a list or a dictionary.
-        butler : The wrapper for database writes. See next/apps/Butler.py for
-                 more documentation.
-
-        Returns
-        -------
-        A dictionary with a key ``target_indices``.
-
-        TODO: Document this further
-        """
+    def getQuery(self, butler, alg, args):
+        alg_response = alg({'participant_uid':args['participant_uid']})
         targets = [self.TargetManager.get_target_item(butler.exp_uid, alg_response[i])
-                                                 for i in [0, 1, 2]]
+                   for i in [0, 1, 2]]
 
         targets_list = [{'target':targets[0],'label':'left'}, 
                         {'target':targets[1],'label':'right'}]
@@ -99,25 +81,8 @@ class DuelingBanditsPureExploration(object):
 
         return return_dict
 
-    def processAnswer(self, butler, query, answer):
-        """
-        Parameters
-        ----------
-        exp_uid : The experiments unique ID.
-        query :
-        answer: 
-        butler : 
-
-        Returns
-        -------
-        dictionary with keys:
-            alg_args: Keywords that are passed to the algorithm.
-            query_update :
-
-        For example, this function might return ``{'a':1, 'b':2}``. The
-        algorithm would then be called with
-        ``alg.processAnswer(butler, a=1, b=2)``
-        """
+    def processAnswer(self, butler, alg, args):
+        query = butler.queries.get(uid=args['query_uid'])
         targets = query['target_indices']
         for target in targets:
             if target['label'] == 'left':
@@ -127,19 +92,18 @@ class DuelingBanditsPureExploration(object):
             if target['flag'] == 1:
                 painted_id = target['target']['target_id']
                 
-        winner_id = answer['args']['target_winner']
+        winner_id = args['target_winner']
         butler.experiment.increment(key='num_reported_answers_for_' + query['alg_label'])
 
-        query_update = {'winner_id':winner_id}
-        algs_args_dict = {'left_id':left_id, 
-                        'right_id':right_id, 
-                        'winner_id':winner_id,
-                        'painted_id':painted_id}
-        return query_update,algs_args_dict
+        alg({'left_id':left_id, 
+             'right_id':right_id, 
+             'winner_id':winner_id,
+             'painted_id':painted_id})
+        return {'winner_id':winner_id}
                 
 
-    def getModel(self, butler, args_dict, alg_response):
-        scores, precisions = alg_response
+    def getModel(self, butler, alg, args):
+        scores, precisions = alg()
         ranks = (-numpy.array(scores)).argsort().tolist()
         n = len(scores)
         indexes = numpy.array(range(n))[ranks]

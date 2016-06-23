@@ -22,7 +22,10 @@ initExp:
               alg_label:
                 description: A name for this algorithm of your choosing.
                 type: str
-
+              params:
+                description: Any additional algorhtm-specific parameters
+                type: any
+                optional: true
         instructions:
           description: The instructions the particpant will see when experiment first launched.
           type: str

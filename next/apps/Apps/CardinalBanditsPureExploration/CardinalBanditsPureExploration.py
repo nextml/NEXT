@@ -47,27 +47,9 @@ class CardinalBanditsPureExploration(object):
 
         return exp_data,alg_data
 
-    def getQuery(self, butler, query_request, alg_response):
-        """
-        The function that gets the next query, given a query reguest and
-        algorithm response.
-
-        Inputs
-        ------
-        exp_uid : The unique identiefief for the exp.
-        query_request :
-        alg_response : The response from the algorithm. The algorithm should
-                       return only one value, be it a list or a dictionary.
-        butler : The wrapper for database writes. See next/apps/Butler.py for
-                 more documentation.
-
-        Returns
-        -------
-        A dictionary with a key ``target_indices``.
-
-        TODO: Document this further
-        """
-        participant_uid = query_request['args'].get('participant_uid', query_request['exp_uid'])
+    def getQuery(self, butler, alg, args):
+        participant_uid = args.get('participant_uid', butler.exp_uid)
+        alg_response = alg({'participant_uid':participant_uid})
         butler.participants.append(uid=participant_uid,key='do_not_ask_list',value=alg_response)
 
         target = self.TargetManager.get_target_item(butler.exp_uid, alg_response)
@@ -84,33 +66,15 @@ class CardinalBanditsPureExploration(object):
 
         return return_dict
 
-    def processAnswer(self, butler, query, answer):
-        """
-        Parameters
-        ----------
-        exp_uid : The experiments unique ID.
-        query :
-        answer: 
-        butler : 
+    def processAnswer(self, butler, alg, args):
+        query = butler.queries.get(uid=args['query_uid'])
+        target_id = query['target_indices'][0]['target']['target_id']
+        target_reward = args['target_reward']
+        alg({'target_id':target_id,'target_reward':target_reward})
+        return {'target_id':target_id,'target_reward':target_reward}
 
-        Returns
-        -------
-        dictionary with keys:
-            alg_args: Keywords that are passed to the algorithm.
-            query_update :
-
-        For example, this function might return ``{'a':1, 'b':2}``. The
-        algorithm would then be called with
-        ``alg.processAnswer(butler, a=1, b=2)``
-        """
-        target_id = query['target_indices'][0]['target']['target_id']     
-        target_reward = answer['args']['target_reward']
-
-        query_update = {'target_id':target_id,'target_reward':target_reward}
-        alg_args_dict = {'target_id':target_id,'target_reward':target_reward}
-        return query_update,alg_args_dict
-
-    def getModel(self, butler, args_dict, alg_response):
+    def getModel(self, butler, alg, args):
+        alg_response = alg()
         scores, precisions = alg_response
         ranks = (-numpy.array(scores)).argsort().tolist()
         n = len(scores)

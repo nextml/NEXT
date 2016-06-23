@@ -1,18 +1,19 @@
 initExp:
   args:
     n:
+      description: Dimension of embedding.
       type: num
-      description: Number of targets
-    R:
-      type: num
-      description:
     failure_probability:
+      description: Confidence of result.
       type: num
-      description:
+    params:
+      description: Params.
+      type: any
+      optional: true
   returns:
     type: bool
-    description: Did initExp succeed?
-    value: true
+    description: A boolean indicating success.
+    values: true
 
 getQuery:
   args:
@@ -20,16 +21,24 @@ getQuery:
       type: string
       description: ID of the participant answering the query
   returns:
-    description: index
-    type: num
+    type: list
+    description: indices of stuff
+    values:
+      type: num
     
 processAnswer:
     args:
-      target_id:
-        description: The ID of the target given in the query
+      left_id:
+        description: ID of left target
         type: num
-      target_reward: 
-        description: The reward value to assign to the target
+      right_id:
+        description: ID of right target
+        type: num
+      painted_id:
+        description: Painted ID
+        type: num
+      winner_id:
+        description: Winner ID
         type: num
     returns:
       type: bool

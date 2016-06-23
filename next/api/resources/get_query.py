@@ -53,14 +53,16 @@ class getQuery(Resource):
         # Standardized participant_uid
         if 'participant_uid' in args_data['args'].keys():
             args_data['args']['participant_uid'] = exp_uid+"_"+args_data['args']['participant_uid']
-            
+
+        render_widget = args_data['args'].get('widget',False)
+
         # Execute getQuery 
         response_json,didSucceed,message = broker.applyAsync(app_id,exp_uid,"getQuery", json.dumps(args_data))
         response_dict = json.loads(response_json)
         if not didSucceed:
             return attach_meta({},meta_error['QueryGenerationError'], backend_error=message)
 
-        if 'widget' in args_data['args'].keys() and args_data['args']['widget'] == True:
+        if render_widget:
             TEMPLATES_DIRECTORY = 'next/apps/Apps/{}/widgets'.format(resource_manager.get_app_id(exp_uid))
             env = Environment(loader=FileSystemLoader(TEMPLATES_DIRECTORY))
             template=env.get_template("getQuery_widget.html")

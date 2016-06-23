@@ -10,7 +10,7 @@ from next.apps.Apps.CardinalBanditsPureExploration.Prototype import CardinalBand
 
 class LilUCB(CardinalBanditsPureExplorationPrototype):
 
-  def initExp(self,butler,n,R,failure_probability):
+  def initExp(self,butler,n,R,failure_probability,params={}):
     butler.algorithms.set(key='n', value=n)
     butler.algorithms.set(key='delta',value=failure_probability)
     butler.algorithms.set(key='R',value=R)
@@ -73,7 +73,7 @@ class LilUCB(CardinalBanditsPureExplorationPrototype):
         mu[i] = float(sumX[i]) / T[i]
         prec[i] = numpy.sqrt( float( max(1.,sumX2[i] - T[i]*mu[i]*mu[i]) ) / ( T[i] - 1. ) / T[i] )
     
-    return {'means': mu.tolist(), 'prec': prec.tolist()}
+    return mu.tolist(),prec.tolist()
 
   def update_priority_list(self,butler,args):
     S = butler.algorithms.get_and_delete(key='S')

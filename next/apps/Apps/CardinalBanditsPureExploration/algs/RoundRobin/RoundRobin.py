@@ -10,7 +10,7 @@ from next.apps.Apps.CardinalBanditsPureExploration.Prototype import CardinalBand
 
 class RoundRobin(CardinalBanditsPureExplorationPrototype):
 
-  def initExp(self,butler,n,R,failure_probability,params):
+  def initExp(self,butler,n,R,failure_probability,params={}):
     butler.algorithms.set(key='n', value=n)
     butler.algorithms.set(key='failure_probability',value=failure_probability)
     butler.algorithms.set(key='R',value=R)

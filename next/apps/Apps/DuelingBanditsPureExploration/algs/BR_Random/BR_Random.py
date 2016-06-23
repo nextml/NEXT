@@ -13,13 +13,12 @@ import next.utils as utils
 
 class BR_Random:
     app_id = 'DuelingBanditsPureExploration'
-    def initExp(self, butler, n=None, R=None, failure_probability=None, params=None):
+    def initExp(self, butler, n=None, failure_probability=None, params=None):
         """
         This function is meant to set keys used later by the algorith implemented
         in this file.
         """
         butler.algorithms.set(key='n', value=n)
-        butler.algorithms.set(key='R', value=R)
         butler.algorithms.set(key='failure_probability', value=failure_probability)
 
         arm_key_value_dict = {}
@@ -34,7 +33,7 @@ class BR_Random:
 
         return True
 
-    def getQuery(self,butler,participant_dict,**kwargs):
+    def getQuery(self, butler, participant_uid):
         n = butler.algorithms.get(key='n')
 
         index = numpy.random.choice(n)
