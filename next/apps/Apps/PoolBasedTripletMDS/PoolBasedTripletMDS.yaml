@@ -13,7 +13,7 @@ initExp:
           values:
             values:
               alg_id:
-                values: [CrowdKernel, RandomSampling, STE, UncertaintySampling]
+                values: [CrowdKernel, RandomSampling, STE, UncertaintySampling, ValidationSampling]
               test_alg_label:
                 description: Which algorithm to test against.
                 type: str

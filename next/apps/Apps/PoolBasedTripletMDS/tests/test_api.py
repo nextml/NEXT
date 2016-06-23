@@ -26,7 +26,7 @@ def run_all(assert_200):
     # input test parameters
     delta = 0.01
     supported_alg_ids = ['RandomSampling','RandomSampling','UncertaintySampling','CrowdKernel', 'STE']
-    supported_alg_ids = ['ValidationSampling', 'RandomSampling']
+    # supported_alg_ids = ['ValidationSampling', 'RandomSampling']
 
     alg_list = []
     for idx, alg_id in enumerate(supported_alg_ids):

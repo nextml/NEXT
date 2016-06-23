@@ -27,7 +27,6 @@ class PoolBasedBinaryClassification(object):
 
     def getQuery(self, butler, alg, args):
         alg_response = alg({'participant_uid':args['participant_uid']})
-        utils.debug_print(alg_response)
         target = self.TargetManager.get_target_item(butler.exp_uid, alg_response)
         del target['meta']
         return {'target_indices':target}
