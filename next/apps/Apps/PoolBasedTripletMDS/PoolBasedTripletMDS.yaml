@@ -17,6 +17,10 @@ initExp:
               test_alg_label:
                 description: Which algorithm to test against.
                 type: str
+              params:
+                optional: true
+                description: Arguments to pass to each individual algorithm.
+                type: anything
         d:
           description: Dimension of embedding.
           type: num
