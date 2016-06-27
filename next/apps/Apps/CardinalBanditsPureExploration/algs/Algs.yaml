@@ -50,3 +50,8 @@ getModel:
         type: list
         values:
           type: num
+      2:
+        description: counts
+        type: list
+        values:
+          type: num
