@@ -136,7 +136,7 @@ def debug_print(*args, **kwargs):
     color = kwargs.get('color', 'yellow')
     
     for a in args:
-        lines = a.split('\n') if type(a) == str else a
+        lines = a.split('\n') if type(a) == str else [a]
         for line in lines:
             print '{}{}{}'.format(color_ansi[color], line, color_ansi['reset all'])
     print ''
