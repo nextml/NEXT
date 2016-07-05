@@ -55,6 +55,8 @@ class processAnswer(Resource):
         args_data = post_parser.parse_args()
         # Pull app_id and exp_uid from parsed args
         exp_uid = args_data["exp_uid"]
+        args_data['args']['target_reward'] = float(args_data['args']['target_reward'])
+        args_data['args']['response_time'] = float(args_data['args']['response_time'])
 
         # Fetch app_id data from resource manager
         app_id = resource_manager.get_app_id(exp_uid)

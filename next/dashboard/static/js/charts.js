@@ -34,7 +34,7 @@ var buttonsChart = [["#A9A9C6"]];
                     if (data.headers[j].field == 'index' && data.data[i]['target']){
                         target = data.data[i].target;       
             if(target.primary_type == 'image'){
-                            var img_col = '<td>'+'<img src='+target.primary_description+'style=max-height:100px;width:auto;></img>';
+                            var img_col = '<td>'+'<img src='+target.primary_description+' style=max-height:100px;width:auto;></img>';
                 curr_row[j] = img_col;
                         } else{
                 curr_row[j] = '<td>'+target.primary_description+'</td>';

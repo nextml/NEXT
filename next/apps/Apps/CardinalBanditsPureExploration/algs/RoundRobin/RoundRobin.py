@@ -69,8 +69,8 @@ class RoundRobin(CardinalBanditsPureExplorationPrototype):
         mu[i] = float(sumX[i]) / T[i]
         prec[i] = numpy.sqrt( float( max(1.,sumX2[i] - T[i]*mu[i]*mu[i]) ) / ( T[i] - 1. ) / T[i] )
     
-    return {'means': mu.tolist(), 'prec': prec.tolist()}
-
+    return mu.tolist(),prec.tolist(), T
+    
   def update_priority_list(self,butler,args):
     S = butler.algorithms.get_and_delete(key='S')
 

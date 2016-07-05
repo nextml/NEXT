@@ -763,7 +763,7 @@ def rsync_docker_config(opts, master_nodes, slave_nodes):
 
         "CELERY_ASYNC_WORKER_COUNT":4,
         "CELERY_THREADS_PER_ASYNC_WORKER":max(1,int(.25*master_num_cpus)),
-        "CELERY_ASYNC_WORKER_PREFETCH":4,
+        "CELERY_ASYNC_WORKER_PREFETCH":10,
 
         "CELERY_DASHBOARD_WORKER_COUNT":1,
         "CELERY_THREADS_PER_DASHBOARD_WORKER":2,
