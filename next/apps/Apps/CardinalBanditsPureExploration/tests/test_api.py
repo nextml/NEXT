@@ -1,4 +1,5 @@
 import numpy
+import numpy as np
 import numpy.random
 import random
 import json
@@ -186,7 +187,8 @@ def simulate_one_client(input_args):
     processAnswer_args_dict["exp_uid"] = exp_uid
     processAnswer_args_dict["args"] = {}
     processAnswer_args_dict["args"]["query_uid"] = query_uid
-    processAnswer_args_dict["args"]['target_reward'] = target_reward
+    target_reward = str(target_reward) if np.random.randint(2) == 0 else target_reward
+    processAnswer_args_dict["args"]['target_reward'] = str(target_reward)
     processAnswer_args_dict["args"]['response_time'] = response_time
 
     url = 'http://'+HOSTNAME+'/api/experiment/processAnswer'
