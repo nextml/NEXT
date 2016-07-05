@@ -21,7 +21,7 @@ SITES_ENABLED = False
 DEBUG_ON = os.environ.get('DEBUG_ON', '')
 
 # Backend Host Url
-NEXT_BACKEND_GLOBAL_HOST = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', None)
+NEXT_BACKEND_GLOBAL_HOST = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')
 NEXT_BACKEND_GLOBAL_PORT = os.environ.get('NEXT_BACKEND_GLOBAL_PORT', '8000')
 
 AWS_ACCESS_ID = os.environ.get('AWS_ACCESS_ID', '')
