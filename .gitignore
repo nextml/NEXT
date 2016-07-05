@@ -26,3 +26,6 @@ nohup.out
 #floo
 .floo
 .flooignore
+
+# testing results are stored here
+.cache

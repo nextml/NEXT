@@ -11,20 +11,23 @@ from multiprocessing import Pool
 import sys
 
 import os
-HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')+':'+os.environ.get('NEXT_BACKEND_GLOBAL_PORT', '8000')
+HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost') + \
+           ':'+os.environ.get('NEXT_BACKEND_GLOBAL_PORT', '8000')
 
-def run_all(assert_200):
+
+def test_api(assert_200=True, num_arms=5, total_pulls_per_client=5,
+             num_experiments=1, num_clients=4, total_pulls=5):
 
   app_id = 'CardinalBanditsPureExploration'
-  num_arms = 500
+  #  num_arms = 50
   true_means = numpy.array(range(num_arms)[::-1])/float(num_arms)
-  total_pulls_per_client = 100
+  #  total_pulls_per_client = 100
 
-  num_experiments = 1
+  #  num_experiments = 1
 
   # clients run in simultaneous fashion using multiprocessing library
-  num_clients = 100
-  total_pulls = 100000
+  #  num_clients = 10
+  #  total_pulls = 10
 
   pool = Pool(processes=num_clients)           
 
@@ -32,8 +35,7 @@ def run_all(assert_200):
   # input test parameters
   n = num_arms
   delta = 0.05
-  supported_alg_ids = ['LilUCB']
-  # supported_alg_ids = []
+  supported_alg_ids = ['LilUCB', 'RoundRobin']
 
   labels = [{'label':'bad','reward':1.},{'label':'neutral','reward':2.},{'label':'good','reward':3.}]
 
@@ -52,7 +54,7 @@ def run_all(assert_200):
   algorithm_management_settings['mode'] = 'fixed_proportions'
   algorithm_management_settings['params'] = params
 
-  print algorithm_management_settings
+  print "alg mangement settings", algorithm_management_settings
 
 
   #################################################
@@ -71,6 +73,7 @@ def run_all(assert_200):
   initExp_args_dict['args']['context_type'] = 'text'
   initExp_args_dict['args']['context'] = 'This is a context'
   initExp_args_dict['args']['rating_scale'] = {'labels':labels}
+  #  initExp_args_dict['args']['HAHA'] = {'labels':labels}
   initExp_args_dict['app_id'] = app_id
 
   exp_info = []
@@ -79,7 +82,8 @@ def run_all(assert_200):
     response = requests.post(url, json.dumps(initExp_args_dict), headers={'content-type':'application/json'})
     print "POST initExp response =",response.text, response.status_code
 
-    if assert_200: assert response.status_code is 200
+    if assert_200:
+        assert response.status_code is 200
     initExp_response_dict = json.loads(response.text)
     if 'fail' in initExp_response_dict['meta']['status'].lower():
         print 'The experiment initialization failed... exiting'
@@ -117,22 +121,23 @@ def run_all(assert_200):
   results = pool.map(simulate_one_client, pool_args)
 
   for result in results:
-    print result
+    print "result = ", result
 
 
-def simulate_one_client( input_args ):
+def simulate_one_client(input_args):
   exp_uid,participant_uid,total_pulls_per_client,total_pulls,true_means,assert_200 = input_args
-  avg_response_time = 2.
+  avg_response_time = 0.2
   verbose = False
 
   time.sleep(  2*avg_response_time*numpy.log(1./numpy.random.rand())  )
 
   getQuery_times = []
   processAnswer_times = []
+  print "{} total pulls (looping over this many items)".format(total_pulls)
   for t in range(total_pulls):
     if (t % total_pulls_per_client) == 0:
       participant_uid = '%030x' % random.randrange(16**30)
-      print participant_uid
+      print "participant uid = ", participant_uid
 
 
     if verbose: print "    Participant {} had {} total pulls: ".format(participant_uid, t)
@@ -226,4 +231,6 @@ def timeit(f):
 
 if __name__ == '__main__':
   print HOSTNAME
-  run_all(False)
+  #  test_api()
+  test_api(assert_200=True, num_arms=50, total_pulls_per_client=100,
+        num_experiments=1, num_clients=100, total_pulls=10000)

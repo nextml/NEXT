@@ -11,22 +11,25 @@ from multiprocessing import Pool
 import os
 HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')+':'+os.environ.get('NEXT_BACKEND_GLOBAL_PORT', '8000')
 
-def run_all(assert_200):
+def test_api(assert_200=False, num_objects=3, desired_dimension=2,
+            total_pulls_per_client=15, num_experiments=1, num_clients=1,
+            delta=0.01):
 
-    num_objects = 5
-    desired_dimension = 2
+    #  num_objects = 5
+    #  desired_dimension = 2
     x = numpy.linspace(0,1,num_objects)
     X_true = numpy.vstack([x,x]).transpose()
-    total_pulls_per_client = 20
-    num_experiments = 1
+    #  total_pulls_per_client = 20
+    #  num_experiments = 1
     # clients run in simultaneous fashion using multiprocessing library
-    num_clients = 5
+    #  num_clients = 5
 
     pool = Pool(processes=num_clients)
     # input test parameters
     delta = 0.01
-    supported_alg_ids = ['RandomSampling','RandomSampling','UncertaintySampling','CrowdKernel', 'STE']
-    # supported_alg_ids = ['ValidationSampling', 'RandomSampling']
+    supported_alg_ids = ['CrowdKernel', 'RandomSampling',
+                         'UncertaintySampling', 'ValidationSampling', 'STE']
+    #supported_alg_ids = ['ValidationSampling']
 
     alg_list = []
     for idx, alg_id in enumerate(supported_alg_ids):
@@ -226,4 +229,7 @@ def timeit(f):
 
 if __name__ == '__main__':
     print HOSTNAME
-    run_all(False)
+    test_api()
+    #  test_api(assert_200=False, num_objects=5, desired_dimension=2,
+             #  total_pulls_per_client=100, num_experiments=1,
+             #  num_clients=5, delta=0.01)

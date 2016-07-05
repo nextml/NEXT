@@ -13,17 +13,18 @@ from multiprocessing import Pool
 import os
 HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')+':'+os.environ.get('NEXT_BACKEND_GLOBAL_PORT', '8000')
 
-def run_all(assert_200):
+def test_api(assert_200=True, num_arms=5, num_clients=5, delta=0.05,
+             total_pulls_per_client=5, num_experiments=1):
 
   app_id = 'DuelingBanditsPureExploration'
-  num_arms = 25
+  #  num_arms = 5
   true_means = numpy.array(range(num_arms)[::-1])/float(num_arms)
-  total_pulls_per_client = 250
+  #  total_pulls_per_client = 10
 
-  num_experiments = 1
+  #  num_experiments = 1
 
   # clients run in simultaneous fashion using multiprocessing library
-  num_clients = 10
+  #  num_clients = 10
 
   pool = Pool(processes=num_clients)
 
@@ -218,4 +219,6 @@ def timeit(f):
 
 if __name__ == '__main__':
   print HOSTNAME
-  run_all(False)
+  test_api()
+  #  test_api(assert_200=True, num_arms=5, num_clients=10, delta=0.05,
+        #  total_pulls_per_client=10, num_experiments=1)

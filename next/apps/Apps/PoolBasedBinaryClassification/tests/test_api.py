@@ -11,16 +11,18 @@ from multiprocessing import Pool
 import os
 HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')+':'+os.environ.get('NEXT_BACKEND_GLOBAL_PORT', '8000')
 
-def run_all(assert_200):
+def test_api(assert_200=True, num_objects=10, desired_dimension=4,
+            total_pulls_per_client=4, num_experiments=1, num_clients=5,
+            delta=0.01):
 
-  num_objects = 100
-  desired_dimension = 4
+  #  num_objects = 100
+  #  desired_dimension = 4
   true_weights = numpy.zeros(desired_dimension)
   true_weights[0] = 1.
-  total_pulls_per_client = 30
-  num_experiments = 1
+  #  total_pulls_per_client = 30
+  #  num_experiments = 1
   # clients run in simultaneous fashion using multiprocessing library
-  num_clients = 10
+  #  num_clients = 10
 
   pool = Pool(processes=num_clients)
   # input test parameters
@@ -113,7 +115,7 @@ def run_all(assert_200):
 
 def simulate_one_client( input_args ):
   exp_uid,participant_uid,total_pulls,true_weights,assert_200 = input_args
-  avg_response_time = 1.
+  avg_response_time = 1.0
 
 
   getQuery_times = []
@@ -219,4 +221,7 @@ def timeit(f):
 
 if __name__ == '__main__':
   print HOSTNAME
-  run_all(False)
+  test_api()
+  #  test_api(assert_200=False, num_objects=100, desired_dimension=4,
+           #  total_pulls_per_client=30, num_experiments=1, num_clients=10,
+           #  delta=0.01)
