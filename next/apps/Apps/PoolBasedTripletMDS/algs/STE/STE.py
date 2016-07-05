@@ -7,6 +7,7 @@ import numpy
 import numpy.random
 from next.apps.Apps.PoolBasedTripletMDS.algs.STE import utilsSTE
 from next.apps.Apps.PoolBasedTripletMDS.Prototype import PoolBasedTripletMDSPrototype
+import next.utils as utils
 
 import time
 
@@ -22,6 +23,7 @@ class STE(PoolBasedTripletMDSPrototype):
     butler.algorithms.set(key='delta',value=failure_probability)
     butler.algorithms.set(key='X',value=X.tolist())
     butler.algorithms.set(key='tau',value=tau.tolist())
+    butler.algorithms.set(key='num_reported_answers',value=0)
     return True
 
 
@@ -32,6 +34,7 @@ class STE(PoolBasedTripletMDSPrototype):
 
     if num_reported_answers == None:
       num_reported_answers = 0
+      butler.algorithms.set(key='num_reported_answers', value=0)
 
     if num_reported_answers < R*n:
       a = num_reported_answers/R

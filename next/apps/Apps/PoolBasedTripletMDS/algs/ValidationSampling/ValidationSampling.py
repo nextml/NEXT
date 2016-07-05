@@ -18,6 +18,7 @@ class ValidationSampling:
         butler.algorithms.set(key='d', value=d)
         butler.algorithms.set(key='delta', value=failure_probability)
         butler.algorithms.set(key='X', value=X.tolist())
+        butler.algorithms.set(key='num_reported_answers', value=0)
 
         params = butler.algorithms.get(key='params')  # alg specific parameters
         if params:
@@ -55,8 +56,6 @@ class ValidationSampling:
 
         # append the current query to do_not_ask
         butler.algorithms.append(key='do_not_ask', value=query)
-
-        utils.debug_print("Exiting myAlg.getQuery")
         return query[2], query[0], query[1]
 
     def processAnswer(self, butler, center_id, left_id, right_id,
@@ -79,8 +78,6 @@ class ValidationSampling:
             args = {'task': '_incremental_embedding_update',
                     'task_args_json': {}}
             butler.job(time_limit=5, **args)
-
-        utils.debug_print("Exiting myAlg.processAnswer")
         return True
 
     def getModel(self, butler):

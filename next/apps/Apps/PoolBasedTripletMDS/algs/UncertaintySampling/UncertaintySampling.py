@@ -19,6 +19,7 @@ class UncertaintySampling(PoolBasedTripletMDSPrototype):
     butler.algorithms.set(key='d',value=d)
     butler.algorithms.set(key='delta',value=failure_probability)
     butler.algorithms.set(key='X',value=X.tolist())
+    butler.algorithms.set(key='num_reported_answers',value=0)
     return True
 
 

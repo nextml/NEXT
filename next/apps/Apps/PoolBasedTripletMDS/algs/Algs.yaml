@@ -52,6 +52,7 @@ processAnswer:
 getModel:
   returns:
     type: dict
+    description: Update the model that helps getQuery
     values:
       X:
         description: The embedding.

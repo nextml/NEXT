@@ -22,7 +22,7 @@ class CrowdKernel(PoolBasedTripletMDSPrototype):
     butler.algorithms.set(key='X',value=X.tolist())
     butler.algorithms.set(key='tau',value=tau.tolist())
     # butler.algorithms.set(key='S',value=[]) # do not initialize a list that you plan to append to! When you append_list the first item it will be created automatically.
-    # butler.algorithms.set(key='num_reported_answers',value=0) # do not initialize an incremental variable you plan to increment. When you increment for the first time it will initizliae the variable at 0.
+    butler.algorithms.set(key='num_reported_answers',value=0)
     return True
 
 
