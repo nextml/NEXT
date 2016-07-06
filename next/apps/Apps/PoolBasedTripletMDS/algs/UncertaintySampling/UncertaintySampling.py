@@ -4,7 +4,10 @@ author: Kevin Jamieson, kevin.g.jamieson@gmail.com
 last updated: 1/17/2015
 """
 import numpy
+import numpy as np
 import numpy.random
+import random
+import next.utils as utils
 from next.apps.Apps.PoolBasedTripletMDS.algs.UncertaintySampling import utilsMDS
 from next.apps.Apps.PoolBasedTripletMDS.Prototype import PoolBasedTripletMDSPrototype
 
@@ -32,7 +35,15 @@ class UncertaintySampling(PoolBasedTripletMDSPrototype):
       num_reported_answers = 0
     R = int(1+d*numpy.log(n))
     if num_reported_answers < R*n:
-      a = num_reported_answers/R
+      # This generates the same shuffle every time this everytime
+      # TODO: but this in utils and call this from other algorithms (they use
+      # the same method).
+      r = random.Random()
+      r.seed(42)
+      idxs = np.arange(n).repeat(R).tolist()
+      r.shuffle(idxs)
+
+      a = idxs[num_reported_answers]
       b = numpy.random.randint(n)
       while b==a:
         b = numpy.random.randint(n)
