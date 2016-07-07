@@ -35,38 +35,38 @@ class ValidationSampling:
             raise Exception("For ValidationSampling you must specifiy "
                             "'query_list' or 'num_tries'")
 
-        butler.algorithms.set(key='query_list', value=query_list)
         butler.algorithms.set(key='do_not_ask', value=[])
+        butler.algorithms.set(key='query_list', value=query_list)
 
         return True
 
     def getQuery(self, butler):
-        utils.debug_print("Entering myAlg.getQuery")
+        num_ans = butler.algorithms.get(key='num_reported_answers')
         query_list = butler.algorithms.get(key='query_list')
-        query_list = [query_list[i]
-                      for i in np.random.permutation(len(query_list))]
+        i = num_ans % (len(query_list) - 1)
 
-        do_not_ask = butler.algorithms.get(key='do_not_ask')
-
-        # enfore do_not_ask
-        for q in do_not_ask:
-            query_list.remove([q[0], q[1], q[2]])
-
-        query = random.choice(query_list)
+        query = query_list[i]
+        #  butler.participants.set(key='query', value=query)
 
         # append the current query to do_not_ask
-        butler.algorithms.append(key='do_not_ask', value=query)
+        #  butler.algorithms.append(key='do_not_ask', value=query)
         return query[2], query[0], query[1]
 
     def processAnswer(self, butler, center_id, left_id, right_id,
                       target_winner):
-        utils.debug_print("Entering myAlg.processAnswer")
         if left_id == target_winner:
             q = [left_id, right_id, target_winner]
         else:
             q = [left_id, left_id, target_winner]
 
         butler.algorithms.append(key='S', value=q)
+
+        # The following lines enforce "do not ask". The query list gets shorter
+        # each time this function is called (and an question is answered).
+        #  query_list = butler.participants.get(key='query_list')
+        #  query = butler.algorithms.get(key='query')
+        #  query_list.remove(query)
+        #  butler.participants.set(key='query_list', value=query_list)
 
         n = butler.algorithms.get(key='n')
         num_answers = butler.algorithms.increment(key='num_reported_answers')
@@ -84,7 +84,6 @@ class ValidationSampling:
         return butler.algorithms.get(key=['X', 'num_reported_answers'])
 
     def _incremental_embedding_update(self, butler, args):
-        utils.debug_print("Entering _incremental_embedding_update")
         S = butler.algorithms.get(key='S')
 
         X = np.array(butler.algorithms.get(key='X'))
@@ -107,10 +106,8 @@ class ValidationSampling:
             k += 1
 
         butler.algorithms.set(key='X', value=X.tolist())
-        utils.debug_print("Leaving _incremental_embedding_update")
 
     def _full_embedding_update(self, butler, args):
-        utils.debug_print("Entering _full_embedding_update")
         verbose = False
 
         n = butler.algorithms.get(key='n')
@@ -143,4 +140,3 @@ class ValidationSampling:
         if emp_loss_old < emp_loss_new:
             X = X_old
         butler.algorithms.set(key='X', value=X.tolist())
-        utils.debug_print("Exiting _full_embedding_update")
