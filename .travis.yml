@@ -1,0 +1,17 @@
+language: python
+python:
+  - 2.7
+sudo: required
+services:
+  - docker
+
+install:
+  - sudo apt-get update
+  - sudo apt-get install python-numpy python-scipy
+  - sudo pip install -r ./local_requirements.txt
+  - sudo pip install -r ./next/base_docker_image/requirements.txt
+  - sudo apt-get install docker
+  - cd local; ./docker_up.sh
+
+script:
+  - py.test next
