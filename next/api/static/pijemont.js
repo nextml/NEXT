@@ -22,7 +22,9 @@ var Pijemont = function(container_form, api_dict, name, target, submit_callback,
 	    console.log('Oops! Something went wrong.');
 	});
 	XHR.open("POST", self.target);
+	XHR.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 	XHR.send(JSON.stringify(data));
+	return false;
     }
     
     var XHR = new XMLHttpRequest();

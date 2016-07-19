@@ -4,7 +4,7 @@ from flask.ext.restful import Resource, reqparse, request
 
 import json
 import random
-import next.utils
+from next.utils import utils
 import next.broker.broker
 from next.api.resource_manager import ResourceManager
 from next.api.api_util import *
@@ -55,12 +55,13 @@ class Experiment(Resource):
             return attach_meta(experiment, meta_success), 200
 
     def post(self):
-        print('experiment:58')
+        print('experiment:58',request.data)
         post_parser = exp_parser.copy()
         post_parser.add_argument('app_id', type=str, required=True)
         post_parser.add_argument('args', type=dict, required=True)
         # Validate args with post_parser
         args_data = post_parser.parse_args()
+        utils.debug_print(args_data)
         app_id = args_data['app_id']
         print app_id
         # Create and set exp_uid

@@ -9,6 +9,6 @@
   <body>
     <form enctype="multipart/form-data" id="initExp"></form>
     <script>
-      var p = new Pijemont(document.getElementById("initExp"), {{api_doc|tojson|safe}},  "the_form", "/submit", function(val){ window.location = val; }, "initExp");
+      var p = new Pijemont(document.getElementById("initExp"), {{api_doc|tojson|safe}},  "the_form", "/api/experiment", function(val){alert(val);}, "initExp");
     </script>
 </body></html>
