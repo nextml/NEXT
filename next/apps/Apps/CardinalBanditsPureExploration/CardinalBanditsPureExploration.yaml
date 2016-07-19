@@ -118,7 +118,7 @@ initExp:
 
             targetset:
               description: A target set.
-              type: targetset
+              type: file
               values: []
 
 getQuery:

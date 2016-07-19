@@ -1,0 +1,12 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Docs</title>
+    <script type="text/javascript" src="/api/static/marked.min.js"></script>
+  </head>
+  <body>
+    <div id="content"></div>
+    <script>
+      document.getElementById('content').innerHTML = marked({{doc_string|tojson|safe}});
+    </script>
+</body></html>

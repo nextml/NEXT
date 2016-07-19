@@ -1,0 +1,14 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Init</title>
+    <link rel="stylesheet" type="text/css" href="/api/static/pijemont.css">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script type="text/javascript" src="/api/static/pijemont.js"></script>
+  </head>
+  <body>
+    <form enctype="multipart/form-data" id="initExp"></form>
+    <script>
+      var p = new Pijemont(document.getElementById("initExp"), {{api_doc|tojson|safe}},  "the_form", "/submit", function(val){ window.location = val; }, "initExp");
+    </script>
+</body></html>
