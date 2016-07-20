@@ -48,39 +48,3 @@ api_interface.add_resource(Participants,
 from next.api.resources.database import DatabaseBackup, DatabaseRestore
 api_interface.add_resource(DatabaseBackup,'/database/databasebackup')
 api_interface.add_resource(DatabaseRestore,'/database/databaserestore')
-
-
-@api.route('/init/<string:app_id>')
-def init_form(app_id=None):
-    if app_id:
-        apps_path = 'next/apps/Apps/'
-        filename = apps_path + '{0}/{0}.yaml'.format(app_id)
-
-        api,_ = verifier.load_doc(filename,'next/apps/')
-        return render_template('next.html',api_doc=api)
-    
-    message = ('Welcome to the next.discovery system.\n '
-               'Available apps {}'.format(', '.join(utils.get_supported_apps())))
-
-    return api_util.attach_meta({}, meta_success, message=message)
-
-@api.route('/doc/<string:app_id>/<string:form>')
-def docs(app_id=None,form="raw"):
-    if app_id:
-        apps_path = 'next/apps/Apps/'
-        filename = apps_path + '{0}/{0}.yaml'.format(app_id)
-
-        utils.debug_print(filename)
-        api,blank,pretty = doc_gen.get_docs(filename,'next/apps/')
-        
-        if form == "pretty":
-            return render_template('doc.html',doc_string=pretty)
-        elif form == "blank":
-            return render_template('raw.html',doc=blank)
-        elif form == "raw":
-            return render_template('raw.html',doc=api)
-
-    message = ('Welcome to the next.discovery system.\n '
-               'Available apps {}'.format(', '.join(utils.get_supported_apps())))
-
-    return api_util.attach_meta({}, meta_success, message=message)
