@@ -50,13 +50,27 @@ var Pijemont = function(container_form, api_dict, name, target, submit_callback,
     }
 }
 
+function contains(element, list){
+    return list.indexOf(element) > -1;
+}
+
+function normalized_types(t){
+         if (contains(t, ['number', 'num', 'float'])) return 'num'
+    else if (contains(t, ['str', 'string'])) return 'str'
+    else if (contains(t, ['list', 'tuple', 'oneof', 'file', 'multiline'])) return t
+    else if (contains(t, ['bool', 'boolean'])) return 'bool'
+    else if (contains(t, ['any', 'stuff'])) return 'any'
+    else if (contains(t, ['dict', 'dictionary', 'map'])) return 'dict'
+    throw "Unrecognized type " + t;
+}
+
 Pijemont.prototype.process = function(dict,prefix, process){
     var answer = {}
     console.log("D",JSON.stringify(dict));
     for(var name in dict){
 	var p = prefix+'-'+name;
 	console.log("PRE",p);
-	var widget = Pijemont.widgets[dict[name].type];
+	var widget = Pijemont.widgets[normalized_types(dict[name].type)];
 	answer[name] = widget.process(dict[name], p, process, this);
 	console.log("AA",JSON.stringify(answer));
     }
@@ -72,7 +86,7 @@ Pijemont.prototype.append = function(root, dict, prefix){
     for(var k in dict){
     	arg = dict[k];
 	console.log(k,arg);
-	root.appendChild(Pijemont.widgets[arg.type].create(k, arg, prefix, this));
+	root.appendChild(Pijemont.widgets[normalized_types(arg.type)].create(k, arg, prefix, this));
     }
 }
 
@@ -94,6 +108,26 @@ Pijemont.widgets = {
 	  },
 	  "process":function(dict, prefix, instance){
 	      return document.getElementById(prefix) ? parseFloat(document.getElementById(prefix).value) : null;
+	  }
+    },
+    "bool":{
+	  "create":function(name, dict, prefix, instance){
+	      var new_node = Pijemont.make_node("div",{"class":"form-group terminal"},"");
+	      var elt_name = prefix+'-'+name;
+	      var new_label = Pijemont.make_node("label",{"for":elt_name},name+": ");
+	      var new_input = Pijemont.make_node("input",{"id":elt_name,"name":elt_name,"type":"checkbox","class":"form-control"},"");
+	      if(dict.default) new_input.setAttribute('checked', 'checked');
+	      new_node.appendChild(new_label);
+	      Pijemont.append_description(new_node, dict)
+	      new_node.appendChild(new_input);
+	      return new_node;
+	  },
+	  "process":function(dict, prefix, instance){
+          var pre = document.getElementById(prefix)
+          if (pre){
+              if (pre.checked) return true;
+              return false;
+          } else return null;
 	  }
     },
     
@@ -147,7 +181,7 @@ Pijemont.widgets = {
     },
     
     "list":{
-	"create":function(name, dict, prefix, instance){
+	  "create":function(name, dict, prefix, instance){
 	    var new_node = document.createElement("div");
 	    new_node.setAttribute("class","list_element nonterminal");
 	    var elt_name = prefix+'-'+name;
@@ -196,21 +230,50 @@ Pijemont.widgets = {
 	    var answer = [];
 	    console.log("E",document.getElementById(prefix+'-input-'+x));
 	    while(document.getElementById(prefix+'-input-'+x)){
-		var d = {}
-		d[x] = dict.values;
-		var to_push = instance.process(d,prefix,instance);
-		for(var idx in to_push){
-		    answer.push(to_push[idx]);
-		}
-		x++;
+            var d = {}
+            d[x] = dict.values;
+            var to_push = instance.process(d,prefix,instance);
+            for(var idx in to_push){
+                answer.push(to_push[idx]);
+            }
+            x++;
 	    }
 	    console.log("LLret",JSON.stringify(answer));
 	    return answer
 	}
     },
     
+    "tuple":{
+	  "create":function(name, dict, prefix, instance){
+	    var new_node = Pijemont.make_node("div",{"class":"dict_element nonterminal"},"");
+	    var elt_name = prefix+'-'+name;
+	    var inputs = Pijemont.make_node("div",{"class":"dict_inputs"},"");
+	    new_node.appendChild(Pijemont.make_node("label",{},name+": "));
+	    Pijemont.append_description(new_node, dict);
+	    new_node.appendChild(inputs);
+	    console.log(dict);
+	    if(dict.default){
+		for(var v in dict.values){
+		    if(dict.default[v] && !dict.values[v].set) dict.values[v].set = dict.default[v];
+		}
+	    }
+	    instance.append(inputs,dict.values,elt_name);
+	    
+	    return new_node;
+	},
+    "process":function(dict, prefix, instance){
+	    console.log("DD",dict, prefix);
+	    var d = instance.process(dict.values, prefix, instance);
+        var l = []
+        for(var i = 0; i < Object.keys(d).length; i++) {
+            l[i] = d[""+i];
+        }
+        return l;
+    }
+    },
+
     "dict":{
-	"create":function(name, dict, prefix, instance){
+	  "create":function(name, dict, prefix, instance){
 	    var new_node = Pijemont.make_node("div",{"class":"dict_element nonterminal"},"");
 	    var elt_name = prefix+'-'+name;
 	    var inputs = Pijemont.make_node("div",{"class":"dict_inputs"},"");
