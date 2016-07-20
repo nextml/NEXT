@@ -187,40 +187,50 @@ Pijemont.widgets = {
 	    var elt_name = prefix+'-'+name;
 	    var inputs = Pijemont.make_node("div",{"class":"list_inputs"},"");
 	    var add_node = Pijemont.make_node ("div",{"class":"add"},"+");
-	    var remove_node = Pijemont.make_node ("div",{"class":"add"},"-");
+		// var remove_node = Pijemont.make_node ("div",{"class":"add"},"-");
 	    new_node.appendChild(Pijemont.make_node("label",{},name+": "));
 	    Pijemont.append_description(new_node, dict)
 	    new_node.appendChild(inputs);
 	    new_node.appendChild(add_node);
-	    new_node.appendChild(remove_node);
-	    var remove = function(){
-		var to_remove = document.getElementById(elt_name+'-input-'+inputs.childNodes.length);
-		to_remove.parentNode.removeChild(to_remove);
-	    }
+		// new_node.appendChild(remove_node);
 	    var append = function(val){
-		console.log("clicked");
-		var idx = (inputs.childNodes.length+1)+"";
-		var new_input = Pijemont.make_node("div",{"class":"list_input","id":elt_name+'-input-'+idx},"");
-		var d = {};
-		d[idx] = dict.values;
-		if(val) d[idx].set = val;
-		instance.append(new_input,d,elt_name);
-		inputs.appendChild(new_input);
-		if(instance.listeners && instance.listeners[elt_name]){
-		    for(var i = 0; i < instance.listeners[elt_name].length; i++){
-			instance.listeners[elt_name][i]();
-		    }
-		}
+		  var idx = (inputs.childNodes.length+1)+"";
+	      var remove = function(){
+			// var to_remove = document.getElementById(elt_name+'-input-'+inputs.childNodes.length);
+		    var to_remove = document.getElementById(elt_name+'-input-'+idx);
+            to_remove.parentNode.removeChild(to_remove);
+            for (var i=idx+1; i<inputs.childNodes.length; i++){
+                var elt = document.getElementById(elt_name + '-input-'+i);
+                if (elt){
+                    elt.setAttribute('id', elt_name + '-input-' + (i-1));
+                    elt.firstChild.firstChild.innerHTML = (i-1) + ": ";
+                }
+                else{break}
+            }
+	      }
+		  console.log("clicked");
+		  var new_input = Pijemont.make_node("div",{"class":"list_input","id":elt_name+'-input-'+idx},"");
+	      var remove_node = Pijemont.make_node ("div",{"class":"add"},"x");
+          remove_node.onclick = remove;
+		  var d = {};
+		  d[idx] = dict.values;
+		  if(val) d[idx].set = val;
+		  instance.append(new_input,d,elt_name);
+          new_input.appendChild(remove_node);
+		  inputs.appendChild(new_input);
+		  if(instance.listeners && instance.listeners[elt_name]){
+		      for(var i=0; i < instance.listeners[elt_name].length; i++){
+		  	instance.listeners[elt_name][i]();
+		      }
+		  }
 	    }
 	    if(dict.default){
-		for(var i = 0; i < dict.default.length; i++){
-		    append(dict.default[i]);
-		}
+		  for(var i = 0; i < dict.default.length; i++){
+		      append(dict.default[i]);
+		  }
 	    }
-	    else
-		append();
+	    else append();
 	    add_node.onclick = append;
-	    remove_node.onclick = remove;
 	    return new_node;
 	},
 
