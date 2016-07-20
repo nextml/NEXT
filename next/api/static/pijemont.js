@@ -76,23 +76,25 @@ Pijemont.prototype.append = function(root, dict, prefix){
     }
 }
 
+// A dictionary of each possible types
+// "create" details how to
 Pijemont.widgets = {
 
     "num":{
 	"create":function(name, dict, prefix, instance){
-	    var new_node = Pijemont.make_node("div",{"class":"form-group terminal"},"");
-	    var elt_name = prefix+'-'+name;
-	    var new_label = Pijemont.make_node("label",{"for":elt_name},name+": ");
-	    var new_input = Pijemont.make_node("input",{"id":elt_name,"name":elt_name,"type":"text","class":"form-control"},"");
-	    if(dict.set) new_input.value = dict.set;
-	    new_node.appendChild(new_label);
-	    Pijemont.append_description(new_node, dict)
-	    new_node.appendChild(new_input);
-	    return new_node;
-	},
-	"process":function(dict, prefix, instance){
-	    return document.getElementById(prefix) ? parseFloat(document.getElementById(prefix).value) : null;
-	}
+	      var new_node = Pijemont.make_node("div",{"class":"form-group terminal"},"");
+	      var elt_name = prefix+'-'+name;
+	      var new_label = Pijemont.make_node("label",{"for":elt_name},name+": ");
+	      var new_input = Pijemont.make_node("input",{"id":elt_name,"name":elt_name,"type":"text","class":"form-control"},"");
+	      if(dict.default) new_input.value = dict.default;
+	      new_node.appendChild(new_label);
+	      Pijemont.append_description(new_node, dict)
+	      new_node.appendChild(new_input);
+	      return new_node;
+	  },
+	  "process":function(dict, prefix, instance){
+	      return document.getElementById(prefix) ? parseFloat(document.getElementById(prefix).value) : null;
+	  }
     },
     
     "multiline":{
@@ -101,7 +103,7 @@ Pijemont.widgets = {
 	    var elt_name = prefix+'-'+name;
 	    var new_label = Pijemont.make_node("label",{"for":elt_name},name+": ");
 	    var new_input = Pijemont.make_node("textarea",{"id":elt_name,"name":elt_name,"class":"form-control form_answer"},"");
-	    if(dict.set) new_input.value = dict.set;
+	    if(dict.default) new_input.value = dict.default;
 	    new_node.appendChild(new_label);
 	    Pijemont.append_description(new_node, dict)
 	    new_node.appendChild(new_input);
@@ -120,7 +122,7 @@ Pijemont.widgets = {
 	    if("values" in dict){
 		var new_label = Pijemont.make_node("label",{"for":elt_name},name+": ");
 		var new_input = Pijemont.make_node("select",{"id":elt_name,"name":elt_name,"type":"text","class":"form-control"},"");
-		if(dict.set) new_input.value = dict.set;
+		if(dict.default) new_input.value = dict.default;
 		new_node.appendChild(new_label);
 		Pijemont.append_description(new_node, dict)
 		new_node.appendChild(new_input);
@@ -132,7 +134,7 @@ Pijemont.widgets = {
 	    else{
 		var new_label = Pijemont.make_node("label",{"for":elt_name},name+": ");
 		var new_input = Pijemont.make_node("input",{"id":elt_name,"name":elt_name,"type":"text","class":"form-control"},"");
-		if(dict.set) new_input.value = dict.set;
+		if(dict.default) new_input.value = dict.default;
 		new_node.appendChild(new_label);
 		Pijemont.append_description(new_node, dict)
 		new_node.appendChild(new_input);
@@ -176,9 +178,9 @@ Pijemont.widgets = {
 		    }
 		}
 	    }
-	    if(dict.set){
-		for(var i = 0; i < dict.set.length; i++){
-		    append(dict.set[i]);
+	    if(dict.default){
+		for(var i = 0; i < dict.default.length; i++){
+		    append(dict.default[i]);
 		}
 	    }
 	    else
@@ -216,9 +218,9 @@ Pijemont.widgets = {
 	    Pijemont.append_description(new_node, dict);
 	    new_node.appendChild(inputs);
 	    console.log(dict);
-	    if(dict.set){
+	    if(dict.default){
 		for(var v in dict.values){
-		    if(dict.set[v] && !dict.values[v].set) dict.values[v].set = dict.set[v];
+		    if(dict.default[v] && !dict.values[v].set) dict.values[v].set = dict.default[v];
 		}
 	    }
 	    instance.append(inputs,dict.values,elt_name);
@@ -299,7 +301,7 @@ Pijemont.widgets = {
 		var new_input = Pijemont.make_node("div",{"class":"oneof_input nonterminal"},"");
 		var new_val = Pijemont.make_node("div",{"class":"oneof_val"},"");
 		var new_radio_button = Pijemont.make_node("input",{"type":"radio","name":elt_name,"id":elt_name+'-oneof-'+v,"value":v},"");
-		if(dict.set && dict.set == v) to_click = new_radio_button;
+		if(dict.default && dict.default == v) to_click = new_radio_button;
 		new_input.appendChild(new_radio_button);
 		new_input.appendChild(new_val);
 		var f = function(v,div){
