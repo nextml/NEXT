@@ -1,6 +1,4 @@
-import next.utils
-import hashlib
-import bisect
+import next.utils as utils
 
 from datetime import datetime,timedelta
 
@@ -8,6 +6,8 @@ import celery
 from next.broker.celery_app import tasks as tasks
 
 from next.broker.celery_app.celery_broker import app
+
+import os 
 
 import next.constants
 import redis
@@ -20,8 +20,7 @@ class JobBroker:
     # Initialization method for the broker
     def __init__(self):
 
-        # parameter of consistent hashing. The larger the number, the more uniform the routing gets
-        self.num_replicas = 5
+        self.hostname = None
 
         # location of hashes
         self.r = redis.StrictRedis(host=next.constants.RABBITREDIS_HOSTNAME, port=next.constants.RABBITREDIS_PORT, db=0)
@@ -40,13 +39,59 @@ class JobBroker:
         """
         submit_timestamp = utils.datetimeNow('string')
         domain = self.__get_domain_for_job(app_id+"_"+exp_uid)
-        result = tasks.apply.apply_async(args=[app_id,exp_uid,task_name, args, submit_timestamp], exchange='async@'+domain, routing_key='async@'+domain)
-        if ignore_result:
-            return True
+        if next.constants.CELERY_ON:
+            result = tasks.apply.apply_async(args=[app_id,
+                                                   exp_uid,
+                                                   task_name,
+                                                   args,
+                                                   submit_timestamp],
+                                             exchange='async@'+domain,
+                                             routing_key='async@'+domain)
+            if ignore_result:
+                return True
+            else:
+                return result.get(interval=0.001)
         else:
-            return result.get(interval=.001) 
+            result = tasks.apply(app_id,exp_uid,task_name, args, submit_timestamp)
+            if ignore_result:
+                return True
+            else:
+                return result
 
-    def applySyncByNamespace(self, app_id, exp_uid, task_name, args, namespace=None, ignore_result=False,time_limit=0):
+    def dashboardAsync(self, app_id, exp_uid, args, ignore_result=False):
+        """
+        Run a task (task_name) on a set of args with a given app_id, and exp_uid. 
+        Waits for computation to finish and returns the answer unless ignore_result=True in which case its a non-blocking call. 
+        No guarantees about order of execution.
+        
+        Inputs: ::\n
+            (string) app_id, (string) exp_id, (string) task_name, (json) args
+        Outputs: ::\n
+            task_name(app_id, exp_id, args)
+
+        """
+        submit_timestamp = utils.datetimeNow('string')
+        domain = self.__get_domain_for_job(app_id+"_"+exp_uid)
+        if next.constants.CELERY_ON:
+            result = tasks.apply_dashboard.apply_async(args=[app_id,
+                                                             exp_uid,
+                                                             args,
+                                                             submit_timestamp],
+                                                       exchange='dashboard@'+domain,
+                                                       routing_key='dashboard@'+domain)
+            if ignore_result:
+                return True
+            else:
+                return result.get(interval=0.001)
+        else:
+            result = tasks.apply_dashboard(app_id,exp_uid, args, submit_timestamp)
+            if ignore_result:
+                return True
+            else:
+                return result
+
+            
+    def applySyncByNamespace(self, app_id, exp_uid, alg_id, alg_label, task_name, args, namespace=None, ignore_result=False,time_limit=0):
         """
         Run a task (task_name) on a set of args with a given app_id, and exp_uid asynchronously. 
         Waits for computation to finish and returns the answer unless ignore_result=True in which case its a non-blocking call. 
@@ -70,7 +115,6 @@ class JobBroker:
             while 1:
                 try:
                     pipe.watch(namespace+"_cnt","namespace_counter")
-
                     if not pipe.exists(namespace+"_cnt"):
                         if not pipe.exists('namespace_counter'):
                             namespace_counter = 0
@@ -88,9 +132,9 @@ class JobBroker:
                 finally:
                     pipe.reset()
             namespace_cnt = int(self.r.get(namespace+"_cnt"))
-        queue_number = (namespace_cnt % num_queues) + 1
-        queue_name = 'sync_queue_'+str(queue_number)+'@'+domain
+        queue_number = (namespace_cnt % num_queues) + 1  
 
+        queue_name = 'sync_queue_'+str(queue_number)+'@'+domain
         job_uid = utils.getNewUID()
         if time_limit == 0:
             soft_time_limit = None
@@ -98,77 +142,56 @@ class JobBroker:
         else:
             soft_time_limit = time_limit
             hard_time_limit = time_limit + .01
-        result = tasks.apply_sync_by_namespace.apply_async(args=[app_id,exp_uid,task_name, args, namespace, job_uid, submit_timestamp, time_limit], queue=queue_name,soft_time_limit=soft_time_limit,time_limit=hard_time_limit)
-        if ignore_result:
-            return True
+        if next.constants.CELERY_ON:
+            result = tasks.apply_sync_by_namespace.apply_async(args=[app_id,exp_uid,
+                                                                     alg_id,alg_label,
+                                                                     task_name, args,
+                                                                     namespace, job_uid,
+                                                                     submit_timestamp, time_limit],
+                                                               queue=queue_name,
+                                                               soft_time_limit=soft_time_limit,
+                                                               time_limit=hard_time_limit)
+            if ignore_result:
+                return True
+            else:
+                return result.get(interval=.001) 
         else:
-            return result.get(interval=.001) 
+            result = tasks.apply_sync_by_namespace(app_id,exp_uid,alg_id,alg_label,task_name, args, namespace, job_uid, submit_timestamp, time_limit)
+            if ignore_result:
+                return True
+            else:
+                return result
 
     def __get_domain_for_job(self,job_id):
         """
         Computes which domain to run a given job_id on.
+        Git Commit: c1e4f8aacaa42fae80e111979e3f450965643520 has support
+        for multiple worker nodes. See the code in broker.py, cluster_monitor.py, and the docker-compose 
+        file in that commit to see how to get that up and running. It uses 
+        a simple circular hashing scheme to load balance getQuery/processAnswer calls.
+        This implementation assumes just a single master node and no workers
+        so only a single hostname (e.g. localhost) has celery workers.
         """
-        while not self.r.exists('replicated_domains_hash'):
-            print "failed to retrieve domain_hashes from redis"
-            time.sleep(.1)
+        ttw = 0
+        while self.hostname==None:
+            time.sleep(ttw)
+            tmp = self.r.get('MINIONWORKER_HOSTNAME')
+            if tmp!=None:
+                self.hostname=tmp
+                print 'Hostname = %s  from Redis' % self.hostname
+                break
+            else:
+                fid = open('/etc/hosts','r')
+                line = fid.readline()
+                while line!='':
+                    if 'MINIONWORKER' in line:
+                        self.hostname = line.split('\t')[1].split(' ')[1]
+                        self.r.set('MINIONWORKER_HOSTNAME',self.hostname)
+                        print 'Hostname = %s  from /etc/hosts' % self.hostname 
+                        break
+                    line = fid.readline()
+            ttw += 1
+            print 'Failed to retrieve hostname... trying again in %d seconds' % ttw
 
-        replicated_domains_hash = json.loads(self.r.get('replicated_domains_hash'))
-
-        h = self.hash(job_id)
-        # Edge case where we cycle past hash value of 1 and back to 0.
-        if h > replicated_domains_hash[-1][1]: return replicated_domains_hash[0][0]
-        # Find the index of the worker
-        hash_values = map(lambda x: x[1],replicated_domains_hash)
-        index = bisect.bisect_left(hash_values,h)
-        return replicated_domains_hash[index][0]
-
-
-    def refresh_domain_hashes(self):
-
-        # see what workers are out there
-        worker_pings = None
-        while worker_pings==None:
-            try:
-                # one could also use app.control.inspect().active_queues()
-                worker_pings = app.control.inspect().ping()
-            except:
-                worker_pings = None
-        worker_names = worker_pings.keys()
-        domain_names_with_dups = [ item.split('@')[1] for item in worker_names]
-        domain_names = list(set(domain_names_with_dups)) # remove duplicates!
-
-        timestamp = utils.datetime2str(utils.datetimeNow())
-        print "[ %s ] domains with active workers = %s" % (timestamp,str(domain_names))
-
-        replicated_domains_hash = []
-        for domain in domain_names:
-            for i in range(self.num_replicas):
-                replicated_domains_hash.append((domain, self.hash(domain+'_replica_'+str(i)), i))
-        replicated_domains_hash = sorted( replicated_domains_hash, key = lambda x: x[1])  
-
-        self.r.set('replicated_domains_hash',json.dumps(replicated_domains_hash))
-    
-    def hash(self,key):
-        """
-        Provides a simple hash of a key between 0 and 1. Used in the consistent hashing scheme.
-        """
-        return (int(hashlib.md5(key).hexdigest(),16) % 1000000)/1000000.0
-
-
-
-    # # TODO
-    # def add_worker(self, worker_id):
-    # #Add a worker with a given id.
-    #     return 0
-
-    # # TODO
-    # def remove_worker(self, worker_id):
-    # #Remove a worker with a given id.
-    #     return 0
-    
-    # # Completely reshuffle the workers and the jobs they are on
-    # def refresh_workers(self):
-    # #Refresh the full set of workers.
-    #     self.__initialize_worker_hashes()
-        
+        return self.hostname
     

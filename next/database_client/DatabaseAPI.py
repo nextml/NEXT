@@ -5,17 +5,17 @@ last updated: 12/30/2014
 
 This API treats the CacheStore and PermStore themselves as APIs
 that are not specific to any one kind of database (e.g. MongoDB/Redis).
-The cache is meant to be the 'working' memory which is intermittently sent 
-to the permanent store. The user of the database does not need to know anything 
-about how this works but it should be clear from inspecting the individual 
-functions below. 
+The cache is meant to be the 'working' memory which is intermittently sent
+to the permanent store. The user of the database does not need to know anything
+about how this works but it should be clear from inspecting the individual
+functions below.
 
-Note: All functions (e.g. get,set,...) take any python object as input, 
+Note: All functions (e.g. get,set,...) take any python object as input,
 converting each object into a string using cPickle before placing it in
-the PermStore or CacheStore which expect string values only. 
+the PermStore or CacheStore which expect string values only.
 
 Note: Permstore cannot store large documents (>=16mb) due to JSON store restrictions.
-There are easy work around, we just haven't gotten there yet. 
+There are easy work around, we just haven't gotten there yet.
 
 In addition to traditional database functions (e.g. exists,get,set,delete)
 the API also implements Log functionality. See below for details
@@ -61,13 +61,13 @@ Log-specific functionality
 System logs
 *************
 Initializing::\n
-    from next.database.DatabaseAPI import DatabaseAPI
+    from next.database_client.DatabaseAPI import DatabaseAPI
     import datetime
     db = DatabaseAPI()
 
-Log a dictionary to 'system' with string values, log_dict = {'key1':'value1','key2':'value2'}. 
+Log a dictionary to 'system' with string values, log_dict = {'key1':'value1','key2':'value2'}.
 Note that {'timestamp': datetime.now()} is autotmaticaly appended and should NOT be added to log_dict::\n
-    didSucceed,message = db.log('system',log_dict)    
+    didSucceed,message = db.log('system',log_dict)
 
 Retrieve all logs from 'system'::\n
     list_of_log_dict,didSucceed,message = db.getLogsByPattern('system',{})
@@ -191,7 +191,7 @@ class DatabaseAPI(object):
         cacheStore : CacheStore object
         permStore : PermStore object
     """
-    def __init__(self): 
+    def __init__(self):
         self.duration_cacheStoreSet = 0.0
         self.duration_permStoreSet = 0.0
 
@@ -199,18 +199,20 @@ class DatabaseAPI(object):
         self.duration_permStoreGet = 0.0
 
         self.cacheStore = CacheStore()
-        self.permStore = PermStore() 
+        self.permStore = PermStore()
 
         self.broker = None
 
-    def submit_job(self,app_id,exp_uid,task,task_args_json,namespace=None,ignore_result=True,time_limit=0):
+    def submit_job(self,app_id,exp_uid,task,task_args_json,namespace=None,ignore_result=True,time_limit=0, alg_id=None, alg_label=None):
         if self.broker == None:
             self.broker = next.broker.broker.JobBroker()
-
         if namespace==None:
             result = self.broker.applyAsync(app_id,exp_uid,task,task_args_json,ignore_result=ignore_result)
         else:
-            result = self.broker.applySyncByNamespace(app_id,exp_uid,task,task_args_json,namespace=namespace,ignore_result=ignore_result,time_limit=time_limit)
+            result = self.broker.applySyncByNamespace(app_id,exp_uid,
+                                                      alg_id, alg_label,
+                                                      task,task_args_json,namespace=namespace,
+                                                      ignore_result=ignore_result,time_limit=time_limit)
         return result
 
 
@@ -218,12 +220,12 @@ class DatabaseAPI(object):
         """
         Checks existence of key.
 
-        Inputs: 
+        Inputs:
             (string) bucket_id, (string) doc_uid, (string) key
 
-        Outputs: 
-            (bool) exists, (bool) didSucceed, (string) message 
-        
+        Outputs:
+            (bool) exists, (bool) didSucceed, (string) message
+
         Usage: ::\n
             exists,didSucceed,message = db.exists(bucket_id,doc_uid,key)
         """
@@ -247,17 +249,17 @@ class DatabaseAPI(object):
             return False,True,''
         except:
             error = "DatabaseAPI.exists Failed with unknown exception"
-            return None,False,error 
+            return None,False,error
 
     def get(self,bucket_id,doc_uid,key):
         """
         Get a value corresponding to key, returns None if no key exists
 
-        Inputs: 
+        Inputs:
             (string) bucket_id, (string) doc_uid, (string) key
 
-        Outputs: 
-            (python object) value, (bool) didSucceed, (string) message 
+        Outputs:
+            (python object) value, (bool) didSucceed, (string) message
 
         Usage: ::\n
             value,didSucceed,message = db.get(bucket_id,doc_uid,key)
@@ -266,13 +268,15 @@ class DatabaseAPI(object):
 
             if USE_CACHE:
                 # attempts to read file from cache first
-                keyExistsInCacheStore,didSucceed,message,dt = utils.timeit(self.cacheStore.exists)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                response, dt = utils.timeit(self.cacheStore.exists)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                keyExistsInCacheStore,didSucceed,message = response
                 self.duration_cacheStoreGet += dt
                 if not didSucceed:
                     return None,False,'get.cacheStore.exists(key) failed'
 
                 if keyExistsInCacheStore:
-                    value,didSucceed,message,dt = utils.timeit(self.cacheStore.get)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                    response,dt = utils.timeit(self.cacheStore.get)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                    value,didSucceed,message = response
                     self.duration_cacheStoreGet += dt
                     if not didSucceed:
                         return None,False,message
@@ -281,13 +285,15 @@ class DatabaseAPI(object):
 
                 else:
                     # attempts to read from permanent store
-                    keyExistsInPermStore,didSucceed,message,dt = utils.timeit(self.permStore.exists)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                    response,dt = utils.timeit(self.permStore.exists)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                    keyExistsInPermStore,didSucceed,message = response
                     self.duration_permStoreGet += dt
                     if not didSucceed:
                         return None,False,'get.permStore.exists(key) failed'
 
                     if keyExistsInPermStore:
-                        value,didSucceed,message,dt = utils.timeit(self.permStore.get)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                        response,dt = utils.timeit(self.permStore.get)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                        value,didSucceed,message = response
                         self.duration_permStoreGet += dt
                         if not didSucceed:
                             return None,False,message
@@ -295,7 +301,7 @@ class DatabaseAPI(object):
                         didSucceed,message = self.cacheStore.set(constants.app_data_database_id,bucket_id,doc_uid,key,value)
                         if not didSucceed:
                             return None,False,message
-                        
+
                         return value,True,'Hit PermStore'
 
                     # could not find file
@@ -303,7 +309,39 @@ class DatabaseAPI(object):
                         return None,True,'Not in Database'
             else:
                 # not using cache
-                value,didSucceed,message,dt = utils.timeit(self.permStore.get)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                response,dt = utils.timeit(self.permStore.get)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                value,didSucceed,message = response
+                self.duration_permStoreGet += dt
+                if not didSucceed:
+                    return None,False,message
+                return value,True,'Hit PermStore'
+
+        except:
+            return None,False,'DatabaseAPI.get Failed with unknown exception'
+
+    def get_and_delete(self,bucket_id,doc_uid,key):
+        """
+        returns value associated with key and then deltes {key:value}. 
+        If key does not exist, returns None
+        
+        Inputs: 
+            (string) bucket_id, (string) doc_uid, (string) key
+        
+        Outputs:
+            (bool) didSucceed, (string) message 
+        
+        Usage: ::\n
+            didSucceed,message = db.get_and_delete(bucket_id,doc_uid,key)
+        """
+        try:
+
+            if USE_CACHE:
+                # not implemented
+                raise
+            else:
+                # not using cache
+                response,dt = utils.timeit(self.permStore.get_and_delete)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                value,didSucceed,message = response
                 self.duration_permStoreGet += dt
                 if not didSucceed:
                     return None,False,message
@@ -316,11 +354,11 @@ class DatabaseAPI(object):
         """
         Get values corresponding to keys in key_list, returns None if no key exists
 
-        Inputs: 
+        Inputs:
             (string) bucket_id, (string) doc_uid, (list of string) key_list
 
-        Outputs: 
-            (dict of {key1:value1,key2:value2}) return_dict, (bool) didSucceed, (string) message 
+        Outputs:
+            (dict of {key1:value1,key2:value2}) return_dict, (bool) didSucceed, (string) message
 
         Usage: ::\n
             return_dict,didSucceed,message = db.get_many(bucket_id,doc_uid,key_list)
@@ -331,14 +369,9 @@ class DatabaseAPI(object):
                 raise
             else:
                 # not using cache
-                doc,didSucceed,message = self.get_doc(bucket_id,doc_uid)
-
-                return_dict = {}
-                for key in key_list:
-                    try:
-                        return_dict[key] = doc[key]
-                    except:
-                        pass
+                response,dt = utils.timeit(self.permStore.get_many)(constants.app_data_database_id,bucket_id,doc_uid,key_list)
+                return_dict,didSucceed,message = response
+                self.duration_permStoreSet += dt
 
                 if not didSucceed:
                     return None,False,message
@@ -350,13 +383,13 @@ class DatabaseAPI(object):
     def increment(self,bucket_id,doc_uid,key,value=1):
         """
         increments a key by amount value. If key does not exist, sets {key:value}
-        
-        Inputs: 
+
+        Inputs:
             (string) bucket_id, (string) doc_uid, (string) key, (int) value
-        
+
         Outputs:
-            (int) new_value, (bool) didSucceed, (string) message 
-        
+            (int) new_value, (bool) didSucceed, (string) message
+
         Usage: ::\n
             new_value,didSucceed,message = db.increment(bucket_id,doc_uid,key,value)
         """
@@ -365,14 +398,16 @@ class DatabaseAPI(object):
                 # need to implement cache!!
                 #############################
 
-                new_value,didSucceed,message,dt = utils.timeit(self.permStore.increment)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                response,dt = utils.timeit(self.permStore.increment)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                new_value,didSucceed,message = response
                 self.duration_permStoreSet += dt
                 if not didSucceed:
                     return None,False,message
                 return new_value,True,'Hit PermStore'
 
             else:
-                new_value,didSucceed,message,dt = utils.timeit(self.permStore.increment)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                response,dt = utils.timeit(self.permStore.increment)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                new_value,didSucceed,message = response
                 self.duration_permStoreSet += dt
                 if not didSucceed:
                     return None,False,message
@@ -385,13 +420,13 @@ class DatabaseAPI(object):
     def increment_many(self,bucket_id,doc_uid,key_value_dict):
         """
         increments a key by amount value. If key does not exist, sets {key:value}
-        
-        Inputs: 
+
+        Inputs:
             (string) bucket_id, (string) doc_uid, ({(str)key1:(float)value1,(int)key2:(float) value2}) key_value_dict
-        
+
         Outputs:
-            (bool) didSucceed, (string) message 
-        
+            (bool) didSucceed, (string) message
+
         Usage: ::\n
             didSucceed,message = db.increment_many(bucket_id,doc_uid,key_value_dict)
         """
@@ -400,33 +435,35 @@ class DatabaseAPI(object):
                 # need to implement cache!!
                 #############################
 
-                didSucceed,message,dt = utils.timeit(self.permStore.increment_many)(constants.app_data_database_id,bucket_id,doc_uid,key_value_dict)
+                response,dt = utils.timeit(self.permStore.increment_many)(constants.app_data_database_id,bucket_id,doc_uid,key_value_dict)
+                new_key_value_dict,didSucceed,message = response
                 self.duration_permStoreSet += dt
                 if not didSucceed:
-                    return False,message
-                return True,'Hit PermStore'
+                    return None,False,message
+                return new_key_value_dict,True,'Hit PermStore'
 
             else:
-                didSucceed,message,dt = utils.timeit(self.permStore.increment_many)(constants.app_data_database_id,bucket_id,doc_uid,key_value_dict)
+                response,dt = utils.timeit(self.permStore.increment_many)(constants.app_data_database_id,bucket_id,doc_uid,key_value_dict)
+                new_key_value_dict,didSucceed,message = response
                 self.duration_permStoreSet += dt
                 if not didSucceed:
-                    return False,message
-                return True,'Hit PermStore'
+                    return None,False,message
+                return new_key_value_dict,True,'Hit PermStore'
 
 
         except:
-            return False,'DatabaseAPI.increment Failed with unknown exception'
+            return None,False,'DatabaseAPI.increment_many Failed with unknown exception'
 
 
     def get_list(self,bucket_id,doc_uid,key):
         """
         Get a value corresponding to key, returns None if no key exists
 
-        Inputs: 
+        Inputs:
             (string) bucket_id, (string) doc_uid, (string) key
 
-        Outputs: 
-            (list) value, (bool) didSucceed, (string) message 
+        Outputs:
+            (list) value, (bool) didSucceed, (string) message
 
         Usage: ::\n
             value,didSucceed,message = db.get_list(bucket_id,doc_uid,key)
@@ -435,13 +472,15 @@ class DatabaseAPI(object):
 
             if USE_CACHE:
                 # attempts to read file from cache first
-                keyExistsInCacheStore,didSucceed,message,dt = utils.timeit(self.cacheStore.exists)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                response,dt = utils.timeit(self.cacheStore.exists)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                keyExistsInCacheStore,didSucceed,message = response
                 self.duration_cacheStoreGet += dt
                 if not didSucceed:
                     return None,False,'get.cacheStore.exists(key) failed'
 
                 if keyExistsInCacheStore:
-                    value,didSucceed,message,dt = utils.timeit(self.cacheStore.get_list)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                    response,dt = utils.timeit(self.cacheStore.get_list)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                    value,didSucceed,message = response
                     self.duration_cacheStoreGet += dt
                     if not didSucceed:
                         return None,False,message
@@ -449,7 +488,8 @@ class DatabaseAPI(object):
                     return value,True,'From Cache'
 
                 else:
-                    value,didSucceed,message,dt = utils.timeit(self.permStore.get_list)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                    response,dt = utils.timeit(self.permStore.get_list)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                    value,didSucceed,message = response
                     self.duration_permStoreGet += dt
                     if not didSucceed:
                         return None,False,message
@@ -458,7 +498,7 @@ class DatabaseAPI(object):
                         didSucceed,message = self.cacheStore.set_list(constants.app_data_database_id,bucket_id,doc_uid,key,value)
                         if not didSucceed:
                             return None,False,message
-                        
+
                         return value,True,'Hit PermStore'
 
                     # could not find file
@@ -466,7 +506,8 @@ class DatabaseAPI(object):
                         return None,True,'Not in Database'
             else:
                 # not in cache
-                value,didSucceed,message,dt = utils.timeit(self.permStore.get_list)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                response,dt = utils.timeit(self.permStore.get_list)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                value,didSucceed,message = response
                 self.duration_permStoreGet += dt
                 if not didSucceed:
                     return None,False,message
@@ -480,11 +521,11 @@ class DatabaseAPI(object):
         """
         Appends a {key,value_list} (if already exists, replaces)
 
-        Inputs: 
+        Inputs:
             (string) bucket_id, (string) doc_uid, (string) key, (list) value
 
-        Outputs: 
-            (bool) didSucceed, (string) message 
+        Outputs:
+            (bool) didSucceed, (string) message
 
         Usage: ::\n
             didSucceed,message = db.set_list(bucket_id,doc_uid,key,value)
@@ -494,22 +535,27 @@ class DatabaseAPI(object):
         try:
             if USE_CACHE:
                 # attempts to read file from cache first
-                keyExistsInCacheStore,didSucceed,message,dt = utils.timeit(self.cacheStore.exists)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                response,dt = utils.timeit(self.cacheStore.exists)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                keyExistsInCacheStore,didSucceed,message = response
                 self.duration_cacheStoreGet += dt
                 if not didSucceed:
                     return False,message
 
                 if keyExistsInCacheStore:
-                    didSucceedCache,message,dt = utils.timeit(self.cacheStore.append_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                    response,dt = utils.timeit(self.cacheStore.append_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                    didSucceedCache,message = response
                     self.duration_cacheStoreSet += dt
 
-                    didSucceedPerm,messagePerm,dt = utils.timeit(self.permStore.append_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                    response,dt = utils.timeit(self.permStore.append_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                    didSucceedPerm,messagePerm = response
                     self.duration_permStoreSet += dt
                 else:
-                    didSucceedPerm,messagePerm,dt = utils.timeit(self.permStore.append_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                    response,dt = utils.timeit(self.permStore.append_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                    didSucceedPerm,messagePerm = response
                     self.duration_permStoreSet += dt
 
-                    value_list,didSucceedPerm,message,dt = utils.timeit(self.permStore.get_list)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                    response,dt = utils.timeit(self.permStore.get_list)(constants.app_data_database_id,bucket_id,doc_uid,key)
+                    value_list,didSucceedPerm,message = response
                     self.duration_permStoreGet += dt
 
                     didSucceedCache,message = self.cacheStore.set_list(constants.app_data_database_id,bucket_id,doc_uid,key,value_list)
@@ -521,22 +567,23 @@ class DatabaseAPI(object):
                 else:
                     return False,message
             else:
-                didSucceedPerm,messagePerm,dt = utils.timeit(self.permStore.append_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                response,dt = utils.timeit(self.permStore.append_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                didSucceedPerm,messagePerm = response
                 self.duration_permStoreSet += dt
                 return didSucceedPerm,messagePerm
         except:
             error = "DatabaseAPI.append_list Failed with unknown exception"
-            return False,error  
+            return False,error
 
     def set_list(self,bucket_id,doc_uid,key,value):
         """
         Sets a {key,value_list} (if already exists, replaces)
 
-        Inputs: 
+        Inputs:
             (string) bucket_id, (string) doc_uid, (string) key, (list) value
 
-        Outputs: 
-            (bool) didSucceed, (string) message 
+        Outputs:
+            (bool) didSucceed, (string) message
 
         Usage: ::\n
             didSucceed,message = db.set_list(bucket_id,doc_uid,key,value)
@@ -544,11 +591,13 @@ class DatabaseAPI(object):
         try:
             if USE_CACHE:
                 # writes to cache first
-                didSucceedCache,messageCache,dt = utils.timeit(self.cacheStore.set_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                response,dt = utils.timeit(self.cacheStore.set_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                didSucceedCache,messageCache = response
                 self.duration_cacheStoreSet += dt
 
                 # then writes to permanent store
-                didSucceedPerm,messagePerm,dt = utils.timeit(self.permStore.set_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                response,dt = utils.timeit(self.permStore.set_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                didSucceedPerm,messagePerm = response
                 self.duration_permStoreSet += dt
 
                 if didSucceedCache and didSucceedPerm:
@@ -556,23 +605,24 @@ class DatabaseAPI(object):
                 else:
                     return False,messageCache + '\n' + messagePerm
             else:
-                didSucceedPerm,messagePerm,dt = utils.timeit(self.permStore.set_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                response,dt = utils.timeit(self.permStore.set_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                didSucceedPerm,messagePerm = response
                 self.duration_permStoreSet += dt
                 return didSucceedPerm,messagePerm
         except:
             error = "DatabaseAPI.set Failed with unknown exception"
-            return False,error   
+            return False,error
 
     def set_doc(self,bucket_id,doc_uid,doc):
         """
         Sets a document with doc_uid
-        
-        Inputs: 
+
+        Inputs:
             (dict) doc
-        
-        Outputs: 
+
+        Outputs:
             None
-        
+
         Usage: ::\n
             db.set_doc(key,value)
         """
@@ -582,13 +632,13 @@ class DatabaseAPI(object):
     def get_doc(self,bucket_id,doc_uid):
         """
         Gets doc in bucket_id that corresponds to doc_uid
-        
-        Inputs: 
+
+        Inputs:
             (string) bucket_id, (string) doc_uid
-        
-        Outputs: 
-            (dict) doc, (bool) didSucceed, (string) message 
-        
+
+        Outputs:
+            (dict) doc, (bool) didSucceed, (string) message
+
         Usage: ::\n
             doc,didSucceed,message = db.getDoc(bucket_id,doc_uid)
         """
@@ -597,27 +647,28 @@ class DatabaseAPI(object):
     def get_docs_with_filter(self,bucket_id,pattern_dict):
         """
         Retrieves all docs in bucket_id that match (i.e. contain) pattern_dict
-        
-        Inputs: 
+
+        Inputs:
             (string) bucket_id, (dict of string values) pattern_dict
-        
-        Outputs: 
-            (list of dict) docs, (bool) didSucceed, (string) message 
-        
+
+        Outputs:
+            (list of dict) docs, (bool) didSucceed, (string) message
+
         Usage: ::\n
             docs,didSucceed,message = db.getDocsByPattern(bucket_id,pattern_dict)
         """
-        return self.permStore.getDocsByPattern(constants.app_data_database_id,bucket_id,pattern_dict)
+        t = self.permStore.getDocsByPattern(constants.app_data_database_id,bucket_id,pattern_dict)
+        return t
 
     def set(self,bucket_id,doc_uid,key,value):
         """
         Sets a {key,value} (if already exists, replaces)
 
-        Inputs: 
+        Inputs:
             (string) bucket_id, (string) doc_uid, (string) key, (string) value
 
-        Outputs: 
-            (bool) didSucceed, (string) message 
+        Outputs:
+            (bool) didSucceed, (string) message
 
         Usage: ::\n
             didSucceed,message = db.set(bucket_id,doc_uid,key,value)
@@ -625,11 +676,13 @@ class DatabaseAPI(object):
         try:
             if USE_CACHE:
                 # writes to cache first
-                didSucceedCache,messageCache,dt = utils.timeit(self.cacheStore.set)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                response,dt = utils.timeit(self.cacheStore.set)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                didSucceedCache,messageCache = response
                 self.duration_cacheStoreSet += dt
 
                 # then writes to permanent store
-                didSucceedPerm,messagePerm,dt = utils.timeit(self.permStore.set)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                response,dt = utils.timeit(self.permStore.set)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                didSucceedPerm,messagePerm = response
                 self.duration_permStoreSet += dt
 
                 if didSucceedCache and didSucceedPerm:
@@ -637,22 +690,61 @@ class DatabaseAPI(object):
                 else:
                     return False,messageCache + '\n' + messagePerm
             else:
-                didSucceedPerm,messagePerm,dt = utils.timeit(self.permStore.set)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                response,dt = utils.timeit(self.permStore.set)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
+                didSucceedPerm,messagePerm = response
                 self.duration_permStoreSet += dt
                 return didSucceedPerm,messagePerm
         except:
             error = "DatabaseAPI.set Failed with unknown exception"
-            return False,error    
+            return False,error
+
+    def set_many(self,bucket_id,doc_uid,key_value_dict):
+        """
+        sets key, values in dict. If key does not exist, sets {key:value}
+
+        Inputs:
+            (string) bucket_id, (string) doc_uid, ({(str)key1:(float)value1,(int)key2:(float) value2}) key_value_dict
+
+        Outputs:
+            (bool) didSucceed, (string) message
+
+        Usage: ::\n
+            didSucceed,message = db.set_many(bucket_id,doc_uid,key_value_dict)
+        """
+        try:
+            if USE_CACHE:
+                # need to implement cache!!
+                #############################
+
+                response,dt = utils.timeit(self.permStore.set_many)(constants.app_data_database_id,bucket_id,doc_uid,key_value_dict)
+                didSucceed,message = response
+                self.duration_permStoreSet += dt
+                if not didSucceed:
+                    return False,message
+                return True,'Hit PermStore'
+
+            else:
+                response,dt = utils.timeit(self.permStore.set_many)(constants.app_data_database_id,bucket_id,doc_uid,key_value_dict)
+                didSucceed,message = response
+                self.duration_permStoreSet += dt
+                if not didSucceed:
+                    return False,message
+                return True,'Hit PermStore'
+
+
+        except:
+            return None,False,'DatabaseAPI.set_many Failed with unknown exception'
+
 
     def delete(self,bucket_id,doc_uid,key):
         """
         Deletes {key:value} associated with given key
-        
-        Inputs: 
+
+        Inputs:
             (string) bucket_id, (string) doc_uid, (string) key
 
-        Outputs: 
-            (bool) didSucceed, (string) message 
+        Outputs:
+            (bool) didSucceed, (string) message
 
         Usage: ::\n
             didSucceed,message = db.delete(bucket_id,doc_uid,key)
@@ -675,18 +767,18 @@ class DatabaseAPI(object):
                 return didSucceed,message
         except:
             error = "DatabaseAPI.delete Failed with unknown exception"
-            return False,error 
+            return False,error
 
     def ensure_index(self,bucket_id,index_dict):
         """
         Adds index defined on index_dict to bucket_id
-        
-        Inputs: 
+
+        Inputs:
             (string) bucket_id, (dict) index_dict
-        
-        Outputs: 
-            (string) index_info, (bool) didSucceed, (string) message 
-        
+
+        Outputs:
+            (string) index_info, (bool) didSucceed, (string) message
+
         Usage: ::\n
             didSucceed,message = db.get_index_info('rand_data',{'num_eyes':1,'exp_uid',1})
         """
@@ -696,13 +788,13 @@ class DatabaseAPI(object):
     def drop_all_indexes(self,bucket_id):
         """
         Deletes all indexes defined on bucket_id
-        
-        Inputs: 
+
+        Inputs:
             (string) bucket_id
-        
-        Outputs: 
-            (bool) didSucceed, (string) message 
-        
+
+        Outputs:
+            (bool) didSucceed, (string) message
+
         Usage: ::\n
             didSucceed,message = db.drop_all_indexes(bucket_id)
         """
@@ -712,13 +804,13 @@ class DatabaseAPI(object):
     def delete_docs_with_filter(self,bucket_id,pattern_dict):
         """
         Deletes all docs in bucket_id that match (i.e. contain) pattern_dict
-        
-        Inputs: 
+
+        Inputs:
             (string) bucket_id, (dict of string values) pattern_dict
-        
-        Outputs: 
-            (bool) didSucceed, (string) message 
-        
+
+        Outputs:
+            (bool) didSucceed, (string) message
+
         Usage: ::\n
             didSucceed,message = db.deleteDocsByPattern(bucket_id,key,value)
         """
@@ -726,7 +818,7 @@ class DatabaseAPI(object):
         for doc in docs:
             try:
                 doc_uid = doc['doc_uid']
-                didSucceed,message = self.cacheStore.deleteDoc(constants.app_data_database_id,bucket_id,doc_uid) 
+                didSucceed,message = self.cacheStore.deleteDoc(constants.app_data_database_id,bucket_id,doc_uid)
             except:
                 pass
 
@@ -734,14 +826,14 @@ class DatabaseAPI(object):
 
     def log(self,bucket_id,log_dict):
         """
-        Saves log_dict to PermStore as an individual document for later recall. 
-        
-        Inputs: 
+        Saves log_dict to PermStore as an individual document for later recall.
+
+        Inputs:
             (string) bucket_id, (dict with string values) log_dict
-        
-        Outputs: 
-            (bool) didSucceed, (string) message 
-        
+
+        Outputs:
+            (bool) didSucceed, (string) message
+
         Usage: ::\n
             didSucceed,message = db.log(bucket_id,doc_uid)
         """
@@ -752,13 +844,13 @@ class DatabaseAPI(object):
     def get_logs_with_filter(self,bucket_id,pattern_dict):
         """
         Retrieves all logs in bucket_id that match (i.e. contain) pattern_dict
-        
-        Inputs: 
+
+        Inputs:
             (string) bucket_id, (dict of string values) pattern_dict
-        
-        Outputs: 
-            (list of dict) logs, (bool) didSucceed, (string) message 
-        
+
+        Outputs:
+            (list of dict) logs, (bool) didSucceed, (string) message
+
         Usage: ::\n
             logs,didSucceed,message = db.getLogsByPattern(bucket_id,pattern_dict)
         """
@@ -767,13 +859,13 @@ class DatabaseAPI(object):
     def delete_logs_with_filter(self,bucket_id,pattern_dict):
         """
         Deletes all logs in bucket_id that match (i.e. contain) pattern_dict
-        
-        Inputs: 
+
+        Inputs:
             (string) bucket_id, (dict of string values) pattern_dict
-        
-        Outputs: 
-            (bool) didSucceed, (string) message 
-        
+
+        Outputs:
+            (bool) didSucceed, (string) message
+
         Usage: ::\n
             didSucceed,message = db.deleteLogsByPattern(bucket_id,key,value)
         """
@@ -783,13 +875,13 @@ class DatabaseAPI(object):
     def assertConnection(self):
         """
         Asserts that the API has successfully connected to both the CacheStore and PermStore
-        
-        Inputs: 
+
+        Inputs:
             None
-        
-        Outputs: 
+
+        Outputs:
             (bool) areConnected, (string) message
-        
+
         Usage: ::\n
             didSucceed,message = db.assertConnection()
         """
@@ -818,20 +910,20 @@ class DatabaseAPI(object):
 
     def flushDocCache(self,bucket_id,doc_uid):
         """
-        Deletes all app data in the Cache corresponding to bucket_id,doc_uid, 
+        Deletes all app data in the Cache corresponding to bucket_id,doc_uid,
         Note: This does NOT delete anything in PermStore (i.e. this is a safe operation)
-        
-        Inputs: 
+
+        Inputs:
             (string) bucket_id, (string) doc_uid
-        
-        Outputs: 
-            (bool) didSucceed, (string) message 
-        
+
+        Outputs:
+            (bool) didSucceed, (string) message
+
         Usage: ::\n
             didSucceed,message = db.flushDocCache(bucket_id,doc_uid)
         """
         # delete everything in cache having to do with experiment
-        # get alg_list if it exists and delete all children to exp_uid 
+        # get alg_list if it exists and delete all children to exp_uid
         algListExists,didSucceed,message = self.exists(bucket_id,doc_uid,'alg_list')
         if not didSucceed:
             return False,message
@@ -847,11 +939,11 @@ class DatabaseAPI(object):
 
             for alg_id in alg_list:
                 child_doc_uid = utils.getDocUID(exp_uid,alg_id)
-                didSucceed,message = self.cacheStore.deleteDoc(constants.app_data_database_id,bucket_id,child_doc_uid) 
+                didSucceed,message = self.cacheStore.deleteDoc(constants.app_data_database_id,bucket_id,child_doc_uid)
                 if not didSucceed:
                     return False,message
 
-        didSucceed,message = self.cacheStore.deleteDoc(constants.app_data_database_id,bucket_id,doc_uid) 
+        didSucceed,message = self.cacheStore.deleteDoc(constants.app_data_database_id,bucket_id,doc_uid)
         if not didSucceed:
             return False,message
 
@@ -859,15 +951,15 @@ class DatabaseAPI(object):
 
     def flushCache(self):
         """
-        Deletes everything from the Cache. 
+        Deletes everything from the Cache.
         Note: This does NOT delete anything in PermStore (i.e. this is a safe operation)
-        
-        Inputs: 
+
+        Inputs:
             None
-        
-        Outputs: 
-            (bool) didSucceed, (string) message 
-        
+
+        Outputs:
+            (bool) didSucceed, (string) message
+
         Usage: ::\n
             didSucceed,message = db.flushCache(bucket_id,doc_uid)
         """
@@ -881,13 +973,13 @@ class DatabaseAPI(object):
     def getDocNames(self,bucket_id):
         """
         Get list of doc_uids correspding to all the docs in the bucket corresponding to the given bucket_id
-        
-        Inputs: 
+
+        Inputs:
             (string) bucket_id
-        
-        Outputs: 
-            ([(string) doc_uid, ... ]) docNames, (bool) didSucceed, (string) message 
-        
+
+        Outputs:
+            ([(string) doc_uid, ... ]) docNames, (bool) didSucceed, (string) message
+
         Usage: ::\n
             docNames,didSucceed,message = db.getDocNames(bucket_id)
         """
@@ -903,14 +995,14 @@ class DatabaseAPI(object):
 
     def getBucketNames(self):
         """
-        Get list of bucket_ids 
-        
-        Inputs: 
+        Get list of bucket_ids
+
+        Inputs:
             None
-        
-        Outputs: 
-            ([(string) bucket_id, ... ]) bucketNames, (bool) didSucceed, (string) message 
-        
+
+        Outputs:
+            ([(string) bucket_id, ... ]) bucketNames, (bool) didSucceed, (string) message
+
         Usage: ::\n
             bucketNames,didSucceed,message = db.getBucketNames()
         """
@@ -928,13 +1020,13 @@ class DatabaseAPI(object):
     def inspectDatabase(self):
         """
         Returns string describing the entire app data database
-        
-        Inputs: 
+
+        Inputs:
             None
-        
-        Outputs: 
-            (string) description, (bool) didSucceed, (string) message 
-        
+
+        Outputs:
+            (string) description, (bool) didSucceed, (string) message
+
         Usage: ::\n
             didSucceed,message = db.inspectDatabase()
         """
@@ -967,19 +1059,19 @@ class DatabaseAPI(object):
             error = "DatabaseAPI.inspectDatabase() incurred an unknown exception "
             return None,False,error
 
-        
+
 
     def inspectDoc(self,bucket_id,doc_uid):
         """
         Returns string describing the document of the particular bucket_id, doc_uid
-        
-        Inputs: 
+
+        Inputs:
             (string) bucket_id, (string) doc_uid
-        
-        Outputs: 
-            (string) description, (bool) didSucceed, (string) message 
-        
-        Usage: ::\n    
+
+        Outputs:
+            (string) description, (bool) didSucceed, (string) message
+
+        Usage: ::\n
             didSucceed,message = db.inspectDatabase()
         """
         try:

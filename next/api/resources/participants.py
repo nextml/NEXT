@@ -7,7 +7,7 @@ Resource for accessing all participant data related to a resource
 '''
 example use:
 get a tripletMDS query:
-curl -X GET http://localhost:8001/api/experiment/[exp_uid]/[exp_key]/participants
+curl -X GET http://localhost:8001/api/experiment/[exp_uid]/participants
 '''
 from flask import Flask, send_file, request
 from flask.ext import restful
@@ -18,17 +18,11 @@ from io import BytesIO
 import zipfile
 
 import next.utils
-import next.broker.broker
 import next.api.api_util as api_util
 from next.api.api_util import APIArgument
-from next.api.targetmapper import TargetMapper
-from next.api.keychain import KeyChain
 from next.api.resource_manager import ResourceManager
 
 resource_manager = ResourceManager()
-broker = next.broker.broker.JobBroker()
-targetmapper = TargetMapper() 
-keychain = KeyChain()
 
 # Request parser. Checks that necessary dictionary keys are available in a given resource.
 # We rely on learningLib functions to ensure that all necessary arguments are available and parsed. 
@@ -50,7 +44,7 @@ meta_success = {
 
 # Participants resource class
 class Participants(Resource):
-    def get(self, exp_uid, exp_key):
+    def get(self, exp_uid):
         """
         .. http:get:: /experiment/<exp_uid>/participants
 
@@ -91,9 +85,6 @@ class Participants(Resource):
             except:
                 pass
             
-        if not keychain.verify_exp_key(exp_uid, exp_key):
-            return api_util.attach_meta({}, api_util.verification_error), 401
-
         # Get all participants for exp_uid from resource_manager
         participant_uids = resource_manager.get_participant_uids(exp_uid)
         participant_responses = {}
@@ -104,13 +95,7 @@ class Participants(Resource):
                                                              exp_uid)
             # Append participant query responses to list
             participant_responses[participant] = response
-            
-        for participant, responses in participant_responses.iteritems():
-            for response in responses:
-                for target_index in response['target_indices']:
-                    target_index['target'] = targetmapper.get_target_data(exp_uid,
-                                                                          target_index['index'])
-                    
+
         all_responses = {'participant_responses': participant_responses}
         if zip_true:
             zip_responses = BytesIO()

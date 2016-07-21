@@ -6,17 +6,16 @@ Logs resource for all logs associated with a specified experiment.
 from flask import Response, request, redirect
 from flask.ext.restful import Resource, reqparse
 
+import subprocess
 import next.utils
 import next.broker.broker
 from next.api.api_util import *
 from next.api.api_util import APIArgument
-from next.api.keychain import KeyChain
 from next.api.resource_manager import ResourceManager
 from next.database.database_lib import make_mongodump, restore_mongodump
 
 resource_manager = ResourceManager()
 broker = next.broker.broker.JobBroker()
-keychain = KeyChain()
 
 # Request parser. Checks that necessary dictionary keys are available.
 # learningLib functions ensure that all necessary arguments are available. 
@@ -51,9 +50,11 @@ class DatabaseBackup(Resource):
         :statuscode 200: Database backup successfully returned
         :statuscode 400: database backup failed to be generated
     	""" 
+        exp_uid_list = request.args.getlist('exp_uid') ## returns a list
+        print exp_uid_list
         name = '{}.{}'.format(str(next.utils.datetimeNow().strftime("%Y-%m-%d_%H:%M:%S")),
                               'tar.gz')
-        location = make_mongodump(name)
+        location = make_mongodump(name,exp_uid_list)
         zip_file = file(location)
         return Response(zip_file,
                         mimetype='application/octet-stream',
@@ -85,10 +86,13 @@ class DatabaseRestore(Resource):
         :statuscode 200: Database backup successfully returned
         :statuscode 400: database backup failed to be generated
     	"""
-        
-        name = str(next.utils.datetimeNow().strftime("%Y-%m-%d_%H:%M:%S"))+'.zip'
-        primary_file = request.files['primary_file']
-        restore_mongodump(primary_file, name)
+        zip_file = request.files['primary_file']
+        # zip_file is a file object
+        subprocess.call('mkdir -p /dump',shell=True)
+        filename = '/dump/mongo_dump_restore.tar.gz'
+        zip_file.save(filename)
+        restore_mongodump(filename)
+        subprocess.call('rm '+filename,shell=True)
         
         return redirect('/dashboard/experiment_list')
 

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 """
-Every 30 minutes backs up database to S3. To recover the database, (i.e. reverse the process)
+Every 6 hours backs up database to S3. To recover the database, (i.e. reverse the process)
 simply download the file from S3, un-tar it, and use the command:
 
 (./)mongorestore --host {hostname} --port {port} path/to/dump/mongodump
@@ -26,7 +26,7 @@ while(1):
 	print "[ %s ] Calling database daemon..." % str(timestamp)
 	subprocess.call('python ./next/database/database_backup.py',shell=True)
 
-	time.sleep(1800)
+	time.sleep(3600*6) # once every 6 hours
 
 
 	

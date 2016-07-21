@@ -1,0 +1,49 @@
+extends: [base.yaml]
+
+initExp:
+  description: Dictionary for initialization of experiment.
+  type: dict
+  values:
+    args:
+      description: Arguments for initExp
+      type: dict
+      values:
+        failure_probability:
+          description: Confidence of result.
+          type: num
+        alg_list:
+          values:
+            values:
+              test_alg_label:
+                description: Which algorithm to test against.
+                type: str
+
+        targets:
+          description: targets
+          type: oneof
+          values:
+            targetset:
+              description: A target set.
+              type: file
+              values: []
+
+processAnswer:
+  description: reporting back the label of the target given by getQuery
+  type: dict
+  values:
+    args:
+      description: Arguments for initExp
+      type: dict
+      values:
+        target_label:
+          description: The label in {-1,1} provided by participant of the target.
+          type: num
+
+getModel:
+  values:
+    args:
+      values:
+        logging:
+          description: whether you want this logged in app_id:APP-EVALUATION
+          type: boolean
+          default: false

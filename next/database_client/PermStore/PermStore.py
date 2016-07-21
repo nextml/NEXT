@@ -121,10 +121,13 @@ Doc retrival with time ::\n
 
 from pymongo import MongoClient
 import next.constants as constants
+import next.utils as utils
 from bson.binary import Binary
 import cPickle
 import traceback
 from datetime import datetime
+import numpy as np
+import time
 
 
 class PermStore(object):
@@ -135,8 +138,8 @@ class PermStore(object):
         client : MongoDB client
     """
     def __init__(self): 
-        self.client = MongoClient(constants.MONGODB_HOST, constants.MONGODB_PORT)
-#        self.client.write_concern = {'w':0}
+        # w=0 makes it so the write signal is fired off and and does not wait for acknowledgment
+        self.client = MongoClient(constants.MONGODB_HOST, constants.MONGODB_PORT,w=0)
 
     def __del__(self):
         try:
@@ -147,12 +150,11 @@ class PermStore(object):
 
     def connectToMongoServer(self):
         try:
-            self.client = MongoClient(constants.MONGODB_HOST, constants.MONGODB_PORT)
+            # w=0 makes it so the write signal is fired off and and does not wait for acknowledgment
+            self.client = MongoClient(constants.MONGODB_HOST, constants.MONGODB_PORT,w=0)
 
             
             if self.assertConnection():
-                # This makes it so the write signal is fired off and and does not wait for acknowledgment
-#                self.client.write_concern = {'w':0}
                 return True,''
             else:
                 raise
@@ -206,7 +208,12 @@ class PermStore(object):
         if isinstance(input_val,dict):
             for key in input_val:
                 input_val[key] = self.makeProperDatabaseFormat(input_val[key])
+        elif isinstance(input_val, np.ndarray):
+            input_val = input_val.tolist()
         elif isinstance(input_val,list):
+            start = time.time()
+            if len(input_val) > 100 and type(input_val) in {int, float, complex, long}:
+                return input_val
             for idx in range(len(input_val)):
                 input_val[idx] = self.makeProperDatabaseFormat(input_val[idx])
         elif isinstance(input_val, basestring):
@@ -226,6 +233,8 @@ class PermStore(object):
             for key in input_val:
                 input_val[key] = self.undoDatabaseFormat(input_val[key])
         elif isinstance(input_val,list):
+            if len(input_val) > 100 and type(input_val[0]) in {int, float, long, complex}:
+                return input_val
             for idx in range(len(input_val)):
                 input_val[idx] = self.undoDatabaseFormat(input_val[idx])
         elif isinstance(input_val, Binary):
@@ -303,7 +312,7 @@ class PermStore(object):
                 return None,False,message
 
         try:
-            doc = self.client[database_id][bucket_id].find_one({"_id":doc_uid,key: { '$exists': True }})
+            doc = self.client[database_id][bucket_id].find_one({"_id":doc_uid,key: { '$exists': True }},{})
 
             key_exists = (doc!=None)
 
@@ -331,7 +340,7 @@ class PermStore(object):
                 return None,False,message
 
         try:
-            doc = self.client[database_id][bucket_id].find_one({"_id":doc_uid,key: { '$exists': True }})
+            doc = self.client[database_id][bucket_id].find_one({"_id":doc_uid},{key:1})
             if doc == None:
                 message = 'MongoDB.get Key '+bucket_id+'.'+doc_uid+'.'+key+' does not exist'
                 return None,True,message
@@ -343,6 +352,69 @@ class PermStore(object):
 
         except:
             return None,False,'MongoDB.get Failed with unknown exception'
+
+    def get_many(self,database_id,bucket_id,doc_uid,key_list):
+        """
+        Get values corresponding to keys in key_list, returns None if key does not exists
+        
+        Inputs: 
+            (string) database_id, (string) bucket_id, (string) doc_uid, (list of string) key_list
+        
+        Outputs: 
+            (string) value_list, (bool) didSucceed, (string) message 
+        
+        Usage: ::\n
+            key_value_dict,didSucceed,message = db.get_many(database_id,bucket_id,doc_uid,key)
+        """
+        if self.client == None:
+            didSucceed,message = self.connectToMongoServer()
+            if not didSucceed:
+                return None,False,message
+
+        key_value_dict={key:1 for key in key_list}
+        doc = self.client[database_id][bucket_id].find_one({"_id":doc_uid},key_value_dict)
+        if doc == None:
+            message = 'MongoDB.get '+bucket_id+'.'+doc_uid+' does not exist'
+            return None,True,message
+        for key in key_value_dict.keys():
+            key_value_dict[key] = doc.get(key,None)
+
+        return_value = self.undoDatabaseFormat(key_value_dict)
+
+        return return_value,True,'From MongoDB'
+
+    def get_and_delete(self,database_id,bucket_id,doc_uid,key):
+        """
+        returns value associated with key and then deltes {key:value}. 
+        If key does not exist, returns None
+        
+        Inputs: 
+            (string) database_id, (string) bucket_id, (string) doc_uid, (string) key
+        
+        Outputs:
+            (bool) didSucceed, (string) message 
+        
+        Usage: ::\n
+            didSucceed,message = db.get_and_delete(database_id,bucket_id,doc_uid,key)
+        """
+        if self.client == None:
+            didSucceed,message = self.connectToMongoServer()
+            if not didSucceed:
+                return False,message
+
+        try:
+            doc = self.client[database_id][bucket_id].find_one_and_update(filter={"_id":doc_uid},update={'$unset': {key:''}},projection={key:1})
+            if doc==None or key not in doc:
+                return_value = None
+            else:
+                value = doc[key]
+                return_value = self.undoDatabaseFormat(value)
+
+            return return_value,True,'From MongoDB'
+        except:
+            raise
+            error = "MongoDB.get_and_delete Failed with unknown exception"
+            return None,False,error
 
     def getDoc(self,database_id,bucket_id,doc_uid):
         """
@@ -434,7 +506,7 @@ class PermStore(object):
                 return False,message
 
         try:
-            new_doc = self.client[database_id][bucket_id].find_and_modify(query={"_id":doc_uid} , update={ '$inc': {key:value} },upsert = True,new=True )
+            new_doc = self.client[database_id][bucket_id].find_one_and_update(filter={"_id":doc_uid},update={'$inc': {key:value}},projection={key:1},new=True,upsert=True)
             new_value = new_doc[key]
             return new_value,True,'From Mongo'
         except:
@@ -450,10 +522,10 @@ class PermStore(object):
             (string) database_id, (string) bucket_id, (string) doc_uid, ({(str)key1:(float)value1,(int)key2:(float) value2}) key_value_dict
         
         Outputs:
-            (bool) didSucceed, (string) message 
+            (dict) new_key_value_dict, (bool) didSucceed, (string) message 
         
         Usage: ::\n
-            didSucceed,message = db.increment_many(database_id,bucket_id,doc_uid,key_value_dict)
+            new_key_value_dict,didSucceed,message = db.increment_many(database_id,bucket_id,doc_uid,key_value_dict)
         """
         if self.client == None:
             didSucceed,message = self.connectToMongoServer()
@@ -461,12 +533,17 @@ class PermStore(object):
                 return False,message
 
         try:
-            self.client[database_id][bucket_id].update({"_id":doc_uid},{ '$inc': key_value_dict } )
-            return True,'From Mongo'
+            key_value_dict_to_return = {key:1 for key in key_value_dict.keys()}
+            key_value_dict_to_increment = {key:key_value_dict[key] for key in key_value_dict.keys() if key_value_dict[key]!=0}
+            new_doc = self.client[database_id][bucket_id].find_one_and_update(filter={"_id":doc_uid},update={'$inc': key_value_dict_to_increment},projection=key_value_dict_to_return,new=True,upsert=True)
+
+            for key in key_value_dict_to_return.keys():
+                key_value_dict_to_return[key] = new_doc[key]
+            return key_value_dict_to_return,True,'From Mongo'
         except:
             raise
             error = "MongoDB.set Failed with unknown exception"
-            return False,error
+            return None,False,error
 
     def get_list(self,database_id,bucket_id,doc_uid,key):
         """
@@ -504,7 +581,7 @@ class PermStore(object):
         try:
             value = self.makeProperDatabaseFormat(value)
 
-            message = self.client[database_id][bucket_id].update( {"_id":doc_uid} , { '$push': {key:value} },upsert = True )
+            message = self.client[database_id][bucket_id].update_one( {"_id":doc_uid} , { '$push': {key:value} },upsert = True )
 
             return True,message
         except:
@@ -534,8 +611,8 @@ class PermStore(object):
             
             value_list = self.makeProperDatabaseFormat(value_list)
 
-            self.client[database_id][bucket_id].update( {"_id":doc_uid} , { '$unset': {key: '' } },upsert = True )
-            self.client[database_id][bucket_id].update( {"_id":doc_uid} , { '$push': {key: { '$each': value_list } } },upsert = True )
+            self.client[database_id][bucket_id].update_one( {"_id":doc_uid} , { '$unset': {key: '' } },upsert = True )
+            self.client[database_id][bucket_id].update_one( {"_id":doc_uid} , { '$push': {key: { '$each': value_list } } },upsert = True )
 
             return True,''
         except:
@@ -565,7 +642,37 @@ class PermStore(object):
             
             value = self.makeProperDatabaseFormat(value)
 
-            message = self.client[database_id][bucket_id].update( {"_id":doc_uid} , { '$set': {key:value} },upsert = True )
+            message = self.client[database_id][bucket_id].update_one( {"_id":doc_uid} , { '$set': {key:value} },upsert = True )
+
+            return True,''
+        except:
+            raise
+            error = "MongoDB.set Failed with unknown exception"
+            return False,error
+
+    def set_many(self,database_id,bucket_id,doc_uid,key_value_dict):
+        """
+        sets {key,value} (if already exists, replaces)
+        
+        Inputs: 
+            (string) database_id, (string) bucket_id, (string) doc_uid, (dict of key-values) key_value_dict
+        
+        Outputs:
+            (bool) didSucceed, (string) message 
+        
+        Usage: ::\n
+            didSucceed,message = db.set_many(database_id,bucket_id,doc_uid,key_value_dict)
+        """
+        if self.client == None:
+            didSucceed,message = self.connectToMongoServer()
+            if not didSucceed:
+                return False,message
+
+        try:
+            for key in key_value_dict:
+                key_value_dict[key] = self.makeProperDatabaseFormat(key_value_dict[key])
+
+            message = self.client[database_id][bucket_id].update_one( {"_id":doc_uid} , { '$set': key_value_dict },upsert = True )
 
             return True,''
         except:
@@ -622,7 +729,7 @@ class PermStore(object):
                 return None,False,message
 
         try:
-            self.client[database_id][bucket_id].update( {"_id":doc_uid} , { '$unset': {key:1} })
+            self.client[database_id][bucket_id].update_one( {"_id":doc_uid} , { '$unset': {key:1} })
 
             return True,"MongoDB.delete"
         except:
@@ -674,7 +781,7 @@ class PermStore(object):
                 return False,message
 
         try:
-            dict_return = self.client[database_id][bucket_id].remove( filter_dict  )
+            dict_return = self.client[database_id][bucket_id].delete_one( filter_dict  )
             return True,str(dict_return)
         except Exception, err:
             error = traceback.format_exc()

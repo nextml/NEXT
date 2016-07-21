@@ -8,3 +8,4 @@ celery
 boto
 greenlet
 mpld3
+pyyaml

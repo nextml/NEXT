@@ -1,0 +1,121 @@
+div.nonterminal{
+    background-color:#f3f3f3;
+    margin:10px;
+    border:1px solid #c6c6c6;
+    border-radius:10px;
+    padding:5px;
+}
+
+div.terminal{
+    margin:10px;
+    /*border:1px solid black;
+    border-radius:10px;*/
+    padding:5px;
+}
+
+div.description{
+    margin:5px;
+    font-size:small;
+    padding:5px;
+
+}
+
+input[type="number"]{
+    width:70px;
+}
+
+input[type="text"]{
+    display:inline;
+    margin-left:20px;
+    width:75%;
+}
+
+select, option{
+    width:75% !important;
+    display:inline !important;
+    margin-left:20px !important;
+}
+
+input[type="radio"]{
+    display:inline-block;
+    margin-left:20px;
+    width:30px;
+    height:30px;
+    cursor:pointer;
+    border-radius:50%;
+    background-color:#3cc;
+    vertical-align:top;
+    margin-top:30px;
+}
+
+input[type="radio"]:checked{
+    background-color:#fa3;
+}
+
+input[type="submit"]:checked{
+    padding:20px;
+    border-radius:10%;
+}
+    
+div.add{
+    cursor:pointer;
+    margin:5px;
+    display:inline-block;
+    width:30px;
+    height:30px;
+    line-height: 20px;
+    border-radius:15px;
+    font-size:25px;
+    text-align:center;
+    border:3px solid black;
+    background-color:#fa3;
+}
+
+div.add:hover{
+    background-color: #f00;
+}
+
+div.key_input{
+    width:350px;
+    display:inline-block;
+    vertical-align:top;
+}
+
+div.val_input{
+    display:inline-block;
+    min-width:50%;
+}
+
+div.list_input > input{
+    width:70%;
+    display:inline;
+}
+
+div.list_input > label{
+    display:inline;
+}
+
+div.list_input{
+    width:90%;
+    display:inline-block;
+}
+
+span.list_remove:hover{
+    color:red;
+}
+
+span.list_remove{
+    cursor:pointer;
+    color:#999;
+}
+
+div.oneof_val{
+    display:inline-block;
+    width:90%;
+}
+
+label{
+    font-weight:bold;
+    display:inline;
+}
+

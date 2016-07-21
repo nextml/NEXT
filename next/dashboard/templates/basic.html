@@ -39,25 +39,31 @@ popup_alert = function(text){
 </div>
 
 <script type="text/javascript">
-    plot_response = function(data) {
-        // data.json['width'] = 1000
-        // data.json['height'] = 100
-        mpld3.draw_figure("api_activity_histogram_processAnswer", data.json);
+    api_activity_histogram_processAnswer = function(data) {
+        // data['width'] = 1000
+        // data['height'] = 100
+        mpld3.draw_figure("api_activity_histogram_processAnswer", data);
     }
-      
-    data = next_widget.getWidget(
-    {
-    'app_id': "{{ app_id }}",
-    'exp_uid': "{{ exp_uid }}",
-    'name': 'getStats',
-    'widget_key': "{{ perm_key }}",
-    'args':{
-    'stat_id' : 'api_activity_histogram',
-    'params'  : {'task':'processAnswer'}
-    }
-    },
-    plot_response
-    );
+
+    $.ajax({
+        url: "{{ host_url }}/dashboard/get_stats",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({  
+            'exp_uid': "{{ exp_uid }}",
+            'args':{
+                'stat_id' : 'api_activity_histogram',
+		'params':{}
+	    }
+            }),
+        dataType: "json"
+        }).done( function(data,textStatus, jqXHR) {
+        delete data['meta']
+        api_activity_histogram_processAnswer(data)
+        }).fail( function(error){
+        console.log("Failed to get stats", error);
+        });
+
 </script>
 
 <div class="container-fluid" style ='padding-bottom: 1cm'>   
@@ -69,19 +75,26 @@ popup_alert = function(text){
             <p> 
             <b> app_id: </b> {{ app_id }} <br>
             <b> exp_id: </b> {{ exp_uid }} <br>
-            <b> exp_key: </b> {{ exp_key }} <br>
             <b> git_hash: </b> {{ git_hash }} <br>
             <b> Start date: </b> {{ exp_start_data }} <br>
             <b> Number of participants: </b> {{ num_participants }} <br>
             <b> Number of answers: </b> {{ num_queries }} <br> 
-            <b> Backend Exceptions: </b> <a href="{{ host_url }}/api/experiment/{{ exp_uid }}/{{ exp_key }}/logs/APP-EXCEPTION" target="_blank">Open in new tab</a>  <br>
-            <b> Participant data: </b> <a href="{{ host_url }}/api/experiment/{{ exp_uid }}/{{ exp_key }}/participants?zip=True" target="_blank">Open in new tab</a>  <br>
-            <b> Experiment data: </b> <a href="{{ host_url }}/api/experiment/{{ exp_uid }}/{{ exp_key }}" target="_blank">Open in new tab</a>  <br>
-            <b> Query page: </b> <a href="{{ host_url }}/query/query_page/query_page_popup/{{ exp_uid }}/{{ exp_key }}" target="_blank">Open in new tab</a>  <br>
+            <b> Backend Exceptions: </b> <a href="{{ host_url }}/api/experiment/{{ exp_uid }}/logs/APP-EXCEPTION" target="_blank">Open in new tab</a>  <br>
+            <b> Participant data: </b> <a href="{{ host_url }}/api/experiment/{{ exp_uid }}/participants?zip=True" target="_blank">Open in new tab</a>  <br>
+            <b> Experiment data: </b> <a href="{{ host_url }}/api/experiment/{{ exp_uid }}" target="_blank">Open in new tab</a>  <br>
+            <b> Query page: </b> <a href="{{ host_url }}/query/query_page/query_page/{{ exp_uid }}" target="_blank">Open in new tab</a>  <br>
             </p>
         </div>
     </div>
 </div>
+{% endif %}
+
+{% if exceptions_present %}
+<div class="alert alert-danger">
+    <strong>Background exceptions have occured!</strong>
+    <code>docker_login</code> to this machine or click link above for more detail.
+</div>
+
 {% endif %}
 
 {% if simple_flag<1 %}
@@ -91,7 +104,7 @@ popup_alert = function(text){
         <div class="row">
             <h2> Algorithm timing comparison
             <button type="button" class="btn btn-primary btn-xs"
-                  onclick="popup_alert('The outside world communicates with NEXT through requests to its HTTP API. A plot for each kind of request describes the amount of time the NEXT system took to respond to the sequence of requests. <br><br><b>How it is measured:</b> For {getQuery,processAnswer,predict} the timer starts when the request from the API is enqueued and stops when the response is sent back to the API. Because daemonComputes are jobs that are submitted by the algorithms (e.g. model updates) the timer starts on initial job submission and stopped when the job completes. Duration is measured in seconds. <br><br><b>How to use this information:</b>This timing information informs the practitioner how long each algorithm of NEXT is taking to respond to requests, which directly affects how long participants answering queries must wait between queries. Note, these times do not take into account the time it takes the response to get from NEXT to the user or the reverse direction. For this information see the Network Delay plots below. If daemonCompute times are large, this could indicate that it is taking a very long time for the model to update and queries are being served based on stale information. However, if much of this time is enqueued time, then depending on the implementation this may not be the case (see where time is being spent in the breakdown plots below).')">?</button>
+                  onclick="popup_alert('The outside world communicates with NEXT through requests to its HTTP API. A plot for each kind of request describes the amount of time the NEXT system took to respond to the sequence of requests. <br><br><b>How it is measured:</b> For {getQuery,processAnswer,getModel} the timer starts when the request from the API is enqueued and stops when the response is sent back to the API. Because daemonComputes are jobs that are submitted by the algorithms (e.g. model updates) the timer starts on initial job submission and stopped when the job completes. Duration is measured in seconds. <br><br><b>How to use this information:</b>This timing information informs the practitioner how long each algorithm of NEXT is taking to respond to requests, which directly affects how long participants answering queries must wait between queries. Note, these times do not take into account the time it takes the response to get from NEXT to the user or the reverse direction. For this information see the Network Delay plots below. If daemonCompute times are large, this could indicate that it is taking a very long time for the model to update and queries are being served based on stale information. However, if much of this time is enqueued time, then depending on the implementation this may not be the case (see where time is being spent in the breakdown plots below).')">?</button>
             </h2>
         </div>
         <div class="row">
@@ -102,7 +115,7 @@ popup_alert = function(text){
                 <div id = "compute_duration_multiline_plot_processAnswer"></div>
             </div>
             <div class="col-md-3">
-                <div id = "compute_duration_multiline_plot_predict"></div>
+                <div id = "compute_duration_multiline_plot_getModel"></div>
             </div>
             <div class="col-md-3">
                 <div id = "compute_duration_multiline_plot_daemonProcess"></div>
@@ -112,81 +125,102 @@ popup_alert = function(text){
 </div>
 
 <script type="text/javascript">
-    plot_response = function(data) {
-        data.json['width'] = 250
-        data.json['height'] = 250
-        mpld3.draw_figure("compute_duration_multiline_plot_getQuery", data.json);
+    compute_duration_multiline_plot_getQuery = function(data) {
+        data['width'] = 250
+        data['height'] = 250
+        mpld3.draw_figure("compute_duration_multiline_plot_getQuery", data);
     }
 
-    data = next_widget.getWidget(
-        {
-        "app_id": "{{ app_id }}",
-        "exp_uid": "{{ exp_uid }}",
-        'name': 'getStats',
-        'widget_key': "{{ perm_key }}",
-        "args":{
-        "stat_id" : "compute_duration_multiline_plot",
-        "params"  : {"task": "getQuery" } }
-        },
-        plot_response
-        )
+    $.ajax({
+        url: "{{ host_url }}/dashboard/get_stats",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({  
+            'exp_uid': "{{ exp_uid }}",
+            'args':{
+            "stat_id" : "compute_duration_multiline_plot",
+            "params"  : {"task": "getQuery" } }
+            }),
+        dataType: "json"
+        }).done( function(data,textStatus, jqXHR) {
+        delete data['meta']
+        compute_duration_multiline_plot_getQuery(data)
+        }).fail( function(error){
+        console.log("Failed to get stats", error);
+        });
 
-    plot_response = function(data) {
-        data.json['width'] = 250
-        data.json['height'] = 250
-        mpld3.draw_figure("compute_duration_multiline_plot_processAnswer", data.json);
+    compute_duration_multiline_plot_processAnswer = function(data) {
+        data['width'] = 250
+        data['height'] = 250
+        mpld3.draw_figure("compute_duration_multiline_plot_processAnswer", data);
     }
 
-    data = next_widget.getWidget(
-        {
-        "app_id": "{{ app_id }}",
-        "exp_uid": "{{ exp_uid }}",
-        'name': 'getStats',
-        'widget_key': "{{ perm_key }}",
-        "args":{
-        "stat_id" : "compute_duration_multiline_plot",
-        "params"  : {"task": "processAnswer" } }
-        },
-        plot_response
-        )
+    $.ajax({
+        url: "{{ host_url }}/dashboard/get_stats",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({  
+            'exp_uid': "{{ exp_uid }}",
+            'args':{
+            "stat_id" : "compute_duration_multiline_plot",
+            "params"  : {"task": "processAnswer" } }
+            }),
+        dataType: "json"
+        }).done( function(data,textStatus, jqXHR) {
+        delete data['meta']
+        compute_duration_multiline_plot_processAnswer(data)
+        }).fail( function(error){
+        console.log("Failed to get stats", error);
+        });
 
-    plot_response = function(data) {
-        data.json['width'] = 250
-        data.json['height'] = 250
-        mpld3.draw_figure("compute_duration_multiline_plot_predict", data.json);
+    compute_duration_multiline_plot_getModel = function(data) {
+        data['width'] = 250
+        data['height'] = 250
+        mpld3.draw_figure("compute_duration_multiline_plot_getModel", data);
     }
 
-    data = next_widget.getWidget(
-        {
-        "app_id": "{{ app_id }}",
-        "exp_uid": "{{ exp_uid }}",
-        'name': 'getStats',
-        'widget_key': "{{ perm_key }}",
-        "args":{
-        "stat_id" : "compute_duration_multiline_plot",
-        "params"  : {"task": "predict" } }
-        },
-        plot_response
-        )
+    $.ajax({
+        url: "{{ host_url }}/dashboard/get_stats",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({  
+            'exp_uid': "{{ exp_uid }}",
+            'args':{
+            "stat_id" : "compute_duration_multiline_plot",
+            "params"  : {"task": "getModel" } }
+            }),
+        dataType: "json"
+        }).done( function(data,textStatus, jqXHR) {
+        delete data['meta']
+        compute_duration_multiline_plot_getModel(data)
+        }).fail( function(error){
+        console.log("Failed to get stats", error);
+        });
 
-    plot_response = function(data) {
-        data.json['width'] = 250
-        data.json['height'] = 250
-        mpld3.draw_figure("compute_duration_multiline_plot_daemonProcess", data.json);
+    compute_duration_multiline_plot_daemonProcess = function(data) {
+        data['width'] = 250
+        data['height'] = 250
+        mpld3.draw_figure("compute_duration_multiline_plot_daemonProcess", data);
     }
 
-    data = next_widget.getWidget(
-        {
-        "app_id": "{{ app_id }}",
-        "exp_uid": "{{ exp_uid }}",
-        'name': 'getStats',
-        'widget_key': "{{ perm_key }}",
-        "args":{
-        "stat_id" : "compute_duration_multiline_plot",
-        "params"  : {"task": "daemonProcess" } }
-        },
-        plot_response
-        )
+    $.ajax({
+        url: "{{ host_url }}/dashboard/get_stats",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({  
+            'exp_uid': "{{ exp_uid }}",
+            'args':{
+            "stat_id" : "compute_duration_multiline_plot",
+            "params"  : {"task": "daemonProcess" } }
+            }),
+        dataType: "json"
+        }).done( function(data,textStatus, jqXHR) {
+        delete data['meta']
+        compute_duration_multiline_plot_daemonProcess(data)
+        }).fail( function(error){
+        console.log("Failed to get stats", error);
+        });
+
 </script>
 
 
@@ -222,7 +256,7 @@ popup_alert = function(text){
                             <div id= "compute_duration_detailed_stacked_area_plot_processAnswer_{{ alg.alg_label_clean }}"></div>
                         </div>
                         <div class="col-md-3">
-                            <div id= "compute_duration_detailed_stacked_area_plot_predict_{{ alg.alg_label_clean }}"></div>
+                            <div id= "compute_duration_detailed_stacked_area_plot_getModel_{{ alg.alg_label_clean }}"></div>
                         </div>
                         <div class="col-md-3">
                             <div id= "compute_duration_detailed_stacked_area_plot_daemonProcess_{{ alg.alg_label_clean }}"></div>
@@ -237,7 +271,7 @@ popup_alert = function(text){
                             <div id= "compute_duration_detailed_stacked_area_plot_processAnswer_{{ alg.alg_label_clean }}"></div>
                         </div>
                         <div class="col-md-3">
-                            <div id= "compute_duration_detailed_stacked_area_plot_predict_{{ alg.alg_label_clean }}"></div>
+                            <div id= "compute_duration_detailed_stacked_area_plot_getModel_{{ alg.alg_label_clean }}"></div>
                         </div>
                         <div class="col-md-3">
                             <div id= "compute_duration_detailed_stacked_area_plot_daemonProcess_{{ alg.alg_label_clean }}"></div>
@@ -249,90 +283,105 @@ popup_alert = function(text){
 
 
                 <script>
-                    plot_response = function(data) {
-                        data.json['width'] = 250
-                        data.json['height'] = 250
-                        mpld3.draw_figure("compute_duration_detailed_stacked_area_plot_getQuery_{{ alg.alg_label_clean }}", data.json);
+                    compute_duration_detailed_stacked_area_plot_getQuery_{{ alg.alg_label_clean }} = function(data) {
+                        data['width'] = 250
+                        data['height'] = 250
+                        mpld3.draw_figure("compute_duration_detailed_stacked_area_plot_getQuery_{{ alg.alg_label_clean }}", data);
                     }
 
-                    data = next_widget.getWidget(
-                    {
-                    'app_id': "{{ app_id }}",
-                    'exp_uid': "{{ exp_uid }}",
-                    'name': 'getStats',
-                    'widget_key': "{{ perm_key }}",
-                    'args':{
-                    'stat_id' : 'compute_duration_detailed_stacked_area_plot',
-                    'params'  : {'task':'getQuery', 'alg_label':'{{ alg.alg_label }}' }
-                    }
-                    },
-                    plot_response
-                    );
+                    $.ajax({
+                        url: "{{ host_url }}/dashboard/get_stats",
+                        type: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify({  
 
+                            'exp_uid': "{{ exp_uid }}",
+                            'args':{
+                            'stat_id' : 'compute_duration_detailed_stacked_area_plot',
+                            'params'  : {'task':'getQuery', 'alg_label':'{{ alg.alg_label }}' } }
+                            }),
+                        dataType: "json"
+                        }).done( function(data,textStatus, jqXHR) {
+                        delete data['meta']
+                        compute_duration_detailed_stacked_area_plot_getQuery_{{ alg.alg_label_clean }}(data)
+                        }).fail( function(error){
+                        console.log("Failed to get stats", error);
+                        });
 
-                    plot_response = function(data) {
-                        data.json['width'] = 250
-                        data.json['height'] = 250
-                        mpld3.draw_figure("compute_duration_detailed_stacked_area_plot_processAnswer_{{ alg.alg_label_clean }}", data.json);
-                    }
-
-                    data = next_widget.getWidget(
-                    {
-                    'app_id': "{{ app_id }}",
-                    'exp_uid': "{{ exp_uid }}",
-                    'name': 'getStats',
-                    'widget_key': "{{ perm_key }}",
-                    'args':{
-                    'stat_id' : 'compute_duration_detailed_stacked_area_plot',
-                    'params'  : {'task':'processAnswer', 'alg_label':'{{ alg.alg_label }}' }
-                    }
-                    },
-                    plot_response
-                    );
-
-
-                    plot_response = function(data) {
-                        data.json['width'] = 250
-                        data.json['height'] = 250
-                        mpld3.draw_figure("compute_duration_detailed_stacked_area_plot_predict_{{ alg.alg_label_clean }}", data.json);
+                    compute_duration_detailed_stacked_area_plot_processAnswer_{{ alg.alg_label_clean }} = function(data) {
+                        data['width'] = 250
+                        data['height'] = 250
+                        mpld3.draw_figure("compute_duration_detailed_stacked_area_plot_processAnswer_{{ alg.alg_label_clean }}", data);
                     }
 
+                    $.ajax({
+                        url: "{{ host_url }}/dashboard/get_stats",
+                        type: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify({  
 
-                    data = next_widget.getWidget(
-                    {
-                    'app_id': "{{ app_id }}",
-                    'exp_uid': "{{ exp_uid }}",
-                    'name': 'getStats',
-                    'widget_key': "{{ perm_key }}",
-                    'args':{
-                    'stat_id' : 'compute_duration_detailed_stacked_area_plot',
-                    'params'  : {'task':'predict', 'alg_label':'{{ alg.alg_label }}' }
+                            'exp_uid': "{{ exp_uid }}",
+                            'args':{
+                            'stat_id' : 'compute_duration_detailed_stacked_area_plot',
+                            'params'  : {'task':'processAnswer', 'alg_label':'{{ alg.alg_label }}' } }
+                            }),
+                        dataType: "json"
+                        }).done( function(data,textStatus, jqXHR) {
+                        delete data['meta']
+                        compute_duration_detailed_stacked_area_plot_processAnswer_{{ alg.alg_label_clean }}(data)
+                        }).fail( function(error){
+                        console.log("Failed to get stats", error);
+                        });
+
+                    compute_duration_detailed_stacked_area_plot_getModel_{{ alg.alg_label_clean }} = function(data) {
+                        data['width'] = 250
+                        data['height'] = 250
+                        mpld3.draw_figure("compute_duration_detailed_stacked_area_plot_getModel_{{ alg.alg_label_clean }}", data);
                     }
-                    },
-                    plot_response
-                    );
 
+                    $.ajax({
+                        url: "{{ host_url }}/dashboard/get_stats",
+                        type: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify({  
 
-                    plot_response = function(data) {
-                        data.json['width'] = 250
-                        data.json['height'] = 250
-                        mpld3.draw_figure("compute_duration_detailed_stacked_area_plot_daemonProcess_{{ alg.alg_label_clean }}", data.json);
+                            'exp_uid': "{{ exp_uid }}",
+                            'args':{
+                            'stat_id' : 'compute_duration_detailed_stacked_area_plot',
+                            'params'  : {'task':'getModel', 'alg_label':'{{ alg.alg_label }}' } }
+                            }),
+                        dataType: "json"
+                        }).done( function(data,textStatus, jqXHR) {
+                        delete data['meta']
+                        compute_duration_detailed_stacked_area_plot_getModel_{{ alg.alg_label_clean }}(data)
+                        }).fail( function(error){
+                        console.log("Failed to get stats", error);
+                        });
+
+                    compute_duration_detailed_stacked_area_plot_daemonProcess_{{ alg.alg_label_clean }} = function(data) {
+                        data['width'] = 250
+                        data['height'] = 250
+                        mpld3.draw_figure("compute_duration_detailed_stacked_area_plot_daemonProcess_{{ alg.alg_label_clean }}", data);
                     }
 
+                    $.ajax({
+                        url: "{{ host_url }}/dashboard/get_stats",
+                        type: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify({  
 
-                    data = next_widget.getWidget(
-                    {
-                    'app_id': "{{ app_id }}",
-                    'exp_uid': "{{ exp_uid }}",
-                    'name': 'getStats',
-                    'widget_key': "{{ perm_key }}",
-                    'args':{
-                    'stat_id' : 'compute_duration_detailed_stacked_area_plot',
-                    'params'  : {'task':'daemonProcess', 'alg_label':'{{ alg.alg_label }}' }
-                    }
-                    },
-                    plot_response
-                    );
+                            'exp_uid': "{{ exp_uid }}",
+                            'args':{
+                            'stat_id' : 'compute_duration_detailed_stacked_area_plot',
+                            'params'  : {'task':'daemonProcess', 'alg_label':'{{ alg.alg_label }}' } }
+                            }),
+                        dataType: "json"
+                        }).done( function(data,textStatus, jqXHR) {
+                        delete data['meta']
+                        compute_duration_detailed_stacked_area_plot_daemonProcess_{{ alg.alg_label_clean }}(data)
+                        }).fail( function(error){
+                        console.log("Failed to get stats", error);
+                        });
 
                 </script>
             {% endfor %}
@@ -387,45 +436,55 @@ popup_alert = function(text){
 
 
             <script>
-                plot_response = function(data) {
-                    data.json['width'] = 250
-                    data.json['height'] = 250
-                    mpld3.draw_figure("response_time_histogram_{{ alg.alg_label_clean }}", data.json);
+                response_time_histogram_{{ alg.alg_label_clean }} = function(data) {
+                    data['width'] = 250
+                    data['height'] = 250
+                    mpld3.draw_figure("response_time_histogram_{{ alg.alg_label_clean }}", data);
                 }
 
-                data = next_widget.getWidget(
-                {
-                'app_id': "{{ app_id }}",
-                'exp_uid': "{{ exp_uid }}",
-                'name': 'getStats',
-                'widget_key': "{{ perm_key }}",
-                'args':{
-                'stat_id' : 'response_time_histogram',
-                'params'  : {'alg_label':'{{ alg.alg_label }}'}
-                }
-                },
-                plot_response
-                );
+                $.ajax({
+                    url: "{{ host_url }}/dashboard/get_stats",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({  
 
-                plot_response = function(data) {
-                    data.json['width'] = 250
-                    data.json['height'] = 250
-                    mpld3.draw_figure("network_delay_histogram_{{ alg.alg_label_clean }}", data.json);
+                        'exp_uid': "{{ exp_uid }}",
+                        'args':{
+                        'stat_id' : 'response_time_histogram',
+                        'params'  : {'alg_label':'{{ alg.alg_label }}'} }
+                        }),
+                    dataType: "json"
+                    }).done( function(data,textStatus, jqXHR) {
+                    delete data['meta']
+                    response_time_histogram_{{ alg.alg_label_clean }}(data)
+                    }).fail( function(error){
+                    console.log("Failed to get stats", error);
+                    });
+
+                network_delay_histogram_{{ alg.alg_label_clean }} = function(data) {
+                    data['width'] = 250
+                    data['height'] = 250
+                    mpld3.draw_figure("network_delay_histogram_{{ alg.alg_label_clean }}", data);
                 }
 
-                data = next_widget.getWidget(
-                {
-                'app_id': "{{ app_id }}",
-                'exp_uid': "{{ exp_uid }}",
-                'name': 'getStats',
-                'widget_key': "{{ perm_key }}",
-                'args':{
-                'stat_id' : 'network_delay_histogram',
-                'params'  : {'alg_label':'{{ alg.alg_label }}'}
-                }
-                },
-                plot_response
-                );
+                $.ajax({
+                    url: "{{ host_url }}/dashboard/get_stats",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({  
+
+                        'exp_uid': "{{ exp_uid }}",
+                        'args':{
+                        'stat_id' : 'network_delay_histogram',
+                        'params'  : {'alg_label':'{{ alg.alg_label }}'} }
+                        }),
+                    dataType: "json"
+                    }).done( function(data,textStatus, jqXHR) {
+                    delete data['meta']
+                    network_delay_histogram_{{ alg.alg_label_clean }}(data)
+                    }).fail( function(error){
+                    console.log("Failed to get stats", error);
+                    });
 
             </script>
             {% endfor %}
@@ -433,8 +492,9 @@ popup_alert = function(text){
 
     </div>
 </div>
+
 {% endif %}
 
-{% block custom_dashboard %}{% endblock %} 
+ {% block custom_dashboard %}{% endblock %} 
 
 {% endblock %}

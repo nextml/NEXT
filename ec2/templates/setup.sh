@@ -15,7 +15,8 @@ apt-get install -y \
 # python libraries (for convenience and test scripts)
 pip install \
 	requests==2.5.2 \
-	boto
+	boto \
+	yaml
 
 # tools for increased stability of docker volumes
 apt-get install -y linux-image-extra-$(uname -r) aufs-tools  

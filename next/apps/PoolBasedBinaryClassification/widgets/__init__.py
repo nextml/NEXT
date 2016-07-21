@@ -1,1 +1,0 @@
-from widget_generator import WidgetGenerator

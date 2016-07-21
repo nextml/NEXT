@@ -87,7 +87,7 @@ EC2_NEXT_PATH = EC2_SRC_PATH + '/next-discovery'
 LOCAL_NEXT_PATH = './../'
 
 DEFAULT_REGION = 'us-west-2'
-DEFAULT_AMI = 'ami-6989a659'  # Ubuntu Server 14.04 LTS
+DEFAULT_AMI = 'ami-9abea4fb'  # Ubuntu Server 14.04 LTS
 DEFAULT_USER = 'ubuntu'
 DEFAULT_INSTANCE_TYPE = 'm3.large'
 
@@ -757,9 +757,18 @@ def rsync_docker_config(opts, master_nodes, slave_nodes):
 
 
     docker_compose_template_vars = {
+        "CELERY_ON": os.getenv('CELERY_ON',True),
+
         "CELERY_SYNC_WORKER_COUNT": 6,
-        "CELERY_ASYNC_WORKER_COUNT":2,
-        "CELERY_THREADS_PER_ASYNC_WORKER":max(1,int(.7*master_num_cpus)),
+
+        "CELERY_ASYNC_WORKER_COUNT":4,
+        "CELERY_THREADS_PER_ASYNC_WORKER":max(1,int(.25*master_num_cpus)),
+        "CELERY_ASYNC_WORKER_PREFETCH":10,
+
+        "CELERY_DASHBOARD_WORKER_COUNT":1,
+        "CELERY_THREADS_PER_DASHBOARD_WORKER":2,
+        "CELERY_DASHBOARD_WORKER_PREFETCH":1,
+
         "NEXT_BACKEND_NUM_GUNICORN_WORKERS":int(1.6*master_num_cpus+1),
         "NEXT_BACKEND_GLOBAL_PORT":NEXT_BACKEND_GLOBAL_PORT,
         "NEXT_FRONTEND_NUM_GUNICORN_WORKERS":int(1),

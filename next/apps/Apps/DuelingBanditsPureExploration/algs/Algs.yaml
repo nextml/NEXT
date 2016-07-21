@@ -1,0 +1,61 @@
+initExp:
+  args:
+    n:
+      description: Dimension of embedding.
+      type: num
+    failure_probability:
+      description: Confidence of result.
+      type: num
+    params:
+      description: Params.
+      type: any
+      optional: true
+  returns:
+    type: bool
+    description: A boolean indicating success.
+    values: true
+
+getQuery:
+  args:
+    participant_uid:
+      type: string
+      description: ID of the participant answering the query
+  returns:
+    type: list
+    description: indices of stuff
+    values:
+      type: num
+    
+processAnswer:
+    args:
+      left_id:
+        description: ID of left target
+        type: num
+      right_id:
+        description: ID of right target
+        type: num
+      painted_id:
+        description: Painted ID
+        type: num
+      winner_id:
+        description: Winner ID
+        type: num
+    returns:
+      type: bool
+      description: A boolean indicating success.
+      values: true
+
+getModel:
+  returns:
+    type: tuple
+    values:
+      0:
+        description: mu
+        type: list
+        values:
+          type: num
+      1:
+        description: prec
+        type: list
+        values:
+          type: num

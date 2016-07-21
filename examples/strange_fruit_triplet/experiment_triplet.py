@@ -10,6 +10,7 @@ experiment_list = []
 
 # List of Algorithms currently available for this app type
 alg_ids = ['RandomSampling','RandomSampling','UncertaintySampling','CrowdKernel','STE']
+alg_ids = ['CrowdKernel', 'STE', 'RandomSampling', 'UncertaintySampling']
 
 # Algorithm List. These algorithms are independent (no inter-connectedness
 # between algorithms) and each algorithm gets `proportion` number of queries
@@ -24,16 +25,18 @@ for idx,alg_id in enumerate(alg_ids):
     else:
         alg_item['alg_label'] = alg_id
     alg_item['test_alg_label'] = 'Test'
-    alg_item['params'] = {}
+    #alg_item['params'] = {}
     alg_list.append(alg_item)
 
 # Algorithm management specifies the proportion of queries coming from an
 # algorithms. In this example, we specify that each algorithm recieves the same
 # proportion. The alg_label's must agree with the alg_labels in the alg_list.
-params = {}
-params['proportions'] = []
+params = []
+#params['proportions'] = []
 for algorithm in alg_list:
-    params['proportions'].append({'alg_label': algorithm['alg_label'] ,'proportion':1./len(alg_list)})
+    #params['proportions'].append({'alg_label': algorithm['alg_label'] ,'proportion':1./len(alg_list)})
+    params += [{'alg_label': algorithm['alg_label'],
+                               'proportion': 1.0 / len(alg_list)}]
 
 # Run algorithms here in fixed proportions
 # The number of queries sampled is the ones we specify, rather than using some
@@ -45,7 +48,7 @@ algorithm_management_settings['params'] = params
 # Create experiment dictionary
 initExp = {}
 initExp['args'] = {}
-initExp['args']['n'] = 30 # how many targets? (/number of fruits?)
+#initExp['args']['n'] = 30 # how many targets? (/number of fruits?)
 
 # how many dimensions should we embed in? This is for the final results
 initExp['args']['d'] = 2
@@ -94,6 +97,5 @@ except:
 
     sys.exit()
 
-exp_info = launch_experiment(host, experiment_list, AWS_ACCESS_ID,
-                             AWS_SECRET_ACCESS_KEY, AWS_BUCKET_NAME)
-exp_uid_list, exp_key_list, widget_key_list = exp_info
+exp_uid_list = launch_experiment(host, experiment_list, AWS_ACCESS_ID,
+                                 AWS_SECRET_ACCESS_KEY, AWS_BUCKET_NAME)

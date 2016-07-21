@@ -18,9 +18,10 @@ import os
 # NEXT system.
 
 SITES_ENABLED = False
+DEBUG_ON = os.environ.get('DEBUG_ON', '')
 
 # Backend Host Url
-NEXT_BACKEND_GLOBAL_HOST = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', None)
+NEXT_BACKEND_GLOBAL_HOST = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')
 NEXT_BACKEND_GLOBAL_PORT = os.environ.get('NEXT_BACKEND_GLOBAL_PORT', '8000')
 
 AWS_ACCESS_ID = os.environ.get('AWS_ACCESS_ID', '')
@@ -74,10 +75,11 @@ CELERY_TASK_RESULT_EXPIRES=60
 CELERY_TASK_SERIALIZER='json'
 CELERY_ACCEPT_CONTENT=['json']  # Ignore other content
 CELERY_RESULT_SERIALIZER='json'
-CELERYD_PREFETCH_MULTIPLIER=10
 
+CELERY_ON = eval(os.environ.get('CELERY_ON','True'))
 
 CELERY_SYNC_WORKER_COUNT = int(os.environ.get('CELERY_SYNC_WORKER_COUNT',1))
+
 # from kombu import Exchange, Queue
 # exchange_name = 'sync@{hostname}'.format(
 #         hostname=os.environ.get('HOSTNAME', 'localhost'))

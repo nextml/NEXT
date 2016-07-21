@@ -37,6 +37,10 @@ minionworker:
    - CELERY_SYNC_WORKER_COUNT={{CELERY_SYNC_WORKER_COUNT}}
    - CELERY_ASYNC_WORKER_COUNT={{CELERY_ASYNC_WORKER_COUNT}}
    - CELERY_THREADS_PER_ASYNC_WORKER={{CELERY_THREADS_PER_ASYNC_WORKER}}
+   - CELERY_ASYNC_WORKER_PREFETCH={{CELERY_ASYNC_WORKER_PREFETCH}}
+   - CELERY_DASHBOARD_WORKER_COUNT={{CELERY_ASYNC_WORKER_COUNT}}
+   - CELERY_THREADS_PER_DASHBOARD_WORKER={{CELERY_THREADS_PER_ASYNC_WORKER}}
+   - CELERY_DASHBOARD_WORKER_PREFETCH={{CELERY_ASYNC_WORKER_PREFETCH}}
    - GIT_HASH={{GIT_HASH}}
    - PYTHONPATH=:/next_backend
 ####################################
@@ -56,6 +60,7 @@ nextbackenddocker:
     - rabbitmq:RABBIT
     - rabbitmqredis:RABBITREDIS
     - mongodb:MONGODB
+    - minionworker:MINIONWORKER
   environment:
    - PYTHONUNBUFFERED=TRUE
    - PYTHONPATH=:/next_backend 
@@ -64,6 +69,7 @@ nextbackenddocker:
    - NEXT_BACKEND_GLOBAL_PORT
    - GIT_HASH={{GIT_HASH}}
    - TERM=xterm
+   - CELERY_ON={{CELERY_ON}}
 ####################################
 
 
@@ -71,7 +77,7 @@ nextbackenddocker:
 ######### PERSISTENT STORE #########
 mongodb:
   build: next/base_docker_image
-  command: /usr/bin/mongod --smallfiles --rest
+  command: numactl --interleave=all /usr/bin/mongod --smallfiles --rest
   volumes:
    - .:/next_backend 
    - /dump
@@ -110,19 +116,6 @@ rabbitmq:
 
 rabbitmqredis:
   image: redis
-
-rabbitmqmonitor:
-  build: next/base_docker_image
-  command: python ./next/broker/cluster_monitor.py
-  volumes:
-   - .:/next_backend 
-  working_dir: /next_backend
-  links:
-    - rabbitmq:RABBIT
-    - rabbitmqredis:RABBITREDIS
-  environment:
-   - PYTHONPATH=:/next_backend
-   - PYTHONUNBUFFERED=TRUE
 ###########################
 
 

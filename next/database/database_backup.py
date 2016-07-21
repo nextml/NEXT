@@ -17,6 +17,7 @@ import next.utils as utils
 
 import subprocess
 import next.constants as constants
+import next.database.database_lib as db_lib
 import os
 
 
@@ -28,16 +29,14 @@ timestamp = utils.datetimeNow()
 print "[ %s ] starting backup of MongoDB to S3..." % str(timestamp)
 
 print "[ %s ] constants.AWS_ACCESS_ID = %s" % (str(timestamp),constants.AWS_ACCESS_ID)
-
-subprocess.call('/usr/bin/mongodump -vvvvv --host {hostname}:{port} --out /dump/mongo_dump'.format( hostname=constants.MONGODB_HOST, port=constants.MONGODB_PORT ),shell=True)
 	
+tar_file = ''
 try:
 	tar_file = sys.argv[1]
 except:
 	tar_file = 'mongo_dump_{hostname}_{timestamp}.tar.gz'.format( hostname=NEXT_BACKEND_GLOBAL_HOST, timestamp= timestamp.strftime("%Y-%m-%d_%H:%M:%S") )
 
-subprocess.call('tar czf {path}/{tar_file} /dump/mongo_dump'.format(path='/dump',tar_file=tar_file),shell=True)
-
+tar_filename = db_lib.make_mongodump(tar_file)
 
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
@@ -49,7 +48,7 @@ try:
 
 	k = Key(b)
 	k.key = tar_file
-	bytes_saved = k.set_contents_from_filename( '/dump/'+tar_file )
+	bytes_saved = k.set_contents_from_filename( tar_filename )
 
 	timestamp = utils.datetimeNow()
 	print "[ %s ] done with backup of MongoDB to S3...  %d bytes saved" % (str(timestamp),bytes_saved)
@@ -59,7 +58,7 @@ except:
 	print "[ %s ] FAILED TO CONNECT TO S3... saving locally" % str(timestamp)
 	print error
 
-subprocess.call('rm {path}/{tar_file} /dump/mongo_dump'.format(path='/dump',tar_file=tar_file),shell=True)
+subprocess.call('rm {tar_filename}'.format(tar_filename=tar_filename),shell=True)
 
 
 	
