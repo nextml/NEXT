@@ -12,7 +12,7 @@ class DuelingBanditsPureExploration(object):
         self.app_id = 'DuelingBanditsPureExploration'
         self.TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager(db)
 
-    def initExp(self, butler, exp_data):
+    def initExp(self, butler, init_algs, args):
         """
         This function is meant to store an additional components in the
         databse.
@@ -20,37 +20,38 @@ class DuelingBanditsPureExploration(object):
         In the implementation of two apps, DuelingBanditsPureExploration and
         PoolBasedTripletMDS, we only managed targets in this function. We
         stored the targets to the database than deleted the 'targets' key
-        from exp_data, replacing it with ``exp_data['args']['n']`` to
+        from args, replacing it with ``args['n']`` to
         represent a list of n targets. This is easier when doing numerical
         computation.
 
         Inputs
         ------
         exp_uid : The unique identifier to represent an experiment.
-        exp_data : The keys specified in the app specific YAML file in the
+        args : The keys specified in the app specific YAML file in the
                    initExp section.
         butler : The wrapper for database writes. See next/apps/Butler.py for
                  more documentation.
 
         Returns
         -------
-        exp_data: The experiment data, potentially modified.
+        args: The experiment data, potentially modified.
         """
         # TODO: change this in every app type coded thus far!
-        if 'targetset' in exp_data['args']['targets'].keys():
-            n = len(exp_data['args']['targets']['targetset'])
-            self.TargetManager.set_targetset(butler.exp_uid, exp_data['args']['targets']['targetset'])
+        if 'targetset' in args['targets'].keys():
+            n = len(args['targets']['targetset'])
+            self.TargetManager.set_targetset(butler.exp_uid, args['targets']['targetset'])
         else:
-            n = exp_data['args']['targets']['n']
-        exp_data['args']['n'] = n
-        del exp_data['args']['targets']
+            n = args['targets']['n']
+        args['n'] = n
+        del args['targets']
 
         alg_data = {}
         algorithm_keys = ['n','failure_probability']
         for key in algorithm_keys:
-            alg_data[key]=exp_data['args'][key]
+            alg_data[key]=args[key]
 
-        return exp_data,alg_data
+        init_algs(alg_data)
+        return args
 
     def getQuery(self, butler, alg, args):
         alg_response = alg({'participant_uid':args['participant_uid']})

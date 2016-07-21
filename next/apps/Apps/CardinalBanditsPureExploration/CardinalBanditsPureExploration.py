@@ -8,7 +8,7 @@ class CardinalBanditsPureExploration(object):
         self.app_id = 'CardinalBanditsPureExploration'
         self.TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager(db)
 
-    def initExp(self, butler, exp_data):
+    def initExp(self, butler, init_algs, args):
         """
         This function is meant to store any additional components in the
         databse.
@@ -16,7 +16,7 @@ class CardinalBanditsPureExploration(object):
         Inputs
         ------
         exp_uid : The unique identifier to represent an experiment.
-        exp_data : The keys specified in the app specific YAML file in the
+        args : The keys specified in the app specific YAML file in the
                    initExp section.
         butler : The wrapper for database writes. See next/apps/Butler.py for
                  more documentation.
@@ -25,27 +25,28 @@ class CardinalBanditsPureExploration(object):
         -------
         exp_data: The experiment data, potentially modified.
         """
-        if 'targetset' in exp_data['args']['targets'].keys():
-            n  = len(exp_data['args']['targets']['targetset'])
-            self.TargetManager.set_targetset(butler.exp_uid, exp_data['args']['targets']['targetset'])
+        if 'targetset' in args['targets'].keys():
+            n  = len(args['targets']['targetset'])
+            self.TargetManager.set_targetset(butler.exp_uid, args['targets']['targetset'])
         else:
-            n = exp_data['args']['targets']['n']
-        exp_data['args']['n'] = n
-        del exp_data['args']['targets']
+            n = args['targets']['n']
+        args['n'] = n
+        del args['targets']
 
-        if 'labels' in exp_data['args']['rating_scale'].keys():
-            labels = exp_data['args']['rating_scale']['labels']
+        if 'labels' in args['rating_scale'].keys():
+            labels = args['rating_scale']['labels']
             max_label = max( label['reward'] for label in labels )
             min_label = min( label['reward'] for label in labels )
-            exp_data['args']['rating_scale']['R'] = max_label-min_label
+            args['rating_scale']['R'] = max_label-min_label
 
-        R = exp_data['args']['rating_scale']['R']
+        R = args['rating_scale']['R']
         alg_data = {'R':R}
         algorithm_keys = ['n','failure_probability']
         for key in algorithm_keys:
-            alg_data[key]=exp_data['args'][key]
+            alg_data[key]=args[key]
 
-        return exp_data,alg_data
+        init_algs(alg_data)
+        return args
 
     def getQuery(self, butler, alg, args):
         participant_uid = args.get('participant_uid', butler.exp_uid)

@@ -67,6 +67,33 @@ class App(object):
         #utils.debug_print("{} app args: {}".format(func_name,args))
         return getattr(self.myApp, func_name)(self.butler, alg_wrapper, args['args'])
 
+    def init_alg(self, exp_uid, algorithm, alg_args):
+        butler = Butler(self.app_id, exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, algorithm['alg_label'], algorithm['alg_id'])
+        alg = utils.get_app_alg(self.app_id, algorithm['alg_id'])
+        
+        if 'args' in self.algs_reference_dict['initExp']:
+            alg_args = Verifier.verify(alg_args, self.algs_reference_dict['initExp']['args'])
+            
+        # I got rid of a timeit function here; it wasn't handling the
+        # argument unpacking correctly? --Scott, 2016-3-7
+        # TODO: put dt back in and change log_entry to relfect that
+        alg_response = alg.initExp(butler, **alg_args)
+        alg_response = Verifier.verify({'returns':alg_response}, {'returns':self.algs_reference_dict['initExp']['returns']})
+        log_entry = {'exp_uid':exp_uid, 'alg_label':algorithm['alg_label'], 'task':'initExp', 'duration':-1, 'timestamp':utils.datetimeNow()}
+        self.butler.log('ALG-DURATION', log_entry)
+                
+    def init_app(self, exp_uid, alg_list, args):
+        utils.debug_print(str(args))
+        def init_algs_wrapper(alg_args={}):
+            for algorithm in alg_list:
+                # Set doc in algorithms bucket. These objects are used by the algorithms to store data.
+                algorithm['exp_uid'] = exp_uid
+                self.butler.algorithms.set(uid=algorithm['alg_label'], value=algorithm)
+                self.init_alg(exp_uid, algorithm, alg_args)
+                # params = algorithm.get('params',None)
+                
+        return self.myApp.initExp(self.butler, init_algs_wrapper, args)
+    
     def initExp(self, exp_uid, args_json):
         try:
             self.helper.ensure_indices(self.app_id,self.butler.db, self.butler.ell)
@@ -74,32 +101,12 @@ class App(object):
             args_dict = Verifier.verify(args_dict, self.reference_dict['initExp']['values'])
             args_dict['exp_uid'] = exp_uid # to get doc from db
             args_dict['start_date'] = utils.datetime2str(utils.datetimeNow())
-            self.butler.admin.set(uid=exp_uid,value={'exp_uid': exp_uid, 'app_id':self.app_id, 'start_date':str(utils.datetimeNow())}) 
-            args_dict,algs_args_dict = self.myApp.initExp(self.butler, args_dict)
-            algs_args_dict = Verifier.verify(algs_args_dict, self.algs_reference_dict['initExp']['args'])
-
-            # Set doc in algorithms bucket. These objects are used by the algorithms to store data.
-            for algorithm in args_dict['args']['alg_list']:
-                algorithm['exp_uid'] = exp_uid
-                self.butler.algorithms.set(uid=algorithm['alg_label'], value=algorithm)
-
+            self.butler.admin.set(uid=exp_uid,value={'exp_uid': exp_uid, 'app_id':self.app_id, 'start_date':str(utils.datetimeNow())})
+            
+            utils.debug_print("ASD "+str(args_dict))
+            args_dict['args'] = self.init_app(exp_uid, args_dict['args']['alg_list'], args_dict['args'])
             args_dict['git_hash'] = git_hash
             self.butler.experiment.set(value=args_dict)
-            for algorithm in args_dict['args']['alg_list']:
-                # params = algorithm.get('params',None)
-                butler = Butler(self.app_id, exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, algorithm['alg_label'], algorithm['alg_id'])
-                alg = utils.get_app_alg(self.app_id, algorithm['alg_id'])
-
-                # I got rid of a timeit function here; it wasn't handling the
-                # argument unpacking correctly? --Scott, 2016-3-7
-                # TODO: put dt back in and change log_entry to relfect that
-                alg_response = alg.initExp(butler, **algs_args_dict)
-                alg_response = Verifier.verify({'returns':alg_response}, {'returns':self.algs_reference_dict['initExp']['returns']})
-                # if not alg_succeed:
-                #     raise Exception('Algorithm {} failed to initialize.'.format(algorithm['alg_label']))
-                
-                log_entry = {'exp_uid':exp_uid, 'alg_label':algorithm['alg_label'], 'task':'initExp', 'duration':-1, 'timestamp':utils.datetimeNow()}
-                self.butler.log('ALG-DURATION', log_entry)
             return '{}', True, ''
         except Exception, error:
             exc_type, exc_value, exc_traceback = sys.exc_info()

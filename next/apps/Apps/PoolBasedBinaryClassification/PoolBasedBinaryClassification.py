@@ -7,23 +7,24 @@ class PoolBasedBinaryClassification(object):
         self.app_id = 'PoolBasedBinaryClassification'
         self.TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager(db)
 
-    def initExp(self, butler, exp_data):
-        if 'targetset' in exp_data['args']['targets'].keys():
-            n  = len(exp_data['args']['targets']['targetset'])
-            self.TargetManager.set_targetset(butler.exp_uid, exp_data['args']['targets']['targetset'])
+    def initExp(self, butler, init_algs, args):
+        utils.debug_print("AA: "+str(args))
+        if 'targetset' in args['targets'].keys():
+            n  = len(args['targets']['targetset'])
+            self.TargetManager.set_targetset(butler.exp_uid, args['targets']['targetset'])
 
-        d = len(exp_data['args']['targets']['targetset'][0]['meta']['features'])
-        exp_data['args']['n'] = n
-        exp_data['args']['d'] = d
-        del exp_data['args']['targets']
+        d = len(args['targets']['targetset'][0]['meta']['features'])
+        args['n'] = n
+        args['d'] = d
+        del args['targets']
 
         alg_data = {}
         algorithm_keys = ['n','failure_probability']
         for key in algorithm_keys:
-            if key in exp_data['args']:
-                alg_data[key]=exp_data['args'][key]
-
-        return exp_data, alg_data
+            if key in args:
+                alg_data[key]=args[key]
+        init_algs(alg_data)
+        return args
 
     def getQuery(self, butler, alg, args):
         alg_response = alg({'participant_uid':args['participant_uid']})

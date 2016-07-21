@@ -7,23 +7,24 @@ class PoolBasedTripletMDS(object):
         self.app_id = 'PoolBasedTripletMDS'
         self.TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager(db)
 
-    def initExp(self, butler, exp_data):
+    def initExp(self, butler, init_algs, args):
         exp_uid = butler.exp_uid
-        if 'targetset' in exp_data['args']['targets'].keys():
-            n  = len(exp_data['args']['targets']['targetset'])
-            self.TargetManager.set_targetset(exp_uid, exp_data['args']['targets']['targetset'])
+        if 'targetset' in args['targets'].keys():
+            n  = len(args['targets']['targetset'])
+            self.TargetManager.set_targetset(exp_uid, args['targets']['targetset'])
         else:
-            n = exp_data['args']['targets']['n']
-        exp_data['args']['n'] = n
-        del exp_data['args']['targets']
+            n = args['targets']['n']
+        args['n'] = n
+        del args['targets']
 
         alg_data = {}
         algorithm_keys = ['n','d','failure_probability']
         for key in algorithm_keys:
-            if key in exp_data['args']:
-                alg_data[key]=exp_data['args'][key]
+            if key in args:
+                alg_data[key]=args[key]
 
-        return exp_data,alg_data
+        init_algs(alg_data)
+        return args
 
     def getQuery(self, butler, alg, args):
         alg_response = alg()
