@@ -1,8 +1,7 @@
 extends: [base.yaml]
 initExp:
   description: Dictionary for initialization of experiment.
-  type: dict
-  values:
+  args:
     app_id:
       values: [PoolBasedTripletMDS]
     args:
@@ -20,7 +19,7 @@ initExp:
               params:
                 optional: true
                 description: Arguments to pass to each individual algorithm.
-                type: anything
+                type: any
         d:
           description: Dimension of embedding.
           type: num
@@ -43,7 +42,7 @@ initExp:
               values: []
           
 processAnswer:
-  values:
+  args:
     args:
       description: Arguments for initExp
       type: dict
@@ -53,7 +52,7 @@ processAnswer:
           type: num
           
 getModel:
-  values:
+  args:
     args:
       values: 
         logging:

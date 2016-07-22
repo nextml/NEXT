@@ -1,7 +1,6 @@
 initExp:
   description: Dictionary for initialization of experiment.
-  type: dict
-  values:
+  args:
     app_id:
       description: The ID of the application
       type: str
@@ -73,8 +72,7 @@ initExp:
 
 getQuery:
   description: 'A request to ask the query: "is {center} more similar to {left} or {right}?"'
-  type: dict
-  values:
+  args:
     exp_uid:
       description: The experiment unique identifier.
       type: str
@@ -91,11 +89,10 @@ getQuery:
           description: whether to send widget html or json response
           type: boolean
           default: false
-          
+
 processAnswer:
   description: reporting back the reward of pulling the arm suggested by getQuery
-  type: dict
-  values:
+  args:
     exp_uid:
       description: The experiment unique identifier.
       type: str
@@ -113,11 +110,10 @@ processAnswer:
         timestamp_answer_received:
           description: The time the answer was recieved. Added by the NEXT Broker and should not be inputted by user.
           type: str
-          
+
 getModel:
   description: Make a prediction from a specific alg
-  type: dict
-  values:
+  args:
     exp_uid:
       description: The experiment unique identifier.
       type: str
@@ -129,11 +125,9 @@ getModel:
           description: alg_label of algorithm making the call
           type: str
 
-
 getStats:
   description: getStats yeahhhh!
-  type: dict
-  values:
+  args:
     exp_uid:
       description: The experiment unique identifier.
       type: str
@@ -156,4 +150,4 @@ getStats:
               description: task
               type: str
               optional: true
-            
+

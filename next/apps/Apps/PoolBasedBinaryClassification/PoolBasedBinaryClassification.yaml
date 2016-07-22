@@ -1,9 +1,7 @@
 extends: [base.yaml]
 
 initExp:
-  description: Dictionary for initialization of experiment.
-  type: dict
-  values:
+  args:
     args:
       description: Arguments for initExp
       type: dict
@@ -28,9 +26,7 @@ initExp:
               values: []
 
 processAnswer:
-  description: reporting back the label of the target given by getQuery
-  type: dict
-  values:
+  args:
     args:
       description: Arguments for initExp
       type: dict
@@ -40,7 +36,7 @@ processAnswer:
           type: num
 
 getModel:
-  values:
+  args:
     args:
       values:
         logging:
