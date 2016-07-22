@@ -88,24 +88,18 @@ def generate_target_blob(AWS_BUCKET_NAME,
                           'alt_description': alt_url}
                 targets.append(target)
         else:
-            # started at 9:30am 2016-05-17
-            f = open('urls-50k-launch-python.csv', 'wa')
             for i, (key, primary_file) in enumerate(target_file_dict.iteritems()):
                 primary_file_name = target_name_dict[key]
                 primary_url = upload_to_S3(bucket,
                                            '{}_{}'.format(prefix,
                                                           primary_file_name),
                                            StringIO(primary_file))
-                if i % 100 == 0 and i != 0:
-                    print('percent done = {}'.format(i / 50e3))
-                f.write(primary_url + '\n')
                 target = {'target_id': '{}_{}'.format(prefix, primary_file_name),
                           'primary_type': primary_type,
                           'primary_description': primary_url,
                           'alt_type': 'text',
                           'alt_description': primary_file_name}
                 targets.append(target)
-            f.close()
     else:
         if experiment.get('image-urls', False) or experiment.get('image-url', False):
             # This is the section where 
