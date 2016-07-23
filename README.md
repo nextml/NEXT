@@ -23,6 +23,10 @@ basic version of our frontend. The AMI is still highly experimental and we give
 no guarantees on it being up to date with the current code.  For more info
 please visit [here](https://github.com/kgjamieson/NEXT-psych).
 
+## Testing
+Run `py.test` from `NEXT/next`. Tests will be run from your local machine but
+will ping an EC2 server to simulate a client.
+
 ### Getting the code
 
 You can download the latest version of NEXT from github with the following
