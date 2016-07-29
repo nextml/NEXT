@@ -15,7 +15,7 @@ import json
 import yaml
 import traceback
 import next.utils as utils
-import next.apps.Verifier as Verifier
+import next.lib.pijemont.verifier as verifier
 import next.constants
 import next.apps.Butler as Butler
 
@@ -34,10 +34,9 @@ class App(object):
         self.myApp = getattr(self.myApp, app_id)
         self.myApp = self.myApp(db)
         self.butler = Butler(self.app_id, self.exp_uid, self.myApp.TargetManager, db, ell)
-        dir, _ = os.path.split(__file__)
-
-        self.reference_dict,app_errs = Verifier.load_doc(os.path.join(dir, "Apps/{}/{}.yaml".format(app_id, app_id)))
-        self.algs_reference_dict,alg_errs = Verifier.load_doc(os.path.join(dir, "Apps/{}/algs/Algs.yaml".format(app_id, app_id)))
+        base_dir, _ = os.path.split(__file__)
+        self.reference_dict,app_errs = verifier.load_doc("Apps/{}/{}.yaml".format(app_id, app_id), base_dir)
+        self.algs_reference_dict,alg_errs = verifier.load_doc("Apps/{}/algs/Algs.yaml".format(app_id, app_id), base_dir)
         if len(app_errs) > 0 or len(alg_errs) > 0:
             raise Exception("App YAML formatting errors: \n{}\n\nAlg YAML formatting errors: \n{}".format(
                 str(app_errs),
@@ -50,9 +49,9 @@ class App(object):
 
     def run_alg(self, butler, alg_label, alg, func_name, alg_args):
         if 'args' in self.algs_reference_dict[func_name]:
-            alg_args = Verifier.verify(alg_args, self.algs_reference_dict[func_name]['args'])
+            alg_args = verifier.verify(alg_args, self.algs_reference_dict[func_name]['args'])
         alg_response, dt = utils.timeit(getattr(alg, func_name))(butler, **alg_args)
-        alg_response = Verifier.verify({'returns':alg_response},
+        alg_response = verifier.verify({'returns':alg_response},
                                        {'returns':self.algs_reference_dict[func_name]['returns']})
         log_entry_durations = {'exp_uid':self.exp_uid,
                                'alg_label':alg_label,
@@ -76,13 +75,13 @@ class App(object):
         alg = utils.get_app_alg(self.app_id, algorithm['alg_id'])
         
         if 'args' in self.algs_reference_dict['initExp']:
-            alg_args = Verifier.verify(alg_args, self.algs_reference_dict['initExp']['args'])
+            alg_args = verifier.verify(alg_args, self.algs_reference_dict['initExp']['args'])
             
         # I got rid of a timeit function here; it wasn't handling the
         # argument unpacking correctly? --Scott, 2016-3-7
         # TODO: put dt back in and change log_entry to relfect that
         alg_response = alg.initExp(butler, **alg_args)
-        alg_response = Verifier.verify({'returns':alg_response}, {'returns':self.algs_reference_dict['initExp']['returns']})
+        alg_response = verifier.verify({'returns':alg_response}, {'returns':self.algs_reference_dict['initExp']['returns']})
         log_entry = {'exp_uid':exp_uid, 'alg_label':algorithm['alg_label'], 'task':'initExp', 'duration':-1, 'timestamp':utils.datetimeNow()}
         self.butler.log('ALG-DURATION', log_entry)
                 
@@ -102,7 +101,7 @@ class App(object):
         try:
             self.helper.ensure_indices(self.app_id,self.butler.db, self.butler.ell)
             args_dict = self.helper.convert_json(args_json)
-            args_dict = Verifier.verify(args_dict, self.reference_dict['initExp']['args'])
+            args_dict = verifier.verify(args_dict, self.reference_dict['initExp']['args'])
             args_dict['exp_uid'] = exp_uid # to get doc from db
             args_dict['start_date'] = utils.datetime2str(utils.datetimeNow())
             self.butler.admin.set(uid=exp_uid,value={'exp_uid': exp_uid, 'app_id':self.app_id, 'start_date':str(utils.datetimeNow())})
@@ -125,7 +124,7 @@ class App(object):
     def getQuery(self, exp_uid, args_json):
         try:
     	    args_dict = self.helper.convert_json(args_json)
-            args_dict = Verifier.verify(args_dict, self.reference_dict['getQuery']['args'])
+            args_dict = verifier.verify(args_dict, self.reference_dict['getQuery']['args'])
             experiment_dict = self.butler.experiment.get()
             alg_list = experiment_dict['args']['alg_list']
             participant_to_algorithm_management = experiment_dict['args']['participant_to_algorithm_management']
@@ -174,7 +173,7 @@ class App(object):
     def processAnswer(self, exp_uid, args_json):
         try:
             args_dict = self.helper.convert_json(args_json)
-            args_dict = Verifier.verify(args_dict, self.reference_dict['processAnswer']['args'])
+            args_dict = verifier.verify(args_dict, self.reference_dict['processAnswer']['args'])
             # Update timing info in query
             query = self.butler.queries.get(uid=args_dict['args']['query_uid'])
             delta_datetime = (utils.str2datetime(args_dict['args'].get('timestamp_answer_received',None)) -
@@ -200,7 +199,7 @@ class App(object):
     def getModel(self, exp_uid, args_json):
         try:
             args_dict = self.helper.convert_json(args_json)
-            args_dict = Verifier.verify(args_dict, self.reference_dict['getModel']['args']) 
+            args_dict = verifier.verify(args_dict, self.reference_dict['getModel']['args']) 
             alg_label = args_dict['args']['alg_label']
             args = self.butler.experiment.get(key='args')
             for algorithm in args['alg_list']:

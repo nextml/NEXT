@@ -1,5 +1,4 @@
 import json, sys, yaml, verifier
-from next.utils import utils
 
 def get_docs(filename,base_path):
     api,errs = verifier.load_doc(filename,base_path)
@@ -17,14 +16,13 @@ def blank_gen(api):
     return {}
 
 def doc_gen(api):
-    utils.debug_print(api)
     return "\n\n".join(["### `{func}({shortargs}) : {shortrets}`\n\n{desc}\n\n#### Arguments:\n{longargs}\n\n#### Returns:\n{longrets}".format(
         func=f,
-        shortargs=", ".join(["" + k for k in (api[f]['args'] if 'args' in api[f] else api[f])]),
-        shortrets=args_summary(api[f]['returns']) if 'returns' in api[f] else "None",
+        shortargs=", ".join(["" + k for k in (api[f]['args'] if 'args' in api[f] else {})]),
+        shortrets=args_summary(api[f]['rets']) if 'rets' in api[f] else "None",
         desc = api[f]['description'] if 'description' in api[f] else "",
-        longargs = "".join(["\n* `" + k + "` = " + args_gen((api[f]['args'] if 'args' in api[f] else api[f]['values'])[k],1) for k in (api[f]['args'] if 'args' in api[f] else api[f]['values'])]),
-        longrets = args_gen(api[f]['returns'],1) if 'returns' in api[f] else "None"
+        longargs = "".join(["\n* `" + k + "` = " + args_gen(api[f]['args'][k],1) for k in (api[f]['args'] if 'args' in api[f] else {})]),
+        longrets = args_gen(api[f]['rets'],1) if 'rets' in api[f] else "None"
     ) for f in api])
 
 def args_summary(api):
@@ -38,8 +36,6 @@ def args_summary(api):
         return api["type"]
 
 def args_gen(api, depth):
-    utils.debug_print("A: "+str(api))
-    #print(api,api['type'])
     indent = "   "*depth
     if(api["type"] == "list"):
         return "List, all of whose elements are as follows:  \n{indent}  * {elements}\n".format(indent=indent, elements=args_gen(api['values'], depth+2))
@@ -53,7 +49,6 @@ def args_gen(api, depth):
                                                                     for k in api['values']]))
                                 
     elif(api["type"] == "tuple"):
-        #print("A",api)
         return "Tuple with the following values:\n{values}\n{indent}".format(
             indent=indent,
             keys="\n".join(["{indent}`{key}`:{value}  {desc}".format(indent=indent + "* ",
@@ -65,13 +60,13 @@ def args_gen(api, depth):
         if("values" in api and len(api['values'])>0):
             return "`"+" | ".join(["\"" + k + "\"" for k in api["values"]])+"`"
         else:
-            return "`string`"
+            return "`string`{}".format(", "+api["description"] if "description" in api else "")
 
     elif(api["type"] in {"num","number"}):
         if("values" in api and len(api['values'])>0):
             return "`"+" | ".join([str(k) for k in api["values"]])+"`"
         else:
-            return "`num`"
+            return "`num`{}".format(", "+api["description"] if "description" in api else "")
     elif(api["type"] == "file"):
         return "`file`"
     elif(api["type"] == "oneof"):
@@ -79,5 +74,3 @@ def args_gen(api, depth):
     else:
         return "`{type}`".format(type=api["type"])
 
-#print_docs(sys.argv[1])
-#print_docs_yaml(sys.argv[1])

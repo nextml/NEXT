@@ -29,9 +29,9 @@ var Pijemont = function(container_form, api_dict, name, target, submit_callback,
     
     var XHR = new XMLHttpRequest();
     XHR.addEventListener("load", function(event) {
-	self.api = (JSON.parse(event.target.responseText).api)[function_name].values;
+	self.api = (JSON.parse(event.target.responseText).api)[function_name];
 	console.log(self.api);
-	self.append(self.root, self.api, self.name);
+	self.append(self.root, self.api.args, self.name);
 	self.root.appendChild(Pijemont.make_node("input",{"type":"submit"},""));
     });
     XHR.addEventListener("error", function(event) {
@@ -44,8 +44,8 @@ var Pijemont = function(container_form, api_dict, name, target, submit_callback,
     }
     else {
 	console.log(api_dict);
-	self.api = (api_dict)[function_name].values;;
-	self.append(self.root, self.api, self.name);
+	self.api = (api_dict)[function_name];
+	self.append(self.root, self.api.args, self.name);
 	self.root.appendChild(Pijemont.make_node("input",{"type":"submit"},""));
     }
 }
