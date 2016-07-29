@@ -17,14 +17,14 @@ for idx,alg_id in enumerate(alg_ids):
   else:
     alg_item['alg_label'] = alg_id    
   alg_item['test_alg_label'] = 'Test'
-  alg_item['params'] = {}
+  #alg_item['params'] = {}
   alg_list.append(alg_item)
 
 # Create common algorithm management settings  
-params = {}
-params['proportions'] = []
+params = []
 for algorithm in alg_list:
-    params['proportions'].append(  { 'alg_label': algorithm['alg_label'] , 'proportion':1./len(alg_list) }  )
+    params += [{'alg_label': algorithm['alg_label'],
+	        'proportion': 1.0 / len(alg_list)}]
 
 algorithm_management_settings = {}
 algorithm_management_settings['mode'] = 'fixed_proportions'
@@ -34,7 +34,7 @@ algorithm_management_settings['params'] = params
 # Create experiment dictionary
 initExp = {}
 initExp['args'] = {}
-initExp['args']['n'] = 30
+#initExp['args']['n'] = 30
 initExp['args']['d'] = 2
 initExp['args']['failure_probability'] = .01
 initExp['args']['participant_to_algorithm_management'] = 'one_to_many' 
@@ -43,8 +43,8 @@ initExp['args']['alg_list'] = alg_list
 initExp['args']['instructions'] = 'Test instructions'
 initExp['args']['debrief'] = 'Test debrief'
 initExp['app_id'] = 'PoolBasedTripletMDS'
-initExp['site_id'] = 'replace this with working site id'
-initExp['site_key'] = 'replace this with working site key'
+#initExp['site_id'] = 'replace this with working site id'
+#initExp['site_key'] = 'replace this with working site key'
 
 
 curr_dir = os.path.dirname(os.path.abspath(__file__))
@@ -57,8 +57,8 @@ experiment_list.append(experiment)
 # Launch the experiment
 host = "localhost:8000"
 print "It's happening"
-exp_uid_list, exp_key_list, widget_key_list = launch_experiment(host, experiment_list)
-print exp_uid_list, exp_key_list, widget_key_list
+exp_uid_list = launch_experiment(host, experiment_list)
+print "Made experiments {}".format(exp_uid_list)
 # Update the cartoon_dueling.html file wit the exp_uid_list and widget_key_list
 # with open('strange_fruit_triplet.html','r') as page:
 #   print "opended file"

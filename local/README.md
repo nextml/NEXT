@@ -1,7 +1,6 @@
 # Running NEXT locally
-
-This has only been tested on Linux. This assumes that all ports are open and
-the all connections can be made.
+We provide this structure to run NEXT locally (which could be necessary if data
+private).
 
 ## Dependencies
 
@@ -13,10 +12,12 @@ docker-compose
 python2.7
 ```
 
-The dependencies can be installed with `sudo sh requirements.sh`. This script
-installs docker (and various docker tools).
-
 It is assumed you have python2.7 by default on linux.
+
+`docker` can be installed via the [Docker install guide]. `docker-compose` can
+be installed via `pip install docker-compose`.
+
+[Docker install guide]:https://docs.docker.com/v1.8/installation/
 
 ## Starting the backend
 
@@ -44,8 +45,16 @@ which assumes the directory `NEXT` is located at `../` when cd'd to `local`.
 
 To set up an experiment, you need the target files hosted somewhere,
 and to have a manifest file consisting of JSON specifying filename:url
-pairs.  For an example, see `/local/strangefruit30.manifest`, which
+pairs.  For an example, see `NEXT/local/strangefruit30.manifest`, which
 assumes the files are served hosted on `example.com:8999`.  
+
+An example is provided in `experiment_triplet.py`.
+
+``` bash
+$ python experiment_triplet.py strangefruit30.manifest
+```
+
+will launch an experiment.
 
 You will also need a python file analogous to the provided example
 `experiment_triplet.py` which sets up the config parameters for the
