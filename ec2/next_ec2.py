@@ -1139,10 +1139,14 @@ def real_main():
         print 'cost ($/hr) \t : \t' + str(instance_info[master_nodes[0].instance_type]['cost_per_hr'])
 
     elif action == "rsync":
-        (master_nodes, slave_nodes) = get_existing_cluster(conn, opts, cluster_name)
-        master = master_nodes[0].public_dns_name
-        rsync_dir(LOCAL_NEXT_PATH, EC2_NEXT_PATH, opts, master)
-        rsync_docker_config(opts, master_nodes, slave_nodes)
+        if cluster_name == "host":
+            master = os.getenv('NEXT_BACKEND_GLOBAL_HOST','localhost')
+            rsync_dir(LOCAL_NEXT_PATH, EC2_NEXT_PATH, opts, master)
+        else:
+            (master_nodes, slave_nodes) = get_existing_cluster(conn, opts, cluster_name)
+            master = master_nodes[0].public_dns_name
+            rsync_dir(LOCAL_NEXT_PATH, EC2_NEXT_PATH, opts, master)
+            rsync_docker_config(opts, master_nodes, slave_nodes)
 
     elif action == "docker_up":
         (master_nodes, slave_nodes) = get_existing_cluster(conn, opts, cluster_name)

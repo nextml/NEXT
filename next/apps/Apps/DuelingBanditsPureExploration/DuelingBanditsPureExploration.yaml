@@ -1,7 +1,6 @@
 initExp:
   description: Dictionary for initialization of experiment.
-  type: dict
-  values:
+  args:
     app_id:
       description: DuelingBanditsPureExploration
       type: str
@@ -97,12 +96,10 @@ initExp:
             targetset:
               description: A target set.
               type: file
-              values: []
 
 getQuery:
   description: 'A request to ask the query: "which do you prefer? The {left} or {right}?'
-  type: dict
-  values:
+  args:
     exp_uid:
       description: The experiment unique identifier.
       type: str
@@ -123,8 +120,7 @@ getQuery:
           
 processAnswer:
   description: reporting back the reward of pulling the arm suggested by getQuery
-  type: dict
-  values:
+  args:
     exp_uid:
       description: The experiment unique identifier.
       type: str
@@ -148,8 +144,7 @@ processAnswer:
           
 getModel:
   description: Make a prediction from a specific alg
-  type: dict
-  values:
+  args:
     exp_uid:
       description: The experiment unique identifier.
       type: str
@@ -167,8 +162,7 @@ getModel:
 
 getStats:
   description: The dashboard displays these stats along with the defaults.
-  type: dict
-  values:
+  args:
     exp_uid:
       description: The experiment unique identifier.
       type: str

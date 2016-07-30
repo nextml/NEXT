@@ -1,7 +1,6 @@
 initExp:
   description: Dictionary for initialization of experiment.
-  type: dict
-  values:
+  args:
     app_id:
       description: CardinalBanditsPureExploration
       type: str
@@ -24,7 +23,13 @@ initExp:
             labels:
               description: List of dictionaries with label and reward keys, (i.e. [{'label':'unfunny','reward':0.},{'label':'somewhat funny','reward':0.5},{'label':'funny','reward':1.}])
               type: list
-              values: []
+              values:
+                type: dict
+                values:
+                  label:
+                    type: str
+                  reward:
+                    type: num
 
         participant_to_algorithm_management:
           description: How many algorithms does one participant see? (i.e., "one-to-many" means one participant sees many different algorithms).
@@ -46,8 +51,7 @@ initExp:
                 description: A name for this algorithm of your choosing.
                 type: str
               params:
-                type: matrix
-                values: []
+                type: any
                 description: algorithm specific parameters.
                 optional: true
 
@@ -119,12 +123,10 @@ initExp:
             targetset:
               description: A target set.
               type: file
-              values: []
 
 getQuery:
   description: 'A request to ask the query: "which do you prefer? The {left} or {right}?'
-  type: dict
-  values:
+  args:
     exp_uid:
       description: The experiment unique identifier.
       type: str
@@ -145,8 +147,7 @@ getQuery:
           
 processAnswer:
   description: reporting back the reward of pulling the arm suggested by getQuery
-  type: dict
-  values:
+  args:
     exp_uid:
       description: The experiment unique identifier.
       type: str
@@ -170,8 +171,7 @@ processAnswer:
           
 getModel:
   description: Make a prediction from a specific alg
-  type: dict
-  values:
+  args:
     exp_uid:
       description: The experiment unique identifier.
       type: str
@@ -189,8 +189,7 @@ getModel:
 
 getStats:
   description: The dashboard displays these stats along with the defaults.
-  type: dict
-  values:
+  args:
     exp_uid:
       description: The experiment unique identifier.
       type: str
