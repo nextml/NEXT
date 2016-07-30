@@ -6,7 +6,7 @@ class CardinalBanditsPureExplorationDashboard(AppDashboard):
     def __init__(self,db,ell):
         AppDashboard.__init__(self,db,ell)
 
-    def most_current_ranking(self,app_id,exp_uid,butler,alg_label):
+    def most_current_ranking(self,app,butler,alg_label):
         """
         Description: Returns a ranking of arms in the form of a list of dictionaries, which is conveneint for downstream applications
 
@@ -22,22 +22,10 @@ class CardinalBanditsPureExplorationDashboard(AppDashboard):
             (int) index : index of target
             (int) ranking : rank (0 to number of targets - 1) representing belief of being best arm
         """
-        next_app = utils.get_app(app_id, exp_uid, self.db, self.ell)
+        #next_app = utils.get_app(app_id, exp_uid, self.db, self.ell)
         # args_out_dict = json.loads(next_app.getModel(exp_uid, json.dumps({'exp_uid':exp_uid, 'args':{'alg_label':alg_label}}))[0])
-        args_in_json = json.dumps({'exp_uid':exp_uid, 'args':{'alg_label':alg_label}})
-        response,dt = utils.timeit(next_app.getModel)(exp_uid, args_in_json)
-        args_out_json,didSucceed,message = response
-        args_out_dict = json.loads(args_out_json)
-
-        meta = args_out_dict.get('meta',{})
-        if 'log_entry_durations' in meta:
-          log_entry_durations = meta['log_entry_durations']
-          log_entry_durations['app_duration'] = dt
-          log_entry_durations['duration_enqueued'] = 0.
-          log_entry_durations['timestamp'] = utils.datetimeNow()
-          butler.ell.log( app_id+':ALG-DURATION', log_entry_durations  )
-        
-        item = args_out_dict['args']
+        args_in_json = json.dumps({'exp_uid':app.exp_uid, 'args':{'alg_label':alg_label}})
+        item = app.getModel(args_in_json)
         return_dict = {}
         return_dict['headers'] = [{'label':'Rank','field':'rank'},
                                   {'label':'Target','field':'index'},

@@ -9,11 +9,9 @@ import numpy.random
 import random
 import next.utils as utils
 from next.apps.Apps.PoolBasedTripletMDS.algs.UncertaintySampling import utilsMDS
-from next.apps.Apps.PoolBasedTripletMDS.Prototype import PoolBasedTripletMDSPrototype
-
 import time
 
-class UncertaintySampling(PoolBasedTripletMDSPrototype):
+class UncertaintySampling:
 
 
   def initExp(self,butler,n,d,failure_probability):

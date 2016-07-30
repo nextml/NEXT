@@ -10,9 +10,7 @@ of an app is verified before creation.
 import os
 import sys
 import numpy
-import numpy.random
 import json
-import yaml
 import traceback
 import next.utils as utils
 import next.apps.Verifier as Verifier
@@ -62,9 +60,7 @@ class App(object):
         butler = Butler(self.app_id, self.exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, alg_label, alg_id)
         alg = utils.get_app_alg(self.app_id, alg_id)
         def alg_wrapper(alg_args={}):
-            #utils.debug_print("{} alg args: {}".format(func_name,alg_args))
             return self.run_alg(butler, alg_label, alg, func_name, alg_args)
-        #utils.debug_print("{} app args: {}".format(func_name,args))
         return getattr(self.myApp, func_name)(self.butler, alg_wrapper, args['args'])
 
     def init_alg(self, exp_uid, algorithm, alg_args):

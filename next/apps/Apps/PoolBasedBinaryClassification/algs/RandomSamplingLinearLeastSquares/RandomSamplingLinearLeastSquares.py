@@ -1,8 +1,7 @@
 import time
 import numpy.random
-from next.apps.Apps.PoolBasedBinaryClassification.Prototype import PoolBasedBinaryClassificationPrototype
 
-class RandomSamplingLinearLeastSquares(PoolBasedBinaryClassificationPrototype):
+class RandomSamplingLinearLeastSquares:
     def initExp(self, butler, n, failure_probability):
         butler.algorithms.set(key='n',value= n)
         butler.algorithms.set(key='delta',value= failure_probability)

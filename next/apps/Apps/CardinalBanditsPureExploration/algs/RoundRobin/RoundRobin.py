@@ -6,9 +6,9 @@ last updated: 12/15/2015
 
 import numpy
 import numpy.random
-from next.apps.Apps.CardinalBanditsPureExploration.Prototype import CardinalBanditsPureExplorationPrototype
 
-class RoundRobin(CardinalBanditsPureExplorationPrototype):
+
+class RoundRobin:
 
   def initExp(self,butler,n,R,failure_probability,params={}):
     butler.algorithms.set(key='n', value=n)

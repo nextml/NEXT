@@ -5,7 +5,6 @@ import os
 import sys
 import time
 import json
-import yaml
 import traceback
 import numpy
 from next.constants import DEBUG_ON
@@ -22,6 +21,27 @@ import next.apps.Verifier as Verifier
 
 Butler = Butler.Butler
 
+class App_Wrapper:
+        def __init__(self, app_id, exp_uid, db, ell):
+                self.next_app = next.utils.get_app(app_id, exp_uid, db, ell)
+                self.butler = Butler(app_id, exp_uid, app.myApp.TargetManager, db, ell)
+
+        def get_model(self, args_in_json):
+                next_app = utils.get_app(app_id, exp_uid, self.db, self.ell)
+                response, dt = next.utils.timeit(next_app.getModel)(exp_uid, args_in_json)
+                args_out_json,didSucceed,message = response
+                args_out_dict = json.loads(args_out_json)
+                meta = args_out_dict.get('meta',{})
+                if 'log_entry_durations' in meta:
+                        log_entry_durations = meta['log_entry_durations']
+                        log_entry_durations['app_duration'] = dt
+                        log_entry_durations['duration_enqueued'] = 0.
+                        log_entry_durations['timestamp'] = utils.datetimeNow()
+                        butler.ell.log( app_id+':ALG-DURATION', log_entry_durations  )
+                self.log_entry_durations = log_entry_durations
+                self.app_dt = dt
+                return args_out_dict['args']
+                
 # Main application task
 def apply(app_id, exp_uid, task_name, args_in_json, enqueue_timestamp):
 	enqueue_datetime = next.utils.str2datetime(enqueue_timestamp)
@@ -65,36 +85,20 @@ def apply_dashboard(app_id, exp_uid, args_in_json, enqueue_timestamp):
         reference_dict = Verifier.load_doc(os.path.join('next/apps', 'Apps/{}/{}.yaml'.format(app_id, app_id)))
         args_dict = Verifier.verify(args_in_json, reference_dict['getStats']['values'])
         stat_id = args_dict['args'].pop('stat_id',None)
-        # myApp
-        app = next.utils.get_app(app_id, exp_uid, db, ell)
-        butler = Butler(app_id, exp_uid, app.myApp.TargetManager, db, ell)
-	# pass it to a method
+
+        app = App_Wrapper(app_id, exp_uid, db, ell)
+        
         dashboard_string = 'next.apps.Apps.' + app_id + '.dashboard.Dashboard'
         dashboard_module = __import__(dashboard_string, fromlist=[''])
         dashboard = getattr(dashboard_module, app_id+'Dashboard')
         dashboard = dashboard(butler.db, butler.ell)
         stats_method = getattr(dashboard, stat_id)
-	response,dt = next.utils.timeit(stats_method)(app_id,
-                                                      exp_uid,
+
+        response,dt = next.utils.timeit(stats_method)(app,
                                                       butler,
                                                       **args_dict['args']['params'])
-        # args_out_json,didSucceed,message = response
-        # args_out_dict = json.loads(args_out_json)
-	# if 'args' in args_out_dict:
-	# 	return_value = (json.dumps(args_out_dict['args']),
-        #                         didSucceed,
-        #                         message)
-	# 	meta = args_out_dict.get('meta',{})
-	# 	if 'log_entry_durations' in meta:
-	# 		log_entry_durations = meta['log_entry_durations']
-	# 		log_entry_durations['app_duration'] = dt
-	# 		log_entry_durations['duration_enqueued'] = time_enqueued
-	# 		log_entry_durations['timestamp'] = next.utils.datetimeNow()
-	# 		ell.log( app_id+':ALG-DURATION', log_entry_durations  )
-	# else:
-	# 	return_value = (args_out_json,didSucceed,message)
         if DEBUG_ON:
-            utils.debug_print('#### Finished Dashboard %s, time_enqueued=%s,  execution_time=%s ####' % (stat_id, time_enqueued, dt), color='white')
+            next.utils.debug_print('#### Finished Dashboard %s, time_enqueued=%s,  execution_time=%s ####' % (stat_id, time_enqueued, dt), color='white')
 	return json.dumps(response), True, ''
 
 

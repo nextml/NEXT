@@ -6,11 +6,10 @@ last updated: 4/22/2015
 import numpy
 import numpy.random
 from next.apps.Apps.PoolBasedTripletMDS.algs.CrowdKernel import utilsCrowdKernel
-from next.apps.Apps.PoolBasedTripletMDS.Prototype import PoolBasedTripletMDSPrototype
 
 import time
 
-class CrowdKernel(PoolBasedTripletMDSPrototype):
+class CrowdKernel:
 
   def initExp(self,butler,n,d,failure_probability):
     X = numpy.random.randn(n,d)*.0001

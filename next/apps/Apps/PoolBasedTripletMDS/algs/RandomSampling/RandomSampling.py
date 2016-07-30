@@ -1,10 +1,9 @@
 import time
 import numpy.random
 from next.apps.Apps.PoolBasedTripletMDS.algs.RandomSampling import utilsMDS
-from next.apps.Apps.PoolBasedTripletMDS.Prototype import PoolBasedTripletMDSPrototype
 import next.utils as utils
 
-class RandomSampling(PoolBasedTripletMDSPrototype):
+class RandomSampling:
   def initExp(self,butler, n, d, failure_probability):
     X = numpy.random.randn(n,d)
     butler.algorithms.set(key='n',value= n)
