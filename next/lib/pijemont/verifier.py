@@ -15,14 +15,13 @@ ANY = {'any','stuff'}
 FILE = {'file'}
 BOOL = {'boolean','bool'}
 
-def load_doc(filename):
+def load_doc(filename,base_path):
     errs = []
-    with open(filename) as f:
+    with open(os.path.join(base_path,filename)) as f:
         ref = yaml.load(f.read())
-        dir, _ = os.path.split(__file__)
         ds = []
         for ext in ref.pop('extends',[]):
-            r,e = load_doc(os.path.join(dir, ext))
+            r,e = load_doc(ext,base_path)
             ds += [r]
             errs += e
         for d in ds:
@@ -48,7 +47,7 @@ def check_format(doc,rets=True):
             if 'args' in doc[x]:
                 errs += check_format_helper({'type':'dict','values':doc[x]['args']},'args/'+x)
             if 'rets' in doc[x]:
-                errs += check_format_helper({'type':'dict','values':doc[x]['rets']},'rets/'+x)
+                errs += check_format_helper(doc[x]['rets'],'rets/'+x)
     else:
         for x in doc:
             errs += check_format_helper(doc[x],x)
@@ -56,6 +55,7 @@ def check_format(doc,rets=True):
 
 def check_format_helper(doc,name):
     errs = []
+    
     if not 'type' in doc:
         errs += ['{}: "type" key missing'.format(name)]
     
