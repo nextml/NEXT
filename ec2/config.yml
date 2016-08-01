@@ -1,0 +1,79 @@
+CELERY_SYNC_WORKER_COUNT:
+  description: number of synchronous celery workers for long running daemon jobs (e.g. model updates)
+  type: int
+  scale: linear
+  min: 1
+  max: 6
+  default: 4
+
+# Asynchronous workers
+CELERY_ON:
+  description: has asynchronous workers handle getQuery and processAnswer requests
+  type: bool
+  default: True
+
+CELERY_ASYNC_WORKER_COUNT:
+  description: number of asynchronous celery workers for fast running jobs (perhaps blocking). Note each worker can have multiple threads!
+  type: int
+  scale: linear
+  min: 1
+  max: 10
+  default: 8
+
+CELERY_THREADS_PER_ASYNC_WORKER:
+  description: number of asynchronous celery workers for fast running jobs (perhaps blocking). Note each worker can have multiple threads!
+  type: int
+  scale: linear
+  min: 1
+  max: 20
+  default: 10
+
+CELERY_ASYNC_WORKER_PREFETCH:
+  description: number of jobs to pull from queue per thread per worker. 0 for no limit
+  type: int
+  scale: log
+  min: 1
+  max: 100
+  default: 1
+
+# Dashboard workers
+CELERY_DASHBOARD_WORKER_COUNT:
+  description: number of asynchronous celery workers for fast running jobs (perhaps blocking). Note each worker can have multiple threads!
+  type: int
+  scale: linear
+  min: 3
+  max: 3
+  default: 3
+
+CELERY_THREADS_PER_DASHBOARD_WORKER:
+  description: number of asynchronous celery workers for fast running jobs (perhaps blocking). Note each worker can have multiple threads!
+  type: int
+  scale: linear
+  min: 2
+  max: 2
+  default: 2
+
+CELERY_DASHBOARD_WORKER_PREFETCH:
+  description: number of jobs to pull from queue per thread per worker. 0 for no limit
+  type: int
+  scale: log
+  min: 1
+  max: 1
+  default: 1
+
+# Webserver config
+NEXT_BACKEND_NUM_GUNICORN_WORKERS:
+  description: number of workers to handle web requests
+  type: int
+  scale: log
+  min: 1
+  max: 100
+  default: 40
+
+NEXT_BACKEND_GUNICORN_WORKER_MAX_REQUESTS:
+  description: number of requests a worker will handle before restarting itself (for grabage collection)
+  type: int
+  scale: log
+  min: 10
+  max: 10000
+  default: 100
