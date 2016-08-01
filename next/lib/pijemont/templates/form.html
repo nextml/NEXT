@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Init</title>
+    <link rel="stylesheet" type="text/css" href="{{base_dir}}/pijemont.css">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script type="text/javascript" src="{{base_dir}}/pijemont.js"></script>
+  </head>
+  <body style='width: 60%; align-content: center; bgcolor: #f00;' class='text-center'>
+    <form enctype="multipart/form-data" id="initExp"></form>
+    <script>
+      var p = new Pijemont(document.getElementById("initExp"), {{api_doc|tojson|safe}},  "the_form", {{submit|tojson|safe}}, function(val){alert(val);}, {{function_name|tojson|safe}});
+    </script>
+    <br><br><br><br><br>
+    <!-- <br><br><br><br><br> -->
+</body></html>
