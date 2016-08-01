@@ -661,13 +661,6 @@ def docker_up(opts, master_nodes, slave_nodes):
     ssh(master, opts, "sudo chmod 777 " + EC2_NEXT_PATH + '/' + 'docker_up.sh')
     ssh(master, opts, 'sudo ' + EC2_NEXT_PATH + '/' + 'docker_up.sh')
 
-def docker_destroy_and_up(opts, master_nodes, slave_nodes):
-    # rsync_docker_config(opts, master_nodes, slave_nodes)
-    master = master_nodes[0].public_dns_name
-
-    ssh(master, opts, "sudo chmod 777 " + EC2_NEXT_PATH + '/' + 'docker_destroy_and_up.sh')
-    ssh(master, opts, 'sudo ' + EC2_NEXT_PATH + '/' + 'docker_destroy_and_up.sh')
-
 
 def docker_login(opts, master_nodes, slave_nodes):
     # rsync_docker_config(opts, master_nodes, slave_nodes)
@@ -761,16 +754,6 @@ def rsync_docker_config(opts, master_nodes, slave_nodes):
 
     with open('./templates/docker_up.sh') as src:
         with open(tmp_dir+'/docker_up.sh', "w") as dest:
-            text = src.read()
-            env_vars = ''
-            for key in master_environment_vars:
-                env_vars += 'export ' + str(key) + '=' + str(master_environment_vars[key]) + '\n'
-            text = text.replace("{{ environment_variables }}",env_vars)
-            dest.write(text)
-            dest.close()
-
-    with open('./templates/docker_destroy_and_up.sh') as src:
-        with open(tmp_dir+'/docker_destroy_and_up.sh', "w") as dest:
             text = src.read()
             env_vars = ''
             for key in master_environment_vars:
@@ -1177,10 +1160,6 @@ def real_main():
     elif action == "docker_up":
         (master_nodes, slave_nodes) = get_existing_cluster(conn, opts, cluster_name)
         docker_up(opts, master_nodes, slave_nodes)
-
-    elif action == "docker_destroy_and_up":
-        (master_nodes, slave_nodes) = get_existing_cluster(conn, opts, cluster_name)
-        docker_destroy_and_up(opts, master_nodes, slave_nodes)
 
     elif action == "docker_login":
         (master_nodes, slave_nodes) = get_existing_cluster(conn, opts, cluster_name)
