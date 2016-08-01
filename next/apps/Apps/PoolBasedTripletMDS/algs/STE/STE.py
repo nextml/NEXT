@@ -8,6 +8,8 @@ import numpy.random
 from next.apps.Apps.PoolBasedTripletMDS.algs.STE import utilsSTE
 from next.apps.Apps.PoolBasedTripletMDS.Prototype import PoolBasedTripletMDSPrototype
 import next.utils as utils
+import random
+import numpy as np
 
 import time
 
@@ -37,7 +39,12 @@ class STE(PoolBasedTripletMDSPrototype):
       butler.algorithms.set(key='num_reported_answers', value=0)
 
     if num_reported_answers < R*n:
-      a = num_reported_answers/R
+      r = random.Random()
+      r.seed(42)
+      idxs = np.arange(n).repeat(R).tolist()
+      r.shuffle(idxs)
+      a = idxs[num_reported_answers]
+
       b = numpy.random.randint(n)
       while b==a:
         b = numpy.random.randint(n)
