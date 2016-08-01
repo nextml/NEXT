@@ -27,6 +27,17 @@ please visit [here](https://github.com/kgjamieson/NEXT-psych).
 Run `py.test` from `NEXT/next`. Tests will be run from your local machine but
 will ping an EC2 server to simulate a client.
 
+Individual files can also be run with `py.test`. Running `py.test test_api.py`
+will only run `test_api.py` and allow relative imports (which allows 
+`from next.utils import timeit`).
+
+`stdout` can be captured with the `-s` flag for `py.test`.
+
+[pytest] is installable with `pip install pytest` and has a strict backwards
+compatibility policy.
+
+[pytest]:http://docs.pytest.org/en/latest/
+
 ### Getting the code
 
 You can download the latest version of NEXT from github with the following
