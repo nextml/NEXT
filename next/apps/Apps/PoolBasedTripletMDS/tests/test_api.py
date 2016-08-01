@@ -6,30 +6,26 @@ import time
 import requests
 from scipy.linalg import norm
 from multiprocessing import Pool
+try:
+    from next.utils import timeit
+except:
+    raise Exception('Must be run under pytest. Example use `cd path/to/test_api.py; '
+                    'py.test test_api.py. Use `py.test -s test_api.py` to '
+                    'view stdout')
 
 
 import os
 HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')+':'+os.environ.get('NEXT_BACKEND_GLOBAL_PORT', '8000')
 
-def test_api(assert_200=False, num_objects=3, desired_dimension=2,
-            total_pulls_per_client=15, num_experiments=1, num_clients=1,
-            delta=0.01):
+def test_api(assert_200=False, num_objects=10, desired_dimension=2,
+            total_pulls_per_client=15, num_experiments=1, num_clients=8):
 
-    #  num_objects = 5
-    #  desired_dimension = 2
     x = numpy.linspace(0,1,num_objects)
     X_true = numpy.vstack([x,x]).transpose()
-    #  total_pulls_per_client = 20
-    #  num_experiments = 1
-    # clients run in simultaneous fashion using multiprocessing library
-    #  num_clients = 5
 
     pool = Pool(processes=num_clients)
-    # input test parameters
-    delta = 0.01
     supported_alg_ids = ['CrowdKernel', 'RandomSampling',
                          'UncertaintySampling', 'ValidationSampling', 'STE']
-    #supported_alg_ids = ['ValidationSampling']
 
     alg_list = []
     for idx, alg_id in enumerate(supported_alg_ids):
@@ -62,7 +58,7 @@ def test_api(assert_200=False, num_objects=3, desired_dimension=2,
     initExp_args_dict['app_id'] = 'PoolBasedTripletMDS'
     initExp_args_dict['args'] = {}
     initExp_args_dict['args']['d'] = desired_dimension
-    initExp_args_dict['args']['failure_probability'] = delta
+    initExp_args_dict['args']['failure_probability'] = 0.01
     initExp_args_dict['args']['participant_to_algorithm_management'] = 'one_to_many' # 'one_to_one'    #optional field
     initExp_args_dict['args']['algorithm_management_settings'] = algorithm_management_settings #optional field
     initExp_args_dict['args']['alg_list'] = alg_list #optional field
@@ -203,29 +199,6 @@ def simulate_one_client( input_args ):
 
 
 
-def timeit(f):
-    """
-    Utility used to time the duration of code execution. This script can be composed with any other script.
-
-    Usage::\n
-        def f(n):
-            return n**n
-
-        def g(n):
-            return n,n**n
-
-        answer0,dt = timeit(f)(3)
-        answer1,answer2,dt = timeit(g)(3)
-    """
-    def timed(*args, **kw):
-        ts = time.time()
-        result = f(*args, **kw)
-        te = time.time()
-        if type(result)==tuple:
-            return result + ((te-ts),)
-        else:
-            return result,(te-ts)
-    return timed
 
 if __name__ == '__main__':
     print HOSTNAME

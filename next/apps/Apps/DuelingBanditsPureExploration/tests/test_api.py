@@ -8,217 +8,174 @@ import requests
 from scipy.linalg import norm
 import time
 from multiprocessing import Pool
-
-
 import os
-HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')+':'+os.environ.get('NEXT_BACKEND_GLOBAL_PORT', '8000')
+import sys
+try:
+    from next.utils import timeit
+except:
+    raise Exception('Must be run under pytest. Example use `cd path/to/test_api.py; '
+                    'py.test test_api.py. Use `py.test -s test_api.py` to '
+                    'view stdout')
 
-def test_api(assert_200=True, num_arms=5, num_clients=5, delta=0.05,
-             total_pulls_per_client=5, num_experiments=1):
+HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost') \
+           + ':' + os.environ.get('NEXT_BACKEND_GLOBAL_PORT', '8000')
 
-  app_id = 'DuelingBanditsPureExploration'
-  #  num_arms = 5
-  true_means = numpy.array(range(num_arms)[::-1])/float(num_arms)
-  #  total_pulls_per_client = 10
+def test_api(assert_200=True, num_arms=15, num_clients=5, delta=0.05,
+             total_pulls_per_client=25, num_experiments=1):
 
-  #  num_experiments = 1
+    app_id = 'DuelingBanditsPureExploration'
+    true_means = numpy.array(range(num_arms)[::-1])/float(num_arms)
+    pool = Pool(processes=num_clients)
+    supported_alg_ids = ['BR_LilUCB', 'BR_Random']
 
-  # clients run in simultaneous fashion using multiprocessing library
-  #  num_clients = 10
+    alg_list = []
+    for i, alg_id in enumerate(supported_alg_ids):
+        alg_item = {}
+        alg_item['alg_id'] = alg_id
+        alg_item['alg_label'] = alg_id+'_'+str(i)
+        alg_list.append(alg_item)
 
-  pool = Pool(processes=num_clients)
+    params = []
+    for algorithm in alg_list:
+        params.append({'alg_label': algorithm['alg_label'], 'proportion':1./len(alg_list)})
+    algorithm_management_settings = {}
+    algorithm_management_settings['mode'] = 'fixed_proportions'
+    algorithm_management_settings['params'] = params
 
-
-  # input test parameters
-  n = num_arms
-  delta = 0.05
-  # supported_alg_ids = ['BR_LilUCB_b2','BR_Random_b2','BR_Thompson_b2']
-  supported_alg_ids = ['BR_LilUCB','BR_Random']
-
-  alg_list = []
-  for i, alg_id in enumerate(supported_alg_ids):
-    alg_item = {}
-    alg_item['alg_id'] = alg_id
-    alg_item['alg_label'] = alg_id+'_'+str(i)
-    #alg_item['params'] = {}
-    alg_list.append(alg_item)
-  params = []
-  #params['proportions'] = []
-  for algorithm in alg_list:
-    params.append(  { 'alg_label': algorithm['alg_label'] , 'proportion':1./len(alg_list) }  )
-  algorithm_management_settings = {}
-  algorithm_management_settings['mode'] = 'fixed_proportions'
-  algorithm_management_settings['params'] = params
-
-  print algorithm_management_settings
-
-
-  #################################################
-  # Test POST Experiment
-  #################################################
-  initExp_args_dict = {}
-  initExp_args_dict['args'] = {}
-
-  initExp_args_dict['args']['targets'] = {'n':n}
-  initExp_args_dict['args']['failure_probability'] = delta
-  initExp_args_dict['args']['participant_to_algorithm_management'] = 'one_to_many' # 'one_to_one'  #optional field
-  initExp_args_dict['args']['algorithm_management_settings'] = algorithm_management_settings #optional field
-  initExp_args_dict['args']['alg_list'] = alg_list #optional field
-  initExp_args_dict['args']['instructions'] = 'You want instructions, here are your test instructions'
-  initExp_args_dict['args']['debrief'] = 'You want a debrief, here is your test debrief'
-  initExp_args_dict['args']['context_type'] = 'text'
-  initExp_args_dict['args']['context'] = 'Boom baby dueling works'
-  initExp_args_dict['app_id'] = app_id
-  initExp_args_dict['site_id'] = 'replace this with working site id'
-  initExp_args_dict['site_key'] = 'replace this with working site key'
-
-  exp_info = []
-  for ell in range(num_experiments):
-    url = "http://"+HOSTNAME+"/api/experiment"
-    response = requests.post(url, json.dumps(initExp_args_dict), headers={'content-type':'application/json'})
-    print "POST initExp response =",response.text, response.status_code
-    if assert_200: assert response.status_code is 200
-    initExp_response_dict = json.loads(response.text)
-
-    exp_uid = initExp_response_dict['exp_uid']
-
-    exp_info.append( {'exp_uid':exp_uid,} )
+    print algorithm_management_settings
 
     #################################################
-    # Test GET Experiment
+    # Test POST Experiment
     #################################################
-    url = "http://"+HOSTNAME+"/api/experiment/"+exp_uid
-    response = requests.get(url)
-    print "GET experiment response =",response.text, response.status_code
-    if assert_200: assert response.status_code is 200
-    initExp_response_dict = json.loads(response.text)
+    initExp_args_dict = {}
+    initExp_args_dict['args'] = {'alg_list': alg_list,
+                                 'algorithm_management_settings': algorithm_management_settings,
+                                 'context': 'Boom baby dueling works',
+                                 'context_type': 'text',
+                                 'debrief': 'You want a debrief, here is your test debrief',
+                                 'failure_probability': 0.05,
+                                 'instructions': 'You want instructions, here are your test instructions',
+                                 'participant_to_algorithm_management': 'one_to_many',
+                                 'targets': {'n': num_arms}}
+
+    initExp_args_dict['app_id'] = app_id
+    initExp_args_dict['site_id'] = 'replace this with working site id'
+    initExp_args_dict['site_key'] = 'replace this with working site key'
+
+    exp_info = []
+    for ell in range(num_experiments):
+        url = "http://"+HOSTNAME+"/api/experiment"
+        response = requests.post(url, json.dumps(initExp_args_dict), headers={'content-type':'application/json'})
+        print "POST initExp response =",response.text, response.status_code
+        if assert_200: assert response.status_code is 200
+        initExp_response_dict = json.loads(response.text)
+
+        exp_uid = initExp_response_dict['exp_uid']
+
+        exp_info.append({'exp_uid':exp_uid,})
+
+        #################################################
+        # Test initExperiment
+        #################################################
+        url = "http://"+HOSTNAME+"/api/experiment/"+exp_uid
+        response = requests.get(url)
+        print "GET experiment response =", response.text, response.status_code
+        if assert_200: assert response.status_code is 200
+        initExp_response_dict = json.loads(response.text)
+
+    ###################################
+    # Generate participants
+    ###################################
+    participants = []
+    pool_args = []
+    for i in range(num_clients):
+        participant_uid = '%030x' % random.randrange(16**30)
+        participants.append(participant_uid)
+
+        experiment = numpy.random.choice(exp_info)
+        exp_uid = experiment['exp_uid']
+        pool_args.append((exp_uid, participant_uid, total_pulls_per_client,
+                          true_means,assert_200))
+
+    results = pool.map(simulate_one_client, pool_args)
+
+    for result in results:
+        print result
 
 
+def simulate_one_client(input_args):
+    exp_uid,participant_uid,total_pulls,true_means,assert_200 = input_args
+    avg_response_time = 1.
 
-  ###################################
-  # Generate participants
-  ###################################
+    getQuery_times = []
+    processAnswer_times = []
+    for t in range(total_pulls):
+        print "        Participant {} had {} total pulls: ".format(participant_uid, t)
 
-  participants = []
-  pool_args = []
-  for i in range(num_clients):
-    participant_uid = '%030x' % random.randrange(16**30)
-    participants.append(participant_uid)
+        #######################################
+        # test POST getQuery #
+        #######################################
+        getQuery_args_dict = {'args': {'participant_uid': participant_uid},
+                              'exp_uid': exp_uid}
 
-    experiment = numpy.random.choice(exp_info)
-    exp_uid = experiment['exp_uid']
-    pool_args.append( (exp_uid,participant_uid,total_pulls_per_client,true_means,assert_200) )
+        url = 'http://'+HOSTNAME+'/api/experiment/getQuery'
+        response,dt = timeit(requests.post)(url, json.dumps(getQuery_args_dict),headers={'content-type':'application/json'})
+        print "POST getQuery response = ", response.text, response.status_code
+        if assert_200: assert response.status_code is 200
+        print "POST getQuery duration = ", dt
+        getQuery_times.append(dt)
 
-  results = pool.map(simulate_one_client, pool_args)
+        query_dict = json.loads(response.text)
+        query_uid = query_dict['query_uid']
+        targets = query_dict['target_indices']
+        left = targets[0]['target']
+        right = targets[1]['target']
 
-  for result in results:
-    print result
+        # generate simulated reward #
+        #############################
+        # sleep for a bit to simulate response time
 
+        ts = time.time()
 
-def simulate_one_client( input_args ):
-  exp_uid,participant_uid,total_pulls,true_means,assert_200 = input_args
-  avg_response_time = 1.
+        time.sleep(avg_response_time*numpy.random.rand())
 
-  getQuery_times = []
-  processAnswer_times = []
-  for t in range(total_pulls):
-    print "    Participant {} had {} total pulls: ".format(participant_uid, t)
+        print left
+        reward_left = true_means[left['target_id']] + numpy.random.randn()*0.5
+        reward_right = true_means[right['target_id']] + numpy.random.randn()*0.5
+        if reward_left > reward_right:
+            target_winner = left
+        else:
+            target_winner = right
 
-    #######################################
-    # test POST getQuery #
-    #######################################
-    getQuery_args_dict = {}
-    getQuery_args_dict['exp_uid'] = exp_uid
-    getQuery_args_dict['args'] = {}
-    # getQuery_args_dict['args']['participant_uid'] = numpy.random.choice(participants)
-    getQuery_args_dict['args']['participant_uid'] = participant_uid
-
-    url = 'http://'+HOSTNAME+'/api/experiment/getQuery'
-    response,dt = timeit(requests.post)(url, json.dumps(getQuery_args_dict),headers={'content-type':'application/json'})
-    print "POST getQuery response = ", response.text, response.status_code
-    if assert_200: assert response.status_code is 200
-    print "POST getQuery duration = ", dt
-    getQuery_times.append(dt)
-    print 
-    
-
-    query_dict = json.loads(response.text)
-    query_uid = query_dict['query_uid']
-    targets = query_dict['target_indices']
-    left  = targets[0]['target']
-    right  = targets[1]['target']
-
-    # generate simulated reward #
-    #############################
-    # sleep for a bit to simulate response time
-
-    ts = time.time()
-
-    time.sleep(  avg_response_time*numpy.random.rand()  )
-
-    print left
-    reward_left = true_means[left['target_id']] + numpy.random.randn()*0.5
-    reward_right = true_means[right['target_id']] + numpy.random.randn()*0.5
-    if reward_left > reward_right:
-      target_winner = left
-    else:
-      target_winner = right
-
-    response_time = time.time() - ts
+        response_time = time.time() - ts
 
 
-    #############################################
-    # test POST processAnswer 
-    #############################################
-    processAnswer_args_dict = {}
-    processAnswer_args_dict["exp_uid"] = exp_uid
-    processAnswer_args_dict["args"] = {}
-    processAnswer_args_dict["args"]["query_uid"] = query_uid
-    processAnswer_args_dict["args"]['target_winner'] = target_winner['target_id']
-    processAnswer_args_dict["args"]['response_time'] = response_time
+        #############################################
+        # test POST processAnswer 
+        #############################################
+        processAnswer_args_dict = {'args': {'query_uid': query_uid,
+                                            'response_time': response_time,
+                                            'target_winner': target_winner["target_id"]},
+                                   'exp_uid': exp_uid}
 
-    url = 'http://'+HOSTNAME+'/api/experiment/processAnswer'
-    print "POST processAnswer args = ", processAnswer_args_dict
-    response,dt = timeit(requests.post)(url, json.dumps(processAnswer_args_dict), headers={'content-type':'application/json'})
-    print "POST processAnswer response", response.text, response.status_code
-    if assert_200: assert response.status_code is 200
-    print "POST processAnswer duration = ", dt
-    processAnswer_times.append(dt)
-    print
-    processAnswer_json_response = eval(response.text)
+        url = 'http://'+HOSTNAME+'/api/experiment/processAnswer'
+        print "POST processAnswer args = ", processAnswer_args_dict
+        response,dt = timeit(requests.post)(url, json.dumps(processAnswer_args_dict), headers={'content-type':'application/json'})
+        print "POST processAnswer response", response.text, response.status_code
+        if assert_200: assert response.status_code is 200
+        print "POST processAnswer duration = ", dt
+        processAnswer_times.append(dt)
+        print
+        processAnswer_json_response = eval(response.text)
 
-  processAnswer_times.sort()
-  getQuery_times.sort()
-  return_str = '%s \n\t getQuery\t : %f (5),    %f (50),    %f (95)\n\t processAnswer\t : %f (5),    %f (50),    %f (95)\n' % (participant_uid,getQuery_times[int(.05*total_pulls)],getQuery_times[int(.50*total_pulls)],getQuery_times[int(.95*total_pulls)],processAnswer_times[int(.05*total_pulls)],processAnswer_times[int(.50*total_pulls)],processAnswer_times[int(.95*total_pulls)])
-  return return_str
+    processAnswer_times.sort()
+    getQuery_times.sort()
+    return_str = '%s \n\t getQuery\t : %f (5),        %f (50),        %f (95)\n\t processAnswer\t : %f (5),        %f (50),        %f (95)\n' % (participant_uid,getQuery_times[int(.05*total_pulls)],getQuery_times[int(.50*total_pulls)],getQuery_times[int(.95*total_pulls)],processAnswer_times[int(.05*total_pulls)],processAnswer_times[int(.50*total_pulls)],processAnswer_times[int(.95*total_pulls)])
+    return return_str
 
-
-def timeit(f):
-  """ 
-  Utility used to time the duration of code execution. This script can be composed with any other script.
-
-  Usage::\n
-    def f(n): 
-      return n**n  
-
-    def g(n): 
-      return n,n**n 
-
-    answer0,dt = timeit(f)(3)
-    answer1,answer2,dt = timeit(g)(3)
-  """
-  def timed(*args, **kw):
-    ts = time.time()
-    result = f(*args, **kw)
-    te = time.time()
-    if type(result)==tuple:
-      return result + ((te-ts),)
-    else:
-      return result,(te-ts)
-  return timed
 
 if __name__ == '__main__':
-  print HOSTNAME
-  test_api()
-  #  test_api(assert_200=True, num_arms=5, num_clients=10, delta=0.05,
-        #  total_pulls_per_client=10, num_experiments=1)
+    print HOSTNAME
+    test_api()
+    #    test_api(assert_200=True, num_arms=5, num_clients=10, delta=0.05,
+                #    total_pulls_per_client=10, num_experiments=1)
