@@ -23,7 +23,7 @@
 
 
 from __future__ import with_statement
-
+import json
 import hashlib
 import logging
 import os
@@ -267,6 +267,8 @@ def parse_args():
         "--bucket", default=None, help="The name (with extension) of unique bucket to list files from. Only has effect on action={listbucket}")
     parser.add_option(
         "--prefix", default=None, help="A prefix to filter files in a bucket with. Only has effect on action={listbucket}")
+    parser.add_option(
+        "--custom-config", type="string",help="Custom Configuration")
 
     (opts, args) = parser.parse_args()
     if len(args) != 2:
@@ -607,6 +609,7 @@ def setup_cluster(conn, master_nodes, slave_nodes, opts, deploy_ssh_key):
 
     print "Start rsync of local next-discovery source code up"
     rsync_dir(LOCAL_NEXT_PATH, EC2_NEXT_PATH, opts, master)
+    rsync_docker_config(opts, master_nodes, slave_nodes)
     print "Done!"
 
     print "Running docker-compose up on master..."
@@ -652,15 +655,22 @@ def setup_next_cluster(master, opts):
 
 
 def docker_up(opts, master_nodes, slave_nodes):
-    rsync_docker_config(opts, master_nodes, slave_nodes)
+    # rsync_docker_config(opts, master_nodes, slave_nodes)
     master = master_nodes[0].public_dns_name
 
     ssh(master, opts, "sudo chmod 777 " + EC2_NEXT_PATH + '/' + 'docker_up.sh')
     ssh(master, opts, 'sudo ' + EC2_NEXT_PATH + '/' + 'docker_up.sh')
 
+def docker_destroy_and_up(opts, master_nodes, slave_nodes):
+    # rsync_docker_config(opts, master_nodes, slave_nodes)
+    master = master_nodes[0].public_dns_name
+
+    ssh(master, opts, "sudo chmod 777 " + EC2_NEXT_PATH + '/' + 'docker_destroy_and_up.sh')
+    ssh(master, opts, 'sudo ' + EC2_NEXT_PATH + '/' + 'docker_destroy_and_up.sh')
+
 
 def docker_login(opts, master_nodes, slave_nodes):
-    rsync_docker_config(opts, master_nodes, slave_nodes)
+    # rsync_docker_config(opts, master_nodes, slave_nodes)
     master = master_nodes[0].public_dns_name
 
     import signal
@@ -717,7 +727,10 @@ def rsync_docker_config(opts, master_nodes, slave_nodes):
     master_num_cpus = instance_info[opts.master_instance_type]['cpu']
     slave_num_cpus = instance_info[opts.instance_type]['cpu']
 
-    git_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD'])[0:-1]
+    try:
+        git_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD'])[0:-1]
+    except:
+        git_hash = 'Unknown'
 
     # Create a temp directory in which we will place all the files to be
     # deployed after we substitue template parameters in them
@@ -732,6 +745,7 @@ def rsync_docker_config(opts, master_nodes, slave_nodes):
         "NEXT_FRONTEND_GLOBAL_HOST":master,
         "NEXT_FRONTEND_GLOBAL_PORT":NEXT_FRONTEND_GLOBAL_PORT,
         "AWS_ACCESS_ID":os.getenv('AWS_ACCESS_KEY_ID'),
+        "AWS_ACCESS_KEY_ID":os.getenv('AWS_ACCESS_KEY_ID'),
         "AWS_SECRET_ACCESS_KEY":os.getenv('AWS_SECRET_ACCESS_KEY'),
         "AWS_BUCKET_NAME":os.getenv('AWS_BUCKET_NAME','next-database-backups')
     }
@@ -755,26 +769,38 @@ def rsync_docker_config(opts, master_nodes, slave_nodes):
             dest.write(text)
             dest.close()
 
+    with open('./templates/docker_destroy_and_up.sh') as src:
+        with open(tmp_dir+'/docker_destroy_and_up.sh', "w") as dest:
+            text = src.read()
+            env_vars = ''
+            for key in master_environment_vars:
+                env_vars += 'export ' + str(key) + '=' + str(master_environment_vars[key]) + '\n'
+            text = text.replace("{{ environment_variables }}",env_vars)
+            dest.write(text)
+            dest.close()
 
-    docker_compose_template_vars = {
-        "CELERY_ON": os.getenv('CELERY_ON',True),
+    docker_compose_template_vars = None
+    if opts.custom_config:
+        docker_compose_template_vars = json.loads(opts.custom_config)
+    else:
+        docker_compose_template_vars = {
+            "CELERY_ON": os.getenv('CELERY_ON',True),
 
-        "CELERY_SYNC_WORKER_COUNT": 6,
+            "CELERY_SYNC_WORKER_COUNT": 4,
 
-        "CELERY_ASYNC_WORKER_COUNT":4,
-        "CELERY_THREADS_PER_ASYNC_WORKER":max(1,int(.25*master_num_cpus)),
-        "CELERY_ASYNC_WORKER_PREFETCH":10,
+            "CELERY_ASYNC_WORKER_COUNT":min(8,2*master_num_cpus),
+            "CELERY_THREADS_PER_ASYNC_WORKER":max(1,int(.25*master_num_cpus)),
+            "CELERY_ASYNC_WORKER_PREFETCH":1,
 
-        "CELERY_DASHBOARD_WORKER_COUNT":1,
-        "CELERY_THREADS_PER_DASHBOARD_WORKER":2,
-        "CELERY_DASHBOARD_WORKER_PREFETCH":1,
+            "CELERY_DASHBOARD_WORKER_COUNT":1,
+            "CELERY_THREADS_PER_DASHBOARD_WORKER":2,
+            "CELERY_DASHBOARD_WORKER_PREFETCH":1,
 
-        "NEXT_BACKEND_NUM_GUNICORN_WORKERS":int(1.6*master_num_cpus+1),
-        "NEXT_BACKEND_GLOBAL_PORT":NEXT_BACKEND_GLOBAL_PORT,
-        "NEXT_FRONTEND_NUM_GUNICORN_WORKERS":int(1),
-        "NEXT_FRONTEND_GLOBAL_PORT":NEXT_FRONTEND_GLOBAL_PORT,
-        "GIT_HASH":git_hash
-    }
+            "NEXT_BACKEND_NUM_GUNICORN_WORKERS":int(master_num_cpus+1),
+            "NEXT_BACKEND_GUNICORN_WORKER_MAX_REQUESTS":100
+        }
+    docker_compose_template_vars["NEXT_BACKEND_GLOBAL_PORT"] = NEXT_BACKEND_GLOBAL_PORT
+    docker_compose_template_vars["GIT_HASH"] = git_hash
     with open('./templates/docker-compose.yml') as src:
         with open(tmp_dir+'/docker-compose.yml', "w") as dest:
             text = src.read()
@@ -1147,6 +1173,10 @@ def real_main():
     elif action == "docker_up":
         (master_nodes, slave_nodes) = get_existing_cluster(conn, opts, cluster_name)
         docker_up(opts, master_nodes, slave_nodes)
+
+    elif action == "docker_destroy_and_up":
+        (master_nodes, slave_nodes) = get_existing_cluster(conn, opts, cluster_name)
+        docker_destroy_and_up(opts, master_nodes, slave_nodes)
 
     elif action == "docker_login":
         (master_nodes, slave_nodes) = get_existing_cluster(conn, opts, cluster_name)
