@@ -191,7 +191,7 @@ class JobBroker:
                         break
                     line = fid.readline()
             ttw += .01
-            print 'Failed to retrieve hostname... trying again in %d seconds' % ttw
+            print 'Failed to retrieve hostname... trying again in %f seconds' % ttw
 
         return self.hostname
     
