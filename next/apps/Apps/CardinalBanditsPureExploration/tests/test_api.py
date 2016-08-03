@@ -18,7 +18,7 @@ app_id = 'CardinalBanditsPureExploration'
 
 
 def test_api(assert_200=True, num_arms=10, total_pulls_per_client=20,
-             num_experiments=1, num_clients=20, total_pulls=10):
+             num_experiments=1, num_clients=40, total_pulls=10):
 
 	#  num_arms = 50
 	true_means = numpy.array(range(num_arms)[::-1])/float(num_arms)
@@ -79,11 +79,12 @@ def test_api(assert_200=True, num_arms=10, total_pulls_per_client=20,
 	for ell in range(num_experiments):
 		url = "http://"+HOSTNAME+"/api/experiment"
 		response = requests.post(url, json.dumps(initExp_args_dict), headers={'content-type':'application/json'})
-		print "POST initExp response =",response.text, response.status_code
+		#  print "POST initExp response =",response.text, response.status_code
 
 		if assert_200:
 				assert response.status_code is 200
 		initExp_response_dict = json.loads(response.text)
+                print("initialized experiment with exp_uid = {}".format(initExp_response_dict['exp_uid']))
 		if 'fail' in initExp_response_dict['meta']['status'].lower():
 				print 'The experiment initialization failed... exiting'
 				sys.exit()
@@ -97,7 +98,7 @@ def test_api(assert_200=True, num_arms=10, total_pulls_per_client=20,
 		#################################################
 		url = "http://"+HOSTNAME+"/api/experiment/"+exp_uid
 		response = requests.get(url)
-		print "GET experiment response =",response.text, response.status_code
+		#  print "GET experiment response =",response.text, response.status_code
 		if assert_200: assert response.status_code is 200
 		initExp_response_dict = json.loads(response.text)
 
@@ -133,11 +134,29 @@ def test_api(assert_200=True, num_arms=10, total_pulls_per_client=20,
         # Test loading the dashboard
         dashboard_url = ("http://" + HOSTNAME + "/dashboard"
                          "/experiment_dashboard/{}/{}".format(exp_uid, app_id))
+        response = requests.get(dashboard_url)
+        if assert_200: assert response.status_code is 200
 
         stats_url = ("http://" + HOSTNAME + "/dashboard"
-                     "/experiment_dashboard/{}/{}".format(exp_uid, app_id))
-        for url in [dashboard_url, stats_url]:
-                response = requests.get(url)
+                     "/get_stats".format(exp_uid, app_id))
+
+        args =  {'exp_uid': exp_uid, 'args': {'params': {'alg_label':
+            supported_alg_ids[0]}}}
+        args =  {'exp_uid': exp_uid, 'args': {'params': {}}}
+        alg_label = alg_list[0]['alg_label']
+        params = {'api_activity_histogram': {},
+          'compute_duration_multiline_plot': {'task': 'getQuery'},
+          'compute_duration_detailed_stacked_area_plot': {'alg_label': alg_label, 'task': 'getQuery'},
+          'response_time_histogram': {'alg_label': alg_label},
+          'network_delay_histogram': {'alg_label': alg_label}}
+        for stat_id in ['api_activity_histogram',
+                        'compute_duration_multiline_plot',
+                        'compute_duration_detailed_stacked_area_plot',
+                        'response_time_histogram',
+                        'network_delay_histogram']:
+                args['args']['params'] = params[stat_id]
+                args['args']['stat_id'] = stat_id
+                response = requests.post(stats_url, json=args)
                 if assert_200: assert response.status_code is 200
 
 	return all_results

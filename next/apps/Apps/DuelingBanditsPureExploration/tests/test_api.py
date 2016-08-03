@@ -15,8 +15,8 @@ import sys
 HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost') \
            + ':' + os.environ.get('NEXT_BACKEND_GLOBAL_PORT', '8000')
 
-def test_api(assert_200=True, num_arms=15, num_clients=5, delta=0.05,
-             total_pulls_per_client=25, num_experiments=1):
+def test_api(assert_200=True, num_arms=15, num_clients=25, delta=0.05,
+             total_pulls_per_client=15, num_experiments=1):
 
     app_id = 'DuelingBanditsPureExploration'
     true_means = numpy.array(range(num_arms)[::-1])/float(num_arms)
@@ -100,12 +100,30 @@ def test_api(assert_200=True, num_arms=15, num_clients=5, delta=0.05,
     # Test loading the dashboard
     dashboard_url = ("http://" + HOSTNAME + "/dashboard"
                      "/experiment_dashboard/{}/{}".format(exp_uid, app_id))
+    response = requests.get(dashboard_url)
+    if assert_200: assert response.status_code is 200
 
     stats_url = ("http://" + HOSTNAME + "/dashboard"
-                 "/experiment_dashboard/{}/{}".format(exp_uid, app_id))
-    for url in [dashboard_url, stats_url]:
-        response = requests.get(url)
-        if assert_200: assert response.status_code is 200
+                 "/get_stats".format(exp_uid, app_id))
+
+    args =  {'exp_uid': exp_uid, 'args': {'params': {'alg_label':
+        supported_alg_ids[0]}}}
+    args =  {'exp_uid': exp_uid, 'args': {'params': {}}}
+    alg_label = alg_list[0]['alg_label']
+    params = {'api_activity_histogram': {},
+      'compute_duration_multiline_plot': {'task': 'getQuery'},
+      'compute_duration_detailed_stacked_area_plot': {'alg_label': alg_label, 'task': 'getQuery'},
+      'response_time_histogram': {'alg_label': alg_label},
+      'network_delay_histogram': {'alg_label': alg_label}}
+    for stat_id in ['api_activity_histogram',
+                    'compute_duration_multiline_plot',
+                    'compute_duration_detailed_stacked_area_plot',
+                    'response_time_histogram',
+                    'network_delay_histogram']:
+            args['args']['params'] = params[stat_id]
+            args['args']['stat_id'] = stat_id
+            response = requests.post(stats_url, json=args)
+            if assert_200: assert response.status_code is 200
 
 
 def simulate_one_client(input_args):
@@ -131,9 +149,9 @@ def simulate_one_client(input_args):
 
         url = 'http://'+HOSTNAME+'/api/experiment/getQuery'
         response,dt = timeit(requests.post)(url, json.dumps(getQuery_args_dict),headers={'content-type':'application/json'})
-        print "POST getQuery response = ", response.text, response.status_code
+        #  print "POST getQuery response = ", response.text, response.status_code
         if assert_200: assert response.status_code is 200
-        print "POST getQuery duration = ", dt
+        #  print "POST getQuery duration = ", dt
         getQuery_times.append(dt)
 
         query_dict = json.loads(response.text)
@@ -153,7 +171,7 @@ def simulate_one_client(input_args):
 
         time.sleep(avg_response_time*numpy.random.rand())
 
-        print left
+        #  print left
         reward_left = true_means[left['target_id']] + numpy.random.randn()*0.5
         reward_right = true_means[right['target_id']] + numpy.random.randn()*0.5
         if reward_left > reward_right:
@@ -173,13 +191,13 @@ def simulate_one_client(input_args):
                                    'exp_uid': exp_uid}
 
         url = 'http://'+HOSTNAME+'/api/experiment/processAnswer'
-        print "POST processAnswer args = ", processAnswer_args_dict
+        #  print "POST processAnswer args = ", processAnswer_args_dict
         response,dt = timeit(requests.post)(url, json.dumps(processAnswer_args_dict), headers={'content-type':'application/json'})
-        print "POST processAnswer response", response.text, response.status_code
+        #  print "POST processAnswer response", response.text, response.status_code
         if assert_200: assert response.status_code is 200
-        print "POST processAnswer duration = ", dt
+        #  print "POST processAnswer duration = ", dt
         processAnswer_times.append(dt)
-        print
+        #  print
         processAnswer_json_response = eval(response.text)
 
     processAnswer_times.sort()

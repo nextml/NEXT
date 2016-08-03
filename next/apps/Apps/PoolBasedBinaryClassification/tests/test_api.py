@@ -13,7 +13,8 @@ HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')+':'+os.enviro
 app_id = 'PoolBasedBinaryClassification'
 
 def test_api(assert_200=True, num_objects=20, desired_dimension=2,
-                        total_pulls_per_client=40, num_experiments=1, num_clients=5):
+                        total_pulls_per_client=10, num_experiments=1,
+                        num_clients=40):
 
     true_weights = numpy.zeros(desired_dimension)
     true_weights[0] = 1.
@@ -110,12 +111,30 @@ def test_api(assert_200=True, num_objects=20, desired_dimension=2,
     # Test loading the dashboard
     dashboard_url = ("http://" + HOSTNAME + "/dashboard"
                      "/experiment_dashboard/{}/{}".format(exp_uid, app_id))
+    response = requests.get(dashboard_url)
+    if assert_200: assert response.status_code is 200
 
     stats_url = ("http://" + HOSTNAME + "/dashboard"
-                 "/experiment_dashboard/{}/{}".format(exp_uid, app_id))
-    for url in [dashboard_url, stats_url]:
-        response = requests.get(url)
-        if assert_200: assert response.status_code is 200
+                 "/get_stats".format(exp_uid, app_id))
+
+    args =  {'exp_uid': exp_uid, 'args': {'params': {'alg_label':
+        supported_alg_ids[0]}}}
+    args =  {'exp_uid': exp_uid, 'args': {'params': {}}}
+    alg_label = alg_list[0]['alg_label']
+    params = {'api_activity_histogram': {},
+      'compute_duration_multiline_plot': {'task': 'getQuery'},
+      'compute_duration_detailed_stacked_area_plot': {'alg_label': alg_label, 'task': 'getQuery'},
+      'response_time_histogram': {'alg_label': alg_label},
+      'network_delay_histogram': {'alg_label': alg_label}}
+    for stat_id in ['api_activity_histogram',
+                    'compute_duration_multiline_plot',
+                    'compute_duration_detailed_stacked_area_plot',
+                    'response_time_histogram',
+                    'network_delay_histogram']:
+            args['args']['params'] = params[stat_id]
+            args['args']['stat_id'] = stat_id
+            response = requests.post(stats_url, json=args)
+            if assert_200: assert response.status_code is 200
 
 def simulate_one_client(input_args):
     exp_uid, participant_uid, total_pulls, true_weights, assert_200 = input_args
@@ -125,11 +144,11 @@ def simulate_one_client(input_args):
     processAnswer_times = []
     for t in range(total_pulls):
 
-        print t, participant_uid
+        print "participant {} had {} pulls".format(participant_uid, t)
         #######################################
         # test POST getQuery #
         #######################################
-        print '\n'*2 + 'Testing POST getQuery...'
+        #  print '\n'*2 + 'Testing POST getQuery...'
         widget = True
         getQuery_args_dict = {'args': {'participant_uid': participant_uid,
                                        'widget': widget},
@@ -137,20 +156,20 @@ def simulate_one_client(input_args):
 
         url = 'http://'+HOSTNAME+'/api/experiment/getQuery'
         response, dt = timeit(requests.post)(url, json.dumps(getQuery_args_dict),headers={'content-type': 'application/json'})
-        print "POST getQuery response = ", response.text, response.status_code
+        #  print "POST getQuery response = ", response.text, response.status_code
         if assert_200: assert response.status_code is 200
-        print "POST getQuery duration = ", dt, "\n"
+        #  print "POST getQuery duration = ", dt, "\n"
         getQuery_times.append(dt)
 
         query_dict = json.loads(response.text)
-        print "query_dict: ", query_dict
-        print(query_dict.keys())
+        #  print "query_dict: ", query_dict
+        #  print(query_dict.keys())
         if widget:
             query_dict = query_dict['args']
         query_uid = query_dict['query_uid']
         target = query_dict['target_indices']
         x = numpy.array(eval(target['primary_description']))
-        print target
+        #  print target
 
         # generate simulated reward #
         #############################
@@ -167,7 +186,7 @@ def simulate_one_client(input_args):
         #############################################
         # test POST processAnswer
         #############################################
-        print '\n'*2 + 'Testing POST processAnswer...'
+        #  print '\n'*2 + 'Testing POST processAnswer...'
         processAnswer_args_dict = {}
         processAnswer_args_dict["exp_uid"] = exp_uid
         processAnswer_args_dict["args"] = {}
@@ -176,11 +195,11 @@ def simulate_one_client(input_args):
         processAnswer_args_dict["args"]['response_time'] = response_time
 
         url = 'http://'+HOSTNAME+'/api/experiment/processAnswer'
-        print "POST processAnswer args = ", processAnswer_args_dict
+        #  print "POST processAnswer args = ", processAnswer_args_dict
         response,dt = timeit(requests.post)(url, json.dumps(processAnswer_args_dict), headers={'content-type':'application/json'})
-        print "POST processAnswer response", response.text, response.status_code
+        #  print "POST processAnswer response", response.text, response.status_code
         if assert_200: assert response.status_code is 200
-        print "POST processAnswer duration = ", dt, "\n"
+        #  print "POST processAnswer duration = ", dt, "\n"
         processAnswer_times.append(dt)
         processAnswer_json_response = eval(response.text)
 
