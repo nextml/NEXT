@@ -9,7 +9,7 @@ Jamieson et al "Sparse Borda Bandits," AISTATS 2015.
 
 import numpy
 import numpy.random
-# from next.apps.Apps.DuelingBanditsPureExploration.Prototype import DuelingBanditsPureExplorationPrototype
+# from apps.DuelingBanditsPureExploration.Prototype import DuelingBanditsPureExplorationPrototype
 import next.utils as utils
 
 class BR_LilUCB:

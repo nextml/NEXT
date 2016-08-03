@@ -71,7 +71,7 @@ def apply_dashboard(app_id, exp_uid, args_in_json, enqueue_timestamp):
         app = next.utils.get_app(app_id, exp_uid, db, ell)
         butler = Butler(app_id, exp_uid, app.myApp.TargetManager, db, ell)
 	# pass it to a method
-        dashboard_string = 'next.apps.Apps.' + app_id + '.dashboard.Dashboard'
+        dashboard_string = 'apps.' + app_id + '.dashboard.Dashboard'
         dashboard_module = __import__(dashboard_string, fromlist=[''])
         dashboard = getattr(dashboard_module, app_id+'Dashboard')
         dashboard = dashboard(butler.db, butler.ell)

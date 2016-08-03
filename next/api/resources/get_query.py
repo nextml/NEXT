@@ -63,7 +63,7 @@ class getQuery(Resource):
             return attach_meta({},meta_error['QueryGenerationError'], backend_error=message)
 
         if render_widget:
-            TEMPLATES_DIRECTORY = 'next/apps/Apps/{}/widgets'.format(resource_manager.get_app_id(exp_uid))
+            TEMPLATES_DIRECTORY = 'apps/{}/widgets'.format(resource_manager.get_app_id(exp_uid))
             env = Environment(loader=FileSystemLoader(TEMPLATES_DIRECTORY))
             template=env.get_template("getQuery_widget.html")
             return {'html':template.render(query=response_dict), 'args':response_dict}, 200, {'Access-Control-Allow-Origin':'*', 'Content-Type':'application/json'}
