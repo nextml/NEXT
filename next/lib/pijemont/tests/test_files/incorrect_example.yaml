@@ -1,6 +1,6 @@
 name: Tests YAML formatting issues
 spec: incorrect_example.yaml
-load_errors: [Exception]
+load_errors: true
 inputs:
   no_type:
     function: no_type

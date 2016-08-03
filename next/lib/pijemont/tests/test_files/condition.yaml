@@ -1,6 +1,6 @@
 name: Test basic example dictionary
 spec: condition.yaml
-load_errors: []
+load_errors: false
 inputs:
   condition_pass1:
     function: test1

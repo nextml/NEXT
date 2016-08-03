@@ -63,7 +63,10 @@ def check_format_helper(doc,name):
     diff = set(doc.keys()) - {'type','description','values','optional','default'}
     if len(diff) > 0:
         errs += ["{}: extra keys in spec: {}".format(name,", ".join(list(diff)))]
-    
+
+    if not 'type' in doc or not 'values' in doc:
+        return errs
+        
     if not doc['type'] in DICT | LIST | TUPLE | ONEOF | NUM | STRING | BOOL | ANY | FILE:
         errs += ['{}: invlid type: {}'.format(name, doc['type'])]
     

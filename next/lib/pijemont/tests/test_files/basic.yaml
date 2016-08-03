@@ -1,6 +1,6 @@
 name: Test basic example dictionary
 spec: example.yaml
-load_errors: []
+load_errors: false
 inputs:
   basic:
     function: excite

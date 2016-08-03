@@ -14,7 +14,6 @@ import json, sys, yaml, os
 from pprint import pprint
 import pytest
 from .. import verifier
-from numpy.testing import assert_raises
 
 def verify_yaml(test_name, test):
     """
@@ -23,11 +22,13 @@ def verify_yaml(test_name, test):
     """
     dir_path = os.path.dirname(os.path.realpath(__file__))
     api, errs = verifier.load_doc(test['spec'], os.path.join(dir_path,'specs/'))
+    if len(errs) > 0:
+        return None, None, errs
     fn = test['inputs'][test_name]['function']
     args = test['inputs'][test_name]['args']
     verified = verifier.verify(args, api[fn]['args'])
     expected_out = test['inputs'][test_name]['verified']
-    return verified, expected_out
+    return verified, expected_out, None
 
 
 def run_test(filename):
@@ -42,12 +43,12 @@ def run_test(filename):
         test = yaml.load(f.read())
     for test_name in test['inputs']:
         print('    {}'.format(test_name))
-        if test['load_errors'] != []:
-            for exception in test['load_errors']:
-                assert_raises(eval(exception), verify_yaml, test)
+        if test['load_errors']:
+            args, out, load_errs = verify_yaml(test_name, test)
+            assert (not load_errs is None) and len(load_errs) > 0
         else:
             try:
-                args, expected_out = verify_yaml(test_name, test)
+                args, expected_out, load_errs = verify_yaml(test_name, test)
                 assert expected_out == args
                 assert (not 'errors' in test['inputs'][test_name]) or test['inputs'][test_name]['errors'] == False
             except:
