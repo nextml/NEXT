@@ -20,7 +20,7 @@ meta_success = {'status':'OK', 'code':200}
 class About(Resource):
     def get(self, app_id=None):
         if app_id:
-            apps_path = 'next/apps/Apps/'
+            apps_path = 'apps/'
             filename = apps_path + '{0}/{0}.yaml'.format(app_id)
 
             info = yaml.load(open(filename, 'rb'))

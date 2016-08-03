@@ -8,8 +8,8 @@ import numpy as np
 import numpy.random
 import random
 import next.utils as utils
-from next.apps.Apps.PoolBasedTripletMDS.algs.UncertaintySampling import utilsMDS
-from next.apps.Apps.PoolBasedTripletMDS.Prototype import PoolBasedTripletMDSPrototype
+from apps.PoolBasedTripletMDS.algs.UncertaintySampling import utilsMDS
+from apps.PoolBasedTripletMDS.Prototype import PoolBasedTripletMDSPrototype
 
 import time
 

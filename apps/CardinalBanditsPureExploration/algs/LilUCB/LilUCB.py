@@ -6,7 +6,7 @@ last updated: 11/13/2015
 
 import numpy
 import numpy.random
-from next.apps.Apps.CardinalBanditsPureExploration.Prototype import CardinalBanditsPureExplorationPrototype
+from apps.CardinalBanditsPureExploration.Prototype import CardinalBanditsPureExplorationPrototype
 
 class LilUCB(CardinalBanditsPureExplorationPrototype):
 

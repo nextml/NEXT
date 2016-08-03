@@ -5,8 +5,8 @@ last updated: 4/22/2015
 """
 import numpy
 import numpy.random
-from next.apps.Apps.PoolBasedTripletMDS.algs.CrowdKernel import utilsCrowdKernel
-from next.apps.Apps.PoolBasedTripletMDS.Prototype import PoolBasedTripletMDSPrototype
+from apps.PoolBasedTripletMDS.algs.CrowdKernel import utilsCrowdKernel
+from apps.PoolBasedTripletMDS.Prototype import PoolBasedTripletMDSPrototype
 
 import time
 

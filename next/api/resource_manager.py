@@ -47,7 +47,7 @@ class ResourceManager:
         """
         return utils.get_supported_apps()
 
-    def get_app_about(self,app_id, apps_dir='next/apps/Apps/'):
+    def get_app_about(self,app_id, apps_dir='apps/'):
         """
         Returns a string description of the app defined by app_id (good for a blurb on a website perhaps)
 
@@ -64,7 +64,7 @@ class ResourceManager:
         info = yaml.load(open(filename, 'rb'))
         return info['initExp']['description']
 
-    def get_app_alg_ids(self,app_id, app_dir='next/apps/Apps/'):
+    def get_app_alg_ids(self,app_id, app_dir='apps/'):
         """
         Returns a list of all implemented alg_id's for a particular app_id
 

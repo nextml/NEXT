@@ -1,7 +1,7 @@
 import time
 import numpy.random
-from next.apps.Apps.PoolBasedTripletMDS.algs.RandomSampling import utilsMDS
-from next.apps.Apps.PoolBasedTripletMDS.Prototype import PoolBasedTripletMDSPrototype
+from apps.PoolBasedTripletMDS.algs.RandomSampling import utilsMDS
+from apps.PoolBasedTripletMDS.Prototype import PoolBasedTripletMDSPrototype
 import next.utils as utils
 
 class RandomSampling(PoolBasedTripletMDSPrototype):

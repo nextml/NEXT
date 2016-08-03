@@ -70,11 +70,11 @@ def get_stats():
     #args_dict = Verifier.verify(args_dict, reference_dict['getStats']['values'])
     #stat_id = args_dict['args'].pop('stat_id',None)
     # myApp
-    #app = utils.get_app(app_id, exp_uid, dba, ell) #__import__('next.apps.Apps.'+app_id, fromlist=[''])
+    #app = utils.get_app(app_id, exp_uid, dba, ell) #__import__('apps.'+app_id, fromlist=[''])
     #butler = Butler.Butler(app_id, exp_uid, app.myApp.TargetManager, dba, ell)
 
     # dashboard
-    #dashboard_string = 'next.apps.Apps.' + app_id + \
+    #dashboard_string = 'apps.' + app_id + \
     #                   '.dashboard.Dashboard'
     #dashboard_module = __import__(dashboard_string, fromlist=[''])
     #dashboard = getattr(dashboard_module, app_id+'Dashboard')
@@ -136,7 +136,7 @@ def experiment_dashboard(exp_uid, app_id):
                                          constants.NEXT_BACKEND_GLOBAL_PORT)
     else:
         host_url = ''
-    env = Environment(loader=ChoiceLoader([PackageLoader('next.apps.Apps.{}'.format(app_id),
+    env = Environment(loader=ChoiceLoader([PackageLoader('apps.{}'.format(app_id),
                                                          'dashboard'),
                                            PackageLoader('next.dashboard',
                                                          'templates')]))

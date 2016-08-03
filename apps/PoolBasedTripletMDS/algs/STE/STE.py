@@ -5,8 +5,8 @@ last updated: 4/22/2015
 """
 import numpy
 import numpy.random
-from next.apps.Apps.PoolBasedTripletMDS.algs.STE import utilsSTE
-from next.apps.Apps.PoolBasedTripletMDS.Prototype import PoolBasedTripletMDSPrototype
+from apps.PoolBasedTripletMDS.algs.STE import utilsSTE
+from apps.PoolBasedTripletMDS.Prototype import PoolBasedTripletMDSPrototype
 import next.utils as utils
 import random
 import numpy as np
