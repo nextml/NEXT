@@ -1,4 +1,5 @@
 import numpy
+import numpy as np
 import numpy.random
 import random
 import json
@@ -10,12 +11,6 @@ import time
 from multiprocessing import Pool
 import os
 import sys
-try:
-    from next.utils import timeit
-except:
-    raise Exception('Must be run under pytest. Example use `cd path/to/test_api.py; '
-                    'py.test test_api.py. Use `py.test -s test_api.py` to '
-                    'view stdout')
 
 HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost') \
            + ':' + os.environ.get('NEXT_BACKEND_GLOBAL_PORT', '8000')
@@ -173,6 +168,20 @@ def simulate_one_client(input_args):
     return_str = '%s \n\t getQuery\t : %f (5),        %f (50),        %f (95)\n\t processAnswer\t : %f (5),        %f (50),        %f (95)\n' % (participant_uid,getQuery_times[int(.05*total_pulls)],getQuery_times[int(.50*total_pulls)],getQuery_times[int(.95*total_pulls)],processAnswer_times[int(.05*total_pulls)],processAnswer_times[int(.50*total_pulls)],processAnswer_times[int(.95*total_pulls)])
     return return_str
 
+
+def timeit(f):
+    """
+    Refer to next.utils.timeit for further documentation
+    """
+    def timed(*args, **kw):
+        ts = time.time()
+        result = f(*args, **kw)
+        te = time.time()
+        if type(result)==tuple:
+            return result + ((te-ts),)
+        else:
+            return result,(te-ts)
+    return timed
 
 if __name__ == '__main__':
     print HOSTNAME

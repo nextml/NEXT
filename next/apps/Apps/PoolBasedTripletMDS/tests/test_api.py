@@ -6,16 +6,10 @@ import time
 import requests
 from scipy.linalg import norm
 from multiprocessing import Pool
-try:
-    from next.utils import timeit
-except:
-    raise Exception('Must be run under pytest. Example use `cd path/to/test_api.py; '
-                    'py.test test_api.py. Use `py.test -s test_api.py` to '
-                    'view stdout')
-
-
 import os
+
 HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')+':'+os.environ.get('NEXT_BACKEND_GLOBAL_PORT', '8000')
+
 
 def test_api(assert_200=False, num_objects=10, desired_dimension=2,
             total_pulls_per_client=15, num_experiments=1, num_clients=8):
@@ -26,6 +20,7 @@ def test_api(assert_200=False, num_objects=10, desired_dimension=2,
     pool = Pool(processes=num_clients)
     supported_alg_ids = ['CrowdKernel', 'RandomSampling',
                          'UncertaintySampling', 'ValidationSampling', 'STE']
+    supported_alg_ids = ['STE']
 
     alg_list = []
     for idx, alg_id in enumerate(supported_alg_ids):
@@ -197,6 +192,20 @@ def simulate_one_client( input_args ):
     return_str = '%s \n\t getQuery\t : %f (5),        %f (50),        %f (95)\n\t processAnswer\t : %f (5),        %f (50),        %f (95)\n' % (participant_uid,getQuery_times[int(.05*total_pulls)],getQuery_times[int(.50*total_pulls)],getQuery_times[int(.95*total_pulls)],processAnswer_times[int(.05*total_pulls)],processAnswer_times[int(.50*total_pulls)],processAnswer_times[int(.95*total_pulls)])
     return return_str
 
+
+def timeit(f):
+    """
+    Refer to next.utils.timeit for further documentation
+    """
+    def timed(*args, **kw):
+        ts = time.time()
+        result = f(*args, **kw)
+        te = time.time()
+        if type(result)==tuple:
+            return result + ((te-ts),)
+        else:
+            return result,(te-ts)
+    return timed
 
 
 
