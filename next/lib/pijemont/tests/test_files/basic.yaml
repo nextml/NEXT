@@ -1,0 +1,38 @@
+name: Test basic example dictionary
+spec: example.yaml
+load_errors: []
+inputs:
+  basic:
+    function: excite
+    args:
+      str: Hello world
+    verified:
+      str: Hello world
+  default:
+    function: contact
+    args:
+      name: Scott
+      phone_number: 651
+    verified:
+      name: Scott
+      phone_number: 651
+      email: junk@gmail.com
+  default_overwrite:
+    function: contact
+    args:
+      name: Scott
+      phone_number: 651
+      email: scott@gmail.com
+    verified:
+      name: Scott
+      phone_number: 651
+      email: scott@gmail.com
+  string_as_num:
+    function: contact
+    args:
+      name: Scott
+      phone_number: "651"
+    verified:
+      name: Scott
+      phone_number: 651
+      email: junk@gmail.com

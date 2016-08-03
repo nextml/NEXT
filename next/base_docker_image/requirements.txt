@@ -9,3 +9,4 @@ boto
 greenlet
 mpld3
 pyyaml
+ply

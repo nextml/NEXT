@@ -1,0 +1,14 @@
+name: Tests YAML formatting issues
+spec: incorrect_example.yaml
+load_errors: [Exception]
+inputs:
+  no_type:
+    function: no_type
+    args:
+      name: Scott
+    verified:
+      str: Hello world
+  missing_args:
+    function: missing_args
+    args:
+      name: Scott

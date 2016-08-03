@@ -45,66 +45,166 @@ The API dictionary is assumed to have its keys being the names of the
 various API functions, and values being "type specification"
 dictionaries, which we will define now.
 
-A "type specification" in Pijemont is a dictionary, which may look
-slightly different depending on the type of argument desired.  It always contains the keys:
+A **type specification** in Pijemont is a dictionary, which may look
+slightly different depending on the type of argument desired.  It may
+contain the following keys:
 
-* `type`: This is a string that specifies what type of object the argument is.  It can be any of `string`, `num`, `multiline`, `list`, `dict`, or `oneof`.
-* `description`: A string that describes what the argument is.  Used for documentation generation and annotating the form.  This key is optional.
+* `type`: This key is required.  Its value is a string that specifies
+  what type of object the argument is.  It can be any of those types
+  listed below.
 
-Many types require more data, which is specified through the further
-keys `values` and `set` in the type specification.  These behave in
-type-specific ways, and we will go through their behaviour in each
-case now:
+* `description`: A string that describes what the argument is.  Used
+  for documentation generation and annotating the form.  This key is
+  optional.
 
-### `num`
+* `optional`: This is either `true` or `false` (default is `false`),
+  and indicates whether this argument may be omitted
 
-* `values`: Should be omitted.  
-* `set`: A default value for the argument that will pre-populate the form object.  May be omitted.
+* `default`: This is the value that will be used for the argument if
+  it is not supplied (even if it is optional, so having both
+  `optional: true` and a `default` value is redundant).
+
+* `values`: If the type is a container for other types (e.g. a list or
+  dictionary), then this will be a further type specification of the
+  contained values.  If the type is a non-container (such as a string
+  or number), then
+
+Some of these keys have type-specific behaviour, which we shall
+describe in each case when we specify the types below.
+
+## Allowed types
+
+### `number | num | float`
+
+#### Notes on type specifier keys:
+
+* `values`: May be a specification of conditions that the numbers must
+  satisfy, such as `values: "(>2 & <3) | <=-1 | (>100 & !=108.6)"` to
+  say that the number must satisfy one of the conditions "between 2
+  and 3", "at most -1", and "bigger than 100 but not equal to 108.6".
+  All symbols can be replaced with letter versions, `gt` for `>`, etc,
+  so this condition could equally have been expressed:
+  `values: "(gt 2 and lt 3) or lteq -1 or (gt 100 and noteq 108.6)"`.
+
+#### HTML form
 
 The form input for this argument will be a numeric input text field.
 
-### `string`
+### `string | str | multiline`
+
+Corresponds to a string input.
+
+#### Notes on type specifier keys:
 
 * `values`: May be absent or may be a list of strings.  
-* `set`: A default string value for the argument that will pre-populate the form object.  May be omitted.
 
-If the `values` key is absent, arbitrary strings are allowed and the
-corresponding form input will be a text field.  If `values` is a list
-of strings, then the input will be a select with each of the list
-items as options.
+#### HTML form
 
-### `multiline`
+If type is `str` or `string`, then if the `values` key is absent,
+arbitrary strings are allowed and the corresponding form input will be
+a text field.  If `values` is a list of strings, then the input will
+be a select with each of the list items as options.
 
-* `values`: Should be omitted.  
-* `set`: A default string value for the argument that will pre-populate the form object.  May be omitted.
+, the HTML form will be a textfield.  If
+`multiline`, it will be a textarea.
 
-The form input for this argument will be a textarea.
+### `boolean | bool`
+
+#### Notes on type specifier keys:
+
+* `values`: Should be omitted.
+
+* `default`: A default boolean value, `true` or `false`.
+
+#### HTML form
+
+In the HTML form, this will show up as a checkbox.
 
 ### `list`
 
-* `values`: Should be a type specifier dictionary describing the type of each list element.  
-* `set`: A list of objects that are valid defaults for the type of the list element.  May be omitted.
+This corresponds to an list argument where all elements are of a
+fixed, specified type.
+
+#### Notes on type specifier keys:
+
+* `values`: Should be a type specifier dictionary describing the type
+  of each list element.
+
+* `default`: A list of objects that are valid defaults for the type of
+  the list element.  May be omitted.
+
+#### HTML form
 
 This will generate the appropriate form for the given type specifier
 dictionary and will allow the user to add or remove these objects from
 the list at will.
 
+### `dict | dictionary | map`
 
-### `dict`
+This corresponds to an dictionary argument with specified keys where
+each corresponding value has a specified type.
 
-* `values`: Should be a dictionary whose keys are strings and whose values are type specifier dictionaries.  
-* `set`: A dictionary of objects whose keys are a subset of the keys in `values` and whose values are valid default values for the corresponding type specifiers.  May be omitted.
+#### Notes on type specifier keys:
+
+* `values`: Should be a dictionary whose keys are strings and whose
+  values are type specifier dictionaries.
+
+* `default`: A dictionary of objects whose keys are a subset of the
+  keys in `values` and whose values are valid default values for the
+  corresponding type specifiers.  May be omitted.
+
+#### HTML form
+
+This will generate, for each key, the appropriate form for the
+corresponding type specifier dictionary.
+
+### `tuple`
+
+This corresponds to a list argument with a fixed number of values,
+each of which is of a specified type (and the types for the different
+values may differ).
+
+#### Notes on type specifier keys:
+
+* `values`: Should be a dictionary whose keys are increasing integers
+  starting from 0, and whose values are type specifier dictionaries.
+
+* `default`: A dictionary of objects whose keys are a subset of the
+  keys in `values` and whose values are valid default values for the
+  corresponding type specifiers.  May be omitted.
+
+#### HTML form
 
 This will generate, for each key, the appropriate form for the
 corresponding type specifier dictionary.
 
 ### `oneof`
 
+This specified multiple named arguments where exactly one of them should be present
+
+#### Notes on type specifier keys:
+
 * `values`: Should be a dictionary whose keys are strings and whose values are type specifier dictionaries.  
-* `set`: A dictionary of objects whose keys are a subset of the keys in `values` and whose values are valid default values for the corresponding type specifiers.  May be omitted.
+* `default`: A dictionary of objects whose keys are a subset of the keys in `values` and whose values are valid default values for the corresponding type specifiers.  May be omitted.
+
+#### HTML form
 
 This will generate, for each key, the appropriate form for the
 corresponding type specifier dictionary, and a radio button allowing
 the user to select which single one of the inputs they wish to
 provide.
 
+### `any | stuff | file`
+
+This corresponds to an input that can be any object and whose value is unchecked
+
+#### Notes on type specifier keys:
+
+* `values`: Should be omitted
+* `default`: May be any object
+
+#### HTML form
+
+For `any` or `stuff` types, this will generate a textarea form
+element.  For `file` types, this will generate a file upload widget in
+the HTML form that will send the base64-encoded file contents.  

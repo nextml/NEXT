@@ -1,0 +1,20 @@
+test1:
+  args:
+    thing:
+      type: number
+      values: "> 1 & < 5"
+test2:
+  args:
+    thing:
+      type: number
+      values: "(> 1.1 & <= 5 ) | >= 100"
+test3:
+  args:
+    thing:
+      type: number
+      values: "! (> -3.14 & <= 3.14 ) & ! >= 100"
+test4:
+  args:
+    thing:
+      type: number
+      values: "not (gt -3.14 and lteq 3.14 ) & not gteq 100"

@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Demo</title>
+    <link rel="stylesheet" type="text/css" href="pijemont.css">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script type="text/javascript" src="pijemont.js"></script>
+  </head>
+  <body>
+    <form enctype="multipart/form-data" id="demo"></form>
+    <script>
+      var p = new Pijemont(document.getElementById("demo"), {"api":
+      {"initExp":
+      {"values":
+      {"args":
+      {"values":
+      {"participant_to_algorithm_management":
+      {"values": ["one-to-one", "one-to-many"], "type": 
+      "string", "description": "How particpants are routed to algorithms."
+      },
+      "alg_list":
+      {"values":
+      {"values":
+      {"alg_label":
+      {"type": "string", "description": "A name for this algorithm of your choosing."
+      }, 
+      "alg_id":
+      {"values": ["CrowdKernel", "UncertaintySampling", "STE", "RandomSampling"], "type": "string", "description": "A supported algorithm type in the system."
+      },
+      "test_alg_label": {"type": "string", "description": "Which algorithm to test against."
+      }
+      }, "type": "dict"
+      }, "type": "list", "description": "A list of algorithms you plan to use in this experiment."
+      }, "algorithm_management_settings": 
+      {"values":
+      {"params":
+      {"values":
+      {"proportions":
+      {"values":
+      {"values":
+      {"alg_label":
+      {"type": "string", "description": "An alg label, matching one of the ones declared in alg_list."
+      },
+      "proportion": 
+      {"type": "num", "description": "Proportion of queries to give to this algorithm."
+      }
+      },
+      "type": "dict"
+      },
+      "type": "list", "description": "List of proportions per app  type."
+      }
+      },
+      "type": "dict",  "description": ""
+      },
+      "mode":
+      {"values": ["fixed_proportions"], "type": "string",
+      "description": ""
+      }
+      },
+      "type": "dict", "description": ""
+      },
+      "d":
+      {"type": "num", "description": "Dimension of embedding."
+      }, 
+      "n":
+      {"type": "num", "description": "Number of items."
+      }
+      },
+      "type": "dict", "description": "Arguments for initExp"
+      },
+      "app_id":
+      {"values": ["PoolBasedTripletMDS"], "type": "string", "description": 
+      "PoolBasedTripletMDS"
+      }
+      },
+      "type": "dict", "description": "Dictionary for initialization of experiment."
+      },
+      "getQuery":
+      {"values":
+      {"exp_uid":
+      {"type": "string", "description": "Experiment uid."
+      }, 
+      "exp_key":
+      {"type": "string", "description": "Experiment key."
+      },
+      "args":
+      {"values":
+      {"participant_uid":
+      {"type": "string", "description": "unique identifier of session for a participant answering questions, if key non-existant particpant_uid is assigned as exp_uid."
+      }
+      },
+      "type": "dict", "description": "Arguments to pass  getQuery"
+      }
+      },
+      "type": "dict", "description": "[optional] A request to determine which query to pose to the user"
+      },
+      "processAnswer":
+      {"values":
+      {"exp_uid":
+      {"type": "string", "description": "Experiment  uid."
+      },
+      "exp_key":
+      {"type": "string", "description": "Experiment key."
+      }, "args":
+      {"values":
+      {"query_uid":
+      {"type": "string", "description": "Unique identifier of query"
+      }
+      },
+      "type": "dict", 
+      "description": "Arguments to pass processAnswer"
+      }
+      },
+      "type": "dict", "description": "Report back the reward of pulling the arm suggested by getQuery"
+      }
+      },
+      "meta": {"status": "OK", "code": 200}
+      }, 
+      "the_form", "/submit", function(val){ window.location = val; }, "initExp");
+    </script>
+</body></html>

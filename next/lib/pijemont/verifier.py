@@ -3,6 +3,7 @@ import random
 import traceback
 import sys
 import os
+from .condition import condition_parser
 
 DICT = {'dict','dictionary','map'}
 LIST = {'list'}
@@ -108,11 +109,11 @@ def verify(input_dict, reference_dict):
         raise Exception("Failed to verify: {}".format(messages))
       else:
         return input_dict
-    except Exception, error:
+    except Exception as error:
       exc_type, exc_value, exc_traceback = sys.exc_info()
       print("Exception: {} {}".format(error, traceback.format_exc()))
       traceback.print_tb(exc_traceback)
-      raise Exception(error)
+      raise Exception(error.args[0])
 
 def verify_helper(name, input_element, reference_dict):
     """
@@ -169,14 +170,23 @@ def verify_helper(name, input_element, reference_dict):
             ans += [{"name":name, "message":"invalid boolean"}]
 
     elif reference_dict['type'] in NUM:
-        if not isinstance(input_element, (int, long, float)):
+        ok = True
+        if not isinstance(input_element, (int, float, long)):
             if isinstance(input_element, (str, unicode)):
                 try:
                     input_element = float(input_element)
                 except:
                     ans += [{"name":name, "message":"invalid number"}]
+                    ok = False
             else:
                 ans += [{"name":name, "message":"invalid number"}]
+                ok = False
+        if ok:
+            if 'values' in reference_dict:
+                try:
+                    condition_parser().parse("{} {}".format(str(input_element),str(reference_dict['values'])))
+                except Exception as exc:
+                    ans += [{"name":name, "message":str(exc)}]
 
     elif reference_dict['type'] in STRING:
         if not isinstance(input_element, (str, unicode)):
