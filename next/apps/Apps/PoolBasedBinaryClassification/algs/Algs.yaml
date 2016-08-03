@@ -6,7 +6,7 @@ initExp:
     failure_probability:
       type: num
       description:
-  returns:
+  rets:
     type: bool
     description: A boolean indiciating if the algorithm succeeded or failed.
     values: true
@@ -17,7 +17,7 @@ getQuery:
       type: str
       description: participant unique identifier. Use the butler to pull out more information about the participant
 
-  returns:
+  rets:
     type: num
     description: The index of the target to ask about
 
@@ -29,13 +29,13 @@ processAnswer:
     target_index:
       type: num
       description:
-  returns:
+  rets:
     description: Indicates if the alg succeeded
     type: bool
     values: true
 
 getModel:
-  returns:
+  rets:
     type: dict
     description: Update the model that helps getQuery
     values:

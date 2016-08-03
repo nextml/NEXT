@@ -9,17 +9,17 @@ initExp:
     failure_probability:
       type: num
       description:
-  returns:
+  rets:
     type: bool
     description: Did initExp succeed?
-    value: true
+    values: true
 
 getQuery:
   args:
     participant_uid:
       type: string
       description: ID of the participant answering the query
-  returns:
+  rets:
     description: index
     type: num
     
@@ -31,13 +31,13 @@ processAnswer:
       target_reward: 
         description: The reward value to assign to the target
         type: num
-    returns:
+    rets:
       type: bool
       description: A boolean indicating success.
       values: true
 
 getModel:
-  returns:
+  rets:
     type: tuple
     values:
       0:

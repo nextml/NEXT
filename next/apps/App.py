@@ -51,15 +51,15 @@ class App(object):
         if 'args' in self.algs_reference_dict[func_name]:
             alg_args = verifier.verify(alg_args, self.algs_reference_dict[func_name]['args'])
         alg_response, dt = utils.timeit(getattr(alg, func_name))(butler, **alg_args)
-        alg_response = verifier.verify({'returns':alg_response},
-                                       {'returns':self.algs_reference_dict[func_name]['returns']})
+        alg_response = verifier.verify({'rets':alg_response},
+                                       {'rets':self.algs_reference_dict[func_name]['rets']})
         log_entry_durations = {'exp_uid':self.exp_uid,
                                'alg_label':alg_label,
                                'task':func_name,
                                'duration':dt}
         log_entry_durations.update(butler.algorithms.getDurations())
         self.log_entry_durations = log_entry_durations
-        return alg_response['returns']
+        return alg_response['rets']
 
     def call_app_fn(self, alg_label, alg_id, func_name, args):
         butler = Butler(self.app_id, self.exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, alg_label, alg_id)
@@ -81,7 +81,7 @@ class App(object):
         # argument unpacking correctly? --Scott, 2016-3-7
         # TODO: put dt back in and change log_entry to relfect that
         alg_response = alg.initExp(butler, **alg_args)
-        alg_response = verifier.verify({'returns':alg_response}, {'returns':self.algs_reference_dict['initExp']['returns']})
+        alg_response = verifier.verify({'rets':alg_response}, {'rets':self.algs_reference_dict['initExp']['rets']})
         log_entry = {'exp_uid':exp_uid, 'alg_label':algorithm['alg_label'], 'task':'initExp', 'duration':-1, 'timestamp':utils.datetimeNow()}
         self.butler.log('ALG-DURATION', log_entry)
                 
