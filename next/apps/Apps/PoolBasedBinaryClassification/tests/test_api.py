@@ -10,6 +10,7 @@ from multiprocessing import Pool
 
 import os
 HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')+':'+os.environ.get('NEXT_BACKEND_GLOBAL_PORT', '8000')
+app_id = 'PoolBasedBinaryClassification'
 
 def test_api(assert_200=True, num_objects=20, desired_dimension=2,
                         total_pulls_per_client=40, num_experiments=1, num_clients=5):
@@ -106,6 +107,15 @@ def test_api(assert_200=True, num_objects=20, desired_dimension=2,
     for result in results:
         print result
 
+    # Test loading the dashboard
+    dashboard_url = ("http://" + HOSTNAME + "/dashboard"
+                     "/experiment_dashboard/{}/{}".format(exp_uid, app_id))
+
+    stats_url = ("http://" + HOSTNAME + "/dashboard"
+                 "/experiment_dashboard/{}/{}".format(exp_uid, app_id))
+    for url in [dashboard_url, stats_url]:
+        response = requests.get(url)
+        if assert_200: assert response.status_code is 200
 
 def simulate_one_client(input_args):
     exp_uid, participant_uid, total_pulls, true_weights, assert_200 = input_args
@@ -120,10 +130,10 @@ def simulate_one_client(input_args):
         # test POST getQuery #
         #######################################
         print '\n'*2 + 'Testing POST getQuery...'
-        getQuery_args_dict = {}
-        getQuery_args_dict['exp_uid'] = exp_uid
-        getQuery_args_dict['args'] = {}
-        getQuery_args_dict['args']['participant_uid'] = participant_uid
+        widget = True
+        getQuery_args_dict = {'args': {'participant_uid': participant_uid,
+                                       'widget': widget},
+                              'exp_uid': exp_uid}
 
         url = 'http://'+HOSTNAME+'/api/experiment/getQuery'
         response, dt = timeit(requests.post)(url, json.dumps(getQuery_args_dict),headers={'content-type': 'application/json'})
@@ -135,6 +145,8 @@ def simulate_one_client(input_args):
         query_dict = json.loads(response.text)
         print "query_dict: ", query_dict
         print(query_dict.keys())
+        if widget:
+            query_dict = query_dict['args']
         query_uid = query_dict['query_uid']
         target = query_dict['target_indices']
         x = numpy.array(eval(target['primary_description']))

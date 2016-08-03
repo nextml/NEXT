@@ -97,6 +97,16 @@ def test_api(assert_200=True, num_arms=15, num_clients=5, delta=0.05,
     for result in results:
         print result
 
+    # Test loading the dashboard
+    dashboard_url = ("http://" + HOSTNAME + "/dashboard"
+                     "/experiment_dashboard/{}/{}".format(exp_uid, app_id))
+
+    stats_url = ("http://" + HOSTNAME + "/dashboard"
+                 "/experiment_dashboard/{}/{}".format(exp_uid, app_id))
+    for url in [dashboard_url, stats_url]:
+        response = requests.get(url)
+        if assert_200: assert response.status_code is 200
+
 
 def simulate_one_client(input_args):
     exp_uid,participant_uid,total_pulls,true_means,assert_200 = input_args
@@ -110,7 +120,13 @@ def simulate_one_client(input_args):
         #######################################
         # test POST getQuery #
         #######################################
-        getQuery_args_dict = {'args': {'participant_uid': participant_uid},
+        #  getQuery_args_dict = {'args': {'participant_uid': participant_uid},
+                              #  'exp_uid': exp_uid}
+
+        # return a widget 1/5 of the time (normally, use HTML)
+        widget = random.choice([True] + 4*[False])
+        getQuery_args_dict = {'args': {'participant_uid': participant_uid,
+                                       'widget': widget},
                               'exp_uid': exp_uid}
 
         url = 'http://'+HOSTNAME+'/api/experiment/getQuery'
@@ -121,8 +137,11 @@ def simulate_one_client(input_args):
         getQuery_times.append(dt)
 
         query_dict = json.loads(response.text)
+        if widget:
+            query_dict = query_dict['args']
         query_uid = query_dict['query_uid']
         targets = query_dict['target_indices']
+
         left = targets[0]['target']
         right = targets[1]['target']
 

@@ -14,12 +14,12 @@ import sys
 import os
 HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost') + \
 					 ':'+os.environ.get('NEXT_BACKEND_GLOBAL_PORT', '8000')
+app_id = 'CardinalBanditsPureExploration'
 
 
-def test_api(assert_200=True, num_arms=5000, total_pulls_per_client=20,
-						 num_experiments=1, num_clients=100, total_pulls=1000):
+def test_api(assert_200=True, num_arms=10, total_pulls_per_client=20,
+             num_experiments=1, num_clients=20, total_pulls=10):
 
-	app_id = 'CardinalBanditsPureExploration'
 	#  num_arms = 50
 	true_means = numpy.array(range(num_arms)[::-1])/float(num_arms)
 	#  total_pulls_per_client = 100
@@ -129,6 +129,17 @@ def test_api(assert_200=True, num_arms=5000, total_pulls_per_client=20,
 	all_results = []
 	for result in results:
 		all_results.extend(result[0])
+
+        # Test loading the dashboard
+        dashboard_url = ("http://" + HOSTNAME + "/dashboard"
+                         "/experiment_dashboard/{}/{}".format(exp_uid, app_id))
+
+        stats_url = ("http://" + HOSTNAME + "/dashboard"
+                     "/experiment_dashboard/{}/{}".format(exp_uid, app_id))
+        for url in [dashboard_url, stats_url]:
+                response = requests.get(url)
+                if assert_200: assert response.status_code is 200
+
 	return all_results
 
 
@@ -156,9 +167,11 @@ def simulate_one_client(input_args):
 			#######################################
 			# test POST getQuery #
 			#######################################
-			getQuery_args_dict = {}
-			getQuery_args_dict['exp_uid'] = exp_uid
-			getQuery_args_dict['args'] = {}
+                        widget = random.choice([True] + 4*[False])
+                        getQuery_args_dict = {'exp_uid': exp_uid,
+                                              'args': {'participant_uid':
+                                                  participant_uid,
+                                                       'widget': widget}}
 			# getQuery_args_dict['args']['participant_uid'] = numpy.random.choice(participants)
 			getQuery_args_dict['args']['participant_uid'] = participant_uid
 
@@ -172,6 +185,8 @@ def simulate_one_client(input_args):
 			
 
 			query_dict = json.loads(response.text)
+                        if widget:
+                                query_dict = query_dict['args']
 			query_uid = query_dict['query_uid']
 			targets = query_dict['target_indices']
 			target_index = targets[0]['target']['target_id']
@@ -224,7 +239,10 @@ def simulate_one_client(input_args):
 	processAnswer_times.sort()
 	getQuery_times.sort()
 	print '%s \n\t getQuery\t : %f (5),    %f (50),    %f (95)\n\t processAnswer\t : %f (5),    %f (50),    %f (95)\n' % (participant_uid,getQuery_times[int(.05*len(getQuery_times))],getQuery_times[int(.50*len(getQuery_times))],getQuery_times[int(.95*len(getQuery_times))],processAnswer_times[int(.05*len(processAnswer_times))],processAnswer_times[int(.50*len(processAnswer_times))],processAnswer_times[int(.95*len(processAnswer_times))])
+
 	return getQuery_times,processAnswer_times
+
+
 
 
 def timeit(f):
