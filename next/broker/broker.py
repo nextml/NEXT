@@ -190,8 +190,8 @@ class JobBroker:
                         print 'Hostname = %s  from /etc/hosts' % self.hostname 
                         break
                     line = fid.readline()
-            ttw += 1
-            print 'Failed to retrieve hostname... trying again in %d seconds' % ttw
+            ttw += .01
+            print 'Failed to retrieve hostname... trying again in %f seconds' % ttw
 
         return self.hostname
     

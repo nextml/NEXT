@@ -1,0 +1,24 @@
+contact:
+  args:
+    name:
+      type: string
+      description: Your full name
+    phone_number:
+      type: number
+      description: Your phone number, including country code and any area codes
+    email:
+      type: str
+      optional: true
+      default: junk@gmail.com
+  rets:
+    type: string
+    default: Hello
+    description: What they say
+excite:
+  args:
+    str:
+      type: string
+      description: A message
+  rets:
+    type: string
+    description: An excited message

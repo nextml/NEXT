@@ -1,30 +1,36 @@
+# PoolBasedBinaryClassification is a simple implementation of an active classification task. 
 extends: [base.yaml]
-
 initExp:
   args:
     args:
-      description: Arguments for initExp
-      type: dict
       values:
         failure_probability:
-          description: Confidence of result.
+          description: The maximum probability of an algorithm failing to meet its requirements (e.g. correctness)
           type: num
         alg_list:
           values:
             values:
+              alg_id:
+                description: Supported algorithm types for PoolBasedTripletMDS.
+                values: [RandomSamplingLinearLeastSquares]
               test_alg_label:
-                description: Which algorithm to test against.
+                description: alg_label of the algorithm whose collected labels to use as a test set when validating this algorithm. A resulting plot of test-error on points is available on the dashboard.
                 type: str
-
         targets:
-          description: targets
-          type: oneof
           values:
-            targetset:
-              description: A target set.
-              type: file
-              values: []
+            targetset:      
+              values: 
+                values:
+                  meta:
+                    type: dict
+                    values:
+                      features: 
+                        description: A feature vector for this item. 
+                        type: list
+                        values: 
+                          type: num
 
+                
 processAnswer:
   args:
     args:
@@ -35,11 +41,3 @@ processAnswer:
           description: The label in {-1,1} provided by participant of the target.
           type: num
 
-getModel:
-  args:
-    args:
-      values:
-        logging:
-          description: whether you want this logged in app_id:APP-EVALUATION
-          type: boolean
-          default: false

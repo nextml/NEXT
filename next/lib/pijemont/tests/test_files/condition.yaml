@@ -1,0 +1,92 @@
+name: Test basic example dictionary
+spec: condition.yaml
+load_errors: false
+inputs:
+  condition_pass1:
+    function: test1
+    args:
+      thing: 3.1
+    verified:
+      thing: 3.1
+  condition_pass2:
+    function: test1
+    args:
+      thing: 4.999
+    verified:
+      thing: 4.999
+  condition_pass3:
+    function: test2
+    args:
+      thing: 5
+    verified:
+      thing: 5
+  condition_pass4:
+    function: test2
+    args:
+      thing: 4999999
+    verified:
+      thing: 4999999
+  condition_pass5:
+    function: test3
+    args:
+      thing: -3.14
+    verified:
+      thing: -3.14
+  condition_pass6:
+    function: test3
+    args:
+      thing: 99
+    verified:
+      thing: 99
+  condition_pass7:
+    function: test4
+    args:
+      thing: -3.14
+    verified:
+      thing: -3.14
+  condition_pass8:
+    function: test4
+    args:
+      thing: 99
+    verified:
+      thing: 99
+  condition_fail1:
+    function: test1
+    args:
+      thing: 6
+    errors: true
+  condition_fail2:
+    function: test1
+    args:
+      thing: -1
+    errors: true
+  condition_fail3:
+    function: test2
+    args:
+      thing: 1
+    errors: true
+  condition_fail4:
+    function: test2
+    args:
+      thing: 99
+    errors: true
+  condition_fail5:
+    function: test3
+    args:
+      thing: 100
+    errors: true
+  condition_fail6:
+    function: test3
+    args:
+      thing: 3.14
+    errors: true
+  condition_fail7:
+    function: test4
+    args:
+      thing: 100
+    errors: true
+  condition_fail8:
+    function: test4
+    args:
+      thing: 3.14
+    errors: true

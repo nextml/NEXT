@@ -10,7 +10,7 @@ initExp:
       description: Params.
       type: any
       optional: true
-  returns:
+  rets:
     type: bool
     description: A boolean indicating success.
     values: true
@@ -20,7 +20,7 @@ getQuery:
     participant_uid:
       type: string
       description: ID of the participant answering the query
-  returns:
+  rets:
     type: list
     description: indices of stuff
     values:
@@ -40,13 +40,13 @@ processAnswer:
       winner_id:
         description: Winner ID
         type: num
-    returns:
+    rets:
       type: bool
       description: A boolean indicating success.
       values: true
 
 getModel:
-  returns:
+  rets:
     type: tuple
     values:
       0:

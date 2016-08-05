@@ -1,0 +1,8 @@
+no_type:
+  args:
+    name:
+      description: Your full name
+missing_args:
+  name: this
+  type: str
+  description: Something something something

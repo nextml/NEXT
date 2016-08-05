@@ -1,5 +1,5 @@
 # Base input json dictionaries for initExp, getQuery, processAnswer, getModel, and getStats API functions all App level dictionaries inherit from these.
-# Inherited yaml files can overwrite the specifications given here.
+# Inherited yaml files can overwrite/inherit the specifications given here.
 initExp:
   description: JSON for API request for experiment initialization. A valid initExp request is guaranteed to return an exp_uid for use in all future API requests.
   args:
@@ -11,7 +11,7 @@ initExp:
       type: dict
       values:
         alg_list:
-          description: A list of algorithms employed in this experiment. These should agree with the list of algorithms in MyApp/algs. This field is often overwritten at the App level to specify specific 'alg_id's. 
+          description: A list of algorithms employed in this experiment. These should agree with the list of algorithms in MyApp/algs. This field is often overwritten at the App level to specify specific alg_ids. 
           type: list
           values:
             type: dict
@@ -21,7 +21,7 @@ initExp:
                 description: Supported algorithm types for the associated app_id. Again, all algs can be seen in MyApp/algs 
                 type: str
               alg_label:
-                description: A name for this algorithm of your choosing. Some app types (such as PoolBasedTripletMDS or PoolBasedBinaryClassification) may require the existence of an alg_label 'Test'. 'Test' algs are used to compute accuracy and generalization error. Please refer to specific application documentation for more information.
+                description: A name for this algorithm of your choosing. Some app types (such as PoolBasedTripletMDS or PoolBasedBinaryClassification) may require the existence of an alg_label Test. Test algs are used to compute accuracy and generalization error. Please refer to specific application documentation for more information.
                 type: str
               params:
                 description: Any additional algorthm-specific parameters. This is generally empty for the NEXT default apps.
@@ -50,14 +50,14 @@ initExp:
           type: dict
           values:
             mode:
-              description: Currently, 'fixed_proportions' is the only implement mode and a probability of an algorithm being drawn has to be selected. We hope to include more active ways of choosing the algorithm in future versions of NEXT.
+              description: Currently, fixed_proportions is the only implement mode and a probability of an algorithm being drawn has to be selected. We hope to include more active ways of choosing the algorithm in future versions of NEXT.
               type: str
               values: [fixed_proportions]
             params:
-              description: (note; documentation for 'mode=fixed_proportions'). Parameters to help select an algorithm.
+              description: (note; documentation for mode=fixed_proportions). Parameters to help select an algorithm.
               type: list
               values:
-                description: List of proportions per app type. Note; must be positive and the sum of 'proportions' must add up to 1.
+                description: List of proportions per app type. Note; must be positive and the sum of proportions must add up to 1.
                 type: dict
                 values:
                   alg_label:
@@ -68,12 +68,41 @@ initExp:
                     type: num
 
         participant_to_algorithm_management:
-          description: This field determines how participants are delivered queries from algorithms on getQuery requests. Participants are tracked by 'participant_uid', a field in getQuery. If the value is 'one-to-one' a fixed participant_uid will be assigned to a fixed algorithm on the first time it is submitted to NEXT through a getQuery. If the value is 'one-to-many' the appropriate policy from the algorithm management settings will be applied instead.
+          description: This field determines how participants are delivered queries from algorithms on getQuery requests. Participants are tracked by participant_uid, a field in getQuery. If the value is one-to-one a fixed participant_uid will be assigned to a fixed algorithm on the first time it is submitted to NEXT through a getQuery. If the value is one-to-many the appropriate policy from the algorithm management settings will be applied instead.
           type: str
           values: [one_to_one, one_to_many]
 
-getQuery: JSON for API request to return a query to the user. Guaranteed to return a query_uid that is required to submit an answer to the query.
-  description: 
+        targets:
+          description: Experiment targets generally used on the query page for display. Targets can also contain additional information such as feature vectors (which should be specified at the app level, see PoolBasedBinaryClassification for an example). These are processed and stored using a TargetManager in initExp. Targets can either be specified by a targetset or by specifying a number of targets. In the latter case, the targets are assumed to be indices and the primary description is just the text of the index number.
+          type: oneof
+          values:
+            targetset:
+              description: A target set.
+              type: list
+              values: 
+                type: dict
+                values:
+                  primary_description:
+                    type: str
+                    description: The description of the target
+                  alt_description: 
+                    type: str
+                    description: The description of the target
+                  primary_type:
+                    type: str
+                    description: The type of target
+                    values: [text,image]
+                  alt_type: 
+                    type: str
+                    description: The description of the target
+                    values: [text,image]
+            n:
+              description: Number of targets. 
+              type: num
+            
+
+getQuery: 
+  description: JSON for API request to return a query to the user. Guaranteed to return a query_uid that is required to submit an answer to the query. 
   args:
     exp_uid:
       description: Unique experiment id.
@@ -132,7 +161,7 @@ getModel:
 
 
 getStats:
-  description: JSON for API request to return statistics about the app. These statistics can be used for system monitoring (time per query, databse time, etc.) or for tracking the model being generated by an app. For example, DuelingBanditsPureExploration has the 'stat_id' (described below) 'current_ranking' that returns a ranking of items. 
+  description: JSON for API request to return statistics about the app. These statistics can be used for system monitoring (time per query, databse time, etc.) or for tracking the model being generated by an app. For example, DuelingBanditsPureExploration has the stat_id (described below) current_ranking that returns a ranking of items. 
   args:
     exp_uid:
       description: Unique experiment id.
@@ -142,7 +171,7 @@ getStats:
       type: dict
       values:
         stat_id:
-          description: The 'stat_id' field determines which statistic function to call in the base apps/AppDashboard.py or in the app specific apps/Apps/MyApp/dashboard/dashboard.py. Please refer to those files for a list of potential stat_id choices.
+          description: The stat_id field determines which statistic function to call in the base apps/AppDashboard.py or in the app specific apps/Apps/MyApp/dashboard/dashboard.py. Please refer to those files for a list of potential stat_id choices.
           type: str
         params:
           description: Additional parameters for a specific stat_id. This generally always includes alg_label.
