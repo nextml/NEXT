@@ -11,14 +11,12 @@ class RandomSamplingLinearLeastSquares:
 
         w = numpy.zeros(d+1).tolist()
         butler.algorithms.set(key='weights',value=w)
-
         return True
 
 
     def getQuery(self, butler, participant_uid):
         n = butler.algorithms.get(key='n')
         idx = numpy.random.choice(n)
-
         return idx
 
 
@@ -28,7 +26,6 @@ class RandomSamplingLinearLeastSquares:
         num_reported_answers = butler.algorithms.increment(key='num_reported_answers')
         if num_reported_answers % int(d) == 0:
             butler.job('full_embedding_update', {}, time_limit=30)
-
         return True
 
 

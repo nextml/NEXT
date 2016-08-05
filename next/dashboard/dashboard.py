@@ -54,12 +54,11 @@ def experiment_list():
 @dashboard.route('/get_stats', methods=['POST'])
 def get_stats():
     args_dict = request.json
+    utils.debug_print(args_dict)
     exp_uid = args_dict['exp_uid']
     app_id = rm.get_app_id(exp_uid)
     
-    response_json,didSucceed,message = broker.dashboardAsync(app_id,
-                                                             exp_uid,
-                                                             args_dict)
+    response_json,didSucceed,message = broker.dashboardAsync(app_id,exp_uid,args_dict)
     response_dict = json.loads(response_json,parse_float=lambda o:round(float(o),4))
     response_json = json.dumps(response_dict)
     

@@ -13,7 +13,7 @@ class PoolBasedBinaryClassificationDashboard(AppDashboard):
     def __init__(self,db,ell):
         AppDashboard.__init__(self, db, ell)
 
-    def test_error_multiline_plot(self,app_id, exp_uid, butler):
+    def test_error_multiline_plot(self,app, butler):
         """
         Description: Returns multiline plot where there is a one-to-one mapping lines to
         algorithms and each line indicates the error on the validation set with respect to number of reported answers
@@ -24,27 +24,17 @@ class PoolBasedBinaryClassificationDashboard(AppDashboard):
         Expected output (in dict):
           (dict) MPLD3 plot dictionary
         """
-        #next_app = utils.get_app(app_id, exp_uid, self.db, self.ell)
-        #args_out_json, _, _ = next_app.getModel(exp_uid, json.dumps({'exp_uid':exp_uid, 'args':{'alg_label':alg_label}}))
-        #getModel_args_dict = json.loads(args_out_json)
-        #item = getModel_args_dict['args']
-        ############################################################################
-        # get list of algorithms associated with project
-        # experiment, didSucceed, message = self.db.get(app_id+':experiments',exp_uid,'args')
-        # get list of algorithms associated with project
-        # alg_list = experiment['alg_list']
-
         args = butler.experiment.get(key='args')
         alg_list = args['alg_list']
         test_alg_label = alg_list[0]['test_alg_label']
 
-        test_queries, didSucceed, message = self.db.get_docs_with_filter(app_id+':queries',{'exp_uid':exp_uid, 'alg_label':test_alg_label})
+        test_queries, didSucceed, message = butler.db.get_docs_with_filter(app.app_id+':queries',{'exp_uid':app.exp_uid, 'alg_label':test_alg_label})
 
         test_S = [(query['target_index'], query['target_label']) 
                             for query in test_queries
                             if 'target_index' in query.keys()]
 
-        targets = butler.targets.get_targetset(exp_uid)
+        targets = butler.targets.get_targetset(app.exp_uid)
         targets = sorted(targets,key=lambda x: x['target_id'])
         target_features = []
 
@@ -61,7 +51,7 @@ class PoolBasedBinaryClassificationDashboard(AppDashboard):
 
         for algorithm in alg_list:
             alg_label = algorithm['alg_label']
-            list_of_log_dict,didSucceed,message = self.ell.get_logs_with_filter(app_id+':ALG-EVALUATION',{'exp_uid':exp_uid, 'alg_label':alg_label})
+            list_of_log_dict,didSucceed,message = self.ell.get_logs_with_filter(app.app_id+':ALG-EVALUATION',{'exp_uid':app.exp_uid, 'alg_label':alg_label})
             list_of_log_dict = sorted(list_of_log_dict, key=lambda item: utils.str2datetime(item['timestamp']) )
             x = []
             y = []

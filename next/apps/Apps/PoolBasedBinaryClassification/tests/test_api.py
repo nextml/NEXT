@@ -11,7 +11,7 @@ from multiprocessing import Pool
 import os
 HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')+':'+os.environ.get('NEXT_BACKEND_GLOBAL_PORT', '8000')
 
-def test_api(assert_200=True, num_objects=10, desired_dimension=4,
+def test_api(assert_200=True, num_objects=5, desired_dimension=2,
             total_pulls_per_client=4, num_experiments=1, num_clients=5,
             delta=0.01):
 
@@ -71,6 +71,7 @@ def test_api(assert_200=True, num_objects=10, desired_dimension=4,
   initExp_args_dict['args']['targets'] = {}
   initExp_args_dict['args']['targets']['targetset'] = targetset
 
+  print json.dumps(initExp_args_dict, indent=4)
   exp_info = []
   for ell in range(num_experiments):
     url = "http://"+HOSTNAME+"/api/experiment"

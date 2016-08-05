@@ -23,23 +23,19 @@ Butler = Butler.Butler
 
 class App_Wrapper:
         def __init__(self, app_id, exp_uid, db, ell):
+                self.app_id = app_id
+                self.exp_uid = exp_uid
                 self.next_app = next.utils.get_app(app_id, exp_uid, db, ell)
-                self.butler = Butler(app_id, exp_uid, app.myApp.TargetManager, db, ell)
+                self.butler = Butler(app_id, exp_uid, self.next_app.myApp.TargetManager, db, ell)
 
-        def get_model(self, args_in_json):
-                next_app = utils.get_app(app_id, exp_uid, self.db, self.ell)
-                response, dt = next.utils.timeit(next_app.getModel)(exp_uid, args_in_json)
+        def getModel(self, args_in_json):
+                response, dt = next.utils.timeit(self.next_app.getModel)(self.next_app.exp_uid, args_in_json)
                 args_out_json,didSucceed,message = response
                 args_out_dict = json.loads(args_out_json)
                 meta = args_out_dict.get('meta',{})
-                if 'log_entry_durations' in meta:
-                        log_entry_durations = meta['log_entry_durations']
-                        log_entry_durations['app_duration'] = dt
-                        log_entry_durations['duration_enqueued'] = 0.
-                        log_entry_durations['timestamp'] = utils.datetimeNow()
-                        butler.ell.log( app_id+':ALG-DURATION', log_entry_durations  )
-                self.log_entry_durations = log_entry_durations
-                self.app_dt = dt
+                if 'log_entry_durations' in meta.keys():
+                        self.log_entry_durations = meta['log_entry_durations']
+                        self.log_entry_durations['timestamp'] = next.utils.datetimeNow()                  
                 return args_out_dict['args']
                 
 # Main application task
@@ -58,13 +54,12 @@ def apply(app_id, exp_uid, task_name, args_in_json, enqueue_timestamp):
 	next_app = next.utils.get_app(app_id, exp_uid, db, ell)
 	# pass it to a method
 	method = getattr(next_app, task_name)
-	response,dt = next.utils.timeit(method)(exp_uid, args_in_json)
+	response, dt = next.utils.timeit(method)(exp_uid, args_in_json)
         args_out_json,didSucceed,message = response
         args_out_dict = json.loads(args_out_json)
 	if 'args' in args_out_dict:
 		return_value = (json.dumps(args_out_dict['args']),didSucceed,message)
 		meta = args_out_dict.get('meta',{})
-
 		if 'log_entry_durations' in meta:
 			log_entry_durations = meta['log_entry_durations']
 			log_entry_durations['app_duration'] = dt
@@ -88,17 +83,19 @@ def apply_dashboard(app_id, exp_uid, args_in_json, enqueue_timestamp):
         args_dict = verifier.verify(args_in_json, reference_dict['getStats']['args'])
         stat_id = args_dict['args'].pop('stat_id',None)
 
-        app = App_Wrapper(app_id, exp_uid, db, ell)
-        
+        app = App_Wrapper(app_id, exp_uid, db, ell)        
         dashboard_string = 'next.apps.Apps.' + app_id + '.dashboard.Dashboard'
         dashboard_module = __import__(dashboard_string, fromlist=[''])
         dashboard = getattr(dashboard_module, app_id+'Dashboard')
-        dashboard = dashboard(butler.db, butler.ell)
+        dashboard = dashboard(db, ell)
         stats_method = getattr(dashboard, stat_id)
+        response,dt = next.utils.timeit(stats_method)(app,app.butler,**args_dict['args']['params'])
 
-        response,dt = next.utils.timeit(stats_method)(app,
-                                                      butler,
-                                                      **args_dict['args']['params'])
+        # update the admin timing with the timing of a getModel
+        if hasattr(app, 'log_entry_durations'):
+                app.log_entry_durations['app_duration'] = dt
+                app.log_entry_durations['duration_enqueued'] = time_enqueued
+                app.butler.ell.log(app.app_id+':ALG-DURATION', app.log_entry_durations)
         if DEBUG_ON:
             next.utils.debug_print('#### Finished Dashboard %s, time_enqueued=%s,  execution_time=%s ####' % (stat_id, time_enqueued, dt), color='white')
 	return json.dumps(response), True, ''

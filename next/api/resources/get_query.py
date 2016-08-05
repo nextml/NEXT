@@ -3,7 +3,7 @@ next_backend Query Resource
 Query resource for handling restful querying of experiments in next_backend. 
 """
 
-from flask.ext.restful import Resource, reqparse
+from flask_restful import Resource, reqparse
 
 import json
 import next.utils

@@ -8,7 +8,7 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
     def __init__(self,db,ell):
         AppDashboard.__init__(self, db, ell)
 
-    def test_error_multiline_plot(self, app_id, exp_uid, butler):
+    def test_error_multiline_plot(self, app, butler):
         """
         Description: Returns multiline plot where there is a one-to-one mapping lines to
         algorithms and each line indicates the error on the validation set with respect to number of reported answers
@@ -23,7 +23,7 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
         args = butler.experiment.get(key='args')        
         test_alg_label = args['alg_list'][0]['test_alg_label']
 
-        test_S = butler.queries.get(pattern={'exp_uid':exp_uid, 'alg_label':test_alg_label})
+        test_S = butler.queries.get(pattern={'exp_uid':app.exp_uid, 'alg_label':test_alg_label})
         x_min = numpy.float('inf')
         x_max = -numpy.float('inf')
         y_min = numpy.float('inf')
@@ -32,15 +32,13 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
 
         for algorithm in args['alg_list']:
             alg_label = algorithm['alg_label']
-            list_of_log_dict,didSucceed,message = butler.ell.get_logs_with_filter(app_id+':ALG-EVALUATION',{'exp_uid':exp_uid, 'alg_label':alg_label})
+            list_of_log_dict,didSucceed,message = butler.ell.get_logs_with_filter(app.app_id+':ALG-EVALUATION',{'exp_uid':app.exp_uid, 'alg_label':alg_label})
             list_of_log_dict = sorted(list_of_log_dict, key=lambda item: utils.str2datetime(item['timestamp']) )
-            
             x = []
             y = []
             for item in list_of_log_dict:
                 num_reported_answers = item['num_reported_answers']
                 Xd = item['X']
-
                 err = 0.5
                 if len(test_S)>0:
                     # compute error rate
@@ -54,14 +52,9 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
 
                     accuracy = number_correct/len(test_S)
                     err = 1.0-accuracy
-
                 x.append(num_reported_answers)
                 y.append(err)
-
-            alg_dict = {}
-            alg_dict['legend_label'] = alg_label
-            alg_dict['x'] = x
-            alg_dict['y'] = y
+            alg_dict = {'legend_label':alg_label, 'x':x,'y':y}
             try:
                 x_min = min(x_min,min(x))
                 x_max = max(x_max,max(x))
@@ -69,7 +62,6 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
                 y_max = max(y_max,max(y))
             except:
                 pass
-
             list_of_alg_dicts.append(alg_dict)
 
         import matplotlib.pyplot as plt
@@ -91,7 +83,7 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
         return plot_dict
 
 
-    def most_current_embedding(self,app_id,exp_uid,butler,alg_label):
+    def most_current_embedding(self,app,butler,alg_label):
         """
         Description: Returns embedding in the form of a list of dictionaries, which is conveneint for downstream applications
 
@@ -111,13 +103,8 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
         """
 
         TargetManager = butler.targets
-        next_app = utils.get_app(app_id, exp_uid, self.db, self.ell)
-        args_out_json, _, _ = next_app.getModel(exp_uid, json.dumps({'exp_uid':exp_uid, 'args':{'alg_label':alg_label}}))
-        getModel_args_dict = json.loads(args_out_json)
-        item = getModel_args_dict['args']
-
+        item = app.getModel(json.dumps({'exp_uid':app.exp_uid, 'args':{'alg_label':alg_label}}))
         embedding = item['X']
-
         data = []
         x_min = numpy.float('inf')
         x_max = -numpy.float('inf')
@@ -126,7 +113,7 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
         for idx,target in enumerate(embedding):
 
             target_dict = {}
-            target_dict['target'] = TargetManager.get_target_item(exp_uid, idx)
+            target_dict['target'] = TargetManager.get_target_item(app.exp_uid, idx)
             target_dict['x'] = target[0] # this is what will actually be plotted,
             try:
                 target_dict['y'] = target[1] # takes first two components, (could be replaced by PCA)
@@ -138,17 +125,11 @@ class PoolBasedTripletMDSDashboard(AppDashboard):
             x_max = max(x_max,target[0])
             y_min = min(y_min,target[1])
             y_max = max(y_max,target[1])
-
             data.append(target_dict)
 
-        return_dict = {}
-        return_dict['timestamp'] = getModel_args_dict['meta']['timestamp']
-        return_dict['x_min'] = x_min
-        return_dict['x_max'] = x_max
-        return_dict['y_min'] = y_min
-        return_dict['y_max'] = y_max
-        return_dict['data'] = data
-        return_dict['plot_type'] = 'scatter2d_noaxis'
+        return_dict = {'timestamp':str(utils.datetimeNow()),
+                       'x_min':x_min, 'x_max':x_max, 'y_min':y_min, 'y_max':y_max, 'data':data,
+                       'plot_type':'scatter2d_noaxis'}
 
         return return_dict
 

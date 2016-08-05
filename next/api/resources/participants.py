@@ -10,8 +10,7 @@ get a tripletMDS query:
 curl -X GET http://localhost:8001/api/experiment/[exp_uid]/participants
 '''
 from flask import Flask, send_file, request
-from flask.ext import restful
-from flask.ext.restful import Resource, reqparse
+from flask_restful import Resource, reqparse
 
 import json
 from io import BytesIO 

@@ -4,7 +4,7 @@ author: Christopher Fernandez, Lalit Jain
 Logs resource for all logs associated with a specified experiment. 
 """
 from flask import Response, request, redirect
-from flask.ext.restful import Resource, reqparse
+from flask_restful import Resource, reqparse
 
 import subprocess
 import next.utils

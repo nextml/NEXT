@@ -1,54 +1,56 @@
+# Base input json dictionaries for initExp, getQuery, processAnswer, getModel, and getStats API functions all App level dictionaries inherit from these.
+# Inherited yaml files can overwrite the specifications given here.
 initExp:
-  description: Dictionary for initialization of experiment.
+  description: JSON for API request for experiment initialization. A valid initExp request is guaranteed to return an exp_uid for use in all future API requests.
   args:
     app_id:
-      description: The ID of the application
+      description: Name of application type. In the default NEXT system, this is one of PoolBasedTripletMDS, DuelingBanditsPureExploration, CardinalBanditsPureExploration, PoolBasedBinaryClassification. Throughout this yaml file, MyApp will refer to a specific app in the system.
       type: str
     args:
-      description: Arguments for initExp
+      description: Arguments for initExp that are passed onto MyApp/initExp. Stored and accessible through butler.experiment.
       type: dict
       values:
         alg_list:
-          description: A list of algorithms you plan to use in this experiment.
+          description: A list of algorithms employed in this experiment. These should agree with the list of algorithms in MyApp/algs. This field is often overwritten at the App level to specify specific 'alg_id's. 
           type: list
           values:
             type: dict
-            description: An entry for each algorithm
+            description: An entry is required for each algorithm.
             values:
               alg_id:
-                description: A supported algorithm type in the system.
+                description: Supported algorithm types for the associated app_id. Again, all algs can be seen in MyApp/algs 
                 type: str
               alg_label:
-                description: A name for this algorithm of your choosing.
+                description: A name for this algorithm of your choosing. Some app types (such as PoolBasedTripletMDS or PoolBasedBinaryClassification) may require the existence of an alg_label 'Test'. 'Test' algs are used to compute accuracy and generalization error. Please refer to specific application documentation for more information.
                 type: str
               params:
-                description: Any additional algorhtm-specific parameters
+                description: Any additional algorthm-specific parameters. This is generally empty for the NEXT default apps.
                 type: any
                 optional: true
         instructions:
-          description: The instructions the particpant will see when experiment first launched.
+          description: Instructions for use on a query page.
           type: str
-          default: Please select, using your mouse or left and right arrow keys, the item on the bottom that is closest to the top.
+          default: These are default instructions.
           optional: true
 
         debrief:
-          description: The message that the participant will see when done with the experiment.
+          description: Debrief message that appears as a popup on the query page once the user has responded to num_tries queries. 
           type: str
           default: Thank you for participating
           optional: true
 
         num_tries:
-          description: The number of queries the participant will answer.
+          description: The number of queries the participant will answer before seeing the debrief.
           type: num
           default: 25
           optional: true
 
         algorithm_management_settings:
-          description: How individual algorithms are selected.
+          description: Algorithm management setting determine how an algorithm is selected on a getQuery request to generate a query. 
           type: dict
           values:
             mode:
-              description: Currently, 'fixed_proportions' is the only implement mode and a probability of an algorithm being drawn has to be selected.
+              description: Currently, 'fixed_proportions' is the only implement mode and a probability of an algorithm being drawn has to be selected. We hope to include more active ways of choosing the algorithm in future versions of NEXT.
               type: str
               values: [fixed_proportions]
             params:
@@ -66,80 +68,84 @@ initExp:
                     type: num
 
         participant_to_algorithm_management:
-          description: How many algorithms does one participant see? (i.e., "one-to-many" means one participant sees many different algorithms).
+          description: This field determines how participants are delivered queries from algorithms on getQuery requests. Participants are tracked by 'participant_uid', a field in getQuery. If the value is 'one-to-one' a fixed participant_uid will be assigned to a fixed algorithm on the first time it is submitted to NEXT through a getQuery. If the value is 'one-to-many' the appropriate policy from the algorithm management settings will be applied instead.
           type: str
           values: [one_to_one, one_to_many]
 
-getQuery:
-  description: 'A request to ask the query: "is {center} more similar to {left} or {right}?"'
+getQuery: JSON for API request to return a query to the user. Guaranteed to return a query_uid that is required to submit an answer to the query.
+  description: 
   args:
     exp_uid:
-      description: The experiment unique identifier.
+      description: Unique experiment id.
       type: str
-
     args:
-      description: Arguments for initExp
+      description: Arguments for getQuery that are passed onto MyApp/getQuery. Generally, these do not need to be explicitly overwritten in application specific yaml.
       type: dict
       values:
         participant_uid:
-          description: unique identifier of session for a participant answering questions, if key non-existant particpant_uid is assigned as exp_uid.
+          description: A participant_uid that can be used to track the queries and responses from a specific participant. If this field is missing, then the participant is by default assigned to the exp_uid.
           type: str
           optional: true
         widget:
-          description: whether to send widget html or json response
+          description: When true, NEXT returns the HTML of a widget containing the requested query. Generally used to create a query page for participants.
           type: boolean
           default: false
 
 processAnswer:
-  description: reporting back the reward of pulling the arm suggested by getQuery
+  description: JSON for API request to submit an answer to a query.
   args:
     exp_uid:
-      description: The experiment unique identifier.
+      description: Unique experiment id.
       type: str
 
     args:
-      description: Arguments for initExp
+      description: Arguments for processAnswer that are passed onto MyApp/processAnswer. The query and associated answer can be accessed through butler.queries.
       type: dict
       values:
         query_uid:
-          description: The unique identifier for the query.
+          description: The unique identifier for the query returned by an associated getQuery request.
           type: str
         response_time:
-          description: The time taken for the participant to answer the query.
+          description: The time taken to respond to the query. Primarily used when the query is served to a user on a query page. 
           type: num
         timestamp_answer_received:
-          description: The time the answer was recieved. Added by the NEXT Broker and should not be inputted by user.
+          description: The time the answer was recieved. Added by the NEXT Broker and will be overwritten by NEXT.
           type: str
 
 getModel:
-  description: Make a prediction from a specific alg
+  description: JSON for API request to return an representation of the internal model being used by an app and/or a specific algorithm.
   args:
     exp_uid:
-      description: The experiment unique identifier.
+      description: Unique experiment id.
       type: str
     args:
-      description: getModel args.
+      description: Arguments for processAnswer that are passed onto MyApp/processAnswer. Genrally only consists of an alg_label.
       type: dict
       values: 
         alg_label:
-          description: alg_label of algorithm making the call
+          description: alg_label of algorithm to request a model from.
           type: str
+        logging:
+          description: If this field is set to true, a getModel call is made and the result is logged in the logs under app_id:APP-EVALUATION. This embedding can be accessed through butler.logs.
+          type: boolean
+          default: false
+
 
 getStats:
-  description: getStats yeahhhh!
+  description: JSON for API request to return statistics about the app. These statistics can be used for system monitoring (time per query, databse time, etc.) or for tracking the model being generated by an app. For example, DuelingBanditsPureExploration has the 'stat_id' (described below) 'current_ranking' that returns a ranking of items. 
   args:
     exp_uid:
-      description: The experiment unique identifier.
+      description: Unique experiment id.
       type: str
     args:
-      description: args
+      description: Arguments for getStats that are passed onto dashboard/stat_id. 
       type: dict
       values:
         stat_id:
-          description: stat_id
+          description: The 'stat_id' field determines which statistic function to call in the base apps/AppDashboard.py or in the app specific apps/Apps/MyApp/dashboard/dashboard.py. Please refer to those files for a list of potential stat_id choices.
           type: str
         params:
-          description: params
+          description: Additional parameters for a specific stat_id. This generally always includes alg_label.
           type: dict
           values:
             alg_label:

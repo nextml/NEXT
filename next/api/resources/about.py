@@ -5,8 +5,7 @@ About request. Good place to put version information.
 """
 
 from flask import Flask
-from flask.ext import restful
-from flask.ext.restful import Resource, reqparse
+from flask_restful import Resource, reqparse
 
 
 from next.utils import utils

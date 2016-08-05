@@ -7,6 +7,10 @@ from next.utils import utils
 
 import matplotlib
 matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import mpld3
+
+
 
 MAX_SAMPLES_PER_PLOT = 100
 
@@ -16,24 +20,18 @@ class AppDashboard(object):
     self.db = db
     self.ell = ell
 
-  def api_activity_histogram(self, app_id, exp_uid, butler):
+  def api_activity_histogram(self, app, butler):
     """
     Description: returns the data to plot all API activity (for all algorithms) in a histogram with respect to time for any task in {getQuery,processAnswer,predict}
-
-    Expected input:
-      (string) task :  must be in {'getQuery','processAnswer','predict'}
 
     Expected output (in dict):
       (dict) MPLD3 plot dictionary
     """
-    queries = butler.queries.get(pattern={'exp_uid':exp_uid})
+    queries = butler.queries.get(pattern={'exp_uid':app.exp_uid})
     #self.db.get_docs_with_filter(app_id+':queries',{'exp_uid':exp_uid})
-    start_date = utils.str2datetime(butler.admin.get(uid=exp_uid)['start_date'])
+    start_date = utils.str2datetime(butler.admin.get(uid=app.exp_uid)['start_date'])
     numerical_timestamps = [(utils.str2datetime(item['timestamp_query_generated'])-start_date).total_seconds() 
                                 for item in queries]
-
-    import matplotlib.pyplot as plt
-    import mpld3
     fig, ax = plt.subplots(subplot_kw=dict(axisbg='#FFFFFF'),figsize=(12,1.5))
     ax.hist(numerical_timestamps,min(int(1+4*numpy.sqrt(len(numerical_timestamps))),300),alpha=0.5,color='black')
     ax.set_frame_on(False)
@@ -47,7 +45,7 @@ class AppDashboard(object):
 
 
 
-  def compute_duration_multiline_plot(self, app_id, exp_uid, butler, task):
+  def compute_duration_multiline_plot(self, app, butler, task):
     """
     Description: Returns multiline plot where there is a one-to-one mapping lines to
     algorithms and each line indicates the durations to complete the task (wrt to the api call)
@@ -68,7 +66,8 @@ class AppDashboard(object):
 
     for algorithm in alg_list:
       alg_label = algorithm['alg_label']
-      list_of_log_dict,didSucceed,message = butler.ell.get_logs_with_filter(app_id+':ALG-DURATION',{'exp_uid':exp_uid,'alg_label':alg_label,'task':task})
+      list_of_log_dict,didSucceed,message = butler.ell.get_logs_with_filter(app.app_id+':ALG-DURATION',
+                                                                            {'exp_uid':app.exp_uid,'alg_label':alg_label,'task':task})
       list_of_log_dict = sorted(list_of_log_dict, key=lambda item: utils.str2datetime(item['timestamp']) )
       
       x = []
@@ -81,8 +80,6 @@ class AppDashboard(object):
         y.append( item.get('app_duration',0.) + item.get('duration_enqueued',0.) )
         t.append(str(item['timestamp'])[:-3])
         
-      
-      
       x = numpy.array(x)
       y = numpy.array(y)
       t = numpy.array(t)
@@ -94,7 +91,6 @@ class AppDashboard(object):
       x = list(x[final_inds])
       y = list(y[final_inds])
       t = list(t[final_inds])
-
 
       alg_dict = {}
       alg_dict['legend_label'] = alg_label
@@ -110,7 +106,7 @@ class AppDashboard(object):
         pass
 
       list_of_alg_dicts.append(alg_dict)
-
+      
     return_dict = {}
     return_dict['data'] = list_of_alg_dicts
     return_dict['plot_type'] = 'multi_line_plot'
@@ -121,8 +117,6 @@ class AppDashboard(object):
     return_dict['y_min'] = y_min
     return_dict['y_max'] = y_max
 
-    import matplotlib.pyplot as plt
-    import mpld3
     fig, ax = plt.subplots(subplot_kw=dict(axisbg='#EEEEEE'))
     for alg_dict in list_of_alg_dicts:
         ax.plot(alg_dict['x'],alg_dict['y'],label=alg_dict['legend_label'])
@@ -140,7 +134,7 @@ class AppDashboard(object):
     return plot_dict
 
 
-  def compute_duration_detailed_stacked_area_plot(self,app_id,exp_uid,butler,task,alg_label,detailedDB=False):
+  def compute_duration_detailed_stacked_area_plot(self,app,butler,task,alg_label,detailedDB=False):
     """
     Description: Returns stacked area plot for a particular algorithm and task where the durations
     are broken down into compute,db_set,db_get (for cpu, database_set, database_get)
@@ -152,7 +146,8 @@ class AppDashboard(object):
     Expected output (in dict):
       (dict) MPLD3 plot dictionary
     """
-    list_of_log_dict,didSucceed,message = butler.ell.get_logs_with_filter(app_id+':ALG-DURATION',{'exp_uid':exp_uid,'alg_label':alg_label,'task':task})
+    list_of_log_dict,didSucceed,message = butler.ell.get_logs_with_filter(app.app_id+':ALG-DURATION',
+                                                                          {'exp_uid':app.exp_uid,'alg_label':alg_label,'task':task})
     list_of_log_dict = sorted(list_of_log_dict, key=lambda item: utils.str2datetime(item['timestamp']) )
 
     y = []
@@ -165,12 +160,10 @@ class AppDashboard(object):
     max_inds = list(numpy.argsort(-y)[0:multiplier])
     final_inds = sorted(set(incr_inds + max_inds))
 
-
     x = []
     t = []
     enqueued = []
     admin = []
-    dbOverhead = []
     dbGet = []
     dbSet = []
     compute = []
@@ -206,8 +199,6 @@ class AppDashboard(object):
       min_x = 0.
       max_x = 0.
 
-    import matplotlib.pyplot as plt
-    import mpld3
     fig, ax = plt.subplots(subplot_kw=dict(axisbg='#EEEEEE'))
     stack_coll = ax.stackplot(x,compute,dbGet,dbSet,admin,enqueued, alpha=.5)
     ax.set_xlabel('API Call')
@@ -225,7 +216,7 @@ class AppDashboard(object):
     return plot_dict
 
 
-  def response_time_histogram(self,app_id,exp_uid,butler,alg_label):
+  def response_time_histogram(self,app,butler,alg_label):
     """
     Description: returns the data to plot response time histogram of processAnswer for each algorithm
 
@@ -235,7 +226,7 @@ class AppDashboard(object):
     Expected output (in dict):
       (dict) MPLD3 plot dictionary
     """
-    list_of_query_dict,didSucceed,message = self.db.get_docs_with_filter(app_id+':queries',{'exp_uid':exp_uid,'alg_label':alg_label})
+    list_of_query_dict,didSucceed,message = self.db.get_docs_with_filter(app.app_id+':queries',{'exp_uid':app.exp_uid,'alg_label':alg_label})
     t = []
     for item in list_of_query_dict:
       try:
@@ -243,8 +234,6 @@ class AppDashboard(object):
       except:
         pass
 
-    import matplotlib.pyplot as plt
-    import mpld3
     fig, ax = plt.subplots(subplot_kw=dict(axisbg='#FFFFFF'))
     ax.hist(t, bins=min(len(t), MAX_SAMPLES_PER_PLOT), range=(0,30),alpha=0.5,color='black')
     ax.set_xlim(0, 30)
@@ -257,7 +246,7 @@ class AppDashboard(object):
 
     return plot_dict
 
-  def network_delay_histogram(self,app_id,exp_uid,butler, alg_label):
+  def network_delay_histogram(self, app, butler, alg_label):
     """
     Description: returns the data to network delay histogram of the time it takes to getQuery+processAnswer for each algorithm
 
@@ -267,7 +256,7 @@ class AppDashboard(object):
     Expected output (in dict):
       (dict) MPLD3 plot dictionary
     """
-    list_of_query_dict,didSucceed,message = self.db.get_docs_with_filter(app_id+':queries',{'exp_uid':exp_uid,'alg_label':alg_label})
+    list_of_query_dict,didSucceed,message = self.db.get_docs_with_filter(app.app_id+':queries',{'exp_uid':app.exp_uid,'alg_label':alg_label})
 
     t = []
     for item in list_of_query_dict:
@@ -276,8 +265,6 @@ class AppDashboard(object):
       except:
         pass
 
-    import matplotlib.pyplot as plt
-    import mpld3
     fig, ax = plt.subplots(subplot_kw=dict(axisbg='#FFFFFF'))
     ax.hist(t,MAX_SAMPLES_PER_PLOT,range=(0,5),alpha=0.5,color='black')
     ax.set_xlim(0, 5)

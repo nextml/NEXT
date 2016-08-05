@@ -54,7 +54,7 @@ verification_error = {
     }
 
 
-from flask.ext.restful import Api
+from flask_restful import Api
 import sys, traceback
 class NextBackendApi(Api):
     """
@@ -83,10 +83,8 @@ class NextBackendApi(Api):
 
 
 
-from flask.ext.restful.reqparse import RequestParser
-from flask.ext.restful.reqparse import Argument
-from flask.ext.restful.reqparse import Namespace
-from flask.ext.restful import abort
+from flask_restful.reqparse import Argument
+from flask_restful import abort
 
 class APIArgument(Argument):
     """

@@ -1,62 +1,41 @@
+# PoolBasedTripletMDS asks triplet comparison questions of the form "which is closer to item i, item j or k' to find an embedding of the items into Euclidean space.
 extends: [base.yaml]
 initExp:
-  description: Dictionary for initialization of experiment.
+  description: Specific PoolBasedTripletMDS JSON specification for API request on experiment initialization.
   args:
     app_id:
       values: [PoolBasedTripletMDS]
     args:
-      description: Arguments for initExp
       type: dict
       values:
         alg_list:
           values:
             values:
               alg_id:
+                description: Supported algorithm types for PoolBasedTripletMDS.
                 values: [CrowdKernel, RandomSampling, STE, UncertaintySampling, ValidationSampling]
               test_alg_label:
-                description: Which algorithm to test against.
+                description: 'alg_label' of the algorithm whose collected triplets to use as a test set when validating this algorithm. A resulting plot of test-error on triplets is available on the dashboard.
                 type: str
-              params:
-                optional: true
-                description: Arguments to pass to each individual algorithm.
-                type: any
+        instructions:
+          description: The instructions the particpant will see when experiment first launched.
+          type: str
+          default: Please select, using your mouse or left and right arrow keys, the item on the bottom that is closest to the top.
+          optional: true
         d:
-          description: Dimension of embedding.
+          description: Desired dimension of resulting embedding.
           type: num
-
         failure_probability:
-          description: Confidence of result.
+          description: Confidence value of result. 
           type: num
 
-        targets:
-          description: targets
-          type: oneof
-          values:
-            n:
-              description: Number of items.
-              type: num
-
-            targetset:
-              description: A target set.
-              type: file
-              values: []
-          
 processAnswer:
   args:
     args:
-      description: Arguments for initExp
       type: dict
       values:
         target_winner:
-          description: The ID of the target that won the given query.
+          description: The id of the target that won the given query. This should be an id from the list of ids obtained in the associated 'getQuery' request.
           type: num
           
-getModel:
-  args:
-    args:
-      values: 
-        logging:
-          description: whether you want this logged in app_id:APP-EVALUATION
-          type: boolean
-          default: false
 

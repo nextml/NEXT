@@ -6,7 +6,7 @@ class DuelingBanditsPureExplorationDashboard(AppDashboard):
     def __init__(self,db,ell):
         AppDashboard.__init__(self,db,ell)
 
-    def most_current_ranking(self,app_id,exp_uid, butler, alg_label):
+    def most_current_ranking(self,app, butler, alg_label):
         """
         Description: Returns a ranking of arms in the form of a list of dictionaries, which is conveneint for downstream applications
 
@@ -23,11 +23,7 @@ class DuelingBanditsPureExplorationDashboard(AppDashboard):
             (int) index : index of target
             (int) ranking : rank (0 to number of targets - 1) representing belief of being best arm
         """
-        next_app = utils.get_app(app_id, exp_uid, self.db, self.ell)
-        args_out_dict = json.loads(next_app.getModel(exp_uid, 
-                                    json.dumps({'exp_uid':exp_uid, 
-                                            'args': {'alg_label':alg_label}}))[0])
-        item = args_out_dict['args']
+        item = app.getModel(json.dumps({'exp_uid':app.exp_uid, 'args': {'alg_label':alg_label}}))
         return_dict = {}
         return_dict['headers'] = [{'label':'Rank','field':'rank'},
                                   {'label':'Target','field':'index'},
@@ -36,7 +32,6 @@ class DuelingBanditsPureExplorationDashboard(AppDashboard):
         for target in item['targets']:
             for key in ['score', 'precision']:
                 target[key] = '{:0.5f}'.format(target[key])
-
         return_dict['data'] = item['targets']
         return_dict['plot_type'] = 'columnar_table'
         return return_dict

@@ -1,11 +1,8 @@
-from flask import Blueprint, render_template, flash, request, redirect, url_for, jsonify
-from flask.ext.login import login_user, logout_user, login_required, current_user
-from flask.ext.restful import abort, Api, Resource
-from next.api import api_util
+from flask import Blueprint, render_template
 from next.utils import utils
 from next.lib.pijemont import doc as doc_gen
 from next.lib.pijemont import verifier
-import json
+
 
 assistant = Blueprint('assistant',
                       __name__,
