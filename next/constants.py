@@ -28,6 +28,8 @@ AWS_ACCESS_ID = os.environ.get('AWS_ACCESS_ID', '')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY', '')
 
 SITE_KEY = os.environ.get('SITE_KEY', None)
+if SITE_KEY==None or SITE_KEY=='None':
+    SITE_KEY=None
 
 GIT_HASH = os.environ.get('GIT_HASH', '')
 if GIT_HASH=='':

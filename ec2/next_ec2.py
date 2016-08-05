@@ -740,7 +740,8 @@ def rsync_docker_config(opts, master_nodes, slave_nodes):
         "AWS_ACCESS_ID":os.getenv('AWS_ACCESS_KEY_ID'),
         "AWS_ACCESS_KEY_ID":os.getenv('AWS_ACCESS_KEY_ID'),
         "AWS_SECRET_ACCESS_KEY":os.getenv('AWS_SECRET_ACCESS_KEY'),
-        "AWS_BUCKET_NAME":os.getenv('AWS_BUCKET_NAME','next-database-backups')
+        "AWS_BUCKET_NAME":os.getenv('AWS_BUCKET_NAME','next-database-backups'),
+        "SITE_KEY":os.getenv('SITE_KEY', None)
     }
     with open('./templates/docker_login.sh') as src:
         with open(tmp_dir+'/docker_login.sh', "w") as dest:

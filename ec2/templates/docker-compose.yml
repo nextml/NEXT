@@ -67,6 +67,7 @@ nextbackenddocker:
    # global url for dashboards on backend
    - NEXT_BACKEND_GLOBAL_HOST
    - NEXT_BACKEND_GLOBAL_PORT
+   - SITE_KEY
    - GIT_HASH={{GIT_HASH}}
    - TERM=xterm
    - CELERY_ON={{CELERY_ON}}
