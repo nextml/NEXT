@@ -16,18 +16,24 @@ import next.broker.broker
 import next.constants as constants
 import next.database_client.PermStore as PermStore
 from next.api.resource_manager import ResourceManager
-import next.utils as utils
-
+import next.api.api_util as api_util
 
 # Declare this as the dashboard blueprint
 dashboard = Blueprint('dashboard',
                       __name__,
                       template_folder='templates',
                       static_folder='static')
+
 rm = ResourceManager()
 db = PermStore.PermStore()
-
 broker = next.broker.broker.JobBroker()
+
+# add database commands
+dashboard_interface = api_util.NextBackendApi(dashboard)
+from next.dashboard.database import DatabaseBackup, DatabaseRestore
+dashboard_interface.add_resource(DatabaseBackup,'/database/databasebackup', endpoint='databasebackup')
+dashboard_interface.add_resource(DatabaseRestore,'/database/databaserestore', endpoint='databaserestore')
+
 
 @dashboard.route('/experiment_list')
 def experiment_list():
@@ -54,32 +60,13 @@ def experiment_list():
 @dashboard.route('/get_stats', methods=['POST'])
 def get_stats():
     args_dict = request.json
-    utils.debug_print(args_dict)
     exp_uid = args_dict['exp_uid']
     app_id = rm.get_app_id(exp_uid)
     
     response_json,didSucceed,message = broker.dashboardAsync(app_id,exp_uid,args_dict)
     response_dict = json.loads(response_json,parse_float=lambda o:round(float(o),4))
     response_json = json.dumps(response_dict)
-    
     return response_json
-    #with open(os.path.join('next/apps', 'Apps/{}/{}.yaml'.format(app_id, app_id)),'r') as f:
-    #    reference_dict = yaml.load(f)        
-    # verification
-    #args_dict = Verifier.verify(args_dict, reference_dict['getStats']['values'])
-    #stat_id = args_dict['args'].pop('stat_id',None)
-    # myApp
-    #app = utils.get_app(app_id, exp_uid, dba, ell) #__import__('next.apps.Apps.'+app_id, fromlist=[''])
-    #butler = Butler.Butler(app_id, exp_uid, app.myApp.TargetManager, dba, ell)
-
-    # dashboard
-    #dashboard_string = 'next.apps.Apps.' + app_id + \
-    #                   '.dashboard.Dashboard'
-    #dashboard_module = __import__(dashboard_string, fromlist=[''])
-    #dashboard = getattr(dashboard_module, app_id+'Dashboard')
-    #dashboard = dashboard(butler.db, butler.ell)
-    #stats_method = getattr(dashboard, stat_id)
-    #return jsonify(stats_method(app_id, exp_uid, butler, **args_dict['args']['params']))
 
 
 @dashboard.route('/system_monitor')
@@ -97,6 +84,7 @@ def system_monitor():
                            rabbit_url=rabbit_url,
                            cadvisor_url=cadvisor_url,
                            mongodb_url=mongodb_url)
+
 
 @dashboard.route('/experiment_dashboard/<exp_uid>/<app_id>')
 def experiment_dashboard(exp_uid, app_id):
@@ -129,23 +117,24 @@ def experiment_dashboard(exp_uid, app_id):
                  'alg_label_clean':'_'.join(alg['alg_label'].split())}
                 for alg in alg_label_list]
 
-    if (constants.NEXT_BACKEND_GLOBAL_HOST and
-        constants.NEXT_BACKEND_GLOBAL_PORT):
-        host_url = 'http://{}:{}'.format(constants.NEXT_BACKEND_GLOBAL_HOST,
-                                         constants.NEXT_BACKEND_GLOBAL_PORT)
+    host_url = 'http://{}:{}'.format(constants.NEXT_BACKEND_GLOBAL_HOST,
+                                     constants.NEXT_BACKEND_GLOBAL_PORT)
+    if constants.SITE_KEY:
+        dashboard_url='{}/dashboard/{}/get_stats'.format(host_url, constants.SITE_KEY)
     else:
-        host_url = ''
+        dashboard_url='{}/dashboard/get_stats'.format(host_url)
+        
     env = Environment(loader=ChoiceLoader([PackageLoader('next.apps.Apps.{}'.format(app_id),
                                                          'dashboard'),
                                            PackageLoader('next.dashboard',
                                                          'templates')]))
     template = env.get_template('{}.html'.format(app_id)) # looks for /next/apps/{{ app_id }}/dashboard/{{ app_id }}.html
-
     return template.render(app_id=app_id,
                            exp_uid=exp_uid,
                            git_hash=git_hash,
                            alg_list=alg_list,
                            host_url=host_url,
+                           dashboard_url=dashboard_url,
                            exceptions_present=exceptions_present(exp_uid, host_url),
                            url_for=url_for,
                            exp_start_data=exp_start_data,
@@ -155,7 +144,6 @@ def experiment_dashboard(exp_uid, app_id):
 
 
 def exceptions_present(exp_uid, host_url):
-    import yaml
     url = '{}/api/experiment/{}/logs/APP-EXCEPTION'.format(host_url, exp_uid)
     r = requests.get(url)
     logs = yaml.load(r.content)['log_data']

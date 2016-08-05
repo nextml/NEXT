@@ -27,6 +27,8 @@ NEXT_BACKEND_GLOBAL_PORT = os.environ.get('NEXT_BACKEND_GLOBAL_PORT', '8000')
 AWS_ACCESS_ID = os.environ.get('AWS_ACCESS_ID', '')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY', '')
 
+SITE_KEY = os.environ.get('SITE_KEY', None)
+
 GIT_HASH = os.environ.get('GIT_HASH', '')
 if GIT_HASH=='':
     import subprocess

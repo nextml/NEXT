@@ -28,8 +28,6 @@ function untoggle_parent(source) {
     <h1 style="text-align:center;" class="page-header">Experiments</h1>
     <p style="text-align:center;padding-bottom:20px;">Click on an experiment to see it's dashboard</p>
   </div>
-
-
   <div class="col-sm-10 col-sm-offset-1">
     <table class="table table-bordered left">
       <thead>
@@ -65,7 +63,7 @@ function untoggle_parent(source) {
 <script language="JavaScript">
 function backup_selected_experiments() {
   checkboxes = document.getElementsByName('exp_check_boxes');
-  var url = '/api/database/databasebackup?';
+  var url = "{{url_for('dashboard.databasebackup')}}?";
   var k=0
   for(var i=0, n=checkboxes.length;i<n;i++) {
     if (checkboxes[i].checked){
@@ -99,7 +97,7 @@ function backup_selected_experiments() {
   <div class="col-md-5">
     <div class="center-block"
 	 <!-- Restore -->
-	 <form method="post" enctype="multipart/form-data" class="box" action="/api/database/databaserestore">
+      <form method="post" enctype="multipart/form-data" class="box" action="{{url_for('dashboard.databaserestore')}}">
 	   <div class="form-group">
 	     <label for="exampleInputFile">Restore Experiments from Backup</label>
 	     <p>Select a database backup file for restoring.</p><p> <font color="red">Warning: Restoring is an "insert only" action meaning that no action is taken for those experiments that already exist in the system.</font></p>

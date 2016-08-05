@@ -24,8 +24,7 @@
   }
 
   $.ajax({
-    //url: "{{ host_url }}/api/experiment/stats",
-    url: "{{ host_url }}/dashboard/get_stats",
+    url: "{{ dashboard_url }}",
     type: "POST",
     contentType: "application/json",
     data: JSON.stringify({  

@@ -14,7 +14,6 @@ api_interface.add_resource(Experiment,
                            '/experiment',
                            '/experiment/<string:exp_uid>')
 
-# TODO: delete the API endpoints for
 from next.api.app_handler import AppHandler
 api_interface.add_resource(AppHandler,
                            '/experiment/<string:exp_uid>/custom/function_name',
@@ -27,8 +26,6 @@ api_interface.add_resource(getQuery,
 
 from next.api.resources.process_answer import processAnswer
 api_interface.add_resource(processAnswer, '/experiment/processAnswer')
-from next.api.resources.about import About
-api_interface.add_resource(About, '/about', '/about/<string:app_id>')
 
 from next.api.resources.logs import Logs
 api_interface.add_resource(Logs,
@@ -39,6 +36,3 @@ from next.api.resources.participants import Participants
 api_interface.add_resource(Participants,
                            '/experiment/<string:exp_uid>/participants')
 
-from next.api.resources.database import DatabaseBackup, DatabaseRestore
-api_interface.add_resource(DatabaseBackup,'/database/databasebackup')
-api_interface.add_resource(DatabaseRestore,'/database/databaserestore')
