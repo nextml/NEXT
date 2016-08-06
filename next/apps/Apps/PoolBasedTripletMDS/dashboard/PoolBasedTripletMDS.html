@@ -24,7 +24,7 @@
   }
 
   $.ajax({
-    url: "{{ dashboard_url }}",
+    url: "{{ dashboard_url }}/get_stats",
     type: "POST",
     contentType: "application/json",
     data: JSON.stringify({  
@@ -103,7 +103,7 @@
               }
 
               $.ajax({
-                url: "{{ dashboard_url }}",
+                url: "{{ dashboard_url }}/get_stats",
                 type: "POST",
                 contentType: "application/json",
                 data: JSON.stringify({  

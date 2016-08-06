@@ -54,7 +54,16 @@ def experiment_list():
             except IndexError as e:
                 print e
                 pass
+
+    host_url = 'http://{}:{}'.format(constants.NEXT_BACKEND_GLOBAL_HOST,
+                                     constants.NEXT_BACKEND_GLOBAL_PORT)
+    if constants.SITE_KEY:
+        dashboard_url='{}/dashboard/{}'.format(host_url, constants.SITE_KEY)
+    else:
+        dashboard_url='{}/dashboard'.format(host_url)
+        
     return render_template('experiment_list.html',
+                           dashboard_url=dashboard_url,
                            experiments = reversed(experiments))
 
 @dashboard.route('/get_stats', methods=['POST'])
@@ -74,6 +83,13 @@ def system_monitor():
     """
     Endpoint that renders a page with a simple list of all monitoring.
     """
+    host_url = 'http://{}:{}'.format(constants.NEXT_BACKEND_GLOBAL_HOST,
+                                     constants.NEXT_BACKEND_GLOBAL_PORT)
+    if constants.SITE_KEY:
+        dashboard_url='{}/dashboard/{}'.format(host_url, constants.SITE_KEY)
+    else:
+        dashboard_url='{}/dashboard'.format(host_url)
+
     rabbit_url = 'http://{}:{}'.format(constants.NEXT_BACKEND_GLOBAL_HOST,
                                        15672)
     cadvisor_url = 'http://{}:{}'.format(constants.NEXT_BACKEND_GLOBAL_HOST,
@@ -81,6 +97,7 @@ def system_monitor():
     mongodb_url = 'http://{}:{}'.format(constants.NEXT_BACKEND_GLOBAL_HOST,
                                         28017)
     return render_template('system_monitor.html',
+                           dashboard_url=dashboard_url,
                            rabbit_url=rabbit_url,
                            cadvisor_url=cadvisor_url,
                            mongodb_url=mongodb_url)
@@ -120,9 +137,9 @@ def experiment_dashboard(exp_uid, app_id):
     host_url = 'http://{}:{}'.format(constants.NEXT_BACKEND_GLOBAL_HOST,
                                      constants.NEXT_BACKEND_GLOBAL_PORT)
     if constants.SITE_KEY:
-        dashboard_url='{}/dashboard/{}/get_stats'.format(host_url, constants.SITE_KEY)
+        dashboard_url='{}/dashboard/{}'.format(host_url, constants.SITE_KEY)
     else:
-        dashboard_url='{}/dashboard/get_stats'.format(host_url)
+        dashboard_url='{}/dashboard'.format(host_url)
         
     env = Environment(loader=ChoiceLoader([PackageLoader('next.apps.Apps.{}'.format(app_id),
                                                          'dashboard'),

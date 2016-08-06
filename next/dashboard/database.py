@@ -9,6 +9,7 @@ from flask_restful import Resource, reqparse
 import subprocess
 import next.utils
 import next.broker.broker
+import next.constants as constants
 from next.api.api_util import *
 from next.api.api_util import APIArgument
 from next.api.resource_manager import ResourceManager
@@ -94,6 +95,6 @@ class DatabaseRestore(Resource):
         restore_mongodump(filename)
         subprocess.call('rm '+filename,shell=True)
         
-        return redirect('/dashboard/experiment_list')
+        return redirect('/dashboard/{}/experiment_list'.format(constants.SITE_KEY))
 
     
