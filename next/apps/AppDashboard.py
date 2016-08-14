@@ -20,6 +20,32 @@ class AppDashboard(object):
     self.db = db
     self.ell = ell
 
+  def basic_info(self,app,butler):
+    """
+    returns basic statistics like number of queries, participants, etc.
+    """
+    experiment_dict = butler.experiment.get()
+
+    #git_hash = rm.get_git_hash_for_exp_uid(exp_uid)
+    git_hash = experiment_dict.get('git_hash','None')
+
+    # start_date = utils.str2datetime(butler.admin.get(uid=app.exp_uid)['start_date'])
+    start_date = experiment_dict.get('start_date','Unknown')+' UTC'
+
+    # participant_uids = rm.get_participant_uids(exp_uid)
+    participants = butler.participants.get(pattern={'exp_uid':app.exp_uid})
+    num_participants = len(participants)
+
+    queries = butler.queries.get(pattern={'exp_uid':app.exp_uid})
+    num_queries = len(queries)
+
+    return_dict = {'git_hash':git_hash,
+                    'exp_start_data':start_date,
+                    'num_participants':num_participants,
+                    'num_queries':num_queries,
+                    'meta':{'last_dashboard_update':'<1 minute ago'}}
+    return return_dict
+
   def api_activity_histogram(self, app, butler):
     """
     Description: returns the data to plot all API activity (for all algorithms) in a histogram with respect to time for any task in {getQuery,processAnswer,predict}

@@ -20,6 +20,8 @@ import os
 SITES_ENABLED = False
 DEBUG_ON = os.environ.get('DEBUG_ON', '')
 
+DASHBOARD_STALENESS_IN_SECONDS = 60*30
+
 # Backend Host Url
 NEXT_BACKEND_GLOBAL_HOST = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')
 NEXT_BACKEND_GLOBAL_PORT = os.environ.get('NEXT_BACKEND_GLOBAL_PORT', '8000')

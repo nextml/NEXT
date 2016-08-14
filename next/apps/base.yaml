@@ -185,4 +185,10 @@ getStats:
               description: task
               type: str
               optional: true
+        force_recompute:
+          description: If equal to 1 the statistic will be computed on-the-fly, else 0 will check cache
+          type: num
+          optional: true
+
+
 
