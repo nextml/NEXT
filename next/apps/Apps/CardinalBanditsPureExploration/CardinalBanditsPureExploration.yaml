@@ -1,3 +1,4 @@
+extends: [base.yaml]
 initExp:
   args:
     app_id:
@@ -27,7 +28,8 @@ initExp:
         alg_list:
           values:
             values:
-              alg_id: Supported algorithm types for DuelingBanditsPureExploration.
+              alg_id:
+                description: Supported algorithm types for DuelingBanditsPureExploration.
                 values: [RoundRobin,LilUCB]
 
         instructions:
