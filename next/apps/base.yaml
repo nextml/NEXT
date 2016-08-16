@@ -115,6 +115,10 @@ getQuery:
           description: A participant_uid that can be used to track the queries and responses from a specific participant. If this field is missing, then the participant is by default assigned to the exp_uid.
           type: str
           optional: true
+        participant_ip:
+          description: The IP address of the participant 
+          type: str
+          optional: true
         widget:
           description: When true, NEXT returns the HTML of a widget containing the requested query. Generally used to create a query page for participants.
           type: boolean
@@ -140,6 +144,10 @@ processAnswer:
         timestamp_answer_received:
           description: The time the answer was recieved. Added by the NEXT Broker and will be overwritten by NEXT.
           type: str
+        participant_ip:
+          description: The IP address of the participant 
+          type: str
+          optional: true
 
 getModel:
   description: JSON for API request to return an representation of the internal model being used by an app and/or a specific algorithm.
