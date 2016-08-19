@@ -133,6 +133,7 @@ class Butler(object):
         else:
             self.algorithms = Collection(self.app_id+":algorithms", "{exp_uid}_"+alg_label, self.exp_uid, db)
         self.participants = Collection(self.app_id+":participants", "", self.exp_uid, db)
+        self.dashboard = Collection(self.app_id+":dashboard", "", self.exp_uid, db)
         self.other = Collection(self.app_id+":other", "{exp_uid}_", self.exp_uid, db)
 
     def log(self, log_name, log_value):

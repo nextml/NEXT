@@ -8,6 +8,7 @@ import json
 import traceback
 import numpy
 from next.constants import DEBUG_ON
+import hashlib
 
 # import next.logging_client.LoggerHTTP as ell
 from next.database_client.DatabaseAPI import DatabaseAPI
@@ -81,21 +82,49 @@ def apply_dashboard(app_id, exp_uid, args_in_json, enqueue_timestamp):
         if len(errs) > 0:
                 raise Exception("App YAML format errors: \n{}".format(str(errs)))
         args_dict = verifier.verify(args_in_json, reference_dict['getStats']['args'])
-        stat_id = args_dict['args'].pop('stat_id',None)
+        stat_id = args_dict['args'].get('stat_id','none')
 
-        app = App_Wrapper(app_id, exp_uid, db, ell)        
-        dashboard_string = 'next.apps.Apps.' + app_id + '.dashboard.Dashboard'
-        dashboard_module = __import__(dashboard_string, fromlist=[''])
-        dashboard = getattr(dashboard_module, app_id+'Dashboard')
-        dashboard = dashboard(db, ell)
-        stats_method = getattr(dashboard, stat_id)
-        response,dt = next.utils.timeit(stats_method)(app,app.butler,**args_dict['args']['params'])
+        stat_args = args_dict['args']
+        hash_object = hashlib.md5(stat_id+'_'+json.dumps(stat_args['params']))
+        stat_uid = hash_object.hexdigest()
 
-        # update the admin timing with the timing of a getModel
-        if hasattr(app, 'log_entry_durations'):
+        app = App_Wrapper(app_id, exp_uid, db, ell)  
+        cached_doc = app.butler.dashboard.get(uid=stat_uid)
+        cached_response = None
+        if (int(stat_args.get('force_recompute',0))==0) and (cached_doc is not None):    
+          delta_datetime = (next.utils.datetimeNow() - next.utils.str2datetime(cached_doc['timestamp']))
+          if delta_datetime.seconds < next.constants.DASHBOARD_STALENESS_IN_SECONDS:
+            cached_response = json.loads(cached_doc['data_dict'])
+            if 'meta' not in cached_response:
+              cached_response['meta']={}
+            cached_response['meta']['cached'] = 1
+            if delta_datetime.seconds/60<1:
+                cached_response['meta']['last_dashboard_update'] = '<1 minute ago'
+            else:
+                cached_response['meta']['last_dashboard_update'] = str(delta_datetime.seconds/60)+' minutes ago'
+
+        if cached_response==None:
+            dashboard_string = 'next.apps.Apps.' + app_id + '.dashboard.Dashboard'
+            dashboard_module = __import__(dashboard_string, fromlist=[''])
+            dashboard = getattr(dashboard_module, app_id+'Dashboard')
+            dashboard = dashboard(db, ell)
+            stats_method = getattr(dashboard, stat_id)
+            response,dt = next.utils.timeit(stats_method)(app,app.butler,**args_dict['args']['params'])
+            
+            save_dict = {'exp_uid':app.exp_uid,
+                    'stat_uid':stat_uid,
+                    'timestamp':next.utils.datetime2str(next.utils.datetimeNow()),
+                    'data_dict':json.dumps(response)}
+            app.butler.dashboard.set_many(uid=stat_uid,key_value_dict=save_dict)
+
+            # update the admin timing with the timing of a getModel
+            if hasattr(app, 'log_entry_durations'):
                 app.log_entry_durations['app_duration'] = dt
                 app.log_entry_durations['duration_enqueued'] = time_enqueued
                 app.butler.ell.log(app.app_id+':ALG-DURATION', app.log_entry_durations)
+        else:
+            response = cached_response
+
         if DEBUG_ON:
             next.utils.debug_print('#### Finished Dashboard %s, time_enqueued=%s,  execution_time=%s ####' % (stat_id, time_enqueued, dt), color='white')
 	return json.dumps(response), True, ''

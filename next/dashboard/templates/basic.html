@@ -26,11 +26,13 @@ popup_alert = function(text){
   </div>
 </div>
 
+<div class="container-fluid" style ='background-color: #FFFFFF; padding-bottom: 1cm; text-align: center'>
+    <h2 id="header">Experiment Dashboard: {{ exp_uid }}</h2>
+</div>
 
 {% if simple_flag<2 %}
 <!--################## activity #################### -->
 <div class="container-fluid" style ='background-color: #FFFFFF; padding-bottom: 1cm; text-align: center'>
-    <h2 id="header">Experiment Dashboard: {{ exp_uid }}</h2>
 
     <div class="col-lg-10 col-lg-offset-1" style"display: inline-block">
         <div id = "api_activity_histogram_processAnswer"></div><button type="button" class="btn btn-primary btn-xs"
@@ -53,8 +55,9 @@ popup_alert = function(text){
             'exp_uid': "{{ exp_uid }}",
             'args':{
                 'stat_id' : 'api_activity_histogram',
-		'params':{}
-	    }
+        		'params':{},
+                'force_recompute': {{ force_recompute }}
+            }
             }),
         dataType: "json"
         }).done( function(data,textStatus, jqXHR) {
@@ -63,22 +66,20 @@ popup_alert = function(text){
         }).fail( function(error){
         console.log("Failed to get stats", error);
         });
-
 </script>
 
 <div class="container-fluid" style ='padding-bottom: 1cm'>   
     <div class="col-lg-10 col-lg-offset-1">
         <div class="row">
             <h2> Experiment info </h2> 
-        </div>
-        <div class="row">
             <p> 
             <b> app_id: </b> {{ app_id }} <br>
             <b> exp_id: </b> {{ exp_uid }} <br>
-            <b> git_hash: </b> {{ git_hash }} <br>
-            <b> Start date: </b> {{ exp_start_data }} <br>
-            <b> Number of participants: </b> {{ num_participants }} <br>
-            <b> Number of answers: </b> {{ num_queries }} <br> 
+            <b> git_hash: </b> <span id="git_hash"></span> <br>
+            <b> Start date: </b> <span id="exp_start_data"></span> <br>
+            <b> Dashboard data generated: </b> <span id="last_dashboard_update"></span> <br>
+            <b> Number of participants: </b> <span id="num_participants"></span> <br>
+            <b> Number of answers: </b> <span id="num_queries"></span> <br> 
             <b> Backend Exceptions: </b> <a href="{{ host_url }}/api/experiment/{{ exp_uid }}/logs/APP-EXCEPTION" target="_blank">Open in new tab</a>  <br>
             <b> Participant data: </b> <a href="{{ host_url }}/api/experiment/{{ exp_uid }}/participants?zip=True" target="_blank">Open in new tab</a>  <br>
             <b> Experiment data: </b> <a href="{{ host_url }}/api/experiment/{{ exp_uid }}" target="_blank">Open in new tab</a>  <br>
@@ -87,6 +88,30 @@ popup_alert = function(text){
         </div>
     </div>
 </div>
+<script>
+    $.ajax({
+        url: "{{ dashboard_url }}/get_stats",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({  
+            'exp_uid': "{{ exp_uid }}",
+            'args':{
+                'stat_id' : 'basic_info',
+            'params':{},
+            'force_recompute': {{ force_recompute }}
+            }
+            }),
+        dataType: "json"
+        }).done( function(data,textStatus, jqXHR) {
+            document.getElementById("git_hash").textContent = data["git_hash"];
+            document.getElementById("exp_start_data").textContent = data["exp_start_data"];
+            document.getElementById("num_participants").textContent = data["num_participants"];
+            document.getElementById("num_queries").textContent = data["num_queries"];
+            document.getElementById("last_dashboard_update").textContent = data["meta"]["last_dashboard_update"]
+        }).fail( function(error){
+        console.log("Failed to get stats", error);
+        });
+</script>
 {% endif %}
 
 {% if exceptions_present %}
@@ -139,7 +164,9 @@ popup_alert = function(text){
             'exp_uid': "{{ exp_uid }}",
             'args':{
             "stat_id" : "compute_duration_multiline_plot",
-            "params"  : {"task": "getQuery" } }
+            "params"  : {"task": "getQuery" },
+            'force_recompute': {{ force_recompute }}
+            }
             }),
         dataType: "json"
         }).done( function(data,textStatus, jqXHR) {
@@ -163,7 +190,9 @@ popup_alert = function(text){
             'exp_uid': "{{ exp_uid }}",
             'args':{
             "stat_id" : "compute_duration_multiline_plot",
-            "params"  : {"task": "processAnswer" } }
+            "params"  : {"task": "processAnswer" },
+            'force_recompute': {{ force_recompute }}
+            }
             }),
         dataType: "json"
         }).done( function(data,textStatus, jqXHR) {
@@ -187,7 +216,9 @@ popup_alert = function(text){
             'exp_uid': "{{ exp_uid }}",
             'args':{
             "stat_id" : "compute_duration_multiline_plot",
-            "params"  : {"task": "getModel" } }
+            "params"  : {"task": "getModel" },
+            'force_recompute': {{ force_recompute }}
+            }
             }),
         dataType: "json"
         }).done( function(data,textStatus, jqXHR) {
@@ -211,7 +242,9 @@ popup_alert = function(text){
             'exp_uid': "{{ exp_uid }}",
             'args':{
             "stat_id" : "compute_duration_multiline_plot",
-            "params"  : {"task": "daemonProcess" } }
+            "params"  : {"task": "daemonProcess" },
+            'force_recompute': {{ force_recompute }}
+            }
             }),
         dataType: "json"
         }).done( function(data,textStatus, jqXHR) {
@@ -294,11 +327,12 @@ popup_alert = function(text){
                         type: "POST",
                         contentType: "application/json",
                         data: JSON.stringify({  
-
                             'exp_uid': "{{ exp_uid }}",
                             'args':{
                             'stat_id' : 'compute_duration_detailed_stacked_area_plot',
-                            'params'  : {'task':'getQuery', 'alg_label':'{{ alg.alg_label }}' } }
+                            'params'  : {'task':'getQuery', 'alg_label':'{{ alg.alg_label }}' },
+                            'force_recompute': {{ force_recompute }} 
+                            }
                             }),
                         dataType: "json"
                         }).done( function(data,textStatus, jqXHR) {
@@ -319,11 +353,12 @@ popup_alert = function(text){
                         type: "POST",
                         contentType: "application/json",
                         data: JSON.stringify({  
-
                             'exp_uid': "{{ exp_uid }}",
                             'args':{
                             'stat_id' : 'compute_duration_detailed_stacked_area_plot',
-                            'params'  : {'task':'processAnswer', 'alg_label':'{{ alg.alg_label }}' } }
+                            'params'  : {'task':'processAnswer', 'alg_label':'{{ alg.alg_label }}' },
+                            'force_recompute': {{ force_recompute }} 
+                            }
                             }),
                         dataType: "json"
                         }).done( function(data,textStatus, jqXHR) {
@@ -348,7 +383,9 @@ popup_alert = function(text){
                             'exp_uid': "{{ exp_uid }}",
                             'args':{
                             'stat_id' : 'compute_duration_detailed_stacked_area_plot',
-                            'params'  : {'task':'getModel', 'alg_label':'{{ alg.alg_label }}' } }
+                            'params'  : {'task':'getModel', 'alg_label':'{{ alg.alg_label }}' },
+                            'force_recompute': {{ force_recompute }}
+                            }
                             }),
                         dataType: "json"
                         }).done( function(data,textStatus, jqXHR) {
@@ -373,7 +410,9 @@ popup_alert = function(text){
                             'exp_uid': "{{ exp_uid }}",
                             'args':{
                             'stat_id' : 'compute_duration_detailed_stacked_area_plot',
-                            'params'  : {'task':'daemonProcess', 'alg_label':'{{ alg.alg_label }}' } }
+                            'params'  : {'task':'daemonProcess', 'alg_label':'{{ alg.alg_label }}' },
+                            'force_recompute': {{ force_recompute }} 
+                            }
                             }),
                         dataType: "json"
                         }).done( function(data,textStatus, jqXHR) {
@@ -451,7 +490,9 @@ popup_alert = function(text){
                         'exp_uid': "{{ exp_uid }}",
                         'args':{
                         'stat_id' : 'response_time_histogram',
-                        'params'  : {'alg_label':'{{ alg.alg_label }}'} }
+                        'params'  : {'alg_label':'{{ alg.alg_label }}'},
+                        'force_recompute': {{ force_recompute }} 
+                        }
                         }),
                     dataType: "json"
                     }).done( function(data,textStatus, jqXHR) {
@@ -476,7 +517,9 @@ popup_alert = function(text){
                         'exp_uid': "{{ exp_uid }}",
                         'args':{
                         'stat_id' : 'network_delay_histogram',
-                        'params'  : {'alg_label':'{{ alg.alg_label }}'} }
+                        'params'  : {'alg_label':'{{ alg.alg_label }}'},
+                        'force_recompute': {{ force_recompute }} 
+                        }
                         }),
                     dataType: "json"
                     }).done( function(data,textStatus, jqXHR) {
