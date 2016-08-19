@@ -17,7 +17,7 @@ except:
 app_id = 'PoolBasedTripletMDS'
 
 
-def test_api(assert_200=True, num_objects=5, desired_dimension=1,
+def test_api(assert_200=True, num_objects=5, desired_dimension=2,
             total_pulls_per_client=4, num_experiments=1, num_clients=6):
     x = numpy.linspace(0,1,num_objects)
     X_true = numpy.vstack([x,x]).transpose()
