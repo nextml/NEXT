@@ -130,7 +130,7 @@ def experiment_dashboard(exp_uid, app_id):
     else:
         dashboard_url='{}/dashboard'.format(host_url)
         
-    env = Environment(loader=ChoiceLoader([PackageLoader('next.apps.Apps.{}'.format(app_id),
+    env = Environment(loader=ChoiceLoader([PackageLoader('apps.{}'.format(app_id),
                                                          'dashboard'),
                                            PackageLoader('next.dashboard',
                                                          'templates')]))

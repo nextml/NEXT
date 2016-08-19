@@ -104,7 +104,7 @@ def apply_dashboard(app_id, exp_uid, args_in_json, enqueue_timestamp):
                 cached_response['meta']['last_dashboard_update'] = str(delta_datetime.seconds/60)+' minutes ago'
 
         if cached_response==None:
-            dashboard_string = 'next.apps.Apps.' + app_id + '.dashboard.Dashboard'
+            dashboard_string = 'apps.' + app_id + '.dashboard.Dashboard'
             dashboard_module = __import__(dashboard_string, fromlist=[''])
             dashboard = getattr(dashboard_module, app_id+'Dashboard')
             dashboard = dashboard(db, ell)
