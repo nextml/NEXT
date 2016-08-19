@@ -10,7 +10,7 @@ color_ansi = {'yellow': '\x1b[33m',
               'reset all': '\x1b[0m'}
 
 
-def get_supported_apps(apps_path='next/apps/Apps/'):
+def get_supported_apps(apps_path='apps/'):
   """
   Returns a list of strings correspdoning to the app_id's that are fully operational in the learning library.
 
@@ -50,7 +50,7 @@ def get_app_alg(app_id,alg_id):
   """
   app_id = str(app_id) # soemtimes input is unicode formatted which causes error
   alg_id = str(alg_id) # soemtimes input is unicode formatted which causes error
-  next_path = 'next.apps.Apps.{}.algs.{}'.format(app_id, alg_id, alg_id)
+  next_path = 'apps.{}.algs.{}'.format(app_id, alg_id, alg_id)
   alg_module = __import__(next_path, fromlist=[''])
   alg_class = getattr(alg_module, alg_id)
   return alg_class()

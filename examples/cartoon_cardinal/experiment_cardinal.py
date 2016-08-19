@@ -25,7 +25,7 @@ from launch_experiment import *
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 experiment_list = []
 
-# algs in next/apps/Apps/CardinalBanditsPureExploration/algs/
+# algs in apps/CardinalBanditsPureExploration/algs/
 supported_alg_ids = ['LilUCB', 'RoundRobin']
 
 # Algorithm List. These algorithms are independent (no inter-connectedness
