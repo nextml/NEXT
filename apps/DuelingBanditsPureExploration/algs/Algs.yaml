@@ -22,7 +22,7 @@ getQuery:
       description: ID of the participant answering the query
   rets:
     type: list
-    description: List of three IDs: Those of the left target, right target, and ID of the painted target
+    description: List of three IDs--Those of the left target, right target, and painted target
     values:
       type: num
     
