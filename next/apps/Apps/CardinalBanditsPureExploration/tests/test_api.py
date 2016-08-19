@@ -18,7 +18,7 @@ except:
         import test_utils
 
 
-def test_api(assert_200=True, num_arms=5, total_pulls_per_client=7,
+def test_api(assert_200=True, num_arms=5,
              num_experiments=1, num_clients=10, total_pulls=5):
     app_id = 'CardinalBanditsPureExploration'
     true_means = numpy.array(range(num_arms)[::-1])/float(num_arms)
@@ -99,10 +99,9 @@ def test_api(assert_200=True, num_arms=5, total_pulls_per_client=7,
 
 def simulate_one_client(input_args):
     exp_uid,participant_uid,total_pulls,true_means,assert_200 = input_args
-    avg_response_time = 0.2
     verbose = False
 
-    time.sleep(2*avg_response_time*numpy.log(1./numpy.random.rand()))
+    test_utils.response_delay()
 
     getQuery_times = []
     processAnswer_times = []
@@ -126,14 +125,9 @@ def simulate_one_client(input_args):
 
         # generate simulated reward #
         # sleep for a bit to simulate response time
-        ts = time.time()
-
-        # time.sleep(    avg_response_time*numpy.random.rand()    )
-        time.sleep(    avg_response_time*numpy.log(1./numpy.random.rand())    )
-        # target_reward = true_means[target_index] + numpy.random.randn()*0.5
+        ts = test_utils.response_delay()
         target_reward = 1.+sum(numpy.random.rand(2)<true_means[target_index]) # in {1,2,3}
         # target_reward = numpy.random.choice(labels)['reward']
-
         response_time = time.time() - ts
 
         # test POST processAnswer 

@@ -5,10 +5,11 @@ import requests
 import os
 import json
 import time
-
+import numpy as np
 
 HOSTNAME = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost') \
            + ':' + os.environ.get('NEXT_BACKEND_GLOBAL_PORT', '8000')
+
 
 def initExp(initExp_args_dict, assert_200=True):
     url = "http://"+HOSTNAME+"/api/experiment"
@@ -118,3 +119,11 @@ def format_times(getQuery_times, processAnswer_times, total_pulls,
     getQuery_times.sort()
     return_str = '%s \n\t getQuery\t : %f (5),        %f (50),        %f (95)\n\t processAnswer\t : %f (5),        %f (50),        %f (95)\n' % (participant_uid,getQuery_times[int(.05*total_pulls)],getQuery_times[int(.50*total_pulls)],getQuery_times[int(.95*total_pulls)],processAnswer_times[int(.05*total_pulls)],processAnswer_times[int(.50*total_pulls)],processAnswer_times[int(.95*total_pulls)])
     return return_str
+
+
+def response_delay(std=0.05, mean=0.1):
+    ts = time.time()
+    sleep_time = np.abs(np.random.randn()*std + mean)
+    time.sleep(sleep_time)
+    return ts
+

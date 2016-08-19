@@ -16,7 +16,7 @@ except:
 
 app_id = 'PoolBasedBinaryClassification'
 
-def test_api(assert_200=True, num_objects=4, desired_dimension=2,
+def test_api(assert_200=True, num_objects=4, desired_dimension=1,
                         total_pulls_per_client=5, num_experiments=1,
                         num_clients=7):
     true_weights = numpy.zeros(desired_dimension)
@@ -100,7 +100,6 @@ def test_api(assert_200=True, num_objects=4, desired_dimension=2,
 
 def simulate_one_client(input_args):
     exp_uid, participant_uid, total_pulls, true_weights, assert_200 = input_args
-    avg_response_time = 1.0
 
     getQuery_times = []
     processAnswer_times = []
@@ -125,11 +124,8 @@ def simulate_one_client(input_args):
 
         # generate simulated reward #
         # sleep for a bit to simulate response time
-        ts = time.time()
-
-        time.sleep(avg_response_time*numpy.log(1./numpy.random.rand()))
+        ts = test_utils.response_delay()
         target_label = numpy.sign(numpy.dot(x,true_weights))
-
         response_time = time.time() - ts
 
         # test POST processAnswer

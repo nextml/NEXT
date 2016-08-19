@@ -18,8 +18,8 @@ except:
     import test_utils
 
 
-def test_api(assert_200=True, num_arms=7, num_clients=10, delta=0.05,
-             total_pulls_per_client=7, num_experiments=1):
+def test_api(assert_200=True, num_arms=5, num_clients=8, delta=0.05,
+             total_pulls_per_client=5, num_experiments=1):
 
     app_id = 'DuelingBanditsPureExploration'
     true_means = numpy.array(range(num_arms)[::-1])/float(num_arms)
@@ -85,7 +85,6 @@ def test_api(assert_200=True, num_arms=7, num_clients=10, delta=0.05,
 
 def simulate_one_client(input_args):
     exp_uid,participant_uid,total_pulls,true_means,assert_200 = input_args
-    avg_response_time = 1.
 
     getQuery_times = []
     processAnswer_times = []
@@ -110,8 +109,7 @@ def simulate_one_client(input_args):
         right = targets[1]['target']
 
         # sleep for a bit to simulate response time
-        ts = time.time()
-        time.sleep(avg_response_time*numpy.random.rand())
+        ts = test_utils.response_delay()
 
         #  print left
         reward_left = true_means[left['target_id']] + numpy.random.randn()*0.5

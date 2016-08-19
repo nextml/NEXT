@@ -17,8 +17,8 @@ except:
 app_id = 'PoolBasedTripletMDS'
 
 
-def test_api(assert_200=True, num_objects=7, desired_dimension=2,
-            total_pulls_per_client=5, num_experiments=1, num_clients=20):
+def test_api(assert_200=True, num_objects=5, desired_dimension=1,
+            total_pulls_per_client=4, num_experiments=1, num_clients=6):
     x = numpy.linspace(0,1,num_objects)
     X_true = numpy.vstack([x,x]).transpose()
 
@@ -88,7 +88,6 @@ def test_api(assert_200=True, num_objects=7, desired_dimension=2,
 
 def simulate_one_client( input_args ):
     exp_uid,participant_uid,total_pulls,X_true,assert_200 = input_args
-    avg_response_time = 1.
 
 
     getQuery_times = []
@@ -118,9 +117,8 @@ def simulate_one_client( input_args ):
             elif target['label'] == 'right':
                 index_right = target['target_id']
 
+        ts = test_utils.response_delay()
         # sleep for a bit to simulate response time
-        ts = time.time()
-        time.sleep(    avg_response_time*numpy.log(1./numpy.random.rand())    )
 
         direction = norm(X_true[index_left]-X_true[index_center])-norm(X_true[index_right]-X_true[index_center])
         r = numpy.random.rand()
