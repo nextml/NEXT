@@ -1,18 +1,18 @@
 initExp:
   args:
     n:
-      description: Dimension of embedding.
+      description: Dimension of the embedding
       type: num
     failure_probability:
-      description: Confidence of result.
+      description: Confidence of the result
       type: num
     params:
-      description: Params.
+      description: Arbitrary algorithm-specific parameters
       type: any
       optional: true
   rets:
     type: bool
-    description: A boolean indicating success.
+    description: A boolean indicating success
     values: true
 
 getQuery:
@@ -22,7 +22,7 @@ getQuery:
       description: ID of the participant answering the query
   rets:
     type: list
-    description: indices of stuff
+    description: List of three IDs: Those of the left target, right target, and ID of the painted target
     values:
       type: num
     
@@ -35,14 +35,14 @@ processAnswer:
         description: ID of right target
         type: num
       painted_id:
-        description: Painted ID
+        description: ID of the painted target
         type: num
       winner_id:
-        description: Winner ID
+        description: ID of the winning target
         type: num
     rets:
       type: bool
-      description: A boolean indicating success.
+      description: A boolean indicating success
       values: true
 
 getModel:
@@ -50,12 +50,12 @@ getModel:
     type: tuple
     values:
       0:
-        description: mu
+        description: List of the means of the rewards for the various targets
         type: list
         values:
           type: num
       1:
-        description: prec
+        description: List of the precisions with which the targets' rewards are known
         type: list
         values:
           type: num

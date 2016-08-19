@@ -8,14 +8,14 @@ initExp:
       description:
   rets:
     type: bool
-    description: A boolean indiciating if the algorithm succeeded or failed.
+    description: A boolean indiciating if the algorithm initialization succeeded or failed
     values: true
 
 getQuery:
   args:
     participant_uid:
       type: str
-      description: participant unique identifier. Use the butler to pull out more information about the participant
+      description: Participant unique ID
 
   rets:
     type: num
@@ -25,19 +25,19 @@ processAnswer:
   args:
     target_label:
       type: num
-      description:
+      description: The label assigned to the target
     target_index:
       type: num
-      description:
+      description: The ID of the target we are asking about
   rets:
-    description: Indicates if the alg succeeded
+    description: Indicates if the algorithm succeeded
     type: bool
     values: true
 
 getModel:
   rets:
     type: dict
-    description: Update the model that helps getQuery
+    description: The current state of the model
     values:
       weights:
         type: list
@@ -46,4 +46,4 @@ getModel:
           type: num
       num_reported_answers:
         type: num
-        description: The number of reported answers for this participant under this algorithm
+        description: The number of reported answers (for this algorithm)

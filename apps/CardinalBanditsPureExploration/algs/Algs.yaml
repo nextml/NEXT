@@ -5,10 +5,10 @@ initExp:
       description: Number of targets
     R:
       type: num
-      description:
+      description: Range for rewards
     failure_probability:
       type: num
-      description:
+      description: Confidence of result
   rets:
     type: bool
     description: Did initExp succeed?

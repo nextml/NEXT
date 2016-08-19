@@ -1,62 +1,62 @@
 initExp:
   args:
     n:
-      description: Dimension of embedding.
+      description: Number of targets
       type: num
     d:
-      description: Dimension of embedding.
+      description: Dimension of embedding
       type: num
     failure_probability:
-      description: Confidence of result.
+      description: Confidence of result
       type: num
   rets:
     type: bool
-    description: A boolean indicating success.
+    description: A boolean indicating success
     values: true
 
 
 getQuery:
   rets:
-    description: the fucking query dumbass
+    description: The triplet to ask about
     type: tuple
     values:
       0:
         type: num
-        description: center index
+        description: The ID of the center target
       1:
         type: num
-        description: left index
+        description: The ID of the left target
       2:
         type: num
-        description: right index
+        description: The ID of the right target
       
 processAnswer:
     args:
       center_id:
-        description: center id
+        description: The ID of the center target
         type: num
       left_id: 
-        description: left id
+        description: The ID of the left target
         type: num
       right_id: 
-        description: right id
+        description: The ID of the right target
         type: num
       target_winner:
         description: The ID of the target that won the given query.
         type: num
     rets:
       type: bool
-      description: A boolean indicating success.
+      description: A boolean indicating success
       values: true
 
 getModel:
   rets:
     type: dict
-    description: Update the model that helps getQuery
+    description: The current state of the model
     values:
       X:
-        description: The embedding.
+        description: The embedding
         type: stuff
       num_reported_answers:
-        description: how many answers have been reported for this alg.
+        description: How many answers have been reported (for this algorithm)
         type: num
