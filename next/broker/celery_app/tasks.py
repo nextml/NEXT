@@ -78,7 +78,7 @@ def apply_dashboard(app_id, exp_uid, args_in_json, enqueue_timestamp):
 	delta_datetime = dequeue_datetime - enqueue_datetime
 	time_enqueued = delta_datetime.seconds + delta_datetime.microseconds/1000000.
         dir, _ = os.path.split(__file__)
-        reference_dict,errs = verifier.load_doc('Apps/{}/{}.yaml'.format(app_id, app_id),"next/apps")
+        reference_dict,errs = verifier.load_doc('{}/{}.yaml'.format(app_id, app_id),"apps/")
         if len(errs) > 0:
                 raise Exception("App YAML format errors: \n{}".format(str(errs)))
         args_dict = verifier.verify(args_in_json, reference_dict['getStats']['args'])

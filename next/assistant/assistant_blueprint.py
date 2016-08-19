@@ -12,9 +12,9 @@ assistant = Blueprint('assistant',
 @assistant.route('/init/<string:app_id>')
 def init_form(app_id=None):
     if app_id:
-        filename = 'Apps/{0}/{0}.yaml'.format(app_id)
+        filename = '{0}/{0}.yaml'.format(app_id)
 
-        api,_ = verifier.load_doc(filename,'next/apps/')
+        api,_ = verifier.load_doc(filename, 'apps/')
         return render_template('form.html',api_doc=api,submit="/api/experiment", function_name="initExp", base_dir="/assistant/static")
     
     message = ('Welcome to the next.discovery system.\n '
@@ -25,10 +25,10 @@ def init_form(app_id=None):
 @assistant.route('/doc/<string:app_id>/<string:form>')
 def docs(app_id=None,form="raw"):
     if app_id:
-        filename = 'Apps/{0}/{0}.yaml'.format(app_id)
+        filename = '{0}/{0}.yaml'.format(app_id)
 
         utils.debug_print(filename)
-        api,blank,pretty = doc_gen.get_docs(filename,'next/apps/')
+        api,blank,pretty = doc_gen.get_docs(filename,'apps/')
         
         if form == "pretty":
             return render_template('doc.html',doc_string=pretty, base_dir="/assistant/static")

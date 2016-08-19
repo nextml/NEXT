@@ -32,9 +32,9 @@ class App(object):
         self.myApp = getattr(self.myApp, app_id)
         self.myApp = self.myApp(db)
         self.butler = Butler(self.app_id, self.exp_uid, self.myApp.TargetManager, db, ell)
-        base_dir, _ = os.path.split(__file__)
-        self.reference_dict,app_errs = verifier.load_doc("Apps/{}/{}.yaml".format(app_id, app_id), base_dir)
-        self.algs_reference_dict,alg_errs = verifier.load_doc("Apps/{}/algs/Algs.yaml".format(app_id, app_id), base_dir)
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),"../../apps"))
+        self.reference_dict,app_errs = verifier.load_doc("{}/{}.yaml".format(app_id, app_id), base_dir)
+        self.algs_reference_dict,alg_errs = verifier.load_doc("{}/algs/Algs.yaml".format(app_id, app_id), base_dir)
         if len(app_errs) > 0 or len(alg_errs) > 0:
             raise Exception("App YAML formatting errors: \n{}\n\nAlg YAML formatting errors: \n{}".format(
                 str(app_errs),
