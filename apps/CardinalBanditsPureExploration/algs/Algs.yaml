@@ -1,0 +1,57 @@
+initExp:
+  args:
+    n:
+      type: num
+      description: Number of targets
+    R:
+      type: num
+      description:
+    failure_probability:
+      type: num
+      description:
+  rets:
+    type: bool
+    description: Did initExp succeed?
+    values: true
+
+getQuery:
+  args:
+    participant_uid:
+      type: string
+      description: ID of the participant answering the query
+  rets:
+    description: The index of the target to ask about
+    type: num
+    
+processAnswer:
+    args:
+      target_id:
+        description: The ID of the target given in the query
+        type: num
+      target_reward: 
+        description: The reward value to assign to the target
+        type: num
+    rets:
+      type: bool
+      description: A boolean indicating success
+      values: true
+
+getModel:
+  rets:
+    type: tuple
+    values:
+      0:
+        description: List of mean rewards for each target
+        type: list
+        values:
+          type: num
+      1:
+        description: List of precisions for each target
+        type: list
+        values:
+          type: num
+      2:
+        description: List of counts giving how many queries have been answered about each target
+        type: list
+        values:
+          type: num

@@ -1,0 +1,62 @@
+initExp:
+  args:
+    n:
+      description: Dimension of embedding.
+      type: num
+    d:
+      description: Dimension of embedding.
+      type: num
+    failure_probability:
+      description: Confidence of result.
+      type: num
+  rets:
+    type: bool
+    description: A boolean indicating success.
+    values: true
+
+
+getQuery:
+  rets:
+    description: the fucking query dumbass
+    type: tuple
+    values:
+      0:
+        type: num
+        description: center index
+      1:
+        type: num
+        description: left index
+      2:
+        type: num
+        description: right index
+      
+processAnswer:
+    args:
+      center_id:
+        description: center id
+        type: num
+      left_id: 
+        description: left id
+        type: num
+      right_id: 
+        description: right id
+        type: num
+      target_winner:
+        description: The ID of the target that won the given query.
+        type: num
+    rets:
+      type: bool
+      description: A boolean indicating success.
+      values: true
+
+getModel:
+  rets:
+    type: dict
+    description: Update the model that helps getQuery
+    values:
+      X:
+        description: The embedding.
+        type: stuff
+      num_reported_answers:
+        description: how many answers have been reported for this alg.
+        type: num
