@@ -54,7 +54,7 @@ class ValidationSampling:
     def getQuery(self, butler, participant_uid):
         num_ans = butler.algorithms.get(key='total_pulls')
         query_list = butler.algorithms.get(key='query_list')
-        i = num_ans % (len(query_list) - 1)
+        i = num_ans % len(query_list)
 
         query = query_list[i]
         return query + [query[0]]
