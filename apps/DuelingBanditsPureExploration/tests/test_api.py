@@ -18,17 +18,28 @@ except:
     import test_utils
 
 
+def test_validation_params():
+    params = [{'num_tries': 5},
+              {'query_list': [[0, 1], [1, 2], [3, 4]]}]
+    for param in params:
+        print(param)
+        test_api(params=param)
+
+
 def test_api(assert_200=True, num_arms=5, num_clients=8, delta=0.05,
-             total_pulls_per_client=5, num_experiments=1):
+             total_pulls_per_client=5, num_experiments=1,
+             params={'num_tries': 5}):
 
     app_id = 'DuelingBanditsPureExploration'
     true_means = numpy.array(range(num_arms)[::-1])/float(num_arms)
     pool = Pool(processes=num_clients)
-    supported_alg_ids = ['BR_LilUCB', 'BR_Random']
+    supported_alg_ids = ['BR_LilUCB', 'BR_Random', 'ValidationSampling']
 
     alg_list = []
     for i, alg_id in enumerate(supported_alg_ids):
         alg_item = {}
+        if alg_id == 'ValidationSampling':
+            alg_item['params'] = params
         alg_item['alg_id'] = alg_id
         alg_item['alg_label'] = alg_id+'_'+str(i)
         alg_list.append(alg_item)

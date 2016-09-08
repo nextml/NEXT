@@ -14,7 +14,7 @@ initExp:
             values:
               alg_id:
                 description: Supported algorithm types for DuelingBanditsPureExploration.
-                values: [BR_LilUCB, BR_Random]
+                values: [BR_LilUCB, BR_Random, ValidationSampling]
         instructions:
           default: Please select, using your mouse or left and right arrow keys, the better item.
           optional: true
