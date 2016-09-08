@@ -8,21 +8,16 @@ class PoolBasedBinaryClassification(object):
         self.TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager(db)
 
     def initExp(self, butler, init_algs, args):
-        utils.debug_print("AA: "+str(args))
-        if 'targetset' in args['targets'].keys():
-            n  = len(args['targets']['targetset'])
-            self.TargetManager.set_targetset(butler.exp_uid, args['targets']['targetset'])
-
-        d = len(args['targets']['targetset'][0]['meta']['features'])
-        args['n'] = n
-        args['d'] = d
+        args['n']  = len(args['targets']['targetset'])        
+        # Get the first target, extract it's feature vector and save this as the dimension
+        # This assumes that feature dimension consistent across all targets
+        args['d'] = len(args['targets']['targetset'][0]['meta']['features'])
+        targets = sorted(args['targets']['targetset'],key=lambda x: x['target_id'])
+        self.TargetManager.set_targetset(butler.exp_uid, targets)
         del args['targets']
-
-        alg_data = {}
-        algorithm_keys = ['n','failure_probability']
-        for key in algorithm_keys:
-            if key in args:
-                alg_data[key]=args[key]
+        
+        alg_data = { 'n': args['n'],
+                     'failure_probability': args['failure_probability']}
         init_algs(alg_data)
         return args
 

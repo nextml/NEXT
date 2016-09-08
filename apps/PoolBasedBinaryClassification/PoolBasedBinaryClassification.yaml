@@ -28,9 +28,7 @@ initExp:
                         description: A feature vector for this item. 
                         type: list
                         values: 
-                          type: num
-
-                
+                          type: num                
 processAnswer:
   args:
     args:
