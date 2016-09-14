@@ -35,18 +35,21 @@ from boto.s3.key import Key
 
 
 def upload_target_to_S3(target_name_dict, key, bucket, prefix, primary_file,
-                        primary_type):
+                        primary_type, extra_target_info={}):
     primary_file_name = target_name_dict[key]
     primary_url = upload_to_S3(bucket,
                                '{}_{}'.format(prefix,
                                               primary_file_name),
                                StringIO(primary_file))
 
-    return {'target_id': '{}_{}'.format(prefix, primary_file_name),
-            'primary_type': primary_type,
-            'primary_description': primary_url,
-            'alt_type': 'text',
-            'alt_description': primary_file_name}
+    target = {'target_id': '{}_{}'.format(prefix, primary_file_name),
+              'primary_type': primary_type,
+              'primary_description': primary_url,
+              'alt_type': 'text',
+              'alt_description': primary_file_name}
+    target.update(extra_target_info)
+    return target
+
 
 def generate_target_blob(AWS_BUCKET_NAME,
                          AWS_ID,
@@ -109,7 +112,13 @@ def generate_target_blob(AWS_BUCKET_NAME,
         else:
             # This section of the if-statement happens when uploading images
             # from a zip file (e.g., strangefruit30)
-            start = time.time()
+            target_features = experiment.get('target_features', None)
+            if target_features:
+                if type(target_features) != dict:
+                    raise ValueError('target_features should be dictionary of '
+                                     'form {filename: feature_vector}')
+                target_features = {k.replace('.png', '').replace('.jpg', ''): v
+                                   for k, v in target_features.items()}
             if type(parallel_upload) == bool and not parallel_upload:
                 # happens only for parallel_upload == False
                 targets = [upload_target_to_S3(target_name_dict, key, bucket,
@@ -118,13 +127,18 @@ def generate_target_blob(AWS_BUCKET_NAME,
                                     enumerate(target_file_dict.iteritems())]
             else:
                 # happens only for parallel_upload == True
+
                 if type(parallel_upload) == bool:
                     n_jobs = min(100, len(target_file_dict))
                 elif type(parallel_upload) in {int, float}:
                     n_jobs = int(parallel_upload)
 
                 targets = Parallel(n_jobs=n_jobs)(delayed(upload_target_to_S3)
-                            (target_name_dict, key, bucket, prefix, primary_file, primary_type)
+                            (target_name_dict, key, bucket, prefix,
+                                primary_file, primary_type,
+                                extra_target_info={} if not target_features
+                                else {'feature_vector':
+                                    target_features[key]})
                            for i, (key, primary_file) in
                                         enumerate(target_file_dict.iteritems()))
     else:

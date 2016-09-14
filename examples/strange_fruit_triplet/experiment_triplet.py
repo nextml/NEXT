@@ -1,4 +1,6 @@
 import os, sys
+import zipfile
+import numpy as np
 
 # The line below imports launch_experiment.py.
 # We assume that it is located in next/examples
@@ -11,6 +13,7 @@ experiment_list = []
 # List of Algorithms currently available for this app type
 alg_ids = ['RandomSampling','RandomSampling','UncertaintySampling','CrowdKernel','STE']
 alg_ids = ['CrowdKernel', 'STE', 'RandomSampling', 'UncertaintySampling']
+#  alg_ids = ['STE']
 
 # Algorithm List. These algorithms are independent (no inter-connectedness
 # between algorithms) and each algorithm gets `proportion` number of queries
@@ -77,7 +80,12 @@ experiment['initExp'] = initExp
 
 # The user chooses between two images. This could be text or video as well.
 experiment['primary_type'] = 'image'
-experiment['primary_target_file'] = '{}/strangefruit30.zip'.format(curr_dir)
+target_zip = '{}/strangefruit30.zip'.format(curr_dir)
+experiment['primary_target_file'] = target_zip
+
+experiment['target_features'] = {filename.split('/')[-1]: np.random.rand(2).tolist()
+                                 for filename in zipfile.ZipFile(target_zip).namelist()}
+
 experiment_list.append(experiment)
 
 # Launch the experiment
