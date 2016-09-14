@@ -46,9 +46,9 @@ class DuelingBanditsPureExploration(object):
         del args['targets']
 
         alg_data = {}
-        algorithm_keys = ['n','failure_probability']
+        algorithm_keys = ['n', 'failure_probability']
         for key in algorithm_keys:
-            alg_data[key]=args[key]
+            alg_data[key] = args[key]
 
         init_algs(alg_data)
         return args

@@ -98,4 +98,5 @@ except:
     sys.exit()
 
 exp_uid_list = launch_experiment(host, experiment_list, AWS_ACCESS_ID,
-                                 AWS_SECRET_ACCESS_KEY, AWS_BUCKET_NAME)
+                                 AWS_SECRET_ACCESS_KEY, AWS_BUCKET_NAME,
+                                 parallel_upload=True)

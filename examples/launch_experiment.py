@@ -15,6 +15,7 @@ export AWS_ACCESS_KEY_ID=
 export AWS_SECRET_ACCESS_KEY=
 python launch_experiment --experiment_file=
 """
+
 import os
 import re
 import csv
@@ -25,10 +26,27 @@ import getopt
 import zipfile
 import requests
 import datetime
+import time
 from StringIO import StringIO
+from joblib import Parallel, delayed
 
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
+
+
+def upload_target_to_S3(target_name_dict, key, bucket, prefix, primary_file,
+                        primary_type):
+    primary_file_name = target_name_dict[key]
+    primary_url = upload_to_S3(bucket,
+                               '{}_{}'.format(prefix,
+                                              primary_file_name),
+                               StringIO(primary_file))
+
+    return {'target_id': '{}_{}'.format(prefix, primary_file_name),
+            'primary_type': primary_type,
+            'primary_description': primary_url,
+            'alt_type': 'text',
+            'alt_description': primary_file_name}
 
 def generate_target_blob(AWS_BUCKET_NAME,
                          AWS_ID,
@@ -38,7 +56,8 @@ def generate_target_blob(AWS_BUCKET_NAME,
                          primary_type,
                          experiment=None,
                          alt_file=None,
-                         alt_type='text'):
+                         alt_type='text',
+                         parallel_upload=True):
     '''
     Upload targets and return a target blob for upload with the target_manager.
 
@@ -50,7 +69,7 @@ def generate_target_blob(AWS_BUCKET_NAME,
         AWS_ID: Aws id
         AWS_KEY: Aws key
     '''
-    print "generating blob"
+    print "Uploading targets to S3"
     targets = []
     bucket = get_AWS_bucket(AWS_BUCKET_NAME, AWS_ID, AWS_KEY)
     is_primary_zip = ((type(primary_file) is str and primary_file.endswith('.zip'))
@@ -88,18 +107,26 @@ def generate_target_blob(AWS_BUCKET_NAME,
                           'alt_description': alt_url}
                 targets.append(target)
         else:
-            for i, (key, primary_file) in enumerate(target_file_dict.iteritems()):
-                primary_file_name = target_name_dict[key]
-                primary_url = upload_to_S3(bucket,
-                                           '{}_{}'.format(prefix,
-                                                          primary_file_name),
-                                           StringIO(primary_file))
-                target = {'target_id': '{}_{}'.format(prefix, primary_file_name),
-                          'primary_type': primary_type,
-                          'primary_description': primary_url,
-                          'alt_type': 'text',
-                          'alt_description': primary_file_name}
-                targets.append(target)
+            # This section of the if-statement happens when uploading images
+            # from a zip file (e.g., strangefruit30)
+            start = time.time()
+            if type(parallel_upload) == bool and not parallel_upload:
+                # happens only for parallel_upload == False
+                targets = [upload_target_to_S3(target_name_dict, key, bucket,
+                                           prefix, primary_file, primary_type)
+                       for i, (key, primary_file) in
+                                    enumerate(target_file_dict.iteritems())]
+            else:
+                # happens only for parallel_upload == True
+                if type(parallel_upload) == bool:
+                    n_jobs = min(100, len(target_file_dict))
+                elif type(parallel_upload) in {int, float}:
+                    n_jobs = int(parallel_upload)
+
+                targets = Parallel(n_jobs=n_jobs)(delayed(upload_target_to_S3)
+                            (target_name_dict, key, bucket, prefix, primary_file, primary_type)
+                           for i, (key, primary_file) in
+                                        enumerate(target_file_dict.iteritems()))
     else:
         if experiment.get('image-urls', False) or experiment.get('image-url', False):
             # This is the section where 
@@ -200,7 +227,8 @@ def import_experiment_list(file):
     experiment_list = mod.experiment_list
     return experiment_list
 
-def launch_experiment(host, experiment_list, AWS_ID, AWS_KEY, AWS_BUCKET_NAME):
+def launch_experiment(host, experiment_list, AWS_ID, AWS_KEY, AWS_BUCKET_NAME,
+                      parallel_upload=True):
   """
   Initialize experiment from an array in an experiment file.
 
@@ -247,7 +275,8 @@ def launch_experiment(host, experiment_list, AWS_ID, AWS_KEY, AWS_BUCKET_NAME):
                                        primary_type=experiment['primary_type'],
                                        alt_file=experiment.get('alt_target_file', None),
                                        experiment=experiment,
-                                       alt_type=experiment.get('alt_type','text'))
+                                       alt_type=experiment.get('alt_type','text'),
+                                       parallel_upload=parallel_upload)
 
         experiment['initExp']['args']['targets'] = {'targetset': targets}
     else:
