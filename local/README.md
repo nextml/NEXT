@@ -17,6 +17,12 @@ It is assumed you have python2.7 by default on linux.
 `docker` can be installed via the [Docker install guide]. `docker-compose` can
 be installed via `pip install docker-compose`.
 
+### Using macOS
+If using macOS/OS X, download [Docker for Mac], not [Docker Toolbox]. It
+provides an easier interface to get started.
+
+[Docker for Mac]:https://docs.docker.com/engine/installation/mac/#/docker-for-mac
+
 [Docker install guide]:https://docs.docker.com/v1.8/installation/
 
 ## Starting the backend
@@ -29,14 +35,14 @@ optionally provide a path to the repo if you are running the
 `docker_up` script from a different directory.  For example:
 
 ```
-sudo ./docker_up.sh [host] /home/username/NEXT
+./docker_up.sh [host] [/path/to/NEXT]
 ```
 
 where the relative path to NEXT is optional and host is not. A typical
 command is
 
 ```
-sudo ./docker_up.sh localhost
+./docker_up.sh
 ```
 
 which assumes the directory `NEXT` is located at `../` when cd'd to `local`.
