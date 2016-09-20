@@ -9,7 +9,7 @@ def getRandomQuery(n):
     a = np.random.choice(n)
     while True:
         b = np.random.choice(n)
-        if a == b:
+        if a != b:
             return [a, b]
 
 
