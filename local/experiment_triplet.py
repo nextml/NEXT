@@ -4,6 +4,8 @@ import os, sys
 sys.path.append("../")
 from launch_experiment import *
 
+target_file = 'strangefruit30.json'
+
 experiment_list = []
 alg_ids = ['RandomSampling','RandomSampling','UncertaintySampling','CrowdKernel','STE']
 
@@ -50,8 +52,8 @@ initExp['app_id'] = 'PoolBasedTripletMDS'
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 experiment = {}
 experiment['initExp'] = initExp
-experiment['primary_type'] = 'image'
-experiment['primary_target_file'] = sys.argv[1]
+experiment['primary_type'] = 'json-urls'
+experiment['primary_target_file'] = target_file
 experiment_list.append(experiment)
 
 # Launch the experiment

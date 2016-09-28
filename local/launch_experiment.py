@@ -74,49 +74,35 @@ def generate_target_blob(prefix,
                           'alt_type': 'text',
                           'alt_description': primary_file_name}
                 targets.append(target)
+    elif primary_type == 'json-urls':
+        with open(primary_file, 'r') as f:
+            targets_dict = json.load(f)
+        targets_next = []
+        for i, (name, url) in enumerate(targets_dict.items()):
+            target_next = {'target_id': str(i),
+                           'primary_type': 'image',
+                           'primary_description': '"' + url + '"',
+                           'alt_type': 'text',
+                           'alt_description': name}
+            targets_next += [target_next]
+        targets = targets_next
     else:
-        if experiment.get('image-urls', False) or experiment.get('image-url', False):
-            # This is the section where 
-            # getting rid of http://filenamestuff?dl=0 to append filenames too
-            print('Adding urls to targets')
-            targets = []
-            urls = open(experiment['primary_target_file'], 'r')
-            urls = [url[:-1] for url in urls.readlines()]
-            for filename in experiment['initExp']['args']['feature_filenames']:
-                # parameters: alt_type, primary_type, prefix
-                # define: alt_url, primary_url
-                feature_urls = [filename in url for url in urls]
-                # assert sum(feature_urls) <= 1, \
-                                        # "At most one image URL per filename!"
-                if True in feature_urls:
-                    url = urls[feature_urls.index(True)]
-                    if not '?' in url:
-                        url = url + '?dl=1'
-                    target = {'target_id': '{}_{}'.format(prefix, filename),
-                              'primary_type': primary_type,
-                              'primary_description': url,
-                              'alt_type': alt_type,
-                              'alt_description': filename}
-
-                    targets += [target]
-            print('...and done adding URLs to targets')
+        if type(primary_file) is str:
+            f = open(primary_file)
         else:
-            if type(primary_file) is str:
-                f = open(primary_file)
-            else:
-                f = primary_file
-                f.seek(0)
-            i = 0
-            for line in f.read().splitlines():
-                line = line.strip()
-                if line:
-                    i += 1
-                    target = {'target_id': str(i),
-                              'primary_type': 'text',
-                              'primary_description':line,
-                              'alt_type': 'text',
-                              'alt_description':line}
-                    targets.append(target)
+            f = primary_file
+            f.seek(0)
+        i = 0
+        for line in f.read().splitlines():
+            line = line.strip()
+            if line:
+                i += 1
+                target = {'target_id': str(i),
+                          'primary_type': 'text',
+                          'primary_description':line,
+                          'alt_type': 'text',
+                          'alt_description':line}
+                targets.append(target)
         print "\ntargets formatted like \n{}\n".format(targets[0])
     return targets
 
