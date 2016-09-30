@@ -28,6 +28,8 @@
           </div>
           <div class="modal-body">
             <h4 id="debrief_text">{{experiment['args']['debrief']}}</h4>
+            <br><br>
+            User ID: <div id="participant_uid"></div>
           </div>
         </div>
       </div>
@@ -50,6 +52,7 @@
       var div_id = "wrapper";
       var exp_uid = "{{exp_uid}}";
       var participant_uid = next_widget.makeRandomString(30);
+      $('#participant_uid').html(participant_uid);
       var args = {
           name: "getQuery",
           exp_uid: exp_uid,
