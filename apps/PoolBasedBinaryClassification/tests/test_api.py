@@ -49,6 +49,7 @@ def test_api(assert_200=True, num_objects=4, desired_dimension=1,
                         'primary_type':'text',
                         'alt_description':'%d' % (i),
                         'alt_type':'text',
+                        'target_id': str(i),
                         'meta': {'features':features}})
 
     # Test POST Experiment
@@ -62,7 +63,6 @@ def test_api(assert_200=True, num_objects=4, desired_dimension=1,
     initExp_args_dict['args']['alg_list'] = alg_list #optional field
     initExp_args_dict['args']['instructions'] = 'You want instructions, here are your test instructions'
     initExp_args_dict['args']['debrief'] = 'You want a debrief, here is your test debrief'
-
     initExp_args_dict['args']['targets'] = {'targetset': targetset}
 
     exp_info = []

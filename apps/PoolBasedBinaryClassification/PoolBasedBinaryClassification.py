@@ -16,8 +16,9 @@ class PoolBasedBinaryClassification(object):
         self.TargetManager.set_targetset(butler.exp_uid, targets)
         del args['targets']
         
-        alg_data = { 'n': args['n'],
-                     'failure_probability': args['failure_probability']}
+        alg_data = {'n': args['n'],
+                    'failure_probability': args['failure_probability'],
+                    'd': args['d']}
         init_algs(alg_data)
         return args
 

@@ -1,5 +1,6 @@
 import time
 import numpy.random
+import next.utils as utils
 
 class RandomSamplingLinearLeastSquares:
     def initExp(self, butler, n, d, failure_probability):
@@ -10,6 +11,7 @@ class RandomSamplingLinearLeastSquares:
         
         # Initialize the weight to an empty list of 0's
         butler.algorithms.set(key='weights',value=[0]*(d+1))
+        butler.algorithms.set(key='num_reported_answers', value=0)
         return True
 
     def getQuery(self, butler, participant_uid):
@@ -33,6 +35,7 @@ class RandomSamplingLinearLeastSquares:
 
     def getModel(self, butler):
         # The model is simply the vector of weights and a record of the number of reported answers.
+        utils.debug_print(butler.algorithms.get(key=['weights','num_reported_answers']))
         return butler.algorithms.get(key=['weights','num_reported_answers'])
 
 
