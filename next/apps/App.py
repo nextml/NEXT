@@ -145,9 +145,10 @@ class App(object):
                 alg_id = participant_doc['alg_id']
                 alg_label = participant_doc['alg_label']
 
+            query_uid = utils.getNewUID()
+            args_dict['args'].update(query_uid=query_uid)
             query_doc = self.call_app_fn(alg_label, alg_id, 'getQuery', args_dict)
             
-            query_uid = utils.getNewUID()
             query_doc.update({'participant_uid':participant_uid,
                               'alg_id':alg_id,
                               'exp_uid':exp_uid,

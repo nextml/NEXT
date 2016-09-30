@@ -115,6 +115,10 @@ getQuery:
           description: A participant_uid that can be used to track the queries and responses from a specific participant. If this field is missing, then the participant is by default assigned to the exp_uid.
           type: str
           optional: true
+        query_uid:
+          description: A string that is a unique ID for this particular query (regardless of whether the objects contained in this query are unique)
+          type: str
+          optional: true
         participant_ip:
           description: The IP address of the participant 
           type: str
