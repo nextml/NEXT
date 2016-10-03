@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 HOST=$1
+[[ -z "$1" ]] && HOST=localhost;  # by default HOST=localhost
+
 export NEXT_BACKEND_GLOBAL_PORT=8000
 export AWS_ACCESS_ID=None
 export AWS_SECRET_ACCESS_KEY=None
