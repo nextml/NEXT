@@ -85,10 +85,12 @@ def apply_dashboard(app_id, exp_uid, args_in_json, enqueue_timestamp):
         stat_id = args_dict['args'].get('stat_id','none')
 
         stat_args = args_dict['args']
+
         hash_object = hashlib.md5(stat_id+'_'+json.dumps(stat_args['params']))
         stat_uid = hash_object.hexdigest()
+        stat_uid += '_' + exp_uid
 
-        app = App_Wrapper(app_id, exp_uid, db, ell)  
+        app = App_Wrapper(app_id, exp_uid, db, ell)
         cached_doc = app.butler.dashboard.get(uid=stat_uid)
         cached_response = None
         if (int(stat_args.get('force_recompute',0))==0) and (cached_doc is not None):    
