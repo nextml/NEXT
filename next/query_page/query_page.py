@@ -22,6 +22,13 @@ def load_page(page, exp_uid=None):
                                          constants.NEXT_BACKEND_GLOBAL_PORT)
     else:
         host_url = ''
+
+    part_id = request.args.get('participant', None)
+    participant_uid = str(part_id) if part_id else part_id
+
         
-    return render_template(app_template, host_url=host_url, exp_uid=exp_uid, experiment = experiment), 200, {'Cache-Control':'private, max-age=0, no-cache, no-store'}
+    return render_template(app_template, host_url=host_url, exp_uid=exp_uid,
+                           experiment=experiment,
+                           participant_uid=participant_uid), \
+        200, {'Cache-Control':'private, max-age=0, no-cache, no-store'}
 

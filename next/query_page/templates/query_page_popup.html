@@ -8,81 +8,83 @@
     <script src="{{ url_for('query_page.static', filename='js/next_widget.js' )}}"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
   </head>
+  <body>
+    
+    <script>
+      $(window).load(function() {
+        // Set a timeout...and hide address bar
+        setTimeout(function(){
+          window.scrollTo(0, 1);
+        }, 0);
+      });
+    </script>
 
-  <script>
-    $(window).load(function() {
-      // Set a timeout...
-      setTimeout(function(){
-        // Hide the address bar!
-        window.scrollTo(0, 1);
-      }, 0);
-      $('#directions').modal('show');
-      $('#directions').modal({backdrop: 'static'});
-    });
-  </script>
-  <body style="height:100%;">
-    <!-- debrief Modal -->
-    <div id="debrief" class="modal fade" tabindex="-1" role="dialog" href="#">
+    <!-- debrief modal -->
+    <div class="modal fade" id="debrief" tabindex="-1" role="dialog" href="#">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
             <h1 class="modal-title" id="modal-title">Debrief</h1>
           </div>
           <div class="modal-body">
-            <h4 id="debrief_text"></h4>
+            <h4 id="debrief_text">{{experiment['args']['debrief']}}</h4>
+            <br><br>
+            User ID: <div id="participant_uid"></div>
           </div>
         </div>
       </div>
     </div>
-    <!-- instructions Modal -->
-    <div class="modal fade" id="directions" role="dialog" tabindex="-1">
+    <!-- instructions modal -->
+    <div class="modal fade" id="instructions" tabindex="-2" role="dialog" href="#">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
             <h1 class="modal-title" id="modal-title">Instructions</h1>
           </div>
           <div class="modal-body">
-            <p>
-              <center><p id="directions_text"></p></center>
-            </p>
-          </div>
+            <p id="instruction_text">{{experiment['args']['instructions']}}</p>
+            <br>
           <div class="modal-footer">
             <button type="button" class="btn btn-danger"
                     data-dismiss="modal" onclick="">Dismiss</button>
           </div>
+          </div>
         </div>
       </div>
     </div>
+    
     <div class="container" style="height:90%">
+      <!-- instructions at top of page -->
+      <div id="top_instructions" class="row" >
+        <center><p id="directions_text">{{experiment['args']['instructions']}}</p></center>
+      </div>
       <!-- widget wrapper -->
-      <div id="wrapper" style="height:90%;">
+      <div id="wrapper">
         <center><h1>Loading...</h1></center>
       </div>
-      <!-- button for instructions -->
-      <div align="right" id="top_instructions" style="padding-right: 15px; padding-bottom: 10px;">
-        <button type="button" class="btn btn-info" onclick="load_instructions();">
-          Directions
-        </button>
-      </div>
     </div>
+
     <script>
       next_widget.setUrl("");
-      var tries =  {{num_tries}};
+      var tries =  {{experiment['args']['num_tries']}};
       var div_id = "wrapper";
       var exp_uid = "{{exp_uid}}";
-      //var widget_key = "{{widget_key}}";
+
+      {% if participant_uid %}
+      var participant_uid = "{{ participant_uid }}";
+      {% else %}
       var participant_uid = next_widget.makeRandomString(30);
-      var info_args = {
-        name: "getInfo",
-        exp_uid: exp_uid,
-        //widget_key: widget_key,
-        args: {}
-      };
+      {% endif %}
+
+      $('#participant_uid').html(participant_uid);
+      $('#instructions').modal('show');
       var args = {
-        name: "getQuery",
-        exp_uid: exp_uid,
-        //widget_key: widget_key,
-        args: { participant_uid: participant_uid }
+          name: "getQuery",
+          exp_uid: exp_uid,
+          args: {
+	      participant_uid: participant_uid,
+	      widget: true
+	  }
       };
       var callbacks = {
         processAnswer_success: function() {
@@ -90,33 +92,22 @@
             tries -=1;
             next_widget.getQuery(div_id, args, callbacks);
           } else{
-            $('#instructions').hide();
             $('#wrapper').hide();
-            $('#debrief').show();
+	      /*             $('#debrief').show(); */
             $('#debrief').modal('show');
           }
         },
+	  
         getQuery_success: function(){
-          console.log("success");
+          console.log("successfully got a query")
         },
-        getInfo_success: function(response){
-          instructions = response.response["instructions"];
-          $('#directions_text').html(instructions);
-          debrief = response.response["debrief"]+" "+participant_uid;
-          $('#debrief_text').html(debrief);
-          tries = response.response["num_tries"];
-        },
+	  
         widget_failure: function(){
-          $('#instructions').hide();
           $('#query').hide();
           $('#debrief').show();
           $('#debrief').modal('show');
         }
-      };
-      var load_instructions = function(){
-        $('#directions').modal({backdrop:'static'});
       }
-      next_widget.getInfo(info_args, callbacks);
       next_widget.getQuery(div_id, args, callbacks);
     </script>
   </body>

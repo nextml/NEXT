@@ -52,7 +52,8 @@ class getQuery(Resource):
         app_id = resource_manager.get_app_id(exp_uid)
         # Standardized participant_uid
         if 'participant_uid' in args_data['args'].keys():
-            args_data['args']['participant_uid'] = exp_uid+"_"+args_data['args']['participant_uid']
+            args_data['args']['participant_uid'] = exp_uid+"_" + \
+                                str(args_data['args']['participant_uid'])
 
         render_widget = args_data['args'].get('widget',False)
 

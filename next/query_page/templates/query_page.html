@@ -51,7 +51,13 @@
       var tries =  {{experiment['args']['num_tries']}};
       var div_id = "wrapper";
       var exp_uid = "{{exp_uid}}";
+
+      {% if participant_uid %}
+      var participant_uid = "{{ participant_uid }}";
+      {% else %}
       var participant_uid = next_widget.makeRandomString(30);
+      {% endif %}
+
       $('#participant_uid').html(participant_uid);
       var args = {
           name: "getQuery",
