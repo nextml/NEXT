@@ -1,4 +1,5 @@
 import yaml
+import random
 
 color_ansi = {'yellow': '\x1b[33m',
               'red': '\x1b[31m',
@@ -142,6 +143,13 @@ def debug_print(*args, **kwargs):
         else:
             print '{}{}{}'.format(color_ansi[color], a, color_ansi['reset all'])
     print ''
+
+def random_string(length=20):
+    letters = list('qwertyuiopasdfghkjlzxcvbnm')
+    s = [random.choice(letters) for _ in range(length)]
+    s = ''.join(s)
+    return s
+
 
 import time
 def timeit(f):
