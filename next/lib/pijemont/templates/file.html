@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Start an experiment</title>
+    <link rel="stylesheet" type="text/css" href="pijemont.css">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script type="text/javascript" src="fileinit.js"></script>
+  </head>
+  <body>
+    <form enctype="multipart/form-data" id="init_exp_form">
+      Input arguments: <input type="file" onchange="file_read('args')"
+      /><br />
+
+      Input targets: 
+      <input type="file" onchange="file_read('targets')" />
+      <br />
+      
+      <input type="submit" onsubmit="submit_form()" />
+    </form>
+</body></html>
