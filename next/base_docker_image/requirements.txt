@@ -4,9 +4,10 @@ Flask-Login
 gunicorn
 pymongo
 redis
-celery
+celery==3.1.25
 boto
 greenlet
 mpld3
 pyyaml
 ply
+joblib

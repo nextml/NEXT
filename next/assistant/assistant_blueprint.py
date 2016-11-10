@@ -2,7 +2,7 @@ from flask import Blueprint, render_template
 from next.utils import utils
 from next.lib.pijemont import doc as doc_gen
 from next.lib.pijemont import verifier
-from next.assistant.target_unpacker import target_unpacker
+import next.assistant.target_unpacker as target_unpacker
 
 assistant = Blueprint('assistant',
                       __name__,
