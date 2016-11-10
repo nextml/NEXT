@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, Api
+from flask_restful import Api
 from next.utils import utils
 from next.lib.pijemont import doc as doc_gen
 from next.lib.pijemont import verifier
