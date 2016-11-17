@@ -5,10 +5,12 @@ function file_read(form){
     var reader = new FileReader();
     var set_onload = function(f){
 	reader.onload = function(e) {
+	    console.log('done with',f);
 	    data[f] = e.target.result;
 	    ready = data['args'] != null && data['targets'] != null;
 	    document.getElementById(f+'_status').innerHTML='Ready!';
 	};
+	console.log('set onload',f);
     };
     set_onload(form);
     document.getElementById(form+'_status').innerHTML='Loading...';
