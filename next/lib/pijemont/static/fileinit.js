@@ -1,5 +1,7 @@
-var data = {'args':null,'targets':null};
+var data = {'args':null,'targets':null,"bucket_id":"","key_id":"","secret_key":""};
 var ready = false;
+
+var params = ["bucket_id","key_id","secret_key"];
 
 function file_read(form){
     var reader = new FileReader();
@@ -7,14 +9,13 @@ function file_read(form){
 	reader.onload = function(e) {
 	    console.log('done with',f);
 	    data[f] = e.target.result;
-	    ready = data['args'] != null && data['targets'] != null;
 	    document.getElementById(f+'_status').innerHTML='Ready!';
 	};
 	console.log('set onload',f);
     };
     set_onload(form);
     document.getElementById(form+'_status').innerHTML='Loading...';
-    reader.readAsDataURL(document.getElementById(form+'_file').files[0]);
+    reader.readAsDataURL(document.getElementById(form).files[0]);
 }
 
 function serialise(data){
@@ -29,9 +30,20 @@ function serialise(data){
 }
 
 function submit_form(){
-    if(!ready){
-	alert('Please select both an arguments and a targets file, or wait until the files are ready.');
+    if(data['args'] == null){
+	alert('Please select an arguments file.');
 	return;
+    }
+    for(var i = 0; i < params.length; i++){
+	data[params[i]] = document.getElementById(params[i]).value;
+    }
+    if(data['targets'] != null){
+	for(var i = 0; i < params.length; i++){
+	    if(data[params[i]].length == 0){
+		alert("Please enter "+params[i]);
+		return;
+	    }
+	}
     }
     console.log(data);
     var XHR = new XMLHttpRequest();

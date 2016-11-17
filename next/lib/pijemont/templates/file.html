@@ -45,16 +45,26 @@
 
   </head>
   <body>
-    <div class="container">
-	Input arguments: <input id="args_file" type="file" onchange="file_read('args')" /><br />
-	Status: <span id="args_status">No file uploaded</span>
-	<br /><br />
-	
-	Input targets: 
-	<input id="targets_file" type="file" onchange="file_read('targets')" /><br />
-	Status: <span id="targets_status">No file uploaded</span>
-	<br /><br />
-      
-	<button id="initExp" onclick="submit_form()"/>
+      <div class="container">
+	  <table>
+	      <tr>
+		  <td><b>Argument</b></td><td><b>Input</b></td><td><b>Status</b></td>
+	      </tr>
+	      <tr>
+		  <td>Input arguments: </td><td><input id="args" type="file" onchange="file_read('args')" /></td><td><span id="args_status">No file uploaded</span></td>
+	      </tr>
+	      <tr>
+		  <td>Input targets: </td><td><input id="targets" type="file" onchange="file_read('targets')" /></td><td><span id="targets_status">No file uploaded</span></td>
+	      </tr>
+	      <tr>
+		  <td>AWS Key ID </td><td><input id="key_id" type="text" /></td><td></td>
+	      </tr>
+	      <tr>
+		  <td>AWS Secret Key </td><td><input id="secret_key" type="text" /></td><td></td>
+	      </tr>
+	      <tr>
+		  <td>AWS Bucket ID </td><td><input id="bucket_id" type="text" /></td><td></td>
+	      </tr>
+	      <button id="initExp" onclick="submit_form()">Launch</button>
     </div>
 </body></html>
