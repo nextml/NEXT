@@ -5,6 +5,7 @@ from next.utils import utils
 from next.lib.pijemont import doc as doc_gen
 from next.lib.pijemont import verifier
 import next.assistant.target_unpacker as target_unpacker
+import sys
 
 assistant = Blueprint('assistant',
                       __name__,
@@ -57,7 +58,7 @@ class ExperimentAssistant(Resource):
         try:
             utils.debug_print('L',len(request.get_data()))
         except Exception as exc:
-            print(exc)
+            print('OH NO',exc,sys.exc_info())
         args = self.deserialise(request.get_data())
         utils.debug_print("initing with ARGS = ",args)
         bucket_id = args['bucket_id']
