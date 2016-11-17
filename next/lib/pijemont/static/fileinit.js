@@ -17,12 +17,21 @@ function file_read(form){
     reader.readAsDataURL(document.getElementById(form+'_file').files[0]);
 }
 
+function serialise(data){
+    ans = "";
+    payload = "";
+    for(var x in data){
+	arg += x + ":" + data[x].length
+	payload += data[x]
+    }
+    arg += "\n"+payload;
+}
+
 function submit_form(){
     if(!ready){
 	alert('Please select both an arguments and a targets file, or wait until the files are ready.');
 	return;
     }
-    
     console.log(data);
     var XHR = new XMLHttpRequest();
     XHR.addEventListener("load", function(event) {
@@ -33,6 +42,6 @@ function submit_form(){
     });
     XHR.open("POST", target);
     XHR.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    XHR.send(JSON.stringify(data));
+    XHR.send(serialise(data));
     return false;
 }

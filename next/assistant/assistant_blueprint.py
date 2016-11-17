@@ -36,12 +36,22 @@ def init_file(app_id=None):
     return render_template('raw.html',doc=message)
 
 class ExperimentAssistant(Resource):
+    def deserialise(self, data):
+        start = data.find('\n')
+        s = data[:start].decode('ascii')
+        d = [x.split(':') for x in s.split(';')]
+        start += 1
+        ans = {}
+        for arg,size in d:
+            ans[arg] = data[start:start+size]
+            start += size
+        return ans
+        
     def post(self):
         utils.debug_print('POSTED!')
         utils.debug_print('H',request.headers)
-        utils.debug_print('L',len(request.get_data()))
-        utils.debug_print('D',request.get_data())
-        args = request.get_json(force=True)
+        utils.debug_print('L',len(request.get_data()))        
+        args = self.deserialise(request.get_data())
         utils.debug_print("initing with ARGS = ",args)
         bucket_id = args['bucket_id']
         init_exp_args = args['args']
