@@ -21,10 +21,10 @@ function serialise(data){
     ans = "";
     payload = "";
     for(var x in data){
-	ans += x + ":" + data[x].length
+	ans += x + ":" + data[x].length + ";";
 	payload += data[x]
     }
-    ans += "\n"+payload;
+    ans = ans.slice(0,-1)+"\n"+payload;
     return ans;
 }
 

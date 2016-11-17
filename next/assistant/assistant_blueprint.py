@@ -7,6 +7,7 @@ from next.utils import utils
 from next.lib.pijemont import doc as doc_gen
 from next.lib.pijemont import verifier
 import next.assistant.target_unpacker as target_unpacker
+import sys
 
 assistant = Blueprint('assistant',
                       __name__,
@@ -41,11 +42,14 @@ class ExperimentAssistant(Resource):
     def deserialise(self, data):
         start = data.find('\n')
         s = data[:start].decode('ascii')
+        print('s',s)
         d = [x.split(':') for x in s.split(';')]
+        print('d',d)
         start += 1
         ans = {}
         for arg,size in d:
             size = int(size)
+            print('a,s',arg,size)
             ans[arg] = data[start:start+size]
             start += size
         return ans
@@ -57,6 +61,7 @@ class ExperimentAssistant(Resource):
             utils.debug_print('L',len(request.get_data()))
         except Exception as exc:
             print(exc)
+            print('OH NO an error in assistant_blueprint!',exc,sys.exc_info())
 
         # TODO? replace with msgpack
         args = self.deserialise(request.get_data())
@@ -67,6 +72,7 @@ class ExperimentAssistant(Resource):
         args['args'] = yaml.load(args['args'])
 
         utils.debug_print(args['args'])
+        args = self.deserialise(request.get_data())
         bucket_id = args['bucket_id']
         init_exp_args = args['args']
         target_zipfile = args['targets']
