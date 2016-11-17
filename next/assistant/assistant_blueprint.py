@@ -76,11 +76,10 @@ class ExperimentAssistant(Resource):
         bucket_id = args['bucket_id']
         init_exp_args = args['args']
         target_zipfile = args['targets']
-        
-        # Unpack the targets
 
+        # Unpack the targets
         targets = target_unpacker.unpack(target_zipfile, bucket_id)
-        
+
         # Init the experiment:
         app_id = args_data['app_id']
         exp_uid = '%030x' % random.randrange(16**30)
@@ -89,9 +88,9 @@ class ExperimentAssistant(Resource):
                                                              exp_uid,
                                                              'initExp',
                                                              json.dumps(init_exp_args))
-        
+
         return render_template('success.html', exp_uid=exp_uid, app_id=app_id)
-        
+
 assistant_api.add_resource(ExperimentAssistant,'/init/experiment')
 
 @assistant.route('/doc/<string:app_id>/<string:form>')
