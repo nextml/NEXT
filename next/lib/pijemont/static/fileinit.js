@@ -52,9 +52,11 @@ function submit_form(){
     });
     XHR.addEventListener("error", function(event) {
 	console.log('Oops! Something went wrong.');
+	document.getElementById('initExp').disabled = false;
     });
     XHR.open("POST", target);
     XHR.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    document.getElementById('initExp').disabled = true;
     XHR.send(serialise(data));
     return false;
 }
