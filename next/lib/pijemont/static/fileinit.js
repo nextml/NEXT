@@ -3,13 +3,14 @@ var ready = false;
 
 function file_read(form){
     var reader = new FileReader();
-    function(f){
+    var set_onload = function(f){
 	reader.onload = function(e) {
 	    data[f] = e.target.result;
 	    ready = data['args'] != null && data['targets'] != null;
 	    document.getElementById(f+'_status').innerHTML='Ready!';
-	}
-    }(form);
+	};
+    };
+    set_onload(form);
     document.getElementById(form+'_status').innerHTML='Loading...';
     reader.readAsDataURL(document.getElementById(form+'_file').files[0]);
 }
