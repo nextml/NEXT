@@ -21,10 +21,11 @@ function serialise(data){
     ans = "";
     payload = "";
     for(var x in data){
-	arg += x + ":" + data[x].length
+	ans += x + ":" + data[x].length
 	payload += data[x]
     }
-    arg += "\n"+payload;
+    ans += "\n"+payload;
+    return ans;
 }
 
 function submit_form(){

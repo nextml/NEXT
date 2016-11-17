@@ -43,6 +43,7 @@ class ExperimentAssistant(Resource):
         start += 1
         ans = {}
         for arg,size in d:
+            size = int(size)
             ans[arg] = data[start:start+size]
             start += size
         return ans
