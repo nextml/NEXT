@@ -39,11 +39,14 @@ class ExperimentAssistant(Resource):
     def deserialise(self, data):
         start = data.find('\n')
         s = data[:start].decode('ascii')
+        print('s',s)
         d = [x.split(':') for x in s.split(';')]
+        print('d',d)
         start += 1
         ans = {}
         for arg,size in d:
             size = int(size)
+            print('a,s',arg,size)
             ans[arg] = data[start:start+size]
             start += size
         return ans
