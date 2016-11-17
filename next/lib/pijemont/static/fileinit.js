@@ -3,16 +3,20 @@ var ready = false;
 
 function file_read(form){
     var reader = new FileReader();
-    reader.onload = function(e) {
-	data[form] = e.target.result;
-	ready = data['args'] != null && data['targets'] != null;
-    };
-    reader.readAsDataURL(new_file.files[0]);
+    function(f){
+	reader.onload = function(e) {
+	    data[f] = e.target.result;
+	    ready = data['args'] != null && data['targets'] != null;
+	    document.getElementById(f+'_status').innerHTML='Ready!';
+	}
+    }(form);
+    document.getElementById(form+'_status').innerHTML='Loading...';
+    reader.readAsDataURL(document.getElementById(form+'_file').files[0]);
 }
 
 function submit_form(){
     if(!ready){
-	alert('still uploading');
+	alert('still uploading, please wait');
 	return;
     }
 }
