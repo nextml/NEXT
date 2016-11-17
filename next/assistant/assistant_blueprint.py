@@ -18,7 +18,7 @@ def init_form(app_id=None):
         filename = '{0}/{0}.yaml'.format(app_id)
 
         api,_ = verifier.load_doc(filename, 'apps/')
-        return render_template('form.html',api_doc=api,submit="/api/experiment", function_name="initExp", base_dir="/assistant/static")
+        return render_template('form.html',api_doc=api, submit="/api/experiment", function_name="initExp", base_dir="/assistant/static")
     
     message = ('Welcome to the next.discovery system.\n '
                'Available apps {}'.format(', '.join(utils.get_supported_apps())))
