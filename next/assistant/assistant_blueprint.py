@@ -72,7 +72,6 @@ class ExperimentAssistant(Resource):
         args['args'] = yaml.load(args['args'])
 
         utils.debug_print(args['args'])
-        args = self.deserialise(request.get_data())
         bucket_id = args['bucket_id']
         init_exp_args = args['args']
         target_zipfile = args['targets']
