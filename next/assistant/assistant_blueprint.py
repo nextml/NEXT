@@ -60,7 +60,6 @@ class ExperimentAssistant(Resource):
         except Exception as exc:
             print('OH NO',exc,sys.exc_info())
         args = self.deserialise(request.get_data())
-        utils.debug_print("initing with ARGS = ",args)
         bucket_id = args['bucket_id']
         init_exp_args = args['args']
         target_zipfile = args['targets']
