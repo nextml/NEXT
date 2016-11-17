@@ -46,17 +46,15 @@
   </head>
   <body>
     <div class="container">
-    <form enctype="multipart/form-data" id="init_exp_form">
-      Input arguments: <input id="args_file" type="file" onchange="file_read('args')" /><br />
-      Status: <span id="args_status">No file uploaded</span>
-      <br /><br />
-
-      Input targets: 
-      <input id="targets_file" type="file" onchange="file_read('targets')" /><br />
-      Status: <span id="targets_status">No file uploaded</span>
-      <br /><br />
+	Input arguments: <input id="args_file" type="file" onchange="file_read('args')" /><br />
+	Status: <span id="args_status">No file uploaded</span>
+	<br /><br />
+	
+	Input targets: 
+	<input id="targets_file" type="file" onchange="file_read('targets')" /><br />
+	Status: <span id="targets_status">No file uploaded</span>
+	<br /><br />
       
-      <button id="initExp" onclick="submit_form()"/>
-    </form>
+	<button id="initExp" onclick="submit_form()"/>
     </div>
 </body></html>
