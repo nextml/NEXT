@@ -1,3 +1,5 @@
+import base64
+import yaml
 from flask import Blueprint, render_template
 from flask_restful import Api, Resource, reqparse, request
 
@@ -55,8 +57,16 @@ class ExperimentAssistant(Resource):
             utils.debug_print('L',len(request.get_data()))
         except Exception as exc:
             print(exc)
+
+        # TODO? replace with msgpack
         args = self.deserialise(request.get_data())
-        utils.debug_print("initing with ARGS = ",args)
+
+        for key in args:
+            args[key] = base64.decodestring(args[key])
+
+        args['args'] = yaml.load(args['args'])
+
+        utils.debug_print(args['args'])
         bucket_id = args['bucket_id']
         init_exp_args = args['args']
         target_zipfile = args['targets']
