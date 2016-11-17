@@ -51,7 +51,10 @@ class ExperimentAssistant(Resource):
     def post(self):
         utils.debug_print('POSTED!')
         utils.debug_print('H',request.headers)
-        utils.debug_print('L',len(request.get_data()))        
+        try:
+            utils.debug_print('L',len(request.get_data()))
+        except Exception as exc:
+            print(exc)
         args = self.deserialise(request.get_data())
         utils.debug_print("initing with ARGS = ",args)
         bucket_id = args['bucket_id']
