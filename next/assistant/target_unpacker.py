@@ -54,6 +54,7 @@ def upload_target(filename, file_obj, bucket_name, aws_key, aws_secret_key,
             'alt_description': filename}
 
 def unpack(s, aws_key, aws_secret_key, n_jobs=20, bucket_name=None):
+    s = base64.decodestring(s)
     base64_zip = io.BytesIO(s)
     zip_file = zipfile.ZipFile(base64_zip)
     files = zipfile_to_dictionary(zip_file)
@@ -76,6 +77,7 @@ if __name__ == "__main__":
 
     with open('../../examples/strange_fruit_triplet/strangefruit30.zip', 'rb') as f:
         s = f.read()
+    print(s)
     targets = unpack(s, aws_key, aws_secret_access_key,
                      bucket_name='scott_test')
     pprint(targets)
