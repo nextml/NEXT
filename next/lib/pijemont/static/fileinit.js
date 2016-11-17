@@ -17,13 +17,12 @@ function file_read(form){
     reader.readAsDataURL(document.getElementById(form+'_file').files[0]);
 }
 
-function submit_form(e){
+function submit_form(){
     if(!ready){
 	alert('still uploading, please wait');
 	return;
     }
     
-    e.preventDefault();
     console.log(data);
     var XHR = new XMLHttpRequest();
     XHR.addEventListener("load", function(event) {
