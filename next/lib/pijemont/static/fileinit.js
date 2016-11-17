@@ -17,14 +17,12 @@ function file_read(form){
     reader.readAsDataURL(document.getElementById(form+'_file').files[0]);
 }
 
-function submit_form(){
+function submit_form(e){
     if(!ready){
 	alert('still uploading, please wait');
 	return;
     }
-}
-
-function submit_form(e){
+    
     e.preventDefault();
     console.log(data);
     var XHR = new XMLHttpRequest();
