@@ -37,6 +37,7 @@ def init_file(app_id=None):
 
 class ExperimentAssistant(Resource):
     def post(self):
+        utils.debug_print('POSTED!')
         args = request.get_json(force=True)
         utils.debug_print("initing with ARGS = ",args)
         bucket_id = args['bucket_id']
