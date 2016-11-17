@@ -43,7 +43,7 @@
   </head>
   <body>
     <div class="container">
-    <form enctype="multipart/form-data" id="init_exp_form">
+    <form enctype="multipart/form-data" id="init_exp_form" onsubmit="submit_form()">
       Input arguments: <input id="args_file" type="file" onchange="file_read('args')" /><br />
       Status: <span id="args_status">No file uploaded</span>
       <br />
@@ -53,7 +53,7 @@
       Status: <span id="targets_status">No file uploaded</span>
       <br />
       
-      <input type="submit" onsubmit="submit_form()" />
+      <input type="submit" />
     </form>
     </div>
 </body></html>
