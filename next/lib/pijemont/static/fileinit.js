@@ -31,7 +31,7 @@ function submit_form(){
     XHR.addEventListener("error", function(event) {
 	console.log('Oops! Something went wrong.');
     });
-    XHR.open("POST", self.target);
+    XHR.open("POST", target);
     XHR.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     XHR.send(JSON.stringify(data));
     return false;
