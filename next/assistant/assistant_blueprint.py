@@ -38,6 +38,7 @@ def init_file(app_id=None):
 class ExperimentAssistant(Resource):
     def post(self):
         args = request.get_json(force=True)
+        utils.debug_print("initing with ARGS = ",args)
         bucket_id = args['bucket_id']
         init_exp_args = args['args']
         target_zipfile = args['targets']

@@ -19,14 +19,14 @@ function file_read(form){
 
 function submit_form(){
     if(!ready){
-	alert('still uploading, please wait');
+	alert('Please select both an arguments and a targets file, or wait until the files are ready.');
 	return;
     }
     
     console.log(data);
     var XHR = new XMLHttpRequest();
     XHR.addEventListener("load", function(event) {
-	self.submit_callback(event.target.responseText);
+	console.log("DID IT",event.target.responseText);
     });
     XHR.addEventListener("error", function(event) {
 	console.log('Oops! Something went wrong.');
