@@ -57,11 +57,11 @@ function submit_form(){
 	}
 	else{
 	    document.getElementById('exp_status').innerHTML = "There was an error:  <br /><pre>"+message+"</pre>";
+	    document.getElementById('initExp').disabled = false;
 	}
-	document.getElementById('initExp').disabled = false;
     });
     XHR.addEventListener("error", function(event) {
-	console.log('Oops! Something went wrong.');
+	document.getElementById('exp_status').innerHTML = "There was an unknown network error:";
 	document.getElementById('initExp').disabled = false;
     });
     XHR.open("POST", target);
