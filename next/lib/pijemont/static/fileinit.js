@@ -84,3 +84,8 @@ function submit_form(){
     XHR.send(serialise(data));
     return false;
 }
+
+document.onload = function(){
+    console.log("Reading cookies");
+    read_saved();
+}
