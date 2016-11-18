@@ -34,7 +34,7 @@ def init_form(app_id=None):
 
     return render_template('raw.html',doc=message)
 
-@assistant.route('/init/<string:app_id>/file')
+@assistant.route('/init')
 def init_file(app_id=None):
     if app_id:
         return render_template('file.html', app_id=app_id, target="/assistant/init/experiment", base_dir="/assistant/static")

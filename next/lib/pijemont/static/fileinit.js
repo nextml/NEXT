@@ -2,6 +2,18 @@ var data = {'args':null,'targets':null,"bucket_id":"","key_id":"","secret_key":"
 var ready = false;
 
 var params = ["bucket_id","key_id","secret_key"];
+var saved_params = ["bucket_id","key_id"];
+
+function read_saved(){
+    var all_cookies = document.cookie.split(';');
+    for(var c = 0; c < all_cookies.length; c++){
+	var cookie = all_cookies.split('=');
+	var i = saved_params.indexOf(cookie[0].trim());
+	if(i >= 0){
+	    document.getElementById(saved_params[i]).value = cookie[1].trim();
+	}
+    }
+}
 
 function file_read(form){
     var reader = new FileReader();
@@ -35,7 +47,10 @@ function submit_form(){
 	return;
     }
     for(var i = 0; i < params.length; i++){
-	data[params[i]] = document.getElementById(params[i]).value;
+	data[params[i]] = document.getElementById(params[i]).value.trim();
+    }
+    for(var i = 0; i < saved_params.length; i++){
+	document.cookie = saved_params[i] + ' = ' + document.getElementById(saved_params[i]).value.trim() + '; ';
     }
     if(data['targets'] != null){
 	for(var i = 0; i < params.length; i++){
@@ -51,23 +66,21 @@ function submit_form(){
 	console.log("DID IT",event.target.responseText);
 	ret = JSON.parse(event.target.responseText);
 	if(ret.success){
-	    document.getElementById('exp_status').innerHTML = "Success!  <br />
-<a href=\"/dashboard/experiment_dashboard/"+ret.exp_uid+"/{{app_id}}\">Experiment dashboard</a><br />
-<a href=\"/query/query_page/query_page/"+ret.exp_uid+"\">Experiment query page</a>";
+	    document.getElementById('exp_status').innerHTML = "Success!  <br /><a href=\"/dashboard/experiment_dashboard/"+ret.exp_uid+"/"+ret.app_id+"\">Experiment dashboard</a><br /><a href=\"/query/query_page/query_page/"+ret.exp_uid+"\">Experiment query page</a>";
 	}
 	else{
-	    document.getElementById('exp_status').innerHTML = "There was an error:  <br /><pre>"+message+"</pre>";
+	    document.getElementById('exp_status').innerHTML = "There was an error:  <br /><font color=\"red\"><pre>"+ret.message+"</pre></font>";
+	    document.getElementById('initExp').disabled = false;
 	}
-	document.getElementById('initExp').disabled = false;
     });
     XHR.addEventListener("error", function(event) {
-	console.log('Oops! Something went wrong.');
+	document.getElementById('exp_status').innerHTML = "There was an unknown network error:";
 	document.getElementById('initExp').disabled = false;
     });
     XHR.open("POST", target);
     XHR.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     document.getElementById('initExp').disabled = true;
-    document.getElementById('exp_status').innerHTML = "Attempting to Launch...";
+    document.getElementById('exp_status').innerHTML = "Launching... (this may take a while, depending on the size of the targets)";
     XHR.send(serialise(data));
     return false;
 }
