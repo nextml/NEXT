@@ -80,10 +80,10 @@ popup_alert = function(text){
             <b> Dashboard data generated: </b> <span id="last_dashboard_update"></span> <br>
             <b> Number of participants: </b> <span id="num_participants"></span> <br>
             <b> Number of answers: </b> <span id="num_queries"></span> <br> 
-            <b> Backend Exceptions: </b> <a href="{{ host_url }}/api/experiment/{{ exp_uid }}/logs/APP-EXCEPTION" target="_blank">Open in new tab</a>  <br>
-            <b> Participant data: </b> <a href="{{ host_url }}/api/experiment/{{ exp_uid }}/participants?zip=True" target="_blank">Open in new tab</a>  <br>
-            <b> Experiment data: </b> <a href="{{ host_url }}/api/experiment/{{ exp_uid }}" target="_blank">Open in new tab</a>  <br>
-            <b> Query page: </b> <a href="{{ host_url }}/query/query_page/query_page/{{ exp_uid }}" target="_blank">Open in new tab</a>  <br>
+            <b> Backend Exceptions: </b> <a href="/api/experiment/{{ exp_uid }}/logs/APP-EXCEPTION" target="_blank">Open in new tab</a>  <br>
+            <b> Participant data: </b> <a href="/api/experiment/{{ exp_uid }}/participants?zip=True" target="_blank">Open in new tab</a>  <br>
+            <b> Experiment data: </b> <a href="/api/experiment/{{ exp_uid }}" target="_blank">Open in new tab</a>  <br>
+            <b> Query page: </b> <a href="/query/query_page/query_page/{{ exp_uid }}" target="_blank">Open in new tab</a>  <br>
             </p>
         </div>
     </div>
