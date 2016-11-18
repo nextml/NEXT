@@ -65,7 +65,7 @@ function submit_form(){
 	console.log("DID IT",event.target.responseText);
 	ret = JSON.parse(event.target.responseText);
 	if(ret.success){
-	    document.getElementById('exp_status').innerHTML = "Success!  <br /><a href=\"/dashboard/experiment_dashboard/"+ret.exp_uid+"/"+ret.app_id+"\">Experiment dashboard</a><br /><a href=\"/query/query_page/query_page/"+ret.exp_uid+"\">Experiment query page</a>";
+	    document.getElementById('exp_status').innerHTML = "Success!  <br /><a target=\"_blank\" href=\"/dashboard/experiment_dashboard/"+ret.exp_uid+"/"+ret.app_id+"\">Experiment dashboard</a><br /><a target=\"_blank\" href=\"/query/query_page/query_page/"+ret.exp_uid+"\">Experiment query page</a>";
 	}
 	else{
 	    document.getElementById('exp_status').innerHTML = "There was an error:  <br /><font color=\"red\"><pre>"+ret.message+"</pre></font>";
