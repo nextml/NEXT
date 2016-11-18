@@ -28,6 +28,7 @@
   </head>
   <body>
       <div class="container">
+	  <h2>Launching {{app_id}} experiment: </h2>
 	  <table>
 	      <tr>
 		  <td><b>Argument</b></td><td><b>Input</b></td><td><b>Status</b></td>
@@ -50,5 +51,7 @@
 	  </table>
 	  <br />
 	  <button id="initExp" onclick="submit_form()">Launch</button>
+	  <h2>Status</h2>
+	  <span id="exp_status">Ready for file upload</span>
     </div>
 </body></html>

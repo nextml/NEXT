@@ -49,6 +49,16 @@ function submit_form(){
     var XHR = new XMLHttpRequest();
     XHR.addEventListener("load", function(event) {
 	console.log("DID IT",event.target.responseText);
+	ret = JSON.parse(event.target.responseText);
+	if(ret.success){
+	    document.getElementById('exp_status').innerHTML = "Success!  <br />
+<a href=\"/dashboard/experiment_dashboard/"+ret.exp_uid+"/{{app_id}}\">Experiment dashboard</a><br />
+<a href=\"/query/query_page/query_page/"+ret.exp_uid+"\">Experiment query page</a>";
+	}
+	else{
+	    document.getElementById('exp_status').innerHTML = "There was an error:  <br /><pre>"+message+"</pre>";
+	}
+	document.getElementById('initExp').disabled = false;
     });
     XHR.addEventListener("error", function(event) {
 	console.log('Oops! Something went wrong.');
@@ -57,6 +67,7 @@ function submit_form(){
     XHR.open("POST", target);
     XHR.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     document.getElementById('initExp').disabled = true;
+    document.getElementById('exp_status').innerHTML = "Attempting to Launch...";
     XHR.send(serialise(data));
     return false;
 }

@@ -37,7 +37,7 @@ def init_form(app_id=None):
 @assistant.route('/init/<string:app_id>/file')
 def init_file(app_id=None):
     if app_id:
-        return render_template('file.html', target="/assistant/init/experiment", base_dir="/assistant/static")
+        return render_template('file.html', app_id=app_id, target="/assistant/init/experiment", base_dir="/assistant/static")
     
     message = ('Welcome to the next.discovery system.\n '
                'Available apps {}'.format(', '.join(utils.get_supported_apps())))
