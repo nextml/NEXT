@@ -113,7 +113,8 @@ class ExperimentAssistant(Resource):
             utils.debug_print(message)
             return {'success': False, 'message': message, 'exp_uid': None}
 
-        return {'success': didSucceed, 'message': message, 'exp_uid': exp_uid}
+        return {'success': didSucceed, 'message': message, 'exp_uid': exp_uid,
+                'app_id': args['args']['app_id']}
 
 assistant_api.add_resource(ExperimentAssistant,'/init/experiment')
 
