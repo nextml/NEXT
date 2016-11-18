@@ -3,6 +3,7 @@ import io
 import os
 from joblib import Parallel, delayed
 from StringIO import StringIO
+import base64
 import random
 import sys
 
@@ -53,8 +54,8 @@ def upload_target(filename, file_obj, bucket_name, aws_key, aws_secret_key,
             'alt_type': 'text',
             'alt_description': filename}
 
-def unpack(s, aws_key, aws_secret_key, n_jobs=20, bucket_name=None):
-    s = base64.decodestring(s)
+def unpack(s, aws_key, aws_secret_key, bucket_name, n_jobs=20):
+    # s = base64.decodestring(s)
     base64_zip = io.BytesIO(s)
     zip_file = zipfile.ZipFile(base64_zip)
     files = zipfile_to_dictionary(zip_file)
