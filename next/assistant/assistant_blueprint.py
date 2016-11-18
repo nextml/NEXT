@@ -1,6 +1,8 @@
+import sys
+import random
+import traceback
 import base64
 import yaml
-import random
 from flask import Blueprint, render_template
 from flask_restful import Api, Resource, reqparse, request
 
@@ -80,27 +82,36 @@ class ExperimentAssistant(Resource):
 
         utils.debug_print(args['args'])
         init_exp_args = args['args']
-        if 'targets' in args.keys():
-            bucket_id = args['bucket_id']
-            key_id = args['key_id']
-            secret_key = args['secret_key']
-            target_zipfile = args['targets']
+        try:
+            if 'targets' in args.keys():
+                bucket_id = args['bucket_id']
+                key_id = args['key_id']
+                secret_key = args['secret_key']
+                target_zipfile = args['targets']
 
-            utils.debug_print(args['bucket_id'])
-            utils.debug_print(args['secret_key'])
-            utils.debug_print(args['key_id'])
-            # Unpack the targets
-            targets = target_unpacker.unpack(target_zipfile, key_id,
-                                             secret_key, bucket_id)
+                utils.debug_print(args['bucket_id'])
+                utils.debug_print(args['secret_key'])
+                utils.debug_print(args['key_id'])
+                # Unpack the targets
+                targets = target_unpacker.unpack(target_zipfile, key_id,
+                                                 secret_key, bucket_id)
 
-        # Init the experiment:
-        app_id = init_exp_args['app_id']
-        exp_uid = '%030x' % random.randrange(16**30)
-        init_exp_args['args']['targets'] = {'targetset':  targets}
-        response_json,didSucceed,message = broker.applyAsync(app_id,
-                                                             exp_uid,
-                                                             'initExp',
-                                                             json.dumps(init_exp_args))
+            # Init the experiment:
+            app_id = init_exp_args['app_id']
+            exp_uid = '%030x' % random.randrange(16**30)
+            init_exp_args['args']['targets'] = {'targetset':  targets}
+
+            r = broker.applyAsync(app_id, exp_uid, 'initExp',
+                                  json.dumps(init_exp_args))
+            response_json, didSucceed, message = r
+            if not didSucceed:
+                raise ValueError(message)
+        except:
+            tb = traceback.format_exc()
+            info = sys.exc_info()
+            message = str(info[1]) + '\n\nDetails:\n' + tb
+            utils.debug_print(message)
+            return {'success': False, 'message': message, 'exp_uid': None}
 
         return {'success': didSucceed, 'message': message, 'exp_uid': exp_uid}
 

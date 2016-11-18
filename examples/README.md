@@ -1,7 +1,16 @@
-This scripts in this directory launch an experiment on a machine already running NEXT whose
-hostname is specified in the environment variable `NEXT_BACKEND_GLOBAL_HOST`.
-For example, `examples/strange_fruit_triplet/experiment_tripley.py` launches a
-triplet experiment the machine whose hostname is specified in
+
+
+We support three ways to launch an experiment on NEXT.
+
+1. Hitting an endpoint to upload one or two files
+2. Hitting the
+
+
+This scripts in this directory launch an experiment on a machine already
+running NEXT whose hostname is specified in the environment variable
+`NEXT_BACKEND_GLOBAL_HOST`.  For example,
+`examples/strange_fruit_triplet/experiment_tripley.py` launches a triplet
+experiment the machine whose hostname is specified in
 `NEXT_BACKEND_GLOBAL_HOST`.
 
 Typically, `NEXT_BACKEND_GLOBAL_HOST` is a Amazon EC2 public DNS.
