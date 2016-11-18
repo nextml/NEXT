@@ -65,7 +65,7 @@ function submit_form(){
     XHR.open("POST", target);
     XHR.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     document.getElementById('initExp').disabled = true;
-    document.getElementById('exp_status').innerHTML = "Attempting to Launch...";
+    document.getElementById('exp_status').innerHTML = "Launching... (this may take a while, depending on the size of the targets)";
     XHR.send(serialise(data));
     return false;
 }
