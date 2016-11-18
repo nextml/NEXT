@@ -19,12 +19,7 @@
 	  <div class="col-sm-10 col-sm-offset-1">
         <ul>
             <li><a href="/dashboard/experiment_list">Experiment list</a>: A list of all experiments on this machine.</li>
-            <li>Launch an application: </li>
-            <ul>
-                {% for app in available_apps %}
-                <li><a href="/assistant/init/{{app}}/file">{{app}}</a></li>
-                {% endfor %}
-            </ul>
+            <li><a href="/assistant/init">Experiment launch</a>: Launch a new experiment</li>
             <li>Application documentation: </li>
             <ul>
                 {% for app in available_apps %}
