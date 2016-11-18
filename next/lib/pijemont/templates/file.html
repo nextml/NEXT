@@ -21,8 +21,13 @@
 	 }
 
 	 td{
-	     padding-right:20px;
+	     padding-right: 20px;
+             padding-bottom: 5px;
 	 }
+         
+         input[type="text"]{
+             margin-left: 0px;
+         }
       </style>
 
   </head>
@@ -34,19 +39,19 @@
 		  <td><b>Argument</b></td><td><b>Input</b></td><td><b>Status</b></td>
 	      </tr>
 	      <tr>
-		  <td>Input arguments: </td><td><input id="args" type="file" onchange="file_read('args')" /></td><td><span id="args_status">No file uploaded</span></td>
+		  <td>Experiment arguments </td><td><input id="args" type="file" onchange="file_read('args')" /></td>
 	      </tr>
 	      <tr>
-		  <td>Input targets: </td><td><input id="targets" type="file" onchange="file_read('targets')" /></td><td><span id="targets_status">No file uploaded</span></td>
+		  <td>Experiment targets </td><td><input id="targets" type="file" onchange="file_read('targets')" /></td>
 	      </tr>
 	      <tr>
-		  <td>AWS Bucket ID </td><td><input id="bucket_id" type="text" /></td><td></td>
+		  <td>AWS Bucket ID </td><td><input id="bucket_id" type="text" /></td>
 	      </tr>
 	      <tr>
-		  <td>AWS Key ID </td><td><input id="key_id" type="text" /></td><td></td>
+		  <td>AWS Key ID </td><td><input id="key_id" type="text" /></td>
 	      </tr>
 	      <tr>
-		  <td>AWS Secret Key </td><td><input id="secret_key" type="password" /></td><td></td>
+		  <td>AWS Secret Key </td><td><input id="secret_key" type="password" /></td>
 	      </tr>
 	  </table>
 	  <br />
