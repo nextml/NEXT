@@ -85,7 +85,7 @@ function submit_form(){
     return false;
 }
 
-document.onload = function(){
+document.body.onload = function(){
     console.log("Reading cookies");
     read_saved();
 }
