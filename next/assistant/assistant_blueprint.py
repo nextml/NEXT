@@ -89,11 +89,11 @@ class ExperimentAssistant(Resource):
                 # Unpack the targets
                 targets = target_unpacker.unpack(target_zipfile, key_id,
                                                  secret_key, bucket_id)
+                init_exp_args['args']['targets'] = {'targetset':  targets}
 
             # Init the experiment:
             app_id = init_exp_args['app_id']
             exp_uid = '%030x' % random.randrange(16**30)
-            init_exp_args['args']['targets'] = {'targetset':  targets}
 
             r = broker.applyAsync(app_id, exp_uid, 'initExp',
                                   json.dumps(init_exp_args))
