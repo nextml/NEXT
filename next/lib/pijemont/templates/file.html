@@ -36,24 +36,26 @@
 	  <h2>Launching {{app_id}} experiment: </h2>
 	  <table>
 	      <tr>
-		  <td><b>Argument</b></td><td><b>Input</b></td><td><b>Status</b></td>
+		  <td><b>Argument</b></td><td><b>Input</b></td>
 	      </tr>
 	      <tr>
 		  <td>Experiment arguments </td><td><input id="args" type="file" onchange="file_read('args')" /></td>
 	      </tr>
 	      <tr>
-		  <td>Experiment targets </td><td><input id="targets" type="file" onchange="file_read('targets')" /></td>
+		  <td>Experiment targets (optional) </td><td><input id="targets" type="file" onchange="file_read('targets')" /></td>
 	      </tr>
 	      <tr>
-		  <td>AWS Bucket ID </td><td><input id="bucket_id" type="text" /></td>
+		  <td>AWS Bucket ID*</td><td><input id="bucket_id" type="text" /></td>
 	      </tr>
 	      <tr>
-		  <td>AWS Key ID </td><td><input id="key_id" type="text" /></td>
+		  <td>AWS Key ID*</td><td><input id="key_id" type="text" /></td>
 	      </tr>
 	      <tr>
-		  <td>AWS Secret Key </td><td><input id="secret_key" type="password" /></td>
+		  <td>AWS Secret Key*</td><td><input id="secret_key" type="password" /></td>
 	      </tr>
 	  </table>
+	  * = Required only if targets supplied
+
 	  <br />
 	  <button id="initExp" onclick="submit_form()">Launch</button>
 	  <h2>Status</h2>
