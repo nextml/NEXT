@@ -1,0 +1,76 @@
+app_id: DuelingBanditsPureExploration
+args:
+  alg_list:
+  - {alg_id: BR_LilUCB, alg_label: BR_LilUCB}
+  - {alg_id: BR_Random, alg_label: BR_Random}
+  algorithm_management_settings:
+    mode: fixed_proportions
+    params:
+    - {alg_label: BR_LilUCB, proportion: 0.5}
+    - {alg_label: BR_Random, proportion: 0.5}
+  context: http://778252f0106cfd6d26f14c76a2a399.s3.amazonaws.com/cap436.jpg
+  context_type: image
+  failure_probability: 0.01
+  num_tries: 50
+  participant_to_algorithm_management: one_to_many
+  targets:
+    targetset:
+    - {alt_description: I'm drowning in work., alt_type: text, primary_description: I'm
+        drowning in work., primary_type: text, target_id: '1'}
+    - {alt_description: At least your computer is working., alt_type: text, primary_description: At
+        least your computer is working., primary_type: text, target_id: '2'}
+    - {alt_description: 'What''s your name again?', alt_type: text, primary_description: 'What''s
+        your name again?', primary_type: text, target_id: '3'}
+    - {alt_description: I won this job at a carnival., alt_type: text, primary_description: I
+        won this job at a carnival., primary_type: text, target_id: '4'}
+    - {alt_description: Some guys never make it out of the plastic bag., alt_type: text,
+      primary_description: Some guys never make it out of the plastic bag., primary_type: text,
+      target_id: '5'}
+    - {alt_description: It helps that I only have a three second memory span., alt_type: text,
+      primary_description: It helps that I only have a three second memory span.,
+      primary_type: text, target_id: '6'}
+    - {alt_description: 'Any plans for feeding time?', alt_type: text, primary_description: 'Any
+        plans for feeding time?', primary_type: text, target_id: '7'}
+    - {alt_description: The last guy got flushed., alt_type: text, primary_description: The
+        last guy got flushed., primary_type: text, target_id: '8'}
+    - {alt_description: If you work hard they give you a rock and plastic seaweed.,
+      alt_type: text, primary_description: If you work hard they give you a rock and
+        plastic seaweed., primary_type: text, target_id: '9'}
+    - {alt_description: I liked the old NSA better., alt_type: text, primary_description: I
+        liked the old NSA better., primary_type: text, target_id: '10'}
+    - {alt_description: The fish ate my mouse., alt_type: text, primary_description: The
+        fish ate my mouse., primary_type: text, target_id: '11'}
+    - {alt_description: 'Can you swim?', alt_type: text, primary_description: 'Can
+        you swim?', primary_type: text, target_id: '12'}
+    - {alt_description: I'm thinking of getting a goldfish., alt_type: text, primary_description: I'm
+        thinking of getting a goldfish., primary_type: text, target_id: '13'}
+    - {alt_description: They pay us crumbs., alt_type: text, primary_description: They
+        pay us crumbs., primary_type: text, target_id: '14'}
+    - {alt_description: They promised me a bowl of my own., alt_type: text, primary_description: They
+        promised me a bowl of my own., primary_type: text, target_id: '15'}
+    - {alt_description: 'As a heads-up, the boss is freakishly tall.', alt_type: text,
+      primary_description: 'As a heads-up, the boss is freakishly tall.', primary_type: text,
+      target_id: '16'}
+    - {alt_description: My last office had a castle., alt_type: text, primary_description: My
+        last office had a castle., primary_type: text, target_id: '17'}
+    - {alt_description: Think of it as a cornerless office., alt_type: text, primary_description: Think
+        of it as a cornerless office., primary_type: text, target_id: '18'}
+    - {alt_description: I'd love a glass of water., alt_type: text, primary_description: I'd
+        love a glass of water., primary_type: text, target_id: '19'}
+    - {alt_description: There is no Esc., alt_type: text, primary_description: There
+        is no Esc., primary_type: text, target_id: '20'}
+    - {alt_description: Your seat cushion can be used as a flotation device., alt_type: text,
+      primary_description: Your seat cushion can be used as a flotation device., primary_type: text,
+      target_id: '21'}
+    - {alt_description: !!python/str "The women\u2019s office is the same, except\
+        \ it has glass on the top, too.", alt_type: text, primary_description: !!python/str "The\
+        \ women\u2019s office is the same, except it has glass on the top, too.",
+      primary_type: text, target_id: '22'}
+    - {alt_description: !!python/str "Do you ever get the feeling we\u2019re purely\
+        \ decorative?", alt_type: text, primary_description: !!python/str "Do you\
+        \ ever get the feeling we\u2019re purely decorative?", primary_type: text,
+      target_id: '23'}
+    - {alt_description: 'Want to get some air?', alt_type: text, primary_description: 'Want
+        to get some air?', primary_type: text, target_id: '24'}
+    - {alt_description: 'Staring contest?', alt_type: text, primary_description: 'Staring
+        contest?', primary_type: text, target_id: '25'}
