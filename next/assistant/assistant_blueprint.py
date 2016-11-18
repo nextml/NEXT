@@ -102,8 +102,7 @@ class ExperimentAssistant(Resource):
                                                              'initExp',
                                                              json.dumps(init_exp_args))
 
-        utils.debug_print(exp_uid, app_id)
-        return render_template('success.html', exp_uid=exp_uid, app_id=app_id)
+        return {'success': didSucceed, 'message': message, 'exp_uid': exp_uid}
 
 assistant_api.add_resource(ExperimentAssistant,'/init/experiment')
 
