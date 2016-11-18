@@ -21,12 +21,10 @@ function file_read(form){
 	reader.onload = function(e) {
 	    console.log('done with',f);
 	    data[f] = e.target.result;
-	    document.getElementById(f+'_status').innerHTML='Ready!';
 	};
 	console.log('set onload',f);
     };
     set_onload(form);
-    document.getElementById(form+'_status').innerHTML='Loading...';
     reader.readAsDataURL(document.getElementById(form).files[0]);
 }
 
