@@ -54,7 +54,7 @@ function submit_form(){
 	    document.getElementById('exp_status').innerHTML = "Success!  <br /><a href=\"/dashboard/experiment_dashboard/"+ret.exp_uid+"/{{app_id}}\">Experiment dashboard</a><br /><a href=\"/query/query_page/query_page/"+ret.exp_uid+"\">Experiment query page</a>";
 	}
 	else{
-	    document.getElementById('exp_status').innerHTML = "There was an error:  <br /><pre>"+message+"</pre>";
+	    document.getElementById('exp_status').innerHTML = "There was an error:  <br /><font color=\"red\"><pre>"+ret.message+"</pre></font>";
 	    document.getElementById('initExp').disabled = false;
 	}
     });
