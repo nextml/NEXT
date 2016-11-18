@@ -7,7 +7,7 @@ var saved_params = ["bucket_id","key_id"];
 function read_saved(){
     var all_cookies = document.cookie.split(';');
     for(var c = 0; c < all_cookies.length; c++){
-	var cookie = all_cookies.split('=');
+	var cookie = all_cookies[c].split('=');
 	var i = saved_params.indexOf(cookie[0].trim());
 	if(i >= 0){
 	    document.getElementById(saved_params[i]).value = cookie[1].trim();
