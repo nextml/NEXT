@@ -1,0 +1,9 @@
+[Unit]
+Description=NEXT
+
+[Service]
+Type=forking
+ExecStart=/usr/share/next/next.sh
+
+[Install]
+WantedBy=multi-user.target
