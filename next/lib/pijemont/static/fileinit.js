@@ -32,6 +32,7 @@ function serialise(data){
     ans = "";
     payload = "";
     for(var x in data){
+	if(data[x] == null || data[x] == "") continue; 
 	ans += x + ":" + data[x].length + ";";
 	payload += data[x]
     }
@@ -40,7 +41,7 @@ function serialise(data){
 }
 
 function submit_form(){
-    if(data['args'] == null){
+    if(data['args'] == ""){
 	alert('Please select an arguments file.');
 	return;
     }
@@ -50,7 +51,7 @@ function submit_form(){
     for(var i = 0; i < saved_params.length; i++){
 	document.cookie = saved_params[i] + ' = ' + document.getElementById(saved_params[i]).value.trim() + '; ';
     }
-    if(data['targets'] != null){
+    if(data['targets'] != ""){
 	for(var i = 0; i < params.length; i++){
 	    if(data[params[i]].length == 0){
 		alert("Please enter "+params[i]);
