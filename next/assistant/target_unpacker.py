@@ -56,18 +56,20 @@ def upload_target(filename, file_obj, bucket_name, aws_key, aws_secret_key,
             'alt_type': 'text',
             'alt_description': filename}
 
-def unpack(s, aws_key, aws_secret_key, bucket_name, n_jobs=10):
-    # s = base64.decodestring(s)
+def unpack(s, aws_key, aws_secret_key, bucket_name, n_jobs=None):
     base64_zip = io.BytesIO(s)
     zip_file = zipfile.ZipFile(base64_zip)
     files = zipfile_to_dictionary(zip_file)
+
+    if not n_jobs:
+        n_jobs = min(len(files), 50)
 
     # TODO: trim here for JSON object to append to dictionaries
     # TODO: manage CSV targets here
     # TODO: how come creating a S3 bucket isn't working for me?
     if not bucket_name:
         bucket_name = '{}{}'.format(aws_key.lower(), utils.random_string(length=20))
-    targets = Parallel(n_jobs=n_jobs, backend='threading')
+    targets = Parallel(n_jobs=n_jobs, backend='threading') \
                 (delayed(upload_target, check_pickle=False)
                           (name, file, bucket_name, aws_key, aws_secret_key,
                            i=i, get_bucket=True)
