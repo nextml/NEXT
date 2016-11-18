@@ -2,7 +2,7 @@
 
 We support three ways to launch an experiment on NEXT.
 
-1. Hitting an endpoint to upload one or two files
+1. With
 2. Hitting the
 
 
