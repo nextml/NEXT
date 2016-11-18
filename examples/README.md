@@ -1,11 +1,3 @@
-
-
-We support three ways to launch an experiment on NEXT.
-
-1. With
-2. Hitting the
-
-
 This scripts in this directory launch an experiment on a machine already
 running NEXT whose hostname is specified in the environment variable
 `NEXT_BACKEND_GLOBAL_HOST`.  For example,
