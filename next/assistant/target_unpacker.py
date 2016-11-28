@@ -39,11 +39,12 @@ def zipfile_to_dictionary(zip_file):
 
 def upload_target(filename, file_obj, bucket_name, aws_key, aws_secret_key,
                   i=None, get_bucket=True):
-    utils.debug_print('begin ' + filename)
     if get_bucket:
         bucket = s3.get_bucket(bucket_name, aws_key, aws_secret_key)
     else:
         bucket = s3.create_bucket(bucket_name, aws_key, aws_secret_key)
+
+    utils.debug_print('begin ' + filename)
     url = s3.upload(filename,  StringIO(file_obj), bucket)
     target_types = {'png': 'image', 'jpeg': 'image', 'jpg': 'image',
                     'mp4': 'movie', 'mov': 'movie',
@@ -56,7 +57,8 @@ def upload_target(filename, file_obj, bucket_name, aws_key, aws_secret_key,
             'alt_type': 'text',
             'alt_description': filename}
 
-def unpack(s, aws_key, aws_secret_key, bucket_name, n_jobs=None):
+def unpack(s, aws_key, aws_secret_key, bucket_name, n_jobs=None,
+           get_bucket=True):
     base64_zip = io.BytesIO(s)
     zip_file = zipfile.ZipFile(base64_zip)
     files = zipfile_to_dictionary(zip_file)
@@ -64,16 +66,25 @@ def unpack(s, aws_key, aws_secret_key, bucket_name, n_jobs=None):
     if not n_jobs:
         n_jobs = min(len(files), 50)
 
+    if not bucket_name:
+        bucket_name = '{}{}'.format(aws_key.lower(), utils.random_string(length=20))
+
     # TODO: trim here for JSON object to append to dictionaries
     # TODO: manage CSV targets here
     # TODO: how come creating a S3 bucket isn't working for me?
-    if not bucket_name:
-        bucket_name = '{}{}'.format(aws_key.lower(), utils.random_string(length=20))
-    targets = Parallel(n_jobs=n_jobs, backend='threading') \
-                (delayed(upload_target, check_pickle=False)
-                          (name, file, bucket_name, aws_key, aws_secret_key,
-                           i=i, get_bucket=True)
-               for i, (name, file) in enumerate(files.items()))
+    utils.debug_print('Beginning to upload targets')
+    try:
+        targets = Parallel(n_jobs=n_jobs, backend='threading') \
+                    (delayed(upload_target, check_pickle=False)
+                              (name, file, bucket_name, aws_key, aws_secret_key,
+                               i=i, get_bucket=True)
+                   for i, (name, file) in enumerate(files.items()))
+    except:
+        utils.debug_print('Whoops, parallel upload failed. '
+                          'Trying with {} threads'.format(n_jobs))
+        targets = [upload_target(name, file, bucket_name, aws_key, aws_secret_key,
+                                 i=i, get_bucket=True)
+                   for i, (name, file) in enumerate(files.items())]
     return targets
 
 if __name__ == "__main__":

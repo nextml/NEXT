@@ -103,8 +103,12 @@ class ExperimentAssistant(Resource):
         except:
             tb = traceback.format_exc()
             info = sys.exc_info()
-            message = str(info[1]) + '\n\nDetails:\n' + tb
-            utils.debug_print(message)
+            if hasattr(info[1], 'message'):
+                message = info[1].message
+            else:
+                message = str(info[1])
+            message = message + '\n\nDetails:\n' + tb
+
             return {'success': False, 'message': message, 'exp_uid': None}
 
         return {'success': didSucceed, 'message': message, 'exp_uid': exp_uid,
