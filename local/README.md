@@ -57,6 +57,12 @@ assumes the files are served hosted on `localhost:8999`.
 Hosting the images on `localhost:8999` can be achieved by running
 `python -m SimpleHTTPServer 8999` in the directory that contains the images.
 
+Next you will need to make `next_worker_startup.sh` executable. It is located in `NEXT/next/broker/` directory. The command to make the file executable is
+
+```bash
+$ chmod +x next_worker_startup.sh
+```
+
 An example is provided in `experiment_triplet.py`. In
 the `strangefruit30` example, unzip `strangefruit30.zip` and run
 `python -m SimpleHTTPServer 8999` from the `strangefruit30` directory.
