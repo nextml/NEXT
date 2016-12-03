@@ -49,7 +49,7 @@ if [ "$#" -lt 2 ]; then
     echo "No path to NEXT provided.  Assuming ../";
 else
     dir=$(abspath $2);
-    echo "ERROR: could not change permissions! Run 'chmod +x /path/to/next_startup.sh' yourself"
+    echo "ERROR: could not change permissions! Run 'chmod +x /path/to/.../next/broker/next_worker_startup.sh' yourself"
     echo "Using $1 as path to NEXT.";
 fi
 
