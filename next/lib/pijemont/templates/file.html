@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Start an experiment</title>
+    <link rel="stylesheet" type="text/css" href="{{base_dir}}/pijemont.css">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script type="text/javascript" src="{{base_dir}}/fileinit.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+     var target = "{{target}}";
+    </script>
+        <style type="text/css">
+	 @import url('http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic|Montserrat:700|Merriweather:400italic');
+	 
+	 body {
+	     background-color: #f8f8f8;
+	     font-family: 'Lato',sans-serif;
+	     font-weight: 300;
+	 }
+
+	 td{
+	     padding-right: 20px;
+             padding-bottom: 5px;
+	 }
+         
+         input[type="text"]{
+             margin-left: 0px;
+         }
+      </style>
+
+  </head>
+  <body>
+      <div class="container">
+	  <h2>Launching {{app_id}} experiment: </h2>
+	  <table>
+	      <tr>
+		  <td><b>Argument</b></td><td><b>Input</b></td>
+	      </tr>
+	      <tr>
+		  <td>Experiment arguments </td><td><input id="args" type="file" onchange="file_read('args')" /></td>
+	      </tr>
+	      <tr>
+		  <td>Experiment targets (optional) </td><td><input id="targets" type="file" onchange="file_read('targets')" /></td>
+	      </tr>
+	      <tr>
+		  <td>AWS Bucket ID*</td><td><input id="bucket_id" type="text" /></td>
+	      </tr>
+	      <tr>
+		  <td>AWS Key ID*</td><td><input id="key_id" type="text" /></td>
+	      </tr>
+	      <tr>
+		  <td>AWS Secret Key*</td><td><input id="secret_key" type="password" /></td>
+	      </tr>
+	  </table>
+	  * = Required only if targets supplied
+
+	  <br />
+	  <button id="initExp" onclick="submit_form()">Launch</button>
+	  <h2>Status</h2>
+	  <span id="exp_status">Ready for file upload</span>
+    </div>
+</body></html>
