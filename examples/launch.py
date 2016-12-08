@@ -33,20 +33,22 @@ from docopt import docopt
 
 def verify_environ():
     to_have = ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_BUCKET_NAME']
+    error = False
     for key in to_have:
         if key not in os.environ:
-            print('Must define ' + key)
+            error = True
+            print('Must define ' + key + ' to upload to S3')
     if 'NEXT_BACKEND_GLOBAL_HOST' not in os.environ:
         print('NEXT_BACKEND_GLOBAL_HOST is not defined, '
               'defaulting to localhost')
+    return error
 
 
 def launch(init_filename, targets_filename=None, upload=True):
-    verify_environ()
+    environ_error = verify_environ()
 
     with open(init_filename, 'r') as f:
         init = yaml.load(f)
-
 
     header = "data:application/{};base64,"
     args = base64.encodestring(yaml.dump(init))
@@ -56,12 +58,12 @@ def launch(init_filename, targets_filename=None, upload=True):
          'bucket_id': os.environ.get('AWS_BUCKET_NAME'),
          'upload': str(upload)}
 
-    if upload:
-        for key in ['key_id', 'secret_key', 'bucket_id']:
-            if d[key] is None:
-                print('ERROR: If uploading to S3, define {}'.format(key) +
-                      ' (use --noS3 or --noupload to not use S3, variables'
-                      ' defined with "AWS_SECRET_ACCESS_KEY", etc')
+    if upload and environ_error:
+        print('Exiting early. Use --noS3 or --noupload to not upload to S3'
+              ' and define AWS_ACCESS_KEY, AWS_SECRET_ACCESS_KEY and '
+              'AWS_BUCKET_NAME')
+        sys.exit()
+
 
     if not upload:
         for key in ['key_id', 'secret_key', 'bucket_id']:
@@ -87,7 +89,7 @@ def launch(init_filename, targets_filename=None, upload=True):
     r = requests.post(host_url + '/assistant/init/experiment', data=data)
     response = r.json()
     if not response['success']:
-        print('An error occured launching the experiment')
+        print('An error occured launching the experiment:\n')
         print(response['message'])
         sys.exit()
 
