@@ -62,8 +62,7 @@ def launch(init_filename, targets_filename=None, upload=True):
         print('Exiting early. Use --noS3 or --noupload to not upload to S3'
               ' and define AWS_ACCESS_KEY, AWS_SECRET_ACCESS_KEY and '
               'AWS_BUCKET_NAME')
-        sys.exit()
-
+        raise ValueError('Define appropriate variables')
 
     if not upload:
         for key in ['key_id', 'secret_key', 'bucket_id']:
@@ -91,7 +90,7 @@ def launch(init_filename, targets_filename=None, upload=True):
     if not response['success']:
         print('An error occured launching the experiment:\n')
         print(response['message'])
-        sys.exit()
+        raise ValueError("Experiment didn't launch successfully")
 
     dashboard_url = host_url + '/dashboard/experiment_dashboard/{}/{}'
     dashboard_url = dashboard_url.format(response['exp_uid'], init['app_id'])
