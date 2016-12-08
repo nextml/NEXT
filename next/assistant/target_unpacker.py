@@ -101,8 +101,8 @@ def unpack_csv_file(s):
                 'primary_type': 'text',
                 'primary_description': string,
                 'alt_type': 'text',
-                'alt_description': string} for i, string in enumerate(strings)]
-    utils.debug_print(targets)
+                'alt_description': string}
+               for i, string in enumerate(strings[:-1])]  # -1 because last newline
     return targets
 
 
