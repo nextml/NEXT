@@ -79,6 +79,9 @@ class Memory(object):
             f.write(self.cache.get(k))
         f.seek(0, 0)
         return f
+
+    def lock(self, name, **kwargs):
+        return self.cache.lock(name, **kwargs)
     
     def exists(self, key):
         self.ensure_connection()
@@ -207,6 +210,8 @@ class Butler(object):
         self.db = db
         self.ell = ell
         self.targets = targets
+        self.memory = Memory()
+        
         if self.targets.db==None:
             self.targets.db = self.db
         self.queries = Collection(self.app_id+":queries", "", self.exp_uid, db)
