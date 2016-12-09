@@ -16,11 +16,13 @@ cadvisor:
 
 
 ######## MINION MACHINE #########
-# minionredis:
-#   image: redis
-#   command: redis-server /database/next/database/CacheStore/redis.conf
-#   volumes:
-#    - next_backend:/database 
+minionredis:
+  image: redis
+  command: redis-server /next_backend/next/database_client/CacheStore/redis.conf
+  volumes:
+   - .:/next_backend 
+  expose:
+   - "6379"
 
 minionworker:
   build: next/base_docker_image
@@ -32,6 +34,7 @@ minionworker:
     - mongodb:MONGODB  
     - rabbitmq:RABBIT
     - rabbitmqredis:RABBITREDIS
+    - minionredis:MINIONREDIS 
   environment:
    - PYTHONUNBUFFERED=TRUE
    - CELERY_SYNC_WORKER_COUNT={{CELERY_SYNC_WORKER_COUNT}}
