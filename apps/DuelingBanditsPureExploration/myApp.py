@@ -74,6 +74,8 @@ class MyApp:
 
         experiment_dict = butler.experiment.get()
 
+        butler.memory.set('ketesting', 'value')
+
         #if 'labels' in experiment_dict['args']['rating_scale']:
             #labels = experiment_dict['args']['rating_scale']['labels']
             #return_dict.update({'labels':labels})
@@ -84,6 +86,9 @@ class MyApp:
         return return_dict
 
     def processAnswer(self, butler, alg, args):
+        a = butler.memory.get('ketesting')
+        assert a == 'value'
+        utils.debug_print("butler.memory testing: ", a)
         query = butler.queries.get(uid=args['query_uid'])
         targets = query['target_indices']
         for target in targets:
