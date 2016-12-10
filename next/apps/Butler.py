@@ -81,6 +81,7 @@ class Memory(object):
         return f
 
     def lock(self, name, **kwargs):
+        self.ensure_connection()
         return self.cache.lock(name, **kwargs)
     
     def exists(self, key):
