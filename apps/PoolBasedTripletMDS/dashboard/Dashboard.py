@@ -4,7 +4,7 @@ import numpy.random
 from next.utils import utils
 from next.apps.AppDashboard import AppDashboard
 
-class PoolBasedTripletMDSDashboard(AppDashboard):
+class MyAppDashboard(AppDashboard):
     def __init__(self,db,ell):
         AppDashboard.__init__(self, db, ell)
 
