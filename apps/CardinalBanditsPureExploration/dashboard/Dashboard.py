@@ -1,5 +1,5 @@
 import json
-from next.utils import utils
+import next.utils as utils
 from next.apps.AppDashboard import AppDashboard
 
 class MyAppDashboard(AppDashboard):

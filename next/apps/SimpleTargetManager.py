@@ -1,4 +1,4 @@
-from next.utils import utils
+import next.utils as utils
 
 class SimpleTargetManager(object):
     def __init__(self,db):

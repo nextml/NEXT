@@ -3,7 +3,7 @@ from flask_restful import Resource, reqparse, request
 
 import json
 import random
-from next.utils import utils
+import next.utils as utils
 import next.broker.broker
 from next.api.resource_manager import ResourceManager
 from next.api.api_util import *
