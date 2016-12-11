@@ -8,7 +8,7 @@ from next.apps.AppDashboard import AppDashboard
 # import next.database_client.DatabaseAPIHTTP as db
 # import next.logging_client.LoggerHTTP as ell
 
-class PoolBasedBinaryClassificationDashboard(AppDashboard):
+class MyAppDashboard(AppDashboard):
 
     def __init__(self,db,ell):
         AppDashboard.__init__(self, db, ell)
