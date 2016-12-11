@@ -29,11 +29,11 @@ class App(object):
         self.exp_uid = exp_uid
         self.helper = Helper()
         self.myApp = __import__('apps.'+self.app_id, fromlist=[''])
-        self.myApp = getattr(self.myApp, app_id)
+        self.myApp = getattr(self.myApp, 'myApp')
         self.myApp = self.myApp(db)
         self.butler = Butler(self.app_id, self.exp_uid, self.myApp.TargetManager, db, ell)
         base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),"../../apps"))
-        self.reference_dict,app_errs = verifier.load_doc("{}/{}.yaml".format(app_id, app_id), base_dir)
+        self.reference_dict, app_errs = verifier.load_doc("{}/myApp.yaml".format(app_id), base_dir)
         self.algs_reference_dict,alg_errs = verifier.load_doc("{}/algs/Algs.yaml".format(app_id, app_id), base_dir)
         if len(app_errs) > 0 or len(alg_errs) > 0:
             raise Exception("App YAML formatting errors: \n{}\n\nAlg YAML formatting errors: \n{}".format(
@@ -43,7 +43,7 @@ class App(object):
         dashboard_string = 'apps.' + self.app_id + \
                            '.dashboard.Dashboard'
         dashboard_module = __import__(dashboard_string, fromlist=[''])
-        self.dashboard = getattr(dashboard_module, app_id+'Dashboard')
+        self.dashboard = getattr(dashboard_module, 'MyAppDashboard')
 
     def run_alg(self, butler, alg_label, alg, func_name, alg_args):
         if 'args' in self.algs_reference_dict[func_name]:

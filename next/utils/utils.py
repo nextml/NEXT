@@ -21,7 +21,7 @@ def get_supported_apps(apps_path='apps/'):
     >>> ['StochasticBanditsPureExploration', 'DuelingBanditsPureExploration', 'StochasticLinearBanditsExploreExploit', 'PoolBasedTripletMDS']
   """
   import os
-  return next(os.walk(os.path.dirname(apps_path)))[1]
+  return [d for d in next(os.walk(os.path.dirname(apps_path)))[1] if d[0] != '.']
 
 
 def get_app(app_id, exp_uid, db, ell):
