@@ -2,7 +2,7 @@ import json
 from next.utils import utils
 from next.apps.AppDashboard import AppDashboard
 
-class CardinalBanditsPureExplorationDashboard(AppDashboard):
+class MyAppDashboard(AppDashboard):
     def __init__(self,db,ell):
         AppDashboard.__init__(self,db,ell)
 
