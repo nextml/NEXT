@@ -1,9 +1,6 @@
 import yaml
 import random
 import sys
-sys.path.append('../utils/')
-import utils
-# import next.utils as utils
 
 color_ansi = {'yellow': '\x1b[33m',
               'red': '\x1b[31m',
@@ -40,12 +37,8 @@ def get_app(app_id, exp_uid, db, ell):
   app_id = str(app_id) # soemtimes input is unicode formatted which causes error
   next_path = 'next.apps.App'
   app_module = __import__(next_path,fromlist=[''])
-  utils.debug_print(app_module)
   app_class = getattr(app_module, 'App')
-  utils.debug_print(app_class)
-  c = app_class(app_id, exp_uid, db, ell)
-  utils.debug_print(c)
-  return c
+  return app_class(app_id, exp_uid, db, ell)
 
 def get_app_alg(app_id,alg_id):
   """
