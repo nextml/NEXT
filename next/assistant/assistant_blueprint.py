@@ -129,7 +129,7 @@ assistant_api.add_resource(ExperimentAssistant,'/init/experiment')
 @assistant.route('/doc/<string:app_id>/<string:form>')
 def docs(app_id=None,form="raw"):
     if app_id:
-        filename = '{0}/{0}.yaml'.format(app_id)
+        filename = '{0}/myApp.yaml'.format(app_id)
 
         utils.debug_print(filename)
         api,blank,pretty = doc_gen.get_docs(filename,'apps/')
