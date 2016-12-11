@@ -29,7 +29,7 @@ class App(object):
         self.exp_uid = exp_uid
         self.helper = Helper()
         self.myApp = __import__('apps.'+self.app_id, fromlist=[''])
-        self.myApp = getattr(self.myApp, 'myApp')
+        self.myApp = getattr(self.myApp, 'MyApp')
         self.myApp = self.myApp(db)
         self.butler = Butler(self.app_id, self.exp_uid, self.myApp.TargetManager, db, ell)
         base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),"../../apps"))
