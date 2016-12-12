@@ -1,7 +1,7 @@
 from next.api import api_blueprint
 from next.dashboard.dashboard import dashboard
 from next.assistant.assistant_blueprint import assistant
-from next.home import home
+from next.home.home import home
 from next.query_page import query_page
 import next.constants as constants
 
