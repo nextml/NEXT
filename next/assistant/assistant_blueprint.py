@@ -6,7 +6,7 @@ import yaml
 from flask import Blueprint, render_template
 from flask_restful import Api, Resource, reqparse, request
 
-from next.utils import utils
+import next.utils as utils
 from next.lib.pijemont import doc as doc_gen
 from next.lib.pijemont import verifier
 from next.broker.broker import JobBroker
@@ -53,7 +53,7 @@ class ExperimentAssistant(Resource):
             ans[arg] = data[start:start+size]
             start += size
         return ans
-        
+
     def post(self):
         utils.debug_print('POSTED!')
         utils.debug_print('H',request.headers)
@@ -66,11 +66,16 @@ class ExperimentAssistant(Resource):
         # TODO? replace with msgpack
         args = self.deserialise(request.get_data())
 
+        utils.debug_print('args 69 = ', args)
         for key in args:
             if key not in {'bucket_id', 'key_id', 'secret_key'}:
                 comma_idx = args[key].find(',')
                 args[key] = args[key][comma_idx + 1:]
-                args[key] = base64.decodestring(args[key])
+                if args[key] in {'True', 'False'}:
+                    args[key] = True if args[key] == 'True' else False
+                else:
+                    args[key] = base64.decodestring(args[key])
+        utils.debug_print('args = ', args)
 
         args['args'] = yaml.load(args['args'])
 
@@ -78,25 +83,30 @@ class ExperimentAssistant(Resource):
         init_exp_args = args['args']
         try:
             if 'targets' in args.keys():
-                bucket_id = args['bucket_id']
-                key_id = args['key_id']
-                secret_key = args['secret_key']
                 target_zipfile = args['targets']
+                if args.get('upload', True):
+                    bucket_id = args['bucket_id']
+                    key_id = args['key_id']
+                    secret_key = args['secret_key']
 
-                utils.debug_print(args['bucket_id'])
-                utils.debug_print(args['secret_key'])
-                utils.debug_print(args['key_id'])
-                # Unpack the targets
-                targets = target_unpacker.unpack(target_zipfile, key_id,
-                                                 secret_key, bucket_id)
+                    for x_ in ['bucket_id', 'secret_key', 'key_id']:
+                        utils.debug_print(x_, args[x_])
+                    # Unpack the targets
+                    targets = target_unpacker.unpack(target_zipfile, key_id,
+                                                     secret_key, bucket_id)
+                else:
+                    targets = target_unpacker.unpack_csv_file(target_zipfile)
                 init_exp_args['args']['targets'] = {'targetset':  targets}
 
+            print('104')
             # Init the experiment:
             app_id = init_exp_args['app_id']
             exp_uid = '%030x' % random.randrange(16**30)
 
+            print('entering 109')
             r = broker.applyAsync(app_id, exp_uid, 'initExp',
                                   json.dumps(init_exp_args))
+            print('exiting 109')
             response_json, didSucceed, message = r
             if not didSucceed:
                 raise ValueError(message)
@@ -119,7 +129,7 @@ assistant_api.add_resource(ExperimentAssistant,'/init/experiment')
 @assistant.route('/doc/<string:app_id>/<string:form>')
 def docs(app_id=None,form="raw"):
     if app_id:
-        filename = '{0}/{0}.yaml'.format(app_id)
+        filename = '{0}/myApp.yaml'.format(app_id)
 
         utils.debug_print(filename)
         api,blank,pretty = doc_gen.get_docs(filename,'apps/')

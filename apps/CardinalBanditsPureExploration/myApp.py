@@ -3,7 +3,7 @@ import numpy
 import next.apps.SimpleTargetManager
 import next.utils as utils
 
-class CardinalBanditsPureExploration(object):
+class MyApp:
     def __init__(self,db):
         self.app_id = 'CardinalBanditsPureExploration'
         self.TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager(db)

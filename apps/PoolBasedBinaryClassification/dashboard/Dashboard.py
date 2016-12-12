@@ -3,12 +3,12 @@ import numpy
 import numpy.random
 from datetime import datetime
 from datetime import timedelta
-from next.utils import utils
+import next.utils as utils
 from next.apps.AppDashboard import AppDashboard
 # import next.database_client.DatabaseAPIHTTP as db
 # import next.logging_client.LoggerHTTP as ell
 
-class PoolBasedBinaryClassificationDashboard(AppDashboard):
+class MyAppDashboard(AppDashboard):
 
     def __init__(self,db,ell):
         AppDashboard.__init__(self, db, ell)

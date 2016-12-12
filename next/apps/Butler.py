@@ -1,4 +1,4 @@
-from next.utils import utils
+import next.utils as utils
 import numpy as np
 
 class Collection(object):

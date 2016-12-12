@@ -14,7 +14,7 @@ import os
 try:
         import next.apps.test_utils as test_utils
 except:
-        sys.path.append('../../..')
+        sys.path.append('../../../next/apps')
         import test_utils
 
 
@@ -68,6 +68,7 @@ def test_api(assert_200=True, num_arms=5,
     initExp_args_dict['app_id'] = app_id
 
     exp_info = []
+    print 'Initializing experiment...'
     for ell in range(num_experiments):
         initExp_response_dict, exp_uid = test_utils.initExp(initExp_args_dict)
         exp_info += [exp_uid]
@@ -77,6 +78,7 @@ def test_api(assert_200=True, num_arms=5,
 
         # Test GET Experiment
         initExp_response_dict = test_utils.getExp(exp_uid)
+    print '...done'
 
     # Generate participants
     participants = []
@@ -89,6 +91,7 @@ def test_api(assert_200=True, num_arms=5,
         exp_uid = experiment['exp_uid']
         pool_args.append((exp_uid,participant_uid,total_pulls,true_means,assert_200))
 
+    print 'Participants are responding'
     results = pool.map(simulate_one_client, pool_args)
 
     for result in results:

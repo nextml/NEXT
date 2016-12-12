@@ -3,7 +3,7 @@ import numpy
 import numpy.random
 from datetime import datetime
 from datetime import timedelta
-from next.utils import utils
+import next.utils as utils
 
 import matplotlib
 matplotlib.use('Agg')

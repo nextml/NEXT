@@ -1,8 +1,8 @@
 import json
-from next.utils import utils
+import next.utils as utils
 from next.apps.AppDashboard import AppDashboard
 
-class DuelingBanditsPureExplorationDashboard(AppDashboard):
+class MyAppDashboard(AppDashboard):
     def __init__(self,db,ell):
         AppDashboard.__init__(self,db,ell)
 

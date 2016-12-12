@@ -17,6 +17,7 @@ import next.constants as constants
 import next.database_client.PermStore as PermStore
 from next.api.resource_manager import ResourceManager
 import next.api.api_util as api_util
+import next.utils as utils
 
 # Declare this as the dashboard blueprint
 dashboard = Blueprint('dashboard',
@@ -134,7 +135,7 @@ def experiment_dashboard(exp_uid, app_id):
                                                          'dashboard'),
                                            PackageLoader('next.dashboard',
                                                          'templates')]))
-    template = env.get_template('{}.html'.format(app_id)) # looks for /next/apps/{{ app_id }}/dashboard/{{ app_id }}.html
+    template = env.get_template('myAppDashboard.html'.format(app_id)) # looks for /next/apps/{{ app_id }}/dashboard/{{ app_id }}.html
     return template.render(app_id=app_id,
                            exp_uid=exp_uid,
                            alg_list=alg_list,

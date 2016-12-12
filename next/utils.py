@@ -1,5 +1,6 @@
 import yaml
 import random
+import sys
 
 color_ansi = {'yellow': '\x1b[33m',
               'red': '\x1b[31m',
@@ -21,7 +22,7 @@ def get_supported_apps(apps_path='apps/'):
     >>> ['StochasticBanditsPureExploration', 'DuelingBanditsPureExploration', 'StochasticLinearBanditsExploreExploit', 'PoolBasedTripletMDS']
   """
   import os
-  return next(os.walk(os.path.dirname(apps_path)))[1]
+  return [d for d in next(os.walk(os.path.dirname(apps_path)))[1] if d[0] != '.']
 
 
 def get_app(app_id, exp_uid, db, ell):

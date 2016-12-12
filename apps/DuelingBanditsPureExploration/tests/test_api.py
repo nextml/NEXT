@@ -14,7 +14,7 @@ import sys
 try:
     import next.apps.test_utils as test_utils
 except:
-    sys.path.append('../../..')
+    sys.path.append('../../../next/apps')
     import test_utils
 
 

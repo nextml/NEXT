@@ -4,7 +4,7 @@ import traceback
 import sys
 import os
 
-from next.utils import utils
+import next.utils as utils
 
 DICT = {'dict','dictionary','map'}
 LIST = {'list'}

@@ -87,6 +87,22 @@ def unpack(s, aws_key, aws_secret_key, bucket_name, n_jobs=None,
                    for i, (name, file) in enumerate(files.items())]
     return targets
 
+
+def unpack_csv_file(s):
+    base64_zip = io.BytesIO(s)
+    zip_file = zipfile.ZipFile(base64_zip)
+    files = zipfile_to_dictionary(zip_file)
+    # assuming len(files) == 1 and files[0][-3:] == 'csv'
+    strings = files[files.keys()[0]].split('\n')
+    targets = [{'target_id': str(i),
+                'primary_type': 'text',
+                'primary_description': string,
+                'alt_type': 'text',
+                'alt_description': string} for i, string in enumerate(strings)]
+    utils.debug_print(targets)
+    return targets
+
+
 if __name__ == "__main__":
     from pprint import pprint
     aws_key = os.environ.get('KEY')

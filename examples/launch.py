@@ -1,15 +1,16 @@
 """
 Usage:
     launch.py <init_filename>
-    launch.py <init_filename> <zip_path>
+    launch.py <init_filename> <zip_path> [--noS3 | --noupload]
 
 Arguments:
     initExp_path (required) : path to a YAML file for arguments to launch experiment
-    zip_path (optional)     : zip file that contains the targets
-                              (which are then uploaded to S3).
+    zip_path (optional) : zip file that contains the targets
+                          (which are then uploaded to S3).
 
 Options:
     -h, --help
+    [--noS3, --noupload] : Do not upload targets to S3.
 
 Example:
 
@@ -40,18 +41,31 @@ def verify_environ():
               'defaulting to localhost')
 
 
-def launch(init_filename, targets_filename=None):
+def launch(init_filename, targets_filename=None, upload=True):
     verify_environ()
 
     with open(init_filename, 'r') as f:
         init = yaml.load(f)
+
 
     header = "data:application/{};base64,"
     args = base64.encodestring(yaml.dump(init))
     d = {'args': header.format('x-yaml') + args,
          'key_id': os.environ.get('AWS_ACCESS_KEY_ID'),
          'secret_key': os.environ.get('AWS_SECRET_ACCESS_KEY'),
-         'bucket_id': os.environ.get('AWS_BUCKET_NAME')}
+         'bucket_id': os.environ.get('AWS_BUCKET_NAME'),
+         'upload': str(upload)}
+
+    if upload:
+        for key in ['key_id', 'secret_key', 'bucket_id']:
+            if d[key] is None:
+                print('ERROR: If uploading to S3, define {}'.format(key) +
+                      ' (use --noS3 or --noupload to not use S3, variables'
+                      ' defined with "AWS_SECRET_ACCESS_KEY", etc')
+
+    if not upload:
+        for key in ['key_id', 'secret_key', 'bucket_id']:
+            d.pop(key, None)
 
     if targets_filename:
         with open(targets_filename, 'r') as f:
@@ -88,4 +102,5 @@ if __name__ == "__main__":
     args = docopt(__doc__)
     print(args)
     print('')
-    launch(args['<init_filename>'], targets_filename=args['<zip_path>'])
+    launch(args['<init_filename>'], targets_filename=args['<zip_path>'],
+           upload=not (args['--noS3'] or args['--noupload'] or False))

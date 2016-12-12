@@ -78,7 +78,7 @@ def apply_dashboard(app_id, exp_uid, args_in_json, enqueue_timestamp):
 	delta_datetime = dequeue_datetime - enqueue_datetime
 	time_enqueued = delta_datetime.seconds + delta_datetime.microseconds/1000000.
         dir, _ = os.path.split(__file__)
-        reference_dict,errs = verifier.load_doc('{}/{}.yaml'.format(app_id, app_id),"apps/")
+        reference_dict,errs = verifier.load_doc('{}/myApp.yaml'.format(app_id, app_id),"apps/")
         if len(errs) > 0:
                 raise Exception("App YAML format errors: \n{}".format(str(errs)))
         args_dict = verifier.verify(args_in_json, reference_dict['getStats']['args'])
@@ -108,7 +108,7 @@ def apply_dashboard(app_id, exp_uid, args_in_json, enqueue_timestamp):
         if cached_response==None:
             dashboard_string = 'apps.' + app_id + '.dashboard.Dashboard'
             dashboard_module = __import__(dashboard_string, fromlist=[''])
-            dashboard = getattr(dashboard_module, app_id+'Dashboard')
+            dashboard = getattr(dashboard_module, 'MyAppDashboard')
             dashboard = dashboard(db, ell)
             stats_method = getattr(dashboard, stat_id)
             response,dt = next.utils.timeit(stats_method)(app,app.butler,**args_dict['args']['params'])

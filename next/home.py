@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template
-from next.utils import utils
+import next.utils as utils
 from next.lib.pijemont import doc as doc_gen
 from next.lib.pijemont import verifier
 
