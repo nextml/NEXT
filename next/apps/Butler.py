@@ -1,5 +1,93 @@
 import next.utils as utils
 import numpy as np
+import os
+import next.constants as constants
+import redis
+import StringIO
+
+class Memory(object):
+    def __init__(self):
+        # utils.debug_print(constants.MINIONREDIS_PORT, constants.MINIONREDIS_PORT)
+        self.cache = None
+        self.max_entry_size = 500000000 # 500MB
+
+    def ensure_connection(self):
+        if self.cache is None:
+            self.cache = redis.StrictRedis(host=constants.MINIONREDIS_HOST, port=constants.MINIONREDIS_PORT)
+
+    def num_entries(self, size):
+        if size % self.max_entry_size == 0:
+            return size / self.max_entry_size
+        else:
+            return (size / self.max_entry_size) + 1
+        
+    def set(self, key, value):
+        self.ensure_connection()
+        try:
+            n = self.num_entries(len(value))
+            utils.debug_print("Setting ",len(value),"bytes in",n,"entries")
+            for i in range(n):
+                k = key + ":" + str(i)
+                self.cache.set(k,value[i*self.max_entry_size:(i+1)*self.max_entry_size])
+            return self.cache.set(key,"{}:{}".format(str(n),str(len(value))))
+        except Exception as exc:
+            utils.debug_print("REDIS OOPS: ",exc)
+            return False
+
+    def set_file(self, key, f):
+        self.ensure_connection()
+
+        try:
+            f.seek(0,os.SEEK_END)
+            l = f.tell()
+            f.seek(0, 0)
+            n = self.num_entries(l)
+            utils.debug_print("Setting ",l,"bytes in",n,"entries")
+            for i in range(n):
+                k = key + ":" + str(i)
+                v = f.read(self.max_entry_size)
+                self.cache.set(k,v)
+            return self.cache.set(key,"{}:{}".format(str(n),str(l)))
+        except Exception as exc:
+            utils.debug_print("REDIS OOPS: ",exc)
+            return False
+
+    def get(self, key):
+        self.ensure_connection()
+        d =  self.cache.get(key)
+        n,l = d.split(":")
+        l = int(l)
+        n = int(n)
+        ans = ""
+        utils.debug_print("Getting ",l,"bytes in",n,"entries")
+        for i in range(n):
+            k = key + ":" + str(i)
+            ans += self.cache.get(k)
+        return ans
+    
+    def get_file(self, key):
+        self.ensure_connection()
+        d =  self.cache.get(key)
+        f = StringIO.StringIO()
+        n,l = d.split(":")
+        l = int(l)
+        n = int(n)
+        ans = ""
+        utils.debug_print("Getting ",l,"bytes in",n,"entries")
+        for i in range(n):
+            k = key + ":" + str(i)
+            f.write(self.cache.get(k))
+        f.seek(0, 0)
+        return f
+
+    def lock(self, name, **kwargs):
+        self.ensure_connection()
+        return self.cache.lock(name, **kwargs)
+    
+    def exists(self, key):
+        self.ensure_connection()
+        return self.cache.exists(key)
+
 
 class Collection(object):
     def __init__(self, collection, uid_prefix, exp_uid, db, timing=True):
@@ -123,6 +211,8 @@ class Butler(object):
         self.db = db
         self.ell = ell
         self.targets = targets
+        self.memory = Memory()
+        
         if self.targets.db==None:
             self.targets.db = self.db
         self.queries = Collection(self.app_id+":queries", "", self.exp_uid, db)
