@@ -75,13 +75,13 @@ class ExperimentAssistant(Resource):
                     args[key] = True if args[key] == 'True' else False
                 else:
                     args[key] = base64.decodestring(args[key])
-        utils.debug_print('args = ', args)
+        utils.debug_print('args.keys() = ', args.keys())
 
-        args['args'] = yaml.load(args['args'])
-
-        utils.debug_print(args['args'])
-        init_exp_args = args['args']
         try:
+            args['args'] = yaml.load(args['args'])
+
+            utils.debug_print(args['args'].keys())
+            init_exp_args = args['args']
             if 'targets' in args.keys():
                 target_zipfile = args['targets']
                 if args.get('upload', True):
@@ -113,10 +113,11 @@ class ExperimentAssistant(Resource):
         except:
             tb = traceback.format_exc()
             info = sys.exc_info()
-            if hasattr(info[1], 'message'):
+            if hasattr(info[1], 'message') and len(info[1].message) > 0:
                 message = info[1].message
             else:
-                message = str(info[1])
+                message = str(info[1]) + str(info[-1])
+                message = '\n'.join(tb.split('\n')[-5:])
             message = message + '\n\nDetails:\n' + tb
 
             return {'success': False, 'message': message, 'exp_uid': None}
