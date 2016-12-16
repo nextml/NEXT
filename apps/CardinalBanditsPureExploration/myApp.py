@@ -1,5 +1,6 @@
 import json
 import numpy
+import numpy as np
 import next.apps.SimpleTargetManager
 import next.utils as utils
 
@@ -111,4 +112,3 @@ class MyApp:
                                  'standard_deviation':standard_deviations[index],
                                  'count':counts[index]} )
         return {'targets': targets} 
-        

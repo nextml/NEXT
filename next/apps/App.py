@@ -133,13 +133,15 @@ class App(object):
                 participant_doc = {}
                 self.butler.participants.set(uid=participant_uid, value={'exp_uid':exp_uid, 'participant_uid':participant_uid})
             if (participant_uid == exp_uid) or (participant_to_algorithm_management == 'one_to_many') or (first_participant_query):
+
                 if algorithm_management_settings['mode'] == 'fixed_proportions':
                     prop = [prop_item['proportion'] for prop_item in algorithm_management_settings['params']]
                     chosen_alg = numpy.random.choice(alg_list, p=prop)
                 elif algorithm_management_settings['mode'] == 'custom' :
-                    chosen_alg = getattr(self.myApp, 'chooseAlg')(self.butler, args_dict['args'])
+                    chosen_alg = self.myApp.chooseAlg(self.butler, alg_list, args_dict['args'])
                 else:
                     chosen_alg = numpy.random.choice(alg_list)
+
                 alg_id = chosen_alg['alg_id']
                 alg_label = chosen_alg['alg_label']
                 if (first_participant_query) and (participant_to_algorithm_management=='one_to_one'):

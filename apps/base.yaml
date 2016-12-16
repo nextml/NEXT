@@ -50,12 +50,13 @@ initExp:
           type: dict
           values:
             mode:
-              description: Currently, fixed_proportions is the only implement mode and a probability of an algorithm being drawn has to be selected. We hope to include more active ways of choosing the algorithm in future versions of NEXT.
+              description: "Fixed proportions: flip a coin with the probabilities below to select an algorithm. Custom: write myApp.chooseAlg to write custom algorithm selection that receives the (self, butler, algs, getQueryArgs) as args and returns an item of `algs`. Note params and `params[0].keys() == ['alg_label, 'proportion']` is required for `fixed_proportions`"
               type: str
-              values: [fixed_proportions]
+              values: [fixed_proportions, custom]
             params:
-              description: (note; documentation for mode=fixed_proportions). Parameters to help select an algorithm.
+              description: Parameters to help select an algorithm.
               type: list
+              optional: true
               values:
                 description: List of proportions per app type. Note; must be positive and the sum of proportions must add up to 1.
                 type: dict
