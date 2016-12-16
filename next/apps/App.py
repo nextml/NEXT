@@ -136,6 +136,10 @@ class App(object):
                 if algorithm_management_settings['mode'] == 'fixed_proportions':
                     prop = [prop_item['proportion'] for prop_item in algorithm_management_settings['params']]
                     chosen_alg = numpy.random.choice(alg_list, p=prop)
+                elif algorithm_management_settings['mode'] == 'custom' :
+                    chosen_alg = getattr(self.myApp, 'chooseAlg')(self.butler, args_dict['args'])
+                else:
+                    chosen_alg = numpy.random.choice(alg_list)
                 alg_id = chosen_alg['alg_id']
                 alg_label = chosen_alg['alg_label']
                 if (first_participant_query) and (participant_to_algorithm_management=='one_to_one'):
