@@ -54,12 +54,12 @@ minionworker:
 ######### API #########
 nextbackenddocker:
   build: {{NEXT_DIR}}/next/base_docker_image
-  command: gunicorn  --worker-class=gevent -R --log-level=debug --logger-class=simple --reload -b 0.0.0.0:8000 -w 1 next.api.api:app
+  command: gunicorn  --worker-class=gevent -R --log-level=debug --logger-class=simple --reload -b 0.0.0.0:{{NEXT_BACKEND_GLOBAL_PORT}} -w 1 next.api.api:app
   volumes:
    - {{NEXT_DIR}}:/next_backend
   working_dir: /next_backend
   ports:
-    - "0.0.0.0:8000:8000" # gunicorn
+    - "0.0.0.0:{{NEXT_BACKEND_GLOBAL_PORT}}:{{NEXT_BACKEND_GLOBAL_PORT}}" # gunicorn
   links:
     # - miniondatabasedocker:MINIONDATABASESERVER  # right now the API makes database calls within the container to retrieve logs. This is bad! This work should be thrown on a queue and given to workers to do
     - rabbitmq:RABBIT
