@@ -42,14 +42,14 @@ class ExperimentAssistant(Resource):
     def deserialise(self, data):
         start = data.find('\n')
         s = data[:start].decode('ascii')
-        print('s',s)
+        # print('s',s)
         d = [x.split(':') for x in s.split(';')]
-        print('d',d)
+        # print('d',d)
         start += 1
         ans = {}
         for arg,size in d:
             size = int(size)
-            print('a,s',arg,size)
+            # print('a,s',arg,size)
             ans[arg] = data[start:start+size]
             start += size
         return ans
@@ -66,7 +66,6 @@ class ExperimentAssistant(Resource):
         # TODO? replace with msgpack
         args = self.deserialise(request.get_data())
 
-        utils.debug_print('args 69 = ', args)
         for key in args:
             if key not in {'bucket_id', 'key_id', 'secret_key'}:
                 comma_idx = args[key].find(',')
@@ -77,9 +76,9 @@ class ExperimentAssistant(Resource):
                     args[key] = base64.decodestring(args[key])
         utils.debug_print('args.keys() = ', args.keys())
 
-        try:
-            args['args'] = yaml.load(args['args'])
+        args['args'] = yaml.load(args['args'])
 
+        try:
             utils.debug_print(args['args'].keys())
             init_exp_args = args['args']
             if 'targets' in args.keys():
@@ -98,15 +97,12 @@ class ExperimentAssistant(Resource):
                     targets = target_unpacker.unpack_csv_file(target_zipfile)
                 init_exp_args['args']['targets'] = {'targetset':  targets}
 
-            print('104')
             # Init the experiment:
             app_id = init_exp_args['app_id']
             exp_uid = '%030x' % random.randrange(16**30)
 
-            print('entering 109')
             r = broker.applyAsync(app_id, exp_uid, 'initExp',
                                   json.dumps(init_exp_args))
-            print('exiting 109')
             response_json, didSucceed, message = r
             if not didSucceed:
                 raise ValueError(message)
