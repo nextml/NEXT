@@ -92,17 +92,14 @@ def getRandomQuery(X):
     """
     n,d = X.shape
     
-    i = randint(n)
-    j = randint(n)
-    while (j==i):
+    while True:
+        i = randint(n)
         j = randint(n)
-    k = randint(n)
-    while (k==i) | (k==j):
         k = randint(n)
+        if i != j and j != k and k != i:
+            break
     q = [i, j, k]
-    
     score = getTripletScore(X,q)
-
     return q,score
 
 def getTripletScore(X,q):
