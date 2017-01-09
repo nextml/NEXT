@@ -81,9 +81,13 @@ popup_alert = function(text){
             <b> Number of participants: </b> <span id="num_participants"></span> <br>
             <b> Number of answers: </b> <span id="num_queries"></span> <br> 
             <b> Backend Exceptions: </b> <a href="/api/experiment/{{ exp_uid }}/logs/APP-EXCEPTION" target="_blank">Open in new tab</a>  <br>
-            <b> Participant data: </b> <a href="/api/experiment/{{ exp_uid }}/participants?zip=True" target="_blank">Open in new tab</a>  <br>
             <b> Experiment data: </b> <a href="/api/experiment/{{ exp_uid }}" target="_blank">Open in new tab</a>  <br>
             <b> Query page: </b> <a href="/query/query_page/query_page/{{ exp_uid }}" target="_blank">Open in new tab</a>  <br>
+            <b> Participant data: </b> <a href="/api/experiment/{{ exp_uid }}/participants?zip=True" target="_blank">JSON</a>,
+            <a href="/api/experiment/{{ exp_uid
+                }}/participants?csv=True" target="_blank">CSV</a>
+            <br>
+            (the CSV data are generated from the JSON data)
             </p>
         </div>
     </div>

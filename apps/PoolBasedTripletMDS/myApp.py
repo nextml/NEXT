@@ -63,6 +63,21 @@ class MyApp:
     def getModel(self, butler, alg, args):
         return alg()
 
+    def format_responses(self, responses):
+        formatted = []
+        for response in responses:
+            targets = {'target_' + target['label']: target['primary_description']
+                       for target in response['target_indices']}
+            winner = {t['target_id'] == response['target_winner']: t['primary_description']
+                      for t in response['target_indices']}
+            response.update({'target_winner': winner[True]})
 
+            for key in ['q', '_id', 'target_indices']:
+                if key in response:
+                    del response[key]
+            response.update(targets)
+            formatted += [response]
+
+        return formatted
 
 

@@ -143,3 +143,22 @@ class MyApp:
         return {'targets': targets, 'num_reported_answers':num_reported_answers} 
 
 
+    def format_responses(self, responses):
+        formatted = []
+        for response in responses:
+            targets = {'target_' + target['label']: target['target']['primary_description']
+                       for target in response['target_indices']}
+            winner = {t['target']['target_id'] == response['winner_id']:
+                    t['target']['primary_description']
+                      for t in response['target_indices']}
+            response.update({'target_winner': winner[True]})
+
+            for key in ['q', '_id', 'target_indices', 'winner_id', 'context_type']:
+                if key in response:
+                    del response[key]
+            response.update(targets)
+            formatted += [response]
+
+        return formatted
+
+

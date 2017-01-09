@@ -9,6 +9,8 @@ example use:
 get a tripletMDS query:
 curl -X GET http://localhost:8001/api/experiment/[exp_uid]/participants
 '''
+from StringIO import StringIO
+import pandas as pd
 from flask import Flask, send_file, request
 from flask_restful import Resource, reqparse
 
@@ -17,9 +19,14 @@ from io import BytesIO
 import zipfile
 
 import next.utils
+import next.utils as utils
 import next.api.api_util as api_util
 from next.api.api_util import APIArgument
 from next.api.resource_manager import ResourceManager
+from next.database_client.DatabaseAPI import DatabaseAPI
+db = DatabaseAPI()
+from next.logging_client.LoggerAPI import LoggerAPI
+ell = LoggerAPI()
 
 resource_manager = ResourceManager()
 
@@ -83,6 +90,7 @@ class Participants(Resource):
                 zip_true = eval(request.args.get('zip'))
             except:
                 pass
+
             
         # Get all participants for exp_uid from resource_manager
         participant_uids = resource_manager.get_participant_uids(exp_uid)
@@ -94,6 +102,20 @@ class Participants(Resource):
                                                              exp_uid)
             # Append participant query responses to list
             participant_responses[participant] = response
+
+        if request.args.get('csv'):
+            responses = []
+            for participant in participant_uids:
+                response = resource_manager.get_participant_data(participant,
+                                                                 exp_uid)
+                for r in response:
+                    responses += [r]
+
+            response_file = parse_responses(responses)
+            response_file.seek(0)
+            return send_file(response_file,
+                             attachment_filename='responses.csv',
+                             as_attachment=True)
 
         all_responses = {'participant_responses': participant_responses}
         if zip_true:
@@ -107,3 +129,18 @@ class Participants(Resource):
                              as_attachment='True')
         else:
             return api_util.attach_meta(all_responses, meta_success), 200
+
+def parse_responses(responses):
+    exp_uid = responses[0]['exp_uid']
+    app_id = resource_manager.get_app_id(exp_uid)
+    myApp = utils.get_app(app_id, exp_uid, db, ell).myApp
+    if not hasattr(myApp, 'format_responses'):
+        return 'ERROR: myApp.format_responses does not exist for {}'.format(app_id)
+    r = myApp.format_responses(responses)
+    if type(r) != list and type(r[0]) != dict:
+        return 'ERROR: myApp.format_responses should return a list of dictionaries'
+
+    df = pd.DataFrame(r)
+    str_file = StringIO()
+    df.to_csv(str_file)
+    return str_file

@@ -112,3 +112,25 @@ class MyApp:
                                  'standard_deviation':standard_deviations[index],
                                  'count':counts[index]} )
         return {'targets': targets} 
+
+
+    def format_responses(self, responses):
+        formatted = []
+        for response in responses:
+            reward = {response['target_reward'] == l['reward']: l['label']
+                      for l in response['labels']}
+            reward_num = {response['target_reward'] == l['reward']: l['reward']
+                      for l in response['labels']}
+            target = response['target_indices'][0]['target']['primary_description']
+            response.update({'target': target, 'target_reward_label': reward[True],
+                'target_reward': reward_num[True]})
+
+            for key in ['_id', 'target_indices',
+                        'context_type', 'labels', 'target_id']:
+                if key in response:
+                    del response[key]
+            formatted += [response]
+
+        return formatted
+
+
