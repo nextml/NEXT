@@ -66,6 +66,8 @@ class MyApp:
     def format_responses(self, responses):
         formatted = []
         for response in responses:
+            if 'target_winner' not in response:
+                continue
             targets = {'target_' + target['label']: target['primary_description']
                        for target in response['target_indices']}
             winner = {t['target_id'] == response['target_winner']: t['primary_description']

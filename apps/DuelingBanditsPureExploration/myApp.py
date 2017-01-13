@@ -148,6 +148,8 @@ class MyApp:
         for response in responses:
             targets = {'target_' + target['label']: target['target']['primary_description']
                        for target in response['target_indices']}
+            if 'winner_id' not in response:
+                continue
             winner = {t['target']['target_id'] == response['winner_id']:
                     t['target']['primary_description']
                       for t in response['target_indices']}

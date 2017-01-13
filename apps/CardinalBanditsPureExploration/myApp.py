@@ -117,6 +117,8 @@ class MyApp:
     def format_responses(self, responses):
         formatted = []
         for response in responses:
+            if 'target_reward' not in response:
+                continue
             reward = {response['target_reward'] == l['reward']: l['label']
                       for l in response['labels']}
             reward_num = {response['target_reward'] == l['reward']: l['reward']

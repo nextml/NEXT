@@ -11,8 +11,9 @@ curl -X GET http://localhost:8001/api/experiment/[exp_uid]/participants
 '''
 from StringIO import StringIO
 import pandas as pd
-from flask import Flask, send_file, request
+from flask import Flask, send_file, request, abort
 from flask_restful import Resource, reqparse
+import traceback
 
 import json
 from io import BytesIO 
@@ -111,7 +112,14 @@ class Participants(Resource):
                 for r in response:
                     responses += [r]
 
-            response_file = parse_responses(responses)
+            try:
+                response_file = parse_responses(responses)
+            except ValueError as e:
+                message = str(e)
+                message += '\n\n' + str(traceback.format_exc())
+                utils.debug_print(message)
+                return message
+
             response_file.seek(0)
             return send_file(response_file,
                              attachment_filename='responses.csv',
@@ -131,16 +139,21 @@ class Participants(Resource):
             return api_util.attach_meta(all_responses, meta_success), 200
 
 def parse_responses(responses):
+    if len(responses) == 0:
+        raise ValueError('ERROR: responses have not been recorded')
     exp_uid = responses[0]['exp_uid']
     app_id = resource_manager.get_app_id(exp_uid)
     myApp = utils.get_app(app_id, exp_uid, db, ell).myApp
+
     if not hasattr(myApp, 'format_responses'):
-        return 'ERROR: myApp.format_responses does not exist for {}'.format(app_id)
+        raise ValueError('ERROR: myApp.format_responses does not exist for {}'.format(app_id))
+
     r = myApp.format_responses(responses)
+
     if type(r) != list and type(r[0]) != dict:
-        return 'ERROR: myApp.format_responses should return a list of dictionaries'
+        raise ValueError('ERROR: myApp.format_responses should return a list of dictionaries')
 
     df = pd.DataFrame(r)
     str_file = StringIO()
-    df.to_csv(str_file)
+    df.to_csv(str_file, encoding='utf-8')
     return str_file
