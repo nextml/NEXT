@@ -5,7 +5,7 @@ import next.utils as utils
 import random
 
 
-class ValidationSampling:
+class MyAlg:
     def initExp(self, butler, n, d, failure_probability):
         # params['query_list'] = [[11, 22, 0], [8, 12, 9], [14, 20, 6],
         #                         [19, 6, 16], [29, 15, 24], [26, 11, 29],

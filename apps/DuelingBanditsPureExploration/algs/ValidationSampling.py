@@ -12,7 +12,7 @@ def getRandomQuery(n):
             return [a, b]
 
 
-class ValidationSampling:
+class MyAlg:
     def initExp(self, butler, n=None, failure_probability=None):
         butler.algorithms.set(key='n', value=n)
         butler.algorithms.set(key='failure_probability',

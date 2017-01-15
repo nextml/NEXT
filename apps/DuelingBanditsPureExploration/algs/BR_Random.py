@@ -11,7 +11,7 @@ import numpy
 import numpy.random
 import next.utils as utils
 
-class BR_Random:
+class MyAlg:
     app_id = 'DuelingBanditsPureExploration'
     def initExp(self, butler, n=None, failure_probability=None, params=None):
         """

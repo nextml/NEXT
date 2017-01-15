@@ -1,1 +1,1 @@
-from .STE import *
+from .myAlg import *

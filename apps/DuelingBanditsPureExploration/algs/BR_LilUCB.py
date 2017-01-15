@@ -11,7 +11,7 @@ import numpy
 import numpy.random
 import next.utils as utils
 
-class BR_LilUCB:
+class MyAlg:
   def initExp(self, butler, n, failure_probability, params=None):
     """
     This function is meant to set keys used later by the algorith implemented

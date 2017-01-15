@@ -11,9 +11,7 @@ import next.utils as utils
 from apps.PoolBasedTripletMDS.algs.UncertaintySampling import utilsMDS
 import time
 
-class UncertaintySampling:
-
-
+class MyAlg:
   def initExp(self,butler,n,d,failure_probability):
     X = numpy.random.randn(n,d)
     butler.algorithms.set(key='n',value=n)
