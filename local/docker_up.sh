@@ -14,7 +14,6 @@ export ACTIVE_MASTER=$HOST
 export SLAVE_LIST=
 export NEXT_BACKEND_GLOBAL_HOST=$HOST
 
-
 modify_ports=false
 if [ "$modify_ports" = true ] ; then
     echo "Requesting sudo access to open some ports"
@@ -55,6 +54,7 @@ fi
 
 cp -f docker-compose.yml.pre docker-compose.yml
 sed -i -e 's|{{NEXT_DIR}}|'"$dir"'|g' docker-compose.yml
+sed -i -e 's|{{NEXT_BACKEND_GLOBAL_PORT}}|'"$NEXT_BACKEND_GLOBAL_PORT"'|g' docker-compose.yml
 
 echo "Stopping any existing machines..."
 docker-compose stop
