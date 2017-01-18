@@ -1,0 +1,51 @@
+app_id: PoolBasedTripletMDS
+args:
+  alg_list:
+    - {alg_id: CrowdKernel, alg_label: Test, test_alg_label: Test}
+    - {alg_id: STE, alg_label: STE, test_alg_label: Test}
+    - {alg_id: RandomSampling, alg_label: RandomSampling, test_alg_label: Test}
+    - {alg_id: UncertaintySampling, alg_label: UncertaintySampling, test_alg_label: Test}
+  algorithm_management_settings:
+    mode: fixed_proportions
+    params:
+    - {alg_label: Test, proportion: 0.25}
+    - {alg_label: STE, proportion: 0.25}
+    - {alg_label: RandomSampling, proportion: 0.25}
+    - {alg_label: UncertaintySampling, proportion: 0.25}
+  d: 2
+  debrief: Test debrief
+  failure_probability: 0.01
+  instructions: Test instructions
+  participant_to_algorithm_management: one_to_many
+  targets:
+    targetset:
+    - {primary_description: 'http://localhost:8999/i0022.png', alt_description: '', primary_type: 'image', alt_type: ''}
+    - {primary_description: 'http://localhost:8999/i0036.png', alt_description: '', primary_type: 'image', alt_type: ''}
+    - {primary_description: 'http://localhost:8999/i0050.png', alt_description: '', primary_type: 'image', alt_type: ''}
+    - {primary_description: 'http://localhost:8999/i0074.png', alt_description: '', primary_type: 'image', alt_type: ''}
+    - {primary_description: 'http://localhost:8999/i0076.png', alt_description: '', primary_type: 'image', alt_type: ''}
+    - {primary_description: 'http://localhost:8999/i0112.png', alt_description: '', primary_type: 'image', alt_type: ''}
+    - {primary_description: 'http://localhost:8999/i0114.png', alt_description: '', primary_type: 'image', alt_type: ''}
+    - {primary_description: 'http://localhost:8999/i0126.png', alt_description: '', primary_type: 'image', alt_type: ''}
+    - {primary_description: 'http://localhost:8999/i0142.png', alt_description: '', primary_type: 'image', alt_type: ''}
+    - {primary_description: 'http://localhost:8999/i0152.png', alt_description: '', primary_type: 'image', alt_type: ''}
+    - {primary_description: 'http://localhost:8999/i0184.png', alt_description: '', primary_type: 'image', alt_type: ''}
+    - {primary_description: 'http://localhost:8999/i0194.png', alt_description: '', primary_type: 'image', alt_type: ''}
+    - {primary_description: 'http://localhost:8999/i0200.png', alt_description: '', primary_type: 'image', alt_type: ''}
+    - {primary_description: 'http://localhost:8999/i0208.png', alt_description: '', primary_type: 'image', alt_type: ''}
+    - {primary_description: 'http://localhost:8999/i0220.png', alt_description: '', primary_type: 'image', alt_type: ''}
+    - {primary_description: 'http://localhost:8999/i0254.png', alt_description: '', primary_type: 'image', alt_type: ''}
+    - {primary_description: 'http://localhost:8999/i0256.png', alt_description: '', primary_type: 'image', alt_type: ''}
+    - {primary_description: 'http://localhost:8999/i0312.png', alt_description: '', primary_type: 'image', alt_type: ''}
+    - {primary_description: 'http://localhost:8999/i0322.png', alt_description: '', primary_type: 'image', alt_type: ''}
+    - {primary_description: 'http://localhost:8999/i0326.png', alt_description: '', primary_type: 'image', alt_type: ''}
+    - {primary_description: 'http://localhost:8999/i0414.png', alt_description: '', primary_type: 'image', alt_type: ''}
+    - {primary_description: 'http://localhost:8999/i0420.png', alt_description: '', primary_type: 'image', alt_type: ''}
+    - {primary_description: 'http://localhost:8999/i0430.png', alt_description: '', primary_type: 'image', alt_type: ''}
+    - {primary_description: 'http://localhost:8999/i0438.png', alt_description: '', primary_type: 'image', alt_type: ''}
+    - {primary_description: 'http://localhost:8999/i0454.png', alt_description: '', primary_type: 'image', alt_type: ''}
+    - {primary_description: 'http://localhost:8999/i0470.png', alt_description: '', primary_type: 'image', alt_type: ''}
+    - {primary_description: 'http://localhost:8999/i0494.png', alt_description: '', primary_type: 'image', alt_type: ''}
+    - {primary_description: 'http://localhost:8999/i0524.png', alt_description: '', primary_type: 'image', alt_type: ''}
+    - {primary_description: 'http://localhost:8999/i0526.png', alt_description: '', primary_type: 'image', alt_type: ''}
+    - {primary_description: 'http://localhost:8999/i0572.png', alt_description: '', primary_type: 'image', alt_type: ''}
