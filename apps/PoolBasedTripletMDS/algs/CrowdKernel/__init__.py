@@ -1,1 +1,1 @@
-from .CrowdKernel import *
+from .myAlg import *

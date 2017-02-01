@@ -2,7 +2,7 @@ import time
 import numpy.random
 import next.utils as utils
 
-class RandomSamplingLinearLeastSquares:
+class MyAlg:
     def initExp(self, butler, n, d, failure_probability):
         # Save the number of targets, dimension, and failure_probability to algorithm storage
         butler.algorithms.set(key='n',value= n)

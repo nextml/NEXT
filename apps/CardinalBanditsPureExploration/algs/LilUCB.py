@@ -7,7 +7,7 @@ last updated: 11/13/2015
 import numpy
 import numpy.random
 
-class LilUCB:
+class MyAlg:
 
   def initExp(self,butler,n,R,failure_probability,params={}):
     butler.algorithms.set(key='n', value=n)

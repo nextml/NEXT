@@ -1,1 +1,1 @@
-from .RandomSampling import *
+from .myAlg import *

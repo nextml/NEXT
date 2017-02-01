@@ -54,7 +54,7 @@ def get_app_alg(app_id,alg_id):
   alg_id = str(alg_id) # soemtimes input is unicode formatted which causes error
   next_path = 'apps.{}.algs.{}'.format(app_id, alg_id, alg_id)
   alg_module = __import__(next_path, fromlist=[''])
-  alg_class = getattr(alg_module, alg_id)
+  alg_class = getattr(alg_module, 'MyAlg')
   return alg_class()
 
 

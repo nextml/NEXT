@@ -3,7 +3,7 @@ import numpy.random
 from apps.PoolBasedTripletMDS.algs.RandomSampling import utilsMDS
 import next.utils as utils
 
-class RandomSampling:
+class MyAlg:
   def initExp(self,butler, n, d, failure_probability):
     X = numpy.random.randn(n,d)
     butler.algorithms.set(key='n',value= n)

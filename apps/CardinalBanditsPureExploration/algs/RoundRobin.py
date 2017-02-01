@@ -8,7 +8,7 @@ import numpy
 import numpy.random
 
 
-class RoundRobin:
+class MyAlg:
 
   def initExp(self,butler,n,R,failure_probability,params={}):
     butler.algorithms.set(key='n', value=n)
