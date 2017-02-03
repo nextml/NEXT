@@ -29,3 +29,8 @@ nohup.out
 
 # testing results are stored here
 .cache
+
+# vim
+*.swp
+
+local/docker-compose.yml

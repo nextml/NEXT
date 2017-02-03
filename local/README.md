@@ -1,10 +1,10 @@
 # Running NEXT locally
-We provide this structure to run NEXT locally (which could be necessary if data
-private).
+This document contains instructions on how to run a NEXT experiment on your local machine.
+
 
 ## Dependencies
 
-To run NEXT locally, you need a machine with the following things installed:
+To start the NEXT backend, you need a machine with the following things installed:
 
 ```
 docker
@@ -12,18 +12,24 @@ docker-compose
 python2.7
 ```
 
-It is assumed you have python2.7 by default on linux.
-
 `docker` can be installed via the [Docker install guide]. `docker-compose` can
 be installed via `pip install docker-compose`.
 
-### Using macOS
-If using macOS/OS X, download [Docker for Mac], not [Docker Toolbox]. It
+Optionally, you need the PyPI packages `requests` and `pyyaml` to run the `launch.py` script in this directory:
+
+`pip install requests yaml`
+
+
+### Using MacOS
+If using MacOS/OS X, download [Docker for Mac], not [Docker Toolbox] It
 provides an easier interface to get started.
 
 [Docker for Mac]:https://docs.docker.com/engine/installation/mac/#/docker-for-mac
 
 [Docker install guide]:https://docs.docker.com/v1.8/installation/
+
+[Docker Toolbox]:https://www.docker.com/products/docker-toolbox
+
 
 ## Starting the backend
 
@@ -38,51 +44,47 @@ optionally provide a path to the repo if you are running the
 ./docker_up.sh [host] [/path/to/NEXT]
 ```
 
-where the relative path to NEXT is optional and host is not. A typical
-command is
+The default will assume host is `localhost` and `NEXT` is located at `../../`:
 
 ```
 ./docker_up.sh
 ```
 
-which assumes the directory `NEXT` is located at `../` when cd'd to `local`.
+The first time you run this, docker will download and build the images, which will take a few minutes.
 
-## Starting example experiment
+Once the backend is launched, you should be able to go to `http://localhost:8000/home` to see the NEXT homepage.
 
-To set up an experiment, you need the target files hosted somewhere,
-and to have a manifest file consisting of JSON specifying filename:url
-pairs.  For an example, see `NEXT/local/strangefruit30.json`, which
-assumes the files are served hosted on `localhost:8999`.
 
-Hosting the images on `localhost:8999` can be achieved by running
-`python -m SimpleHTTPServer 8999` in the directory that contains the images.
+## Starting an experiment
 
-An example is provided in `experiment_triplet.py`. In
-the `strangefruit30` example, unzip `strangefruit30.zip` and run
-`python -m SimpleHTTPServer 8999` from the `strangefruit30` directory.
+Once the backend is running you can launch an experiment.  To set up an experiment, you need to create a yaml file specifying all
+the required parameters and data. See `NEXT/local/strange_fruit_triplet/init.yaml`
+for an example.  This `init.yaml` file is nearly identical to the files in `NEXT/examples`,
+except that the targets information is specified explicitly (rather than generated when uploaded to the EC2 server).
 
-``` bash
-$ python experiment_triplet.py
+Additionally, if your targets are images, they need to be hosted somewhere.
+The example **strange_fruit_triplet** example assumes the files are hosted on `localhost:8999`,
+which can be achieved by running
+`python -m SimpleHTTPServer 8999` in the directory that contains the images (e.g.
+`NEXT/local/strange_fruit_triplet/images/`)
+
+You can launch an experiment by clicking on the *Experiment launch* link on the NEXT homepage and uploading the
+appropriate `init.yaml` file (no need to specify a targets file).
+Alternatively, you can launch the experiment by running:
+```bash
+python launch.py strange_fruit_triplet/init.yaml
 ```
 
-This `experiment_triplet.py` file is nearly identical to the files in
-`examples/` as the dictionaries to initialize an experiment are constant. The
-only difference is launching on EC2 vs. launching locally which manifests
-itself on the last line which calls `launch_experiment.py`.
 
-## Starting new experiment
-Two things are needed to run all the examples in `examples/`:
+## Creating your own experiments
+To run any of the remaining examples in `NEXT/examples/`:
 
-1. Copy the files from `examples/` and modify the `launch_experiment` line at
-   the end to match `local/experiment_triplet.py`
-2. (optional) If you're running an experiment with non-numeric targets (which
-   we use to test), you'll have to host the images on some URL. A process for
-   hosting them on `localhost` is described above.
+1. Copy the appropriate directory from `NEXT/examples/`
+2. Modify the `init.yaml` file to include the appropriate information about the targets.
+3. Host the image(s) by running `python -m SimpleHTTPServer 8999` in the appropriate directory.
+4. Start the experiment through the *Experiment launch* interface or by running `python launch.py path/to/init.yaml`
 
-Once this is set up, you can start the experiment with 
+To create your own experiments, simply create a new `init.yaml` with the appropriate configuration
+and follow the same steps. Note that if your targets are just text, you may skip the hosting step
+and simply include the data in the `init.yaml` file.
 
-```
-python my_experiment.py path/to/my_experiment.json
-```
-
-[Docker Toolbox]:https://www.docker.com/products/docker-toolbox
