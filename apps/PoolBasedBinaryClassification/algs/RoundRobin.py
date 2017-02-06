@@ -8,7 +8,7 @@ class MyAlg:
         butler.algorithms.set(key='n', value=n)
         butler.algorithms.set(key='delta', value=failure_probability)
         butler.algorithms.set(key='d', value=d)
-        butler.algorithms.set(key='num_labeled', value=np.zeros(n))
+        butler.algorithms.set(key='target_index', value=0)
 
         # Initialize the weight to an empty list of 0's
         butler.algorithms.set(key='weights', value=[0] * (d + 1))
@@ -17,10 +17,10 @@ class MyAlg:
 
     def getQuery(self, butler, participant_uid):
         # Retrieve the number of targets and return the index of the one that has been sampled least
-        num_labeled = butler.algorithms.get(key='num_labeled')
-        idx = np.argmin(num_labeled)
-        num_labeled[idx] += 1
-        butler.algorithms.set(key='num_labeled', value=num_labeled)
+        idx = butler.algorithms.get(key='target_index')
+        n = butler.algorithms.get(key='n')
+        butler.algorithms.set(key='target_index', value=(idx+1) % n)
+
         return idx
 
     def processAnswer(self, butler, target_index, target_label):
