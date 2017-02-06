@@ -19,6 +19,8 @@ class RoundRobin:
         # Retrieve the number of targets and return the index of the one that has been sampled least
         num_labeled = butler.algorithms.get(key='num_labeled')
         idx = np.argmin(num_labeled)
+        num_labeled[idx] += 1
+        butler.algorithms.set(key='num_labeled', value=num_labeled)
         return idx
 
     def processAnswer(self, butler, target_index, target_label):
