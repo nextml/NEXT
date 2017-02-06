@@ -22,7 +22,9 @@ def test_api(assert_200=True, num_objects=4, desired_dimension=1,
     true_weights = numpy.zeros(desired_dimension)
     true_weights[0] = 1.
     pool = Pool(processes=num_clients)
-    supported_alg_ids = ['RandomSamplingLinearLeastSquares','RandomSamplingLinearLeastSquares']
+    supported_alg_ids = ['RandomSamplingLinearLeastSquares',
+                         'RandomSamplingLinearLeastSquares',
+                         'RoundRobin']
     alg_list = []
     for idx,alg_id in enumerate(supported_alg_ids):
         alg_item = {}

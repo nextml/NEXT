@@ -2,13 +2,13 @@ import numpy as np
 import next.utils as utils
 
 
-class RoundRobin:
+class MyAlg:
     def initExp(self, butler, n, d, failure_probability):
         # Save the number of targets, dimension, and initialize how many times each target has been labeled and failure_probability to algorithm storage
         butler.algorithms.set(key='n', value=n)
         butler.algorithms.set(key='delta', value=failure_probability)
         butler.algorithms.set(key='d', value=d)
-        butler.alg_label.set(key='num_labeled', value=np.zeros(n))
+        butler.algorithms.set(key='num_labeled', value=np.zeros(n))
 
         # Initialize the weight to an empty list of 0's
         butler.algorithms.set(key='weights', value=[0] * (d + 1))
