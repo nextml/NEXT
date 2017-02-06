@@ -30,7 +30,7 @@ initExp:
             values:
               alg_id:
                 description: Supported algorithm types for DuelingBanditsPureExploration.
-                values: [RoundRobin,LilUCB]
+                values: [RoundRobin,LilUCB, KLUCB]
 
         instructions:
           default: Please select, using your mouse or arrow keys, the better rating.
