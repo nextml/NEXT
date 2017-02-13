@@ -17,12 +17,13 @@ def test_run_examples():
     exit_status = os.system('cd {}; '.format(__dir__) + command)
     assert exit_status == 0
 
-    if 'AWS_BUCKET_NAME' in os.environ:
-        zip_path = 'strange_fruit_triplet/strangefruit30.zip'
-        init_path = 'strange_fruit_triplet/init.yaml'
-        command = 'python launch.py {} {}'.format(init_path, zip_path)
-        exit_status = os.system('cd {}; '.format(__dir__) + command)
-        assert exit_status == 0
+    args = '--noS3' if 'AWS_BUCKET_NAME' not in os.environ else ''
+
+    zip_path = 'strange_fruit_triplet/strangefruit30.zip'
+    init_path = 'strange_fruit_triplet/init.yaml'
+    command = 'python launch.py {} {} {}'.format(init_path, zip_path, args)
+    exit_status = os.system('cd {}; '.format(__dir__) + command)
+    assert exit_status == 0
 
 if __name__ == "__main__":
     test_run_examples()

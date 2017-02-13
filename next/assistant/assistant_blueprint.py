@@ -111,6 +111,10 @@ class ExperimentAssistant(Resource):
             info = sys.exc_info()
             if hasattr(info[1], 'message') and len(info[1].message) > 0:
                 message = info[1].message
+                if 'time' in message:
+                    message += ("\nNOTE: error has to do with time; try "
+                                "restarting docker, more detail at "
+                                "https://stackoverflow.com/questions/27674968/amazon-s3-docker-403-forbidden-the-difference-between-the-request-time-and")
             else:
                 message = str(info[1]) + str(info[-1])
                 message = '\n'.join(tb.split('\n')[-5:])
