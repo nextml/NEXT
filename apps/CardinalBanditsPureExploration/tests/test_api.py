@@ -18,8 +18,8 @@ except:
         import test_utils
 
 
-def test_api(assert_200=True, num_arms=50,
-             num_experiments=1, num_clients=100, total_pulls=25):
+def test_api(assert_200=True, num_arms=5,
+             num_experiments=1, num_clients=10, total_pulls=10):
     app_id = 'CardinalBanditsPureExploration'
     true_means = numpy.array(range(num_arms)[::-1])/float(num_arms)
 

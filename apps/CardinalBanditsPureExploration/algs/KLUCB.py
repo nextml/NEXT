@@ -1,16 +1,17 @@
 """
-This algorithm is ongoing work with
-
-* Ervin Tánczos <balambeer@gmail.com>
-* Kevin Jamieson <kevin.g.jamieson@gmail.com>
-* ROBERT D NOWAK <rdnowak@wisc.edu>
+This algorithm is detailed in [kaufmann2013information].
 
 The Lil-UCB assumes that arbitrary numeric rewards can be given (sub-Gaussian
 in particular). This KLUCB assumes that the rewards are bounded (and not
 sub-Gaussian).
 
-An academic paper is planning on arriving in "several months" (quoted on
-2017-02-06)
+@inproceedings{kaufmann2013information,
+  title={Information Complexity in Bandit Subset Selection.},
+  author={Kaufmann, Emilie and Kalyanakrishnan, Shivaram},
+  booktitle={COLT},
+  pages={228--251},
+  year={2013}
+}
 
 """
 
