@@ -55,7 +55,8 @@
                         //'name': 'getStats',
                         'args':{
                             'stat_id' : 'most_current_ranking',
-                            'params'  : {'alg_label': "{{ alg.alg_label }}" }
+                            'params'  : {'alg_label': "{{ alg.alg_label }}" },
+                            'force_recompute': {{ force_recompute }} 
                             }
                         }),
                     dataType: "json"

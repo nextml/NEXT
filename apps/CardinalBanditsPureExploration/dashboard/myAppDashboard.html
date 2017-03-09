@@ -47,8 +47,9 @@
                         'exp_uid': "{{ exp_uid }}",
                         'args':{
                             'stat_id' : 'most_current_ranking',
-                            'params'  : {'alg_label': "{{ alg.alg_label }}" }
+                            'params'  : {'alg_label': "{{ alg.alg_label }}" },
                             //'alg_label' : "{{alg_label}}"
+                            'force_recompute': {{ force_recompute }} 
                             }
                         }),
                     dataType: "json"

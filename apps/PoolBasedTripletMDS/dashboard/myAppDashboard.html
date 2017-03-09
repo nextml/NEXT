@@ -31,7 +31,8 @@
         'exp_uid': "{{ exp_uid }}",
         'args':{
             'stat_id' : 'test_error_multiline_plot',
-            'params'  : {}
+            'params'  : {},
+            'force_recompute': {{ force_recompute }} 
             }
         }),
     dataType: "json"
@@ -110,7 +111,8 @@
                     'exp_uid': "{{ exp_uid }}",
                     'args':{
                         'stat_id' : 'most_current_embedding',
-                        'params'  : {'alg_label': '{{ alg.alg_label }}' }
+                        'params'  : {'alg_label': '{{ alg.alg_label }}' },
+                        'force_recompute': {{ force_recompute }} 
                         }
                     }),
                 dataType: "json"
