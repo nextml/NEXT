@@ -135,8 +135,23 @@ class App(object):
             if (participant_uid == exp_uid) or (participant_to_algorithm_management == 'one_to_many') or (first_participant_query):
 
                 if algorithm_management_settings['mode'] == 'fixed_proportions':
+                    labels = [alg['alg_label'] for alg in algorithm_management_settings['params']]
                     prop = [prop_item['proportion'] for prop_item in algorithm_management_settings['params']]
-                    chosen_alg = numpy.random.choice(alg_list, p=prop)
+                    # reorder prop and alg_list to have same order
+                    new_alg_list = []
+                    broken = False
+                    for label in labels:
+                        broken = False
+                        for alg in alg_list:
+                            if label == alg['alg_label']:
+                                utils.debug_print('========')
+                                utils.debug_print(alg, label)
+                                new_alg_list += [alg]
+                                broken = True
+                                break
+                        if not broken:
+                            raise Exception('alg_label not present for both porportions and labels')
+                    chosen_alg = numpy.random.choice(new_alg_list, p=prop)
                 elif algorithm_management_settings['mode'] == 'custom' :
                     chosen_alg = self.myApp.chooseAlg(self.butler, alg_list, args_dict['args'])
                 else:
