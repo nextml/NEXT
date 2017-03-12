@@ -144,8 +144,6 @@ class App(object):
                         broken = False
                         for alg in alg_list:
                             if label == alg['alg_label']:
-                                utils.debug_print('========')
-                                utils.debug_print(alg, label)
                                 new_alg_list += [alg]
                                 broken = True
                                 break
@@ -196,7 +194,7 @@ class App(object):
             timestamp_answer_received = args_dict['args'].get('timestamp_answer_received', None)
             delta_datetime = utils.str2datetime(timestamp_answer_received) - \
                              utils.str2datetime(query['timestamp_query_generated'])
-            round_trip_time = delta_datetime.seconds + delta_datetime.microseconds/1000000.
+            round_trip_time = delta_datetime.total_seconds()
             response_time = float(args_dict['args'].get('response_time',0.))
 
             query_update = self.call_app_fn(query['alg_label'], query['alg_id'], 'processAnswer', args_dict)
