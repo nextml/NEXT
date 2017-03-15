@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 # TEMORARY FIX TO MAKE AMI WORK
-HOST=$(curl http://169.254.169.254/latest/meta-data/public-ipv4)
-#HOST=$1
-#[[ -z "$1" ]] && HOST=localhost;  # by default HOST=localhost
+#HOST=$(curl http://169.254.169.254/latest/meta-data/public-ipv4)
+HOST=$1
+[[ -z "$1" ]] && HOST=localhost;  # by default HOST=localhost
 
 export NEXT_BACKEND_GLOBAL_PORT=8000
 export AWS_ACCESS_ID=None
