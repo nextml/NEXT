@@ -72,15 +72,14 @@ def launch(init_filename, targets_filename=None):
     r = requests.post(host_url + '/assistant/init/experiment', data=data)
     response = r.json()
     if not response['success']:
-        print('An error occurred launching the experiment')
+        print('An error occurred launching the experiment:')
         print(response['message'])
         sys.exit()
 
-    dashboard_url = host_url + '/dashboard/experiment_dashboard/{}/{}'
-    dashboard_url = dashboard_url.format(response['exp_uid'], init['app_id'])
-    print('Dashboard URL:\n    {}'.format(dashboard_url))
-    print('\n')
-    print('NEXT Home URL:\n    {}'.format(host_url + '/home'))
+    dashboard_url = host_url + '/dashboard/experiment_dashboard/{}/{}'.format(response['exp_uid'], init['app_id'])
+    print('Dashboard URL: {}'.format(dashboard_url))
+    print('NEXT Home URL: {}'.format(host_url + '/home'))
+
     return response
 
 if __name__ == "__main__":
