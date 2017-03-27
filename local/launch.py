@@ -85,6 +85,4 @@ def launch(init_filename, targets_filename=None):
 
 if __name__ == "__main__":
     args = docopt(__doc__)
-    print(args)
-    print('')
     launch(args['<init_filename>'], targets_filename=args['<targets_path>'])
