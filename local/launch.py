@@ -52,24 +52,26 @@ def launch(init_filename, targets_filename=None):
                 init['args']['targets']['targetset'] = dict()
             init['args']['targets']['targetset'] = targets
 
-    header = "data:application/{};base64,"
-    exp_args = base64.encodestring(yaml.dump(init))
-    d = {'args': header.format('x-yaml') + exp_args}
+    # -- encode the experiment definition for transmission to the backend
+    data_header = "data:application/x-yaml;base64,"
+    
+    encoded_args = base64.encodestring(yaml.dump(init))
+    encoded_attrs = OrderedDict(args=data_header+encoded_args)
 
-    d = OrderedDict(d)
+    # generate metadata describing each attr's length; this is prepended to the request data.
+    metadata = ';'.join(['{}:{}'.format(k, len(v)) for k, v in encoded_attrs.items()])
 
+    # concat all the encoded attrs together
+    body = ''.join([v for _, v in encoded_attrs.items()])
 
-    header = ['{}:{}'.format(key, len(item)) for key, item in d.items()]
-    header = ';'.join(header) + '\n'
+    # what we're actually going to send
+    payload = metadata + '\n' + body
 
-    to_send = ''.join([item for _, item in d.items()])
-
-    data = header + to_send
     # -- send the packed experiment definition file
     host = get_backend()
     host_url = "http://{host}:{port}".format(**host)
 
-    r = requests.post(host_url + '/assistant/init/experiment', data=data)
+    r = requests.post(host_url + '/assistant/init/experiment', data=payload)
     response = r.json()
     if not response['success']:
         print('An error occurred launching the experiment:')
