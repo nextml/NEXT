@@ -46,10 +46,9 @@ def launch(init_filename, targets_filename=None):
     if targets_filename:
         with open(targets_filename, 'r') as f:
             targets = yaml.load(f)
+
             if 'targets' not in init['args']:
-                init['args'] = {'targetset': {}}
-            if 'targetset' not in init['args']['targets']:
-                init['args']['targets']['targetset'] = dict()
+                init['args']['targets'] = {'targetset': []}
             init['args']['targets']['targetset'] = targets
 
     # -- encode the experiment definition for transmission to the backend
