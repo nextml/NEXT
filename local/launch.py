@@ -28,8 +28,18 @@ sys.path.append('../next/lib')
 from docopt import docopt
 
 
-def launch(init_filename, targets_filename=None):
+def get_backend():
+    """
+    Get the backend host and port.
 
+    Defaults to dict(host='localhost', port=8000).
+    """
+    return {
+        'host': os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost'),
+        'port': os.environ.get('NEXT_BACKEND_GLOBAL_PORT', '8000')
+    }
+
+def launch(init_filename, targets_filename=None):
     with open(init_filename, 'r') as f:
         init = yaml.load(f)
 
@@ -48,9 +58,6 @@ def launch(init_filename, targets_filename=None):
 
     d = OrderedDict(d)
 
-    host_url = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')
-    host_port = os.environ.get('NEXT_BACKEND_GLOBAL_PORT', '8000')
-    host_url = 'http://{}:{}'.format(host_url, host_port)
 
     header = ['{}:{}'.format(key, len(item)) for key, item in d.items()]
     header = ';'.join(header) + '\n'
@@ -58,6 +65,9 @@ def launch(init_filename, targets_filename=None):
     to_send = ''.join([item for _, item in d.items()])
 
     data = header + to_send
+    # -- send the packed experiment definition file
+    host = get_backend()
+    host_url = "http://{host}:{port}".format(**host)
 
     r = requests.post(host_url + '/assistant/init/experiment', data=data)
     response = r.json()
