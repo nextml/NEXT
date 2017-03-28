@@ -14,12 +14,11 @@ import os
 try:
         import next.apps.test_utils as test_utils
 except:
-        sys.path.append('../../../next/apps')
+        sys.path.append('../../next/apps')
         import test_utils
 
 
-def test_api(assert_200=True, num_arms=5,
-             num_experiments=1, num_clients=10, total_pulls=10):
+def test_api(assert_200=True, num_arms=5, num_experiments=1, num_clients=10, total_pulls=10):
     app_id = 'CardinalBanditsPureExploration'
     true_means = numpy.array(range(num_arms)[::-1])/float(num_arms)
 

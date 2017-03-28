@@ -54,26 +54,22 @@ class Experiment(Resource):
             return attach_meta(experiment, meta_success), 200
 
     def post(self):
-        utils.debug_print('experiment:58',request.data)
         post_parser = exp_parser.copy()
         post_parser.add_argument('app_id', type=str, required=True)
         post_parser.add_argument('args', type=dict, required=True)
         # Validate args with post_parser
         args_data = post_parser.parse_args()
-        utils.debug_print(args_data)
         app_id = args_data['app_id']
-        utils.debug_print(app_id)
         # Create and set exp_uid
         exp_uid = '%030x' % random.randrange(16**30)
         # Args from dict to json type
         args_json = json.dumps(args_data)
-        print('experiment:69')
         # Execute initExp through the broker
         response_json,didSucceed,message = broker.applyAsync(app_id,
                                                              exp_uid,
                                                              'initExp',
                                                              json.dumps(args_data))
-
+        
         if not didSucceed:
             return attach_meta({}, meta_error['InitExpError'], backend_error=message), 400
 
