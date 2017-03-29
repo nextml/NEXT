@@ -1,5 +1,5 @@
-# Each piece within the #'s could theoretically be its own machine. But it could also operate just on one big machine.
-# Right now things are linked through docker. If we dploy with something else that doesn't respect links, thing will have to be refactored.
+# Each piece within the #'s could theoretically be its own machine. But it could also operate just on one big machine. 
+# Right now things are linked through docker. If we dploy with something else that doesn't respect links, thing will have to be refactored. 
 # Things could be factored as Minions being indivdiual machines and everything else goes on a master machine.
 
 ######## CADVISOR #########
@@ -16,47 +16,37 @@ cadvisor:
 
 
 ######## MINION MACHINE #########
-
-minionredis:
-  image: redis
-  command: redis-server /next_backend/next/database_client/CacheStore/redis.conf
-  volumes:
-   - /Users/jain/Repositories/Development/NEXT-dev:/next_backend
-  expose:
-   - "6379"
+# minionredis:
+#   image: redis
+#   command: redis-server /database/next/database/CacheStore/redis.conf
+#   volumes:
+#    - next_backend:/database 
 
 minionworker:
-  build: /Users/jain/Repositories/Development/NEXT-dev/next/base_docker_image
+  build: /home/ubuntu/NEXT/next/base_docker_image
   command: ./next/broker/next_worker_startup.sh
   volumes:
-   - /Users/jain/Repositories/Development/NEXT-dev:/next_backend
+   - /home/ubuntu/NEXT:/next_backend 
   working_dir: /next_backend
   links:
-    - mongodb:MONGODB
+    - mongodb:MONGODB  
     - rabbitmq:RABBIT
     - rabbitmqredis:RABBITREDIS
-    - minionredis:MINIONREDIS
   environment:
    - PYTHONUNBUFFERED=TRUE
    - CELERY_SYNC_WORKER_COUNT=6
-   - CELERY_ASYNC_WORKER_COUNT=4
+   - CELERY_ASYNC_WORKER_COUNT=2
    - CELERY_THREADS_PER_ASYNC_WORKER=1
-   # Should be max(1,int(.25*master_num_cpus))
-   - CELERY_ASYNC_WORKER_PREFETCH=4
-   - CELERY_DASHBOARD_WORKER_COUNT=1
-   - CELERY_THREADS_PER_DASHBOARD_WORKER=2
-   - CELERY_DASHBOARD_WORKER_PREFETCH=1
-   - GIT_HASH={{GIT_HASH}}
    - PYTHONPATH=:/next_backend
 ####################################
 
 
 ######### API #########
 nextbackenddocker:
-  build: /Users/jain/Repositories/Development/NEXT-dev/next/base_docker_image
+  build: /home/ubuntu/NEXT/next/base_docker_image
   command: gunicorn  --worker-class=gevent -R --log-level=debug --logger-class=simple --reload -b 0.0.0.0:8000 -w 1 next.api.api:app
   volumes:
-   - /Users/jain/Repositories/Development/NEXT-dev:/next_backend
+   - /home/ubuntu/NEXT:/next_backend
   working_dir: /next_backend
   ports:
     - "0.0.0.0:8000:8000" # gunicorn
@@ -65,43 +55,41 @@ nextbackenddocker:
     - rabbitmq:RABBIT
     - rabbitmqredis:RABBITREDIS
     - mongodb:MONGODB
-    - minionworker:MINIONWORKER
   environment:
    - PYTHONUNBUFFERED=TRUE
-   - PYTHONPATH=:/next_backend
+   - PYTHONPATH=:/next_backend 
    # global url for dashboards on backend
    - NEXT_BACKEND_GLOBAL_HOST
    - NEXT_BACKEND_GLOBAL_PORT
    - TERM=xterm
-   - CELERY_ON=False
 ####################################
 
 
 
 ######### PERSISTENT STORE #########
 mongodb:
-  build: /Users/jain/Repositories/Development/NEXT-dev/next/base_docker_image
+  build: /home/ubuntu/NEXT/next/base_docker_image
   command: /usr/bin/mongod --smallfiles --rest
   volumes:
-   - /Users/jain/Repositories/Development/NEXT-dev:/next_backend
+   - /home/ubuntu/NEXT:/next_backend 
    - /dump
    - /data/db
   working_dir: /next_backend
   expose:
-   - "27017"
+   - "27017" 
   ports:
    - "0.0.0.0:28017:28017" # mongo http monitor
 
 mongodbbackup:
-  build: /Users/jain/Repositories/Development/NEXT-dev/next/base_docker_image
+  build: /home/ubuntu/NEXT/next/base_docker_image
   command: python ./next/database/daemon_database_backup.py
   volumes:
-   - /Users/jain/Repositories/Development/NEXT-dev:/next_backend
+   - /home/ubuntu/NEXT:/next_backend 
   volumes_from:
    - mongodb
   working_dir: /next_backend
   links:
-   - mongodb:MONGODB
+   - mongodb:MONGODB  
   environment:
    - NEXT_BACKEND_GLOBAL_HOST
    - PYTHONPATH=:/next_backend
@@ -121,6 +109,18 @@ rabbitmq:
 rabbitmqredis:
   image: redis
 
+rabbitmqmonitor:
+  build: /home/ubuntu/NEXT/next/base_docker_image
+  command: python ./next/broker/cluster_monitor.py
+  volumes:
+   - /home/ubuntu/NEXT:/next_backend 
+  working_dir: /next_backend
+  links:
+    - rabbitmq:RABBIT
+    - rabbitmqredis:RABBITREDIS
+  environment:
+   - PYTHONPATH=:/next_backend
+   - PYTHONUNBUFFERED=TRUE
 ###########################
 
 

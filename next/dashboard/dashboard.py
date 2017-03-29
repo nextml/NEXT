@@ -60,9 +60,9 @@ def experiment_list():
                 pass
 
     if constants.SITE_KEY:
-        dashboard_url='/dashboard/{}'.format(host_url, constants.SITE_KEY)
+        dashboard_url='/dashboard/{}'.format(constants.SITE_KEY)
     else:
-        dashboard_url='/dashboard'.format(host_url)
+        dashboard_url='/dashboard'
 
     return render_template('experiment_list.html',
                            dashboard_url=dashboard_url,
@@ -88,9 +88,9 @@ def system_monitor():
     host_url = 'http://{}:{}'.format(constants.NEXT_BACKEND_GLOBAL_HOST,
                                      constants.NEXT_BACKEND_GLOBAL_PORT)
     if constants.SITE_KEY:
-        dashboard_url='{}/dashboard/{}'.format(host_url, constants.SITE_KEY)
+        dashboard_url='/dashboard/{}'.format(constants.SITE_KEY)
     else:
-        dashboard_url='{}/dashboard'.format(host_url)
+        dashboard_url='/dashboard'
 
     rabbit_url = 'http://{}:{}'.format(constants.NEXT_BACKEND_GLOBAL_HOST,
                                        15672)
