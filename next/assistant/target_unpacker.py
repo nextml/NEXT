@@ -48,7 +48,7 @@ def upload_target(filename, file_obj, bucket_name, aws_key, aws_secret_key,
     url = s3.upload(filename,  StringIO(file_obj), bucket)
     target_types = {'png': 'image', 'jpeg': 'image', 'jpg': 'image',
                     'mp4': 'movie', 'mov': 'movie',
-                    'txt': 'text'}
+                    'txt': 'text', 'csv': 'text'}
     utils.debug_print('end ' + filename)
 
     return {'target_id': str(i),

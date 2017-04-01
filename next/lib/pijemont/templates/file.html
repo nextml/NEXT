@@ -54,10 +54,22 @@
 		  <td>AWS Secret Key*</td><td><input id="secret_key" type="password" /></td>
 	      </tr>
 	  </table>
-	  * = Required only if targets supplied
+	  * = Required for target upload to Amazon S3.
+
 
 	  <br />
+      <br />
 	  <button id="initExp" onclick="submit_form()">Launch</button>
+      <br /><br />
+      <p>
+      Upload text targets by
+
+      <ul>
+          <li>Leaving the AWS fields blank (Bucket ID, Key ID, Secret key)</li>
+          <li>Uploading a ZIP file that containts a CSV or TXT file with one
+              target on each line</li>
+      </ul>
+      </p>
 	  <h2>Status</h2>
 	  <span id="exp_status">Ready for file upload</span>
     </div>

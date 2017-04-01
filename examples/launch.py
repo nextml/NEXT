@@ -102,7 +102,15 @@ def launch(init_filename, targets_filename=None, upload=True):
 
 if __name__ == "__main__":
     args = docopt(__doc__)
-    print(args)
-    print('')
+    upload = True
+    upload = not (args['--noS3'] or args['--noupload'])
+    print(upload)
+
+    print(args['<zip_path>'])
+    if any([key in args['<zip_path>'] for key in ['csv', 'txt']]):
+        upload = False
+    print(upload)
+
+    print(args, '\n')
     launch(args['<init_filename>'], targets_filename=args['<zip_path>'],
-           upload=not (args['--noS3'] or args['--noupload'] or False))
+           upload=upload)
