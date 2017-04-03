@@ -178,7 +178,17 @@ class Collection(object):
         Append a value to collection[uid][key] (which is assumed to be a list)
         """
         uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp == None else exp))
-        self.timed(self.db.append_list)(self.collection,uid,key,value)
+        self.timed(self.db.append_list)(self.collection, uid, key, value)
+
+    def pop(self, uid="", key=None, value=-1, exp=None):
+        """
+        Pop a value from collection[uid][key] (which is assumed to be a list)
+        value=-1 pops the last element of the list (default)
+        value=0 pops the first element of the list
+        Other values for "value" will throw error and return a None (not supported in Mongo)
+        """
+        uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp == None else exp))
+        return self.timed(self.db.pop_list, get=True)(self.collection, uid, key, value)
 
     def getDurations(self):
         """
