@@ -32,9 +32,9 @@ class Memory(object):
         
     def set(self, key, value):
         self.check_prefix()
-        self.ensure_connection()
         key = self.key_prefix + key
         try:
+            self.ensure_connection()
             l = len(value)
             n = self.num_entries(l)
             utils.debug_print("Setting {} in {} entries".format(l, n))
@@ -48,9 +48,9 @@ class Memory(object):
 
     def set_file(self, key, f):
         self.check_prefix()
-        self.ensure_connection()
         key = self.key_prefix + key
         try:
+            self.ensure_connection()
             f.seek(0, os.SEEK_END)
             l = f.tell()
             f.seek(0, 0)
