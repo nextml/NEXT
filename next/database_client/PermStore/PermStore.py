@@ -120,6 +120,7 @@ Doc retrival with time ::\n
 """
 
 from pymongo import MongoClient
+from pymongo.errors import OperationFailure
 import next.constants as constants
 import next.utils as utils
 from bson.binary import Binary
@@ -594,8 +595,8 @@ class PermStore(object):
             else:
                 raise DatabaseException("can only pop first (value=0) or last (value=-1) element")
             try:
-                return_value = self.client[database_id][bucket_id].find_one({"_id": doc_uid})[key]
-                self.client[database_id][bucket_id].update_one({"_id": doc_uid}, {'$pop': {key: mongo_index}})
+                return_value = self.client[database_id][bucket_id].find_and_modify({"_id": doc_uid},
+                                                                                   {'$pop': {key: mongo_index}})[key]
             except KeyError as e:
                 if e.args[0] == key:
                     raise DatabaseException("key '{}' not found in document '{}.{}'".format(key, database_id, bucket_id))
@@ -605,13 +606,12 @@ class PermStore(object):
                     raise DatabaseException("database '{}' not found".format(database_id))
                 else:
                     raise DatabaseException("unknown KeyError: '{}' not found".format(e))
-            if isinstance(return_value, list):
-                if return_value:
-                    return_value = return_value[value]
-                else:
-                    raise DatabaseException("cannot pop from empty list")
-            else:
+            except OperationFailure:  # This gets thrown if you try to pop from a non-list
                 raise DatabaseException("cannot pop from non-list")
+            if return_value:
+                return_value = return_value[value]
+            else:
+                raise DatabaseException("cannot pop from empty list")
             return_value = self.undoDatabaseFormat(return_value)
 
             return return_value, True, 'From Mongo'
