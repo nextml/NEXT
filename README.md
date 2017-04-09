@@ -1,5 +1,7 @@
 # NEXT
 
+[![gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/next-ml/Lobby?utm_source=share-link&utm_medium=link&utm_campaign=share-link)
+
 **Documentation:** https://github.com/nextml/NEXT/wiki
 
 **Website:** http://nextml.org
