@@ -171,6 +171,7 @@ import cPickle
 import traceback
 from datetime import datetime
 import time
+from functools import wraps
 
 import numpy as np
 import pymongo
@@ -236,8 +237,24 @@ class DatabaseAPI(object):
     Serves as an API object that can be passed around. See above for usage
 
     Attributes:
-        permStore : PermStore object
+        client : PyMongo client
     """
+
+    def timed(op_type='set'):
+        def decorator(f):
+            @wraps(f)
+            def wrapper(self, *args, **kwargs):
+                result, dt = utils.timeit(f)(self, *args, **kwargs)
+
+                if op_type == 'set':
+                    self.duration_permStoreSet += dt
+                elif op_type == 'get':
+                    self.duration_permStoreGet += dt
+
+                return result
+            return wrapper
+        return decorator
+
     def __init__(self, mongo_host=constants.MONGODB_HOST, mongo_port=constants.MONGODB_PORT):
         self.duration_permStoreSet = 0.0
         self.duration_permStoreGet = 0.0
@@ -722,19 +739,6 @@ class DatabaseAPI(object):
         except:
             error = "DatabaseAPI.getDocNames Failed with unknown exception"
             return None,False,error
-
-    def timed(self, f, op_type='set'):
-        def timed_f(*args, **kwargs):
-            result, dt = utils.timeit(f)(*args, **kwargs)
-
-            if op_type == 'set':
-                self.duration_permStoreSet += dt
-            elif op_type == 'get':
-                self.duration_permStoreGet += dt
-
-            return result
-
-        return timed_f
 
     def submit_job(self,app_id,exp_uid,task,task_args_json,namespace=None,ignore_result=True,time_limit=0, alg_id=None, alg_label=None):
         if self.broker == None:
