@@ -399,7 +399,7 @@ class DatabaseAPI(object):
         values = {k: v for k, v in key_value_dict.items() if v != 0}
 
         new_doc = self._bucket(bucket_id).find_one_and_update({"_id": doc_uid},
-            update={'$inc': values}, projection=projection, new=true, upsert=true)
+            update={'$inc': values}, projection=projection, new=True, upsert=True)
 
         return {k: new_doc.get(k) for k in key_value_dict.keys()}
 
