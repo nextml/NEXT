@@ -14,7 +14,6 @@ import requests
 
 import next.broker.broker
 import next.constants as constants
-import next.database_client.PermStore as PermStore
 from next.api.resource_manager import ResourceManager
 import next.api.api_util as api_util
 import next.utils as utils
@@ -26,7 +25,6 @@ dashboard = Blueprint('dashboard',
                       static_folder='static')
 
 rm = ResourceManager()
-db = PermStore.PermStore()
 broker = next.broker.broker.JobBroker()
 
 import next.apps.Butler as Butler
