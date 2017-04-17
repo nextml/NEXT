@@ -723,9 +723,18 @@ class DatabaseAPI(object):
             error = "DatabaseAPI.getDocNames Failed with unknown exception"
             return None,False,error
 
+    def timed(self, f, op_type='set'):
+        def timed_f(*args, **kwargs):
+            result, dt = utils.timeit(f)(*args, **kwargs)
 
+            if op_type == 'set':
+                self.duration_permStoreSet += dt
+            elif op_type == 'get':
+                self.duration_permStoreGet += dt
 
+            return result
 
+        return timed_f
 
     def submit_job(self,app_id,exp_uid,task,task_args_json,namespace=None,ignore_result=True,time_limit=0, alg_id=None, alg_label=None):
         if self.broker == None:
