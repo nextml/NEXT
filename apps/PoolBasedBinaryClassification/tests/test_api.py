@@ -10,7 +10,8 @@ import os, sys
 try:
     import next.apps.test_utils as test_utils
 except:
-    sys.path.append('../../../next/apps')
+    file_dir = '/'.join(__file__.split('/')[:-1])
+    sys.path.append('{}/../../../next/apps'.format(file_dir))
     import test_utils
 
 

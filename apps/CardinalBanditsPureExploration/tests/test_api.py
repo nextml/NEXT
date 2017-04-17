@@ -12,10 +12,11 @@ from multiprocessing import Pool
 import sys
 import os
 try:
-        import next.apps.test_utils as test_utils
+    import next.apps.test_utils as test_utils
 except:
-        sys.path.append('../../next/apps')
-        import test_utils
+    file_dir = '/'.join(__file__.split('/')[:-1])
+    sys.path.append('{}/../../../next/apps'.format(file_dir))
+    import test_utils
 
 
 def test_api(assert_200=True, num_arms=5, num_experiments=1, num_clients=10, total_pulls=10):
