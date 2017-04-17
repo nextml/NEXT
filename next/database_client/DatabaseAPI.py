@@ -167,18 +167,25 @@ Retrieve all logs involving the algorithm alg_id='LUCB' of exp_uid='W0DA0DJAD9JA
 
 """
 
+import cPickle
+import traceback
+from datetime import datetime
+import time
+
+import numpy as np
+import pymongo
+from pymongo import MongoClient
+from pymongo.errors import ConnectionFailure
+from bson.binary import Binary
+
 import next.constants as constants
 import next.utils as utils
-import next.database_client.PermStore.PermStore as PermStore
-
-import cPickle
 
 try:
     import next.broker.broker
 except:
     print "Warning: you will not be able to submit jobs to the broker"
     pass
-
 
 class DatabaseException(BaseException):
     pass
