@@ -238,15 +238,37 @@ class DatabaseAPI(object):
     Attributes:
         permStore : PermStore object
     """
-    def __init__(self):
+    def __init__(self, mongo_host=constants.MONGODB_HOST, mongo_port=constants.MONGODB_PORT):
         self.duration_permStoreSet = 0.0
         self.duration_permStoreGet = 0.0
 
-        self.permStore = PermStore()
+        self.client = None
+        self.connect_mongo(mongo_host, mongo_port)
 
         self.broker = None
 
+    def __del__(self):
+        if self.client is not None:
+            self.client.close()
 
+    def connect_mongo(self, host, port):
+        # Note: w=0 disables write acknowledgement, making PyMongo send writes
+        #       without waiting to see if they succeeded
+        self.client = MongoClient(host, port, w=0)
+
+        if not self.is_connected():
+            raise DatabaseException("Server not available!")
+
+    def is_connected(self):
+        try:
+            # The `ismaster` command is very cheap and does not require authentication
+            self.client.admin.command('ismaster')
+            return True
+        except ConnectionFailure:
+            return False
+
+    def _bucket(self, bucket_id):
+        return self.client[constants.app_data_database_id][bucket_id]
 
     def exists(self,bucket_id,doc_uid,key):
         """
