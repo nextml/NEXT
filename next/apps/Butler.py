@@ -1,8 +1,11 @@
-import next.utils as utils
 import os
-import next.constants as constants
-import redis
 import StringIO
+from functools import wraps
+
+import redis
+
+import next.constants as constants
+import next.utils as utils
 
 
 class Memory(object):
@@ -134,6 +137,22 @@ class Collection(object):
         self.timing = timing
         self.memory = Memory(collection, exp_uid)
 
+    def timed(op_type='set'):
+        def decorator(f):
+            @wraps(f)
+            def wrapper(self, *args, **kwargs):
+                result, dt = utils.timeit(f)(self, *args, **kwargs)
+
+                if op_type == 'set':
+                    self.set_durations += dt
+                elif op_type == 'get':
+                    self.get_durations += dt
+
+                return result
+            return wrapper
+        return decorator
+
+
     @timed
     def set(self, uid="", key=None, value=None, exp=None):
         """
@@ -237,21 +256,6 @@ class Collection(object):
         For book keeping purposes only
         """
         return {'duration_dbSet': self.set_durations, 'duration_dbGet': self.get_durations}
-
-    def timed(op_type='set'):
-        def decorator(f):
-            @wraps(f)
-            def wrapper(self, *args, **kwargs):
-                result, dt = utils.timeit(f)(self, *args, **kwargs)
-
-                if op_type == 'set':
-                    self.set_durations += dt
-                elif op_type == 'get':
-                    self.get_durations += dt
-
-                return result
-            return wrapper
-        return decorator
 
 
 class Butler(object):
