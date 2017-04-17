@@ -181,6 +181,10 @@ except:
     pass
 
 
+class DatabaseException(BaseException):
+    pass
+
+
 USE_CACHE = False
 
 class DatabaseAPI(object):
@@ -516,6 +520,31 @@ class DatabaseAPI(object):
 
         except:
             return None,False,'DatabaseAPI.get Failed with unknown exception'
+
+    def pop_list(self, bucket_id, doc_uid, key, value):
+        """
+        Inputs:
+            (string) bucket_id, (string) doc_uid, (string) key, (int) value
+            value=-1 pops the last item of the list
+            value=0 pops the first item of the list
+
+        Outputs:
+            (python object) value, (bool) didSucceed, (string) message
+
+        Usage: ::\n
+            didSucceed,message = db.pop_list(bucket_id,doc_uid,key,value)       
+        """
+
+        try:
+            response, dt = utils.timeit(self.permStore.pop_list)(constants.app_data_database_id,
+                                                                 bucket_id, doc_uid, key, value)
+            value, didSucceedPerm, messagePerm = response
+            self.duration_permStoreSet += dt
+            return value, didSucceedPerm, messagePerm
+        except Exception as e:
+            error = "DatabaseAPI.pop_list failed with exception: {}".format(e)
+            utils.debug_print(error)
+            return None, False, error
 
     def append_list(self,bucket_id,doc_uid,key,value):
         """
