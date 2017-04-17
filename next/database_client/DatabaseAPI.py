@@ -338,7 +338,7 @@ class DatabaseAPI(object):
             return_dict,didSucceed,message = db.get_many(bucket_id,doc_uid,key_list)
         """
 
-        projection = {k: True for key in key_list}
+        projection = {k: True for k in key_list}
         doc = self._bucket(bucket_id).find_one({"_id": doc_uid}, projection)
         val = {k: doc.get(k) for k in key_list}
 
