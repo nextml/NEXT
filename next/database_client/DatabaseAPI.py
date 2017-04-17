@@ -301,8 +301,11 @@ class DatabaseAPI(object):
             exists,didSucceed,message = db.exists(bucket_id,doc_uid,key)
         """
 
-        doc = self._bucket(bucket_id).find_one({"_id":doc_uid})
-        return (doc != None)
+        # if the document isn't found, just set doc to an empty dict,
+        # so that any .get(key) call returns None
+        doc = self._bucket(bucket_id).find_one({"_id":doc_uid},
+            projection={key: True}) or {}
+        return doc.get(key) is not None
 
     def get(self,bucket_id,doc_uid,key):
         """
