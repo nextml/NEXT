@@ -724,82 +724,8 @@ class DatabaseAPI(object):
             return None,False,error
 
 
-    def inspectDatabase(self):
-        """
-        Returns string describing the entire app data database
-
-        Inputs:
-            None
-
-        Outputs:
-            (string) description, (bool) didSucceed, (string) message
-
-        Usage: ::\n
-            didSucceed,message = db.inspectDatabase()
-        """
-        try:
-            output_str = ''
-            bucket_ids,didSucceed,message = self.permStore.getBucketNames(constants.app_data_database_id)
-            for bucket_id in bucket_ids:
-                bucket_id_str = str(bucket_id)
-                output_str += bucket_id_str + " { \n"
-                doc_uids,didSucceed,message = self.permStore.getDocNames(constants.app_data_database_id,bucket_id)
-                if doc_uids!=None :
-                    for doc_uid in doc_uids:
-                        doc_uid_str = str(doc_uid)
-                        output_str += "\t" + doc_uid_str + " { \n"
-                        doc,didSucceed,message = self.permStore.getDoc(constants.app_data_database_id,bucket_id,doc_uid)
-                        for key in doc:
-                            pickled_value = doc[key]
-                            try:
-                                value = cPickle.loads(pickled_value)
-                            except:
-                                value = pickled_value
-                            str_value = str(value)
-                            if len(str_value)>constants.maxStringLengthInInspectDatabase:
-                                str_value = str_value[0:constants.maxStringLengthInInspectDatabase]+ " ..."
-                            output_str += "\t\t" + key + " : " + str_value + "\n"
-                    output_str += "\t" + "}" + "\n"
-            output_str += "}" + "\n"
-            return output_str,True,''
-        except:
-            error = "DatabaseAPI.inspectDatabase() incurred an unknown exception "
-            return None,False,error
 
 
-
-    def inspectDoc(self,bucket_id,doc_uid):
-        """
-        Returns string describing the document of the particular bucket_id, doc_uid
-
-        Inputs:
-            (string) bucket_id, (string) doc_uid
-
-        Outputs:
-            (string) description, (bool) didSucceed, (string) message
-
-        Usage: ::\n
-            didSucceed,message = db.inspectDatabase()
-        """
-        try:
-            output_str = ''
-            output_str += doc_uid + " { \n"
-            doc,didSucceed,message = self.permStore.getDoc(constants.app_data_database_id,bucket_id,doc_uid)
-            for key in doc:
-                pickled_value = doc[key]
-                try:
-                    value = cPickle.loads(pickled_value)
-                except:
-                    value = pickled_value
-                str_value = str(value)
-                if len(str_value)>constants.maxStringLengthInInspectDatabase:
-                    str_value = str_value[0:max_value_string_length]+ " ..."
-                output_str += "\t" + key + " : " + str_value + "\n"
-            output_str += "}" + "\n"
-
-            return output_str,True,''
-        except:
-            return None,False,'DatabaseAPI.inspectDoc unknown exception'
 
     def submit_job(self,app_id,exp_uid,task,task_args_json,namespace=None,ignore_result=True,time_limit=0, alg_id=None, alg_label=None):
         if self.broker == None:
