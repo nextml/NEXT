@@ -677,30 +677,6 @@ class DatabaseAPI(object):
         """
         return self.permStore.deleteDocsByPattern(constants.logs_database_id,bucket_id,pattern_dict)
 
-
-    def assertConnection(self):
-        """
-        Asserts that the API has successfully connected to the PermStore
-
-        Inputs:
-            None
-
-        Outputs:
-            (bool) areConnected, (string) message
-
-        Usage: ::\n
-            didSucceed,message = db.assertConnection()
-        """
-        try:
-            permStoreConnected = self.permStore.assertConnection()
-            if (permStoreConnected):
-                return True,'Established PermStore connection'
-            else:
-                return False,'No connection from PermStore'
-        except:
-            error = "DatabaseAPI.assertConnection unknown exception"
-            return False, error
-
     def getDocNames(self,bucket_id):
         """
         Get list of doc_uids correspding to all the docs in the bucket corresponding to the given bucket_id
