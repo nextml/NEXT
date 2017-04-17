@@ -283,18 +283,9 @@ class DatabaseAPI(object):
         Usage: ::\n
             exists,didSucceed,message = db.exists(bucket_id,doc_uid,key)
         """
-        try:
-            # attempts to read from permanent store
-            keyExistsInPermStore,didSucceed,message = self.permStore.exists(constants.app_data_database_id,bucket_id,doc_uid,key)
-            if not didSucceed:
-                return None,False,'DatabaseAPI.permStore.exists(key) failed'
-            elif didSucceed and keyExistsInPermStore:
-                return True,True,''
 
-            return False,True,''
-        except:
-            error = "DatabaseAPI.exists Failed with unknown exception"
-            return None,False,error
+        doc = self._bucket(bucket_id).find_one({"_id":doc_uid})
+        return (doc != None)
 
     def get(self,bucket_id,doc_uid,key):
         """
@@ -309,16 +300,29 @@ class DatabaseAPI(object):
         Usage: ::\n
             value,didSucceed,message = db.get(bucket_id,doc_uid,key)
         """
-        try:
-            response,dt = utils.timeit(self.permStore.get)(constants.app_data_database_id,bucket_id,doc_uid,key)
-            value,didSucceed,message = response
-            self.duration_permStoreGet += dt
-            if not didSucceed:
-                return None,False,message
-            return value,True,'Hit PermStore'
 
-        except:
-            return None,False,'DatabaseAPI.get Failed with unknown exception'
+        val = self._bucket(bucket_id).find_one({"_id": doc_uid}, {key: True}).get(key)
+        return from_db_fmt(val)
+
+    def get_many(self,bucket_id,doc_uid,key_list):
+        """
+        Get values corresponding to keys in key_list, returns None if no key exists
+
+        Inputs:
+            (string) bucket_id, (string) doc_uid, (list of string) key_list
+
+        Outputs:
+            (dict of {key1:value1,key2:value2}) return_dict, (bool) didSucceed, (string) message
+
+        Usage: ::\n
+            return_dict,didSucceed,message = db.get_many(bucket_id,doc_uid,key_list)
+        """
+
+        projection = {k: True for key in key_list}
+        doc = self._bucket(bucket_id).find_one({"_id": doc_uid}, projection)
+        val = {k: doc.get(k) for k in key_list}
+
+        return from_db_fmt(val)
 
     def get_and_delete(self,bucket_id,doc_uid,key):
         """
@@ -334,41 +338,11 @@ class DatabaseAPI(object):
         Usage: ::\n
             didSucceed,message = db.get_and_delete(bucket_id,doc_uid,key)
         """
-        try:
-            response,dt = utils.timeit(self.permStore.get_and_delete)(constants.app_data_database_id,bucket_id,doc_uid,key)
-            value,didSucceed,message = response
-            self.duration_permStoreGet += dt
-            if not didSucceed:
-                return None,False,message
-            return value,True,'Hit PermStore'
 
-        except:
-            return None,False,'DatabaseAPI.get Failed with unknown exception'
+        doc = self._bucket.find_one_and_update({"_id": doc_uid},
+            update={'$unset': {key: ''}}, projection={key: True})
 
-    def get_many(self,bucket_id,doc_uid,key_list):
-        """
-        Get values corresponding to keys in key_list, returns None if no key exists
-
-        Inputs:
-            (string) bucket_id, (string) doc_uid, (list of string) key_list
-
-        Outputs:
-            (dict of {key1:value1,key2:value2}) return_dict, (bool) didSucceed, (string) message
-
-        Usage: ::\n
-            return_dict,didSucceed,message = db.get_many(bucket_id,doc_uid,key_list)
-        """
-        try:
-            response,dt = utils.timeit(self.permStore.get_many)(constants.app_data_database_id,bucket_id,doc_uid,key_list)
-            return_dict,didSucceed,message = response
-            self.duration_permStoreSet += dt
-
-            if not didSucceed:
-                return None,False,message
-            return return_dict,True,'Hit PermStore'
-
-        except:
-            return None,False,'DatabaseAPI.get Failed with unknown exception'
+        return from_db_fmt(doc.get(key))
 
     def increment(self,bucket_id,doc_uid,key,value=1):
         """
@@ -383,16 +357,10 @@ class DatabaseAPI(object):
         Usage: ::\n
             new_value,didSucceed,message = db.increment(bucket_id,doc_uid,key,value)
         """
-        try:
-            response,dt = utils.timeit(self.permStore.increment)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
-            new_value,didSucceed,message = response
-            self.duration_permStoreSet += dt
-            if not didSucceed:
-                return None,False,message
-            return new_value,True,'Hit PermStore'
 
-        except:
-            return None,False,'DatabaseAPI.increment Failed with unknown exception'
+        return self._bucket(bucket_id).find_one_and_update({"_id": doc_uid},
+            update={'$inc': {key: value}}, projection={key: True},
+            new=True, upsert=True).get(key)
 
     def increment_many(self,bucket_id,doc_uid,key_value_dict):
         """
@@ -407,18 +375,13 @@ class DatabaseAPI(object):
         Usage: ::\n
             didSucceed,message = db.increment_many(bucket_id,doc_uid,key_value_dict)
         """
-        try:
-            response,dt = utils.timeit(self.permStore.increment_many)(constants.app_data_database_id,bucket_id,doc_uid,key_value_dict)
-            new_key_value_dict,didSucceed,message = response
-            self.duration_permStoreSet += dt
-            if not didSucceed:
-                return None,False,message
-            return new_key_value_dict,True,'Hit PermStore'
+        projection = {k: True for k in key_value_dict.keys()}
+        values = {k: v for k, v in key_value_dict.items() if v != 0}
 
+        new_doc = self._bucket(bucket_id).find_one_and_update({"_id": doc_uid},
+            update={'$inc': values}, projection=projection, new=true, upsert=true)
 
-        except:
-            return None,False,'DatabaseAPI.increment_many Failed with unknown exception'
-
+        return {k: new_doc.get(k) for k in key_value_dict.keys()}
 
     def get_list(self,bucket_id,doc_uid,key):
         """
@@ -433,16 +396,7 @@ class DatabaseAPI(object):
         Usage: ::\n
             value,didSucceed,message = db.get_list(bucket_id,doc_uid,key)
         """
-        try:
-            response,dt = utils.timeit(self.permStore.get_list)(constants.app_data_database_id,bucket_id,doc_uid,key)
-            value,didSucceed,message = response
-            self.duration_permStoreGet += dt
-            if not didSucceed:
-                return None,False,message
-            return value,True,'Hit PermStore'
-
-        except:
-            return None,False,'DatabaseAPI.get Failed with unknown exception'
+        return self.get(bucket_id, doc_uid, key)
 
     def pop_list(self, bucket_id, doc_uid, key, value):
         """
