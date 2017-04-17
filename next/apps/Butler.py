@@ -1,19 +1,28 @@
 import next.utils as utils
-import numpy as np
 import os
 import next.constants as constants
 import redis
 import StringIO
 
+
 class Memory(object):
-    def __init__(self):
-        # utils.debug_print(constants.MINIONREDIS_PORT, constants.MINIONREDIS_PORT)
+    def __init__(self, collection='', exp_uid=''):
+        self.key_prefix = collection + exp_uid
         self.cache = None
-        self.max_entry_size = 500000000 # 500MB
+        self.max_entry_size = 500000000  # 500MB
+
+    def check_prefix(self):
+        if self.key_prefix == '':
+            utils.debug_print("butler.memory is deprecated."
+                              " Change to butler.experiment.memory or butler.algorithm.memory, etc."
+                              " wherever appropriate")
 
     def ensure_connection(self):
-        if self.cache is None:
-            self.cache = redis.StrictRedis(host=constants.MINIONREDIS_HOST, port=constants.MINIONREDIS_PORT)
+        try:
+            if self.cache is None:
+                self.cache = redis.StrictRedis(host=constants.MINIONREDIS_HOST, port=constants.MINIONREDIS_PORT)
+        except Exception as e:
+            raise Exception("Butler.Collection.Memory could not connect with RedisDB: {}".format(e))
 
     def num_entries(self, size):
         if size % self.max_entry_size == 0:
@@ -22,71 +31,96 @@ class Memory(object):
             return (size / self.max_entry_size) + 1
         
     def set(self, key, value):
-        self.ensure_connection()
+        self.check_prefix()
+        key = self.key_prefix + key
         try:
-            n = self.num_entries(len(value))
-            utils.debug_print("Setting ",len(value),"bytes in",n,"entries")
+            self.ensure_connection()
+            l = len(value)
+            n = self.num_entries(l)
+            utils.debug_print("Setting {} in {} entries".format(l, n))
             for i in range(n):
                 k = key + ":" + str(i)
-                self.cache.set(k,value[i*self.max_entry_size:(i+1)*self.max_entry_size])
-            return self.cache.set(key,"{}:{}".format(str(n),str(len(value))))
-        except Exception as exc:
-            utils.debug_print("REDIS OOPS: ",exc)
+                self.cache.set(k, value[i*self.max_entry_size:(i+1)*self.max_entry_size])
+            return self.cache.set(key, "{}:{}".format(str(n), str(l)))
+        except Exception as e:
+            utils.debug_print("Butler.Collection.Memory.set exception: {}".format(e))
             return False
 
     def set_file(self, key, f):
-        self.ensure_connection()
-
+        self.check_prefix()
+        key = self.key_prefix + key
         try:
-            f.seek(0,os.SEEK_END)
+            self.ensure_connection()
+            f.seek(0, os.SEEK_END)
             l = f.tell()
             f.seek(0, 0)
             n = self.num_entries(l)
-            utils.debug_print("Setting ",l,"bytes in",n,"entries")
+            utils.debug_print("Setting {} bytes in {} entries".format(l, n))
             for i in range(n):
                 k = key + ":" + str(i)
                 v = f.read(self.max_entry_size)
-                self.cache.set(k,v)
-            return self.cache.set(key,"{}:{}".format(str(n),str(l)))
-        except Exception as exc:
-            utils.debug_print("REDIS OOPS: ",exc)
+                self.cache.set(k, v)
+            return self.cache.set(key, "{}:{}".format(str(n), str(l)))
+        except Exception as e:
+            utils.debug_print("Butler.Collection.Memory.set_file exception: {}".format(e))
             return False
 
     def get(self, key):
-        self.ensure_connection()
-        d =  self.cache.get(key)
-        n,l = d.split(":")
-        l = int(l)
-        n = int(n)
-        ans = ""
-        utils.debug_print("Getting ",l,"bytes in",n,"entries")
-        for i in range(n):
-            k = key + ":" + str(i)
-            ans += self.cache.get(k)
-        return ans
-    
+        self.check_prefix()
+        try:
+            self.ensure_connection()
+            key = self.key_prefix + key
+            d = self.cache.get(key)
+            n, l = d.split(":")
+            l = int(l)
+            n = int(n)
+            ans = ""
+            utils.debug_print("Getting {} bytes in {} entries".format(l, n))
+            for i in range(n):
+                k = key + ":" + str(i)
+                ans += self.cache.get(k)
+            return ans
+        except Exception as e:
+            utils.debug_print("Butler.Collection.Memory.get exception: {}".format(e))
+            return None
+
     def get_file(self, key):
-        self.ensure_connection()
-        d =  self.cache.get(key)
-        f = StringIO.StringIO()
-        n,l = d.split(":")
-        l = int(l)
-        n = int(n)
-        ans = ""
-        utils.debug_print("Getting ",l,"bytes in",n,"entries")
-        for i in range(n):
-            k = key + ":" + str(i)
-            f.write(self.cache.get(k))
-        f.seek(0, 0)
-        return f
+        self.check_prefix()
+        try:
+            self.ensure_connection()
+            key = self.key_prefix + key
+            d = self.cache.get(key)
+            f = StringIO.StringIO()
+            n, l = d.split(":")
+            l = int(l)
+            n = int(n)
+            utils.debug_print("Getting {} bytes in {} entries".format(l, n))
+            for i in range(n):
+                k = key + ":" + str(i)
+                f.write(self.cache.get(k))
+            f.seek(0, 0)
+            return f
+        except Exception as e:
+            utils.debug_print("Butler.Collection.Memory.get_file exception: {}".format(e))
+            return None
 
     def lock(self, name, **kwargs):
-        self.ensure_connection()
-        return self.cache.lock(name, **kwargs)
+        try:
+            self.ensure_connection()
+            name = self.key_prefix + name
+            return self.cache.lock(name, **kwargs)
+        except Exception as e:
+            utils.debug_print("Butler.Collection.Memory.lock exception: {}".format(e))
+            return None
     
     def exists(self, key):
-        self.ensure_connection()
-        return self.cache.exists(key)
+        try:
+            self.ensure_connection()
+            key = self.key_prefix + key
+            return self.cache.exists(key)
+        except Exception as e:
+            utils.debug_print("Butler.Collection.Memory.exists exception: {}".format(e))
+            return None
 
 
 class Collection(object):
@@ -98,6 +132,7 @@ class Collection(object):
         self.get_durations = 0.0
         self.set_durations = 0.0
         self.timing = timing
+        self.memory = Memory(collection, exp_uid)
 
     def set(self, uid="", key=None, value=None, exp=None):
         """
@@ -105,7 +140,7 @@ class Collection(object):
         * key == None:    collection[uid] = value
         * key != None:    collection[uid][key] = value
         """
-        uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp == None else exp))
+        uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp is None else exp))
         if not key:
             self.timed(self.db.set_doc)(self.collection, uid, value)
         else:
@@ -115,7 +150,7 @@ class Collection(object):
         """
         For each key in key_value_dict, sets value by key_value_dict[key]
         """
-        uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp == None else exp))
+        uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp is None else exp))
         return self.timed(self.db.set_many)(self.collection, uid, key_value_dict)
 
     def get(self, uid="", key=None, pattern=None, exp=None):
@@ -126,11 +161,11 @@ class Collection(object):
         * key != None and pattern == None and type(key) == list:   return {k: collection[uid][k] for k in key}
         * pattern != None:                                         return collection[uid] matching pattern
         """
-        uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp == None else exp))
-        if key==None and pattern==None:
+        uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp is None else exp))
+        if key is None and pattern is None:
             return self.timed(self.db.get_doc, get=True)(self.collection, uid)
         elif key:
-            if(type(key) == list):
+            if isinstance(key, list):
                 return self.timed(self.db.get_many, get=True)(self.collection, uid, key)
             else:
                 return self.timed(self.db.get, get=True)(self.collection, uid, key)
@@ -141,7 +176,7 @@ class Collection(object):
         """
         Get a value from the collection corresponding to the key and then delete the (key,value).
         """
-        uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp == None else exp))
+        uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp is None else exp))
         value = self.timed(self.db.get_and_delete, get=True)(self.collection, uid, key)
         return value
 
@@ -149,10 +184,8 @@ class Collection(object):
         """
         Check if an object with the specified uid exists
         """
-        uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp == None else exp))
-        result = self.timed(self.db.exists, get=True)(self.collection, uid, key)
-        print "Butler.py:exist, exist check", uid, key, result
-        return result#self.timed(self.db.exists,get=True)(self.collection, uid, key)
+        uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp is None else exp))
+        return self.timed(self.db.exists, get=True)(self.collection, uid, key)
 
     def increment(self, uid="", key=None, exp=None, value=1):
         """
@@ -161,7 +194,7 @@ class Collection(object):
 
         * value: How much the value should be incremented by.
         """
-        uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp == None else exp))
+        uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp is None else exp))
         return self.timed(self.db.increment, get=True)(self.collection, uid, key, value)
 
     def increment_many(self, uid="", key_value_dict=None, exp=None):
@@ -170,7 +203,7 @@ class Collection(object):
 
         * values: How much the value should be incremented by.
         """
-        uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp == None else exp))
+        uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp is None else exp))
         return self.timed(self.db.increment_many, get=True)(self.collection, uid, key_value_dict)
 
     def append(self, uid="", key=None, value=None, exp=None):
@@ -194,23 +227,25 @@ class Collection(object):
         """
         For book keeping purposes only
         """
-        return {'duration_dbSet': self.set_durations, 'duration_dbGet' : self.get_durations}
+        return {'duration_dbSet': self.set_durations, 'duration_dbGet': self.get_durations}
 
     def timed(self, f, get=False):
         if not self.timing:
             return f
 
         def timed_f(*args, **kw):
-            result,dt = utils.timeit(f)(*args, **kw)
+            result, dt = utils.timeit(f)(*args, **kw)
             res = None
-            if(get):
+            if get:
                 self.get_durations += dt
                 res, didSucceed, message = result
             else:
                 self.set_durations += dt
                 didSucceed, message = result
             return res
+
         return timed_f
+
 
 class Butler(object):
     def __init__(self, app_id, exp_uid, targets, db, ell, alg_label=None, alg_id=None):
@@ -223,7 +258,7 @@ class Butler(object):
         self.targets = targets
         self.memory = Memory()
         
-        if self.targets.db==None:
+        if self.targets.db is None:
             self.targets.db = self.db
         self.queries = Collection(self.app_id+":queries", "", self.exp_uid, db)
         self.admin = Collection("experiments_admin", "", self.exp_uid, db)
@@ -248,4 +283,3 @@ class Butler(object):
                                alg_id=self.alg_id, alg_label=self.alg_label)  
         else:
             self.db.submit_job(self.app_id, self.exp_uid, task, task_args_json, None, ignore_result, time_limit)  
-
