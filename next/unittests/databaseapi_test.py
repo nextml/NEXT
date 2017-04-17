@@ -33,6 +33,7 @@ def test_exists(db):
 	doc_uid = db._bucket(B).insert_one({'a_key': 2}).inserted_id
 
 	assert db.exists(B, doc_uid, 'a_key')
+	assert not db.exists(B, doc_uid, 'a_nonexistent_key')
 	assert not db.exists(B, 'ashkjfdbkjfns', 'a_key')
 
 def test_get(db):
