@@ -19,7 +19,7 @@ cadvisor:
 
 minionredis:
   image: redis
-  command: redis-server /next_backend/next/database_client/CacheStore/redis.conf
+  command: redis-server /next_backend/next/database/redis.conf
   volumes:
    - {{NEXT_DIR}}:/next_backend
   expose:
