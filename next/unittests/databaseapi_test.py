@@ -59,6 +59,36 @@ def test_get_many(db):
 	assert db.get_many(B, doc_uid, ['totally_nonexistent_key', 'another_key']) \
 		== {'totally_nonexistent_key': None, 'another_key': [1.0, 'f']}
 
+def test_get_and_delete(db):
+	B = 'test_get_and_delete'
+	doc = {'a': 2, 'b': [1.0, 'f'], 'c': 'baz'}
+
+	doc_uid = db._bucket(B).insert_one(doc).inserted_id
+
+	assert db.exists(B, doc_uid, 'b')
+	assert db.get_and_delete(B, doc_uid, 'b') == [1.0, 'f']
+	assert not db.exists(B, doc_uid, 'b')
+
+def test_increment(db):
+	B = 'test_increment'
+	
+	doc_uid = db._bucket(B).insert_one({'a': 2}).inserted_id
+
+	assert db.increment(B, doc_uid, 'a') == 3
+	assert db.get(B, doc_uid, 'a') == 3
+	assert db.increment(B, doc_uid, 'a', -2) == 1
+	assert db.get(B, doc_uid, 'a') == 1
+
+def test_increment_many(db):
+	B = 'test_increment_many'
+	doc = {'a': 0, 'b': 0, 'c': 0}
+	
+	doc_uid = db._bucket(B).insert_one(doc).inserted_id
+
+	assert db.increment_many(B, doc_uid, {'a': 1, 'b': 5, 'c': -7}) \
+					== {'a': 1, 'b': 5, 'c': -7}
+	assert db.get_many(B, doc_uid, ['a', 'b', 'c']) \
+					== {'a': 1, 'b': 5, 'c': -7}
 
 # === test utils ===
 def test_to_db_fmt():
