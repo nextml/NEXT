@@ -287,6 +287,7 @@ class DatabaseAPI(object):
     def _bucket(self, bucket_id):
         return self.client[constants.app_data_database_id][bucket_id]
 
+    @timed(op_type='get')
     def exists(self,bucket_id,doc_uid,key):
         """
         Checks existence of key.
@@ -307,6 +308,7 @@ class DatabaseAPI(object):
             projection={key: True}) or {}
         return doc.get(key) is not None
 
+    @timed(op_type='get')
     def get(self,bucket_id,doc_uid,key):
         """
         Get a value corresponding to key, returns None if no key exists
@@ -324,6 +326,7 @@ class DatabaseAPI(object):
         val = self._bucket(bucket_id).find_one({"_id": doc_uid}, {key: True}).get(key)
         return from_db_fmt(val)
 
+    @timed(op_type='get')
     def get_many(self,bucket_id,doc_uid,key_list):
         """
         Get values corresponding to keys in key_list, returns None if no key exists
@@ -344,6 +347,7 @@ class DatabaseAPI(object):
 
         return from_db_fmt(val)
 
+    @timed(op_type='get')
     def get_and_delete(self,bucket_id,doc_uid,key):
         """
         returns value associated with key and then deltes {key:value}. 
@@ -364,6 +368,7 @@ class DatabaseAPI(object):
 
         return from_db_fmt(doc.get(key))
 
+    @timed(op_type='set')
     def increment(self,bucket_id,doc_uid,key,value=1):
         """
         increments a key by amount value. If key does not exist, sets {key:value}
@@ -382,6 +387,7 @@ class DatabaseAPI(object):
             update={'$inc': {key: value}}, projection={key: True},
             new=True, upsert=True).get(key)
 
+    @timed(op_type='set')
     def increment_many(self,bucket_id,doc_uid,key_value_dict):
         """
         increments a key by amount value. If key does not exist, sets {key:value}
@@ -403,6 +409,9 @@ class DatabaseAPI(object):
 
         return {k: new_doc.get(k) for k in key_value_dict.keys()}
 
+    # TODO(liam): potentially remove
+    
+    @timed(op_type='get')
     def get_list(self,bucket_id,doc_uid,key):
         """
         Get a value corresponding to key, returns None if no key exists
@@ -418,6 +427,7 @@ class DatabaseAPI(object):
         """
         return self.get(bucket_id, doc_uid, key)
 
+    @timed(op_type='get')
     def pop_list(self, bucket_id, doc_uid, key, value):
         """
         Inputs:
@@ -443,6 +453,7 @@ class DatabaseAPI(object):
             utils.debug_print(error)
             return None, False, error
 
+    @timed(op_type='set')
     def append_list(self,bucket_id,doc_uid,key,value):
         """
         Appends a {key,value_list} (if already exists, replaces)
@@ -466,6 +477,7 @@ class DatabaseAPI(object):
             error = "DatabaseAPI.append_list Failed with unknown exception"
             return False,error
 
+    @timed(op_type='set')
     def set_list(self,bucket_id,doc_uid,key,value):
         """
         Sets a {key,value_list} (if already exists, replaces)
@@ -488,6 +500,7 @@ class DatabaseAPI(object):
             error = "DatabaseAPI.set Failed with unknown exception"
             return False,error
 
+    @timed(op_type='set')
     def set_doc(self,bucket_id,doc_uid,doc):
         """
         Sets a document with doc_uid
@@ -504,6 +517,7 @@ class DatabaseAPI(object):
         didSucceed,message = self.permStore.setDoc(constants.app_data_database_id,bucket_id,doc_uid,doc)
         return didSucceed,message
 
+    @timed(op_type='get')
     def get_doc(self,bucket_id,doc_uid):
         """
         Gets doc in bucket_id that corresponds to doc_uid
@@ -519,6 +533,8 @@ class DatabaseAPI(object):
         """
         return self.permStore.getDoc(constants.app_data_database_id,bucket_id,doc_uid)
 
+
+    @timed(op_type='get')
     def get_docs_with_filter(self,bucket_id,pattern_dict):
         """
         Retrieves all docs in bucket_id that match (i.e. contain) pattern_dict
@@ -535,6 +551,7 @@ class DatabaseAPI(object):
         t = self.permStore.getDocsByPattern(constants.app_data_database_id,bucket_id,pattern_dict)
         return t
 
+    @timed(op_type='set')
     def set(self,bucket_id,doc_uid,key,value):
         """
         Sets a {key,value} (if already exists, replaces)
@@ -557,6 +574,7 @@ class DatabaseAPI(object):
             error = "DatabaseAPI.set Failed with unknown exception"
             return False,error
 
+    @timed(op_type='set')
     def set_many(self,bucket_id,doc_uid,key_value_dict):
         """
         sets key, values in dict. If key does not exist, sets {key:value}
@@ -581,7 +599,7 @@ class DatabaseAPI(object):
         except:
             return None,False,'DatabaseAPI.set_many Failed with unknown exception'
 
-
+    @timed(op_type='set')
     def delete(self,bucket_id,doc_uid,key):
         """
         Deletes {key:value} associated with given key
