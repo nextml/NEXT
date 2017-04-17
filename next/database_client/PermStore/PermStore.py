@@ -120,6 +120,7 @@ Doc retrival with time ::\n
 """
 
 from pymongo import MongoClient
+from pymongo.errors import OperationFailure
 import next.constants as constants
 import next.utils as utils
 from bson.binary import Binary
@@ -128,6 +129,10 @@ import traceback
 from datetime import datetime
 import numpy as np
 import time
+
+
+class DatabaseException(BaseException):
+    pass
 
 
 class PermStore(object):
@@ -560,6 +565,61 @@ class PermStore(object):
         """
         return self.get(database_id,bucket_id,doc_uid,key)
 
+    def pop_list(self, database_id, bucket_id, doc_uid, key, value):
+        """
+        pops a value from a list.
+        If value=0, pops from start of list
+        If value=-1, pops from end of list.
+        (note this is inconsistent with Mongo's api to be consistent with python's pop)
+        See declaration of mongo_index for more info.
+        
+        Inputs: 
+            (string) database_id, (string) bucket_id, (string) doc_uid, (string) key, (int) value
+        
+        Outputs:
+            (any) value, (bool) didSucceed, (string) message 
+        
+        Usage: ::\n
+            value, didSucceed, message = db.set(database_id, bucket_id, doc_uid, key, value)
+        """
+        if self.client is None:
+            didSucceed, message = self.connectToMongoServer()
+            if not didSucceed:
+                return None, False, message
+        # For Mongo's $pop, 1 means last element, -1 means first element
+        try:
+            if value == -1:
+                mongo_index = 1
+            elif value == 0:
+                mongo_index = -1
+            else:
+                raise DatabaseException("can only pop first (value=0) or last (value=-1) element")
+            try:
+                return_value = self.client[database_id][bucket_id].find_and_modify({"_id": doc_uid},
+                                                                                   {'$pop': {key: mongo_index}})[key]
+            except KeyError as e:
+                if e.args[0] == key:
+                    raise DatabaseException("key '{}' not found in document '{}.{}'".format(key, database_id, bucket_id))
+                elif e.args[0] == bucket_id:
+                    raise DatabaseException("bucket '{}' not found in database '{}'".format(bucket_id, database_id))
+                elif e.args[0] == database_id:
+                    raise DatabaseException("database '{}' not found".format(database_id))
+                else:
+                    raise DatabaseException("unknown KeyError: '{}' not found".format(e))
+            except OperationFailure:  # This gets thrown if you try to pop from a non-list
+                raise DatabaseException("cannot pop from non-list")
+            if return_value:
+                return_value = return_value[value]
+            else:
+                raise DatabaseException("cannot pop from empty list")
+            return_value = self.undoDatabaseFormat(return_value)
+
+            return return_value, True, 'From Mongo'
+        except DatabaseException as e:
+            error = "PermStore.pop_list failed with exception: {}".format(e)
+            utils.debug_print(error)
+            return None, False, error
+
     def append_list(self,database_id,bucket_id,doc_uid,key,value):
         """
         appends value to list saved by key. If key does not exist, sets {key:value}
@@ -585,9 +645,8 @@ class PermStore(object):
 
             return True,message
         except:
-            raise
             error = "MongoDB.set Failed with unknown exception"
-            return False,error
+            return False, error
 
     def set_list(self,database_id,bucket_id,doc_uid,key,value_list):
         """
