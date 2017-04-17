@@ -359,7 +359,7 @@ class DatabaseAPI(object):
             didSucceed,message = db.get_and_delete(bucket_id,doc_uid,key)
         """
 
-        doc = self._bucket.find_one_and_update({"_id": doc_uid},
+        doc = self._bucket(bucket_id).find_one_and_update({"_id": doc_uid},
             update={'$unset': {key: ''}}, projection={key: True})
 
         return from_db_fmt(doc.get(key))
