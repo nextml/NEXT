@@ -190,8 +190,46 @@ except:
 class DatabaseException(BaseException):
     pass
 
+def to_db_fmt(x):
+    # recursive descent through lists
+    if isinstance(x, list):
+        return [to_db_fmt(v) for v in x]
 
-USE_CACHE = False
+    # recursive descent through dicts
+    if isinstance(x, dict):
+        return {k: to_db_fmt(v) for k, v in x.items()}
+
+    # convert Numpy arrays to python arrays
+    # note: assumes that .tolist() will return only database-acceptable types
+    if isinstance(x, np.ndarray):
+        return x.tolist()
+
+    # types that MongoDB can natively store
+    if type(x) in {int, float, long, complex, str, unicode, datetime}:
+        return x
+
+    # pickle everything else, wrap in MongoDB `Binary`
+    return Binary(cPickle.dumps(x, protocol=2))
+
+def from_db_fmt(x):
+    # recursive descent through lists
+    if isinstance(x, list):
+        return [from_db_fmt(v) for v in x]
+
+    # recursive descent through dicts
+    if isinstance(x, dict):
+        return {k: from_db_fmt(v) for k, v in x.items()}
+
+    if isinstance(x, Binary):
+        # this might be pickled data; let's attempt to deserialize it
+        try:
+            return cPickle.loads(x)
+        except cPickle.UnpicklingError:
+            # this wasn't pickled data. just return it.
+            return x
+
+    # not a datatype we need to deserialize! just pass it out
+    return x
 
 class DatabaseAPI(object):
     """
@@ -208,17 +246,6 @@ class DatabaseAPI(object):
 
         self.broker = None
 
-    def submit_job(self,app_id,exp_uid,task,task_args_json,namespace=None,ignore_result=True,time_limit=0, alg_id=None, alg_label=None):
-        if self.broker == None:
-            self.broker = next.broker.broker.JobBroker()
-        if namespace==None:
-            result = self.broker.applyAsync(app_id,exp_uid,task,task_args_json,ignore_result=ignore_result)
-        else:
-            result = self.broker.applySyncByNamespace(app_id,exp_uid,
-                                                      alg_id, alg_label,
-                                                      task,task_args_json,namespace=namespace,
-                                                      ignore_result=ignore_result,time_limit=time_limit)
-        return result
 
 
     def exists(self,bucket_id,doc_uid,key):
@@ -822,4 +849,15 @@ class DatabaseAPI(object):
         except:
             return None,False,'DatabaseAPI.inspectDoc unknown exception'
 
+    def submit_job(self,app_id,exp_uid,task,task_args_json,namespace=None,ignore_result=True,time_limit=0, alg_id=None, alg_label=None):
+        if self.broker == None:
+            self.broker = next.broker.broker.JobBroker()
+        if namespace==None:
+            result = self.broker.applyAsync(app_id,exp_uid,task,task_args_json,ignore_result=ignore_result)
+        else:
+            result = self.broker.applySyncByNamespace(app_id,exp_uid,
+                                                      alg_id, alg_label,
+                                                      task,task_args_json,namespace=namespace,
+                                                      ignore_result=ignore_result,time_limit=time_limit)
+        return result
 
