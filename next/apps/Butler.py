@@ -134,7 +134,7 @@ class Collection(object):
         self.timing = timing
         self.memory = Memory(collection, exp_uid)
 
-    @self.timed
+    @timed
     def set(self, uid="", key=None, value=None, exp=None):
         """
         Set an object in the collection, or an entry in an object in the collection.
@@ -147,7 +147,7 @@ class Collection(object):
         else:
             self.db.set(self.collection, uid, key, value)
 
-    @self.timed
+    @timed
     def set_many(self, uid="", key_value_dict=None, exp=None):
         """
         For each key in key_value_dict, sets value by key_value_dict[key]
@@ -155,7 +155,7 @@ class Collection(object):
         uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp is None else exp))
         return self.db.set_many(self.collection, uid, key_value_dict)
 
-    @self.timed(op_type='get')
+    @timed(op_type='get')
     def get(self, uid="", key=None, pattern=None, exp=None):
         """
         Get an object from the collection (possibly by pattern), or an entry (or entries) from an object in the collection.
@@ -175,7 +175,7 @@ class Collection(object):
         else:
             return self.db.get_docs_with_filter(self.collection, pattern)
     
-    @self.timed(op_type='get')
+    @timed(op_type='get')
     def get_and_delete(self, uid="", key=None, exp=None):
         """
         Get a value from the collection corresponding to the key and then delete the (key,value).
@@ -184,7 +184,7 @@ class Collection(object):
         value = self.db.get_and_delete(self.collection, uid, key)
         return value
 
-    @self.timed(op_type='get')
+    @timed(op_type='get')
     def exists(self, uid="", key='_id', exp=None):
         """
         Check if an object with the specified uid exists
@@ -192,7 +192,7 @@ class Collection(object):
         uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp is None else exp))
         return self.db.exists(self.collection, uid, key)
 
-    @self.timed(op_type='get')
+    @timed(op_type='get')
     def increment(self, uid="", key=None, exp=None, value=1):
         """
         Increment a value (or values) in the collection.
@@ -203,7 +203,7 @@ class Collection(object):
         uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp is None else exp))
         return self.db.increment(self.collection, uid, key, value)
 
-    @self.timed(op_type='get')
+    @timed(op_type='get')
     def increment_many(self, uid="", key_value_dict=None, exp=None):
         """
         For each key in key_value_dict, increments value by key_value_dict[key]
@@ -213,7 +213,7 @@ class Collection(object):
         uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp is None else exp))
         return self.db.increment_many(self.collection, uid, key_value_dict)
 
-    @self.timed
+    @timed
     def append(self, uid="", key=None, value=None, exp=None):
         """
         Append a value to collection[uid][key] (which is assumed to be a list)
@@ -221,7 +221,7 @@ class Collection(object):
         uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp == None else exp))
         self.db.append_list(self.collection, uid, key, value)
 
-    @self.timed(op_type='get')
+    @timed(op_type='get')
     def pop(self, uid="", key=None, value=-1, exp=None):
         """
         Pop a value from collection[uid][key] (which is assumed to be a list)
@@ -238,21 +238,20 @@ class Collection(object):
         """
         return {'duration_dbSet': self.set_durations, 'duration_dbGet': self.get_durations}
 
-    def timed(self, f, op_type='set'):
-        if not self.timing:
-            return f
+    def timed(op_type='set'):
+        def decorator(f):
+            @wraps(f)
+            def wrapper(self, *args, **kwargs):
+                result, dt = utils.timeit(f)(self, *args, **kwargs)
 
-        def timed_f(*args, **kw):
-            result, dt = utils.timeit(f)(*args, **kw)
+                if op_type == 'set':
+                    self.set_durations += dt
+                elif op_type == 'get':
+                    self.get_durations += dt
 
-            if op_type == 'set':
-                self.set_durations += dt
-            elif op_type == 'get':
-                self.get_durations += dt
-
-            return result
-
-        return timed_f
+                return result
+            return wrapper
+        return decorator
 
 
 class Butler(object):
