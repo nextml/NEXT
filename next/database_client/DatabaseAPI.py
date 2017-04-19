@@ -331,8 +331,6 @@ class DatabaseAPI(object):
 
         return {k: new_doc.get(k) for k in key_value_dict.keys()}
 
-    # TODO(liam): potentially remove
-    
     @timed(op_type='get')
     def get_list(self,bucket_id,doc_uid,key):
         return self.get(bucket_id, doc_uid, key)
@@ -354,69 +352,44 @@ class DatabaseAPI(object):
 
     @timed(op_type='set')
     def append_list(self,bucket_id,doc_uid,key,value):
-
-        val = to_db_fmt(value)
         self._bucket(bucket_id).update_one({"_id": doc_uid},
-            {'$push': {key: value}}, upsert=True)
+            {'$push': {key: to_db_fmt(value)}}, upsert=True)
 
     @timed(op_type='set')
     def set_list(self,bucket_id,doc_uid,key,value):
-        try:
-            response,dt = utils.timeit(self.permStore.set_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
-            didSucceedPerm,messagePerm = response
-            self.duration_permStoreSet += dt
-            return didSucceedPerm,messagePerm
-        except:
-            error = "DatabaseAPI.set Failed with unknown exception"
-            return False,error
+        self.set(bucket_id, doc_uid, key, value)
 
     @timed(op_type='set')
     def set_doc(self,bucket_id,doc_uid,doc):
+        if doc_uid:
+            doc['_id'] = doc_uid
 
+        self._bucket(bucket_id).insert_one(to_db_fmt(doc)).inserted_id
 
     @timed(op_type='get')
     def get_doc(self,bucket_id,doc_uid):
-        return self.permStore.getDoc(constants.app_data_database_id,bucket_id,doc_uid)
-
+        return from_db_fmt(self._bucket(bucket_id).find_one({"_id": doc_uid}))
 
     @timed(op_type='get')
     def get_docs_with_filter(self,bucket_id,pattern_dict):
+        docs_cursor = self._bucket(bucket_id).find(pattern_dict)
 
-        t = self.permStore.getDocsByPattern(constants.app_data_database_id,bucket_id,pattern_dict)
-        return t
+        return [from_db_fmt(doc) for doc in docs_cursor]
 
     @timed(op_type='set')
     def set(self,bucket_id,doc_uid,key,value):
-        try:
-            response,dt = utils.timeit(self.permStore.set)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
-            didSucceedPerm,messagePerm = response
-            self.duration_permStoreSet += dt
-            return didSucceedPerm,messagePerm
-        except:
-            error = "DatabaseAPI.set Failed with unknown exception"
-            return False,error
+        self._bucket(bucket_id).update_one({"_id": doc_uid},
+            {'$set': {key: to_db_fmt(value)}}, upsert=True)
 
     @timed(op_type='set')
     def set_many(self,bucket_id,doc_uid,key_value_dict):
-        try:
-            response,dt = utils.timeit(self.permStore.set_many)(constants.app_data_database_id,bucket_id,doc_uid,key_value_dict)
-            didSucceed,message = response
-            self.duration_permStoreSet += dt
-            if not didSucceed:
-                return False,message
-            return True,'Hit PermStore'
-
-        except:
-            return None,False,'DatabaseAPI.set_many Failed with unknown exception'
+        self._bucket(bucket_id).update_one({"_id": doc_uid},
+            {'$set': to_db_fmt(key_value_dict)})
 
     @timed(op_type='set')
     def delete(self,bucket_id,doc_uid,key):
-        try:
-            didSucceed,message = self.permStore.delete(constants.app_data_database_id,bucket_id,doc_uid,key)
-            return didSucceed,message
-        except:
-            error = "DatabaseAPI.delete Failed with unknown exception"
-            return False,error
+        self._bucket(bucket_id).update_one({"_id": doc_uid},
+            {'$unset': {key: True}})
 
     def ensure_index(self,bucket_id,index_dict):
         didSucceed,message = self.permStore.create_index(constants.app_data_database_id,bucket_id,index_dict)
