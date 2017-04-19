@@ -289,19 +289,6 @@ class DatabaseAPI(object):
 
     @timed(op_type='get')
     def exists(self,bucket_id,doc_uid,key):
-        """
-        Checks existence of key.
-
-        Inputs:
-            (string) bucket_id, (string) doc_uid, (string) key
-
-        Outputs:
-            (bool) exists, (bool) didSucceed, (string) message
-
-        Usage: ::\n
-            exists,didSucceed,message = db.exists(bucket_id,doc_uid,key)
-        """
-
         # if the document isn't found, just set doc to an empty dict,
         # so that any .get(key) call returns None
         doc = self._bucket(bucket_id).find_one({"_id":doc_uid},
@@ -310,37 +297,11 @@ class DatabaseAPI(object):
 
     @timed(op_type='get')
     def get(self,bucket_id,doc_uid,key):
-        """
-        Get a value corresponding to key, returns None if no key exists
-
-        Inputs:
-            (string) bucket_id, (string) doc_uid, (string) key
-
-        Outputs:
-            (python object) value, (bool) didSucceed, (string) message
-
-        Usage: ::\n
-            value,didSucceed,message = db.get(bucket_id,doc_uid,key)
-        """
-
         val = self._bucket(bucket_id).find_one({"_id": doc_uid}, {key: True}).get(key)
         return from_db_fmt(val)
 
     @timed(op_type='get')
     def get_many(self,bucket_id,doc_uid,key_list):
-        """
-        Get values corresponding to keys in key_list, returns None if no key exists
-
-        Inputs:
-            (string) bucket_id, (string) doc_uid, (list of string) key_list
-
-        Outputs:
-            (dict of {key1:value1,key2:value2}) return_dict, (bool) didSucceed, (string) message
-
-        Usage: ::\n
-            return_dict,didSucceed,message = db.get_many(bucket_id,doc_uid,key_list)
-        """
-
         projection = {k: True for k in key_list}
         doc = self._bucket(bucket_id).find_one({"_id": doc_uid}, projection)
         val = {k: doc.get(k) for k in key_list}
@@ -349,20 +310,6 @@ class DatabaseAPI(object):
 
     @timed(op_type='get')
     def get_and_delete(self,bucket_id,doc_uid,key):
-        """
-        returns value associated with key and then deltes {key:value}. 
-        If key does not exist, returns None
-        
-        Inputs: 
-            (string) bucket_id, (string) doc_uid, (string) key
-        
-        Outputs:
-            (bool) didSucceed, (string) message 
-        
-        Usage: ::\n
-            didSucceed,message = db.get_and_delete(bucket_id,doc_uid,key)
-        """
-
         doc = self._bucket(bucket_id).find_one_and_update({"_id": doc_uid},
             update={'$unset': {key: ''}}, projection={key: True})
 
@@ -370,37 +317,12 @@ class DatabaseAPI(object):
 
     @timed(op_type='set')
     def increment(self,bucket_id,doc_uid,key,value=1):
-        """
-        increments a key by amount value. If key does not exist, sets {key:value}
-
-        Inputs:
-            (string) bucket_id, (string) doc_uid, (string) key, (int) value
-
-        Outputs:
-            (int) new_value, (bool) didSucceed, (string) message
-
-        Usage: ::\n
-            new_value,didSucceed,message = db.increment(bucket_id,doc_uid,key,value)
-        """
-
         return self._bucket(bucket_id).find_one_and_update({"_id": doc_uid},
             update={'$inc': {key: value}}, projection={key: True},
             new=True, upsert=True).get(key)
 
     @timed(op_type='set')
     def increment_many(self,bucket_id,doc_uid,key_value_dict):
-        """
-        increments a key by amount value. If key does not exist, sets {key:value}
-
-        Inputs:
-            (string) bucket_id, (string) doc_uid, ({(str)key1:(float)value1,(int)key2:(float) value2}) key_value_dict
-
-        Outputs:
-            (bool) didSucceed, (string) message
-
-        Usage: ::\n
-            didSucceed,message = db.increment_many(bucket_id,doc_uid,key_value_dict)
-        """
         projection = {k: True for k in key_value_dict.keys()}
         values = {k: v for k, v in key_value_dict.items() if v != 0}
 
@@ -413,35 +335,10 @@ class DatabaseAPI(object):
     
     @timed(op_type='get')
     def get_list(self,bucket_id,doc_uid,key):
-        """
-        Get a value corresponding to key, returns None if no key exists
-
-        Inputs:
-            (string) bucket_id, (string) doc_uid, (string) key
-
-        Outputs:
-            (list) value, (bool) didSucceed, (string) message
-
-        Usage: ::\n
-            value,didSucceed,message = db.get_list(bucket_id,doc_uid,key)
-        """
         return self.get(bucket_id, doc_uid, key)
 
     @timed(op_type='get')
     def pop_list(self, bucket_id, doc_uid, key, end):
-        """
-        Inputs:
-            (string) bucket_id, (string) doc_uid, (string) key, (int) end
-            end=-1 pops the last item of the list
-            end=0 pops the first item of the list
-
-        Outputs:
-            (python object) end, (bool) didSucceed, (string) message
-
-        Usage: ::\n
-            didSucceed,message = db.pop_list(bucket_id,doc_uid,key,end)       
-        """
-
         # For Mongo's $pop, 1 is the last element and -1 is the first.
         if end == 0:
             mongo_idx = -1
@@ -457,18 +354,6 @@ class DatabaseAPI(object):
 
     @timed(op_type='set')
     def append_list(self,bucket_id,doc_uid,key,value):
-        """
-        Appends a {key,value_list} (if already exists, replaces)
-
-        Inputs:
-            (string) bucket_id, (string) doc_uid, (string) key, (list) value
-
-        Outputs:
-            (bool) didSucceed, (string) message
-
-        Usage: ::\n
-            didSucceed,message = db.set_list(bucket_id,doc_uid,key,value)
-        """
 
         val = to_db_fmt(value)
         self._bucket(bucket_id).update_one({"_id": doc_uid},
@@ -476,18 +361,6 @@ class DatabaseAPI(object):
 
     @timed(op_type='set')
     def set_list(self,bucket_id,doc_uid,key,value):
-        """
-        Sets a {key,value_list} (if already exists, replaces)
-
-        Inputs:
-            (string) bucket_id, (string) doc_uid, (string) key, (list) value
-
-        Outputs:
-            (bool) didSucceed, (string) message
-
-        Usage: ::\n
-            didSucceed,message = db.set_list(bucket_id,doc_uid,key,value)
-        """
         try:
             response,dt = utils.timeit(self.permStore.set_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
             didSucceedPerm,messagePerm = response
@@ -499,69 +372,21 @@ class DatabaseAPI(object):
 
     @timed(op_type='set')
     def set_doc(self,bucket_id,doc_uid,doc):
-        """
-        Sets a document with doc_uid
 
-        Inputs:
-            (dict) doc
-
-        Outputs:
-            None
-
-        Usage: ::\n
-            db.set_doc(key,value)
-        """
-        didSucceed,message = self.permStore.setDoc(constants.app_data_database_id,bucket_id,doc_uid,doc)
-        return didSucceed,message
 
     @timed(op_type='get')
     def get_doc(self,bucket_id,doc_uid):
-        """
-        Gets doc in bucket_id that corresponds to doc_uid
-
-        Inputs:
-            (string) bucket_id, (string) doc_uid
-
-        Outputs:
-            (dict) doc, (bool) didSucceed, (string) message
-
-        Usage: ::\n
-            doc,didSucceed,message = db.getDoc(bucket_id,doc_uid)
-        """
         return self.permStore.getDoc(constants.app_data_database_id,bucket_id,doc_uid)
 
 
     @timed(op_type='get')
     def get_docs_with_filter(self,bucket_id,pattern_dict):
-        """
-        Retrieves all docs in bucket_id that match (i.e. contain) pattern_dict
 
-        Inputs:
-            (string) bucket_id, (dict of string values) pattern_dict
-
-        Outputs:
-            (list of dict) docs, (bool) didSucceed, (string) message
-
-        Usage: ::\n
-            docs,didSucceed,message = db.getDocsByPattern(bucket_id,pattern_dict)
-        """
         t = self.permStore.getDocsByPattern(constants.app_data_database_id,bucket_id,pattern_dict)
         return t
 
     @timed(op_type='set')
     def set(self,bucket_id,doc_uid,key,value):
-        """
-        Sets a {key,value} (if already exists, replaces)
-
-        Inputs:
-            (string) bucket_id, (string) doc_uid, (string) key, (string) value
-
-        Outputs:
-            (bool) didSucceed, (string) message
-
-        Usage: ::\n
-            didSucceed,message = db.set(bucket_id,doc_uid,key,value)
-        """
         try:
             response,dt = utils.timeit(self.permStore.set)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
             didSucceedPerm,messagePerm = response
@@ -573,18 +398,6 @@ class DatabaseAPI(object):
 
     @timed(op_type='set')
     def set_many(self,bucket_id,doc_uid,key_value_dict):
-        """
-        sets key, values in dict. If key does not exist, sets {key:value}
-
-        Inputs:
-            (string) bucket_id, (string) doc_uid, ({(str)key1:(float)value1,(int)key2:(float) value2}) key_value_dict
-
-        Outputs:
-            (bool) didSucceed, (string) message
-
-        Usage: ::\n
-            didSucceed,message = db.set_many(bucket_id,doc_uid,key_value_dict)
-        """
         try:
             response,dt = utils.timeit(self.permStore.set_many)(constants.app_data_database_id,bucket_id,doc_uid,key_value_dict)
             didSucceed,message = response
@@ -598,18 +411,6 @@ class DatabaseAPI(object):
 
     @timed(op_type='set')
     def delete(self,bucket_id,doc_uid,key):
-        """
-        Deletes {key:value} associated with given key
-
-        Inputs:
-            (string) bucket_id, (string) doc_uid, (string) key
-
-        Outputs:
-            (bool) didSucceed, (string) message
-
-        Usage: ::\n
-            didSucceed,message = db.delete(bucket_id,doc_uid,key)
-        """
         try:
             didSucceed,message = self.permStore.delete(constants.app_data_database_id,bucket_id,doc_uid,key)
             return didSucceed,message
@@ -618,50 +419,14 @@ class DatabaseAPI(object):
             return False,error
 
     def ensure_index(self,bucket_id,index_dict):
-        """
-        Adds index defined on index_dict to bucket_id
-
-        Inputs:
-            (string) bucket_id, (dict) index_dict
-
-        Outputs:
-            (string) index_info, (bool) didSucceed, (string) message
-
-        Usage: ::\n
-            didSucceed,message = db.get_index_info('rand_data',{'num_eyes':1,'exp_uid',1})
-        """
         didSucceed,message = self.permStore.create_index(constants.app_data_database_id,bucket_id,index_dict)
         return didSucceed,message
 
     def drop_all_indexes(self,bucket_id):
-        """
-        Deletes all indexes defined on bucket_id
-
-        Inputs:
-            (string) bucket_id
-
-        Outputs:
-            (bool) didSucceed, (string) message
-
-        Usage: ::\n
-            didSucceed,message = db.drop_all_indexes(bucket_id)
-        """
         didSucceed,message = self.permStore.drop_all_indexes(constants.app_data_database_id,bucket_id)
         return didSucceed,message
 
     def delete_docs_with_filter(self,bucket_id,pattern_dict):
-        """
-        Deletes all docs in bucket_id that match (i.e. contain) pattern_dict
-
-        Inputs:
-            (string) bucket_id, (dict of string values) pattern_dict
-
-        Outputs:
-            (bool) didSucceed, (string) message
-
-        Usage: ::\n
-            didSucceed,message = db.deleteDocsByPattern(bucket_id,key,value)
-        """
         docs,didSucceed,message = self.permStore.getDocsByPattern(constants.app_data_database_id,bucket_id,pattern_dict)
         return self.permStore.deleteDocsByPattern(constants.app_data_database_id,bucket_id,pattern_dict)
 
