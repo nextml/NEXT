@@ -208,8 +208,7 @@ class DatabaseAPI(object):
         self._bucket(bucket_id).drop_indexes()
 
     def delete_docs_with_filter(self,bucket_id,pattern_dict):
-        docs,didSucceed,message = self.permStore.getDocsByPattern(constants.app_data_database_id,bucket_id,pattern_dict)
-        return self.permStore.deleteDocsByPattern(constants.app_data_database_id,bucket_id,pattern_dict)
+        self._bucket(bucket_id).delete_many(pattern_dict)
 
     def submit_job(self,app_id,exp_uid,task,task_args_json,namespace=None,ignore_result=True,time_limit=0, alg_id=None, alg_label=None):
         if self.broker is None:

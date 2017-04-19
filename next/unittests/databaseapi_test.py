@@ -196,6 +196,16 @@ def test_indexes(db):
 	indexes = list(db._bucket(B).list_indexes())
 	assert all([i.get('key').get('a') is None for i in indexes])
 
+def test_delete_docs_with_filter(db):
+	B = 'test_delete_docs_with_filter'
+
+	db._bucket(B).insert_many([{'a': 2}, {'a': 2, 'b': 3}, {'a': 6}])
+
+	db.delete_docs_with_filter(B, {'a': 2})
+
+	docs = [{k:v for k, v in d.items() if k != '_id'} for d in db._bucket(B).find()]
+	assert docs == [{'a': 6}]
+
 # === test utils ===
 def test_to_db_fmt():
 	import cPickle
