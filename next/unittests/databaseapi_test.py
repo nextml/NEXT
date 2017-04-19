@@ -183,6 +183,19 @@ def test_delete(db):
 	db.delete(B, doc_uid, 'a')
 	assert db.get(B, doc_uid, 'a') == None
 
+def test_indexes(db):
+	B = 'test_indexes'
+
+	# index a key, 'a'. we should see that index when listing indexes.
+	db.ensure_index(B, {'a': pymongo.ASCENDING})
+	indexes = list(db._bucket(B).list_indexes())
+	assert any([i.get('key').get('a') is not None for i in indexes])
+
+	# drop indexes. we shouldn't see an index on 'a' now.
+	db.drop_all_indexes(B)
+	indexes = list(db._bucket(B).list_indexes())
+	assert all([i.get('key').get('a') is None for i in indexes])
+
 # === test utils ===
 def test_to_db_fmt():
 	import cPickle
