@@ -90,6 +90,91 @@ def test_increment_many(db):
 	assert db.get_many(B, doc_uid, ['a', 'b', 'c']) \
 					== {'a': 1, 'b': 5, 'c': -7}
 
+def test_pop_list(db):
+	B = 'test_pop_list'
+	doc = {'a': range(0, 10+1)}
+
+	doc_uid = db._bucket(B).insert_one(doc).inserted_id
+
+	assert db.pop_list(B, doc_uid, 'a', -1) == 10
+	assert db.get(B, doc_uid, 'a') == range(0, 9+1)
+
+	assert db.pop_list(B, doc_uid, 'a', 0) == 0
+	assert db.get(B, doc_uid, 'a') == range(1, 9+1)
+
+def test_append_list(db):
+	B = 'test_pop_list'
+
+	doc_uid = db._bucket(B).insert_one({'a': [1, 2, 3, 4]}).inserted_id
+
+	db.append_list(B, doc_uid, 'a', 10)
+
+	assert db.get(B, doc_uid, 'a') == [1, 2, 3, 4, 10]
+
+def test_set(db):
+	B = 'test_set_list'
+
+	doc_uid = db._bucket(B).insert_one({}).inserted_id
+
+	assert db.get(B, doc_uid, 'a') == None
+	db.set(B, doc_uid, 'a', [1,2,3,4])
+	assert db.get(B, doc_uid, 'a') == [1,2,3,4]
+	# alias of db.set()
+	db.set_list(B, doc_uid, 'a', [5,6,7,8])
+	assert db.get(B, doc_uid, 'a') == [5,6,7,8]
+
+def test_set_many(db):
+	B = 'test_set_many'
+
+	doc_uid = db._bucket(B).insert_one({}).inserted_id
+
+	assert db.get(B, doc_uid, 'a') == None
+
+	# db.set_many() takes a dict and sets multiple keys
+	db.set_many(B, doc_uid, {'a': 4, 'b': 'foo'})
+	assert db.get_doc(B, doc_uid) == {'_id': doc_uid, 'a': 4, 'b': 'foo'}
+
+def test_set_doc(db):
+	B = 'test_set_doc'
+
+	doc_uid = db._bucket(B).insert_one({}).inserted_id
+
+	assert db.get_doc(B, doc_uid) == {'_id': doc_uid}
+	db.set_doc(B, doc_uid, {'a': 5, 'b': 'foo'})
+	# assert db.get_doc
+
+def test_get_doc(db):
+	B = 'test_get_doc'
+
+	doc_uid = db._bucket(B).insert_one({'a': 3}).inserted_id
+
+	assert db.get_doc(B, doc_uid) == {'_id': doc_uid, 'a': 3}
+
+def test_get_docs_with_filter(db):
+	B = 'test_get_doc'
+
+	db._bucket(B).insert_many([
+		{'a': 3, 'b': 2},
+		{'a': 5, 'b': 2},
+		{'a': 1, 'b': 3}])
+
+	retrieved_docs = db.get_docs_with_filter(B, {'b': 2})
+	# remove `_id`s for asserts
+	retrieved_docs = [{k: v for k, v in r.items() if k != '_id'}
+		for r in retrieved_docs]
+	assert {'a': 3, 'b': 2} in retrieved_docs
+	assert {'a': 5, 'b': 2} in retrieved_docs
+	assert {'a': 1, 'b': 3} not in retrieved_docs
+
+def test_delete(db):
+	B = 'test_delete'
+
+	doc_uid = db._bucket(B).insert_one({'a': 3}).inserted_id
+
+	assert db.get(B, doc_uid, 'a') == 3
+	db.delete(B, doc_uid, 'a')
+	assert db.get(B, doc_uid, 'a') == None
+
 # === test utils ===
 def test_to_db_fmt():
 	import cPickle
