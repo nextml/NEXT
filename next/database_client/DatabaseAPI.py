@@ -245,10 +245,12 @@ class DatabaseAPI(object):
         client : PyMongo client
     """
 
-    def __init__(self, mongo_host=constants.MONGODB_HOST, mongo_port=constants.MONGODB_PORT):
-
+    def __init__(self, mongo_host=constants.MONGODB_HOST, mongo_port=constants.MONGODB_PORT,
+                    database_name=constants.app_data_database_id):
         self.client = None
         self.connect_mongo(mongo_host, mongo_port)
+
+        self.db_name = database_name
 
         self.broker = None
 
@@ -273,7 +275,7 @@ class DatabaseAPI(object):
             return False
 
     def _bucket(self, bucket_id):
-        return self.client[constants.app_data_database_id][bucket_id]
+        return self.client[self.db_name][bucket_id]
 
     def exists(self,bucket_id,doc_uid,key):
         # if the document isn't found, just set doc to an empty dict,
