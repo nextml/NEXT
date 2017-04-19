@@ -139,9 +139,16 @@ def test_set_doc(db):
 
 	doc_uid = db._bucket(B).insert_one({}).inserted_id
 
+	# replace an existing document
 	assert db.get_doc(B, doc_uid) == {'_id': doc_uid}
 	db.set_doc(B, doc_uid, {'a': 5, 'b': 'foo'})
-	# assert db.get_doc
+	assert db.get_doc(B, doc_uid) == {'_id': doc_uid,
+		'a': 5, 'b': 'foo'}
+
+	# add a new document with _id='asdf'
+	db.set_doc(B, 'asdf', {'a': 3, 'b': 'baz'})
+	assert db.get_doc(B, 'asdf') == {'_id': 'asdf',
+		'a': 3, 'b': 'baz'}
 
 def test_get_doc(db):
 	B = 'test_get_doc'
