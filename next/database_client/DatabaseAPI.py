@@ -177,7 +177,7 @@ class DatabaseAPI(object):
         self.set(bucket_id, doc_uid, key, value)
 
     def set_doc(self,bucket_id,doc_uid,doc):
-        if doc_uid:
+        if doc_uid is not None:
             doc['_id'] = doc_uid
         self._bucket(bucket_id).replace_one({"_id": doc_uid}, to_db_fmt(doc), upsert=True)
 
@@ -212,9 +212,9 @@ class DatabaseAPI(object):
         return self.permStore.deleteDocsByPattern(constants.app_data_database_id,bucket_id,pattern_dict)
 
     def submit_job(self,app_id,exp_uid,task,task_args_json,namespace=None,ignore_result=True,time_limit=0, alg_id=None, alg_label=None):
-        if self.broker == None:
+        if self.broker is None:
             self.broker = next.broker.broker.JobBroker()
-        if namespace==None:
+        if namespace is None:
             result = self.broker.applyAsync(app_id,exp_uid,task,task_args_json,ignore_result=ignore_result)
         else:
             result = self.broker.applySyncByNamespace(app_id,exp_uid,
