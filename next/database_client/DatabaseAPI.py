@@ -178,6 +178,7 @@ import pymongo
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 from bson.binary import Binary
+from bson.objectid import ObjectId
 
 import next.constants as constants
 import next.utils as utils
@@ -207,6 +208,10 @@ def to_db_fmt(x):
 
     # types that MongoDB can natively store
     if type(x) in {int, float, long, complex, str, unicode, datetime}:
+        return x
+
+    # interface types. don't repickle these
+    if type(x) in {Binary, ObjectId}:
         return x
 
     # pickle everything else, wrap in MongoDB `Binary`
@@ -363,8 +368,7 @@ class DatabaseAPI(object):
     def set_doc(self,bucket_id,doc_uid,doc):
         if doc_uid:
             doc['_id'] = doc_uid
-
-        self._bucket(bucket_id).insert_one(to_db_fmt(doc)).inserted_id
+        self._bucket(bucket_id).replace_one({"_id": doc_uid}, to_db_fmt(doc), upsert=True)
 
     @timed(op_type='get')
     def get_doc(self,bucket_id,doc_uid):
