@@ -240,6 +240,19 @@ class DatabaseAPI(object):
         client : PyMongo client
     """
 
+    def __init__(self, mongo_host=constants.MONGODB_HOST, mongo_port=constants.MONGODB_PORT):
+        self.duration_permStoreSet = 0.0
+        self.duration_permStoreGet = 0.0
+
+        self.client = None
+        self.connect_mongo(mongo_host, mongo_port)
+
+        self.broker = None
+
+    def __del__(self):
+        if self.client is not None:
+            self.client.close()
+
     def timed(op_type='set'):
         def decorator(f):
             @wraps(f)
@@ -254,19 +267,6 @@ class DatabaseAPI(object):
                 return result
             return wrapper
         return decorator
-
-    def __init__(self, mongo_host=constants.MONGODB_HOST, mongo_port=constants.MONGODB_PORT):
-        self.duration_permStoreSet = 0.0
-        self.duration_permStoreGet = 0.0
-
-        self.client = None
-        self.connect_mongo(mongo_host, mongo_port)
-
-        self.broker = None
-
-    def __del__(self):
-        if self.client is not None:
-            self.client.close()
 
     def connect_mongo(self, host, port):
         # Note: w=0 disables write acknowledgement, making PyMongo send writes
