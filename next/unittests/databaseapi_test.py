@@ -1,18 +1,19 @@
 import pytest
-import mock
+
+import pymongo
 
 from next.database_client.DatabaseAPI import to_db_fmt, from_db_fmt, DatabaseAPI
 
-# IMPORTANT NOTE: only use the `app_data` database; it gets cleared after each test session
+# IMPORTANT NOTE: only uses the `test_data` database; it gets cleared after each test session
 MONGO_HOST, MONGO_PORT = 'localhost', 27017
-
+MONGO_DB = 'test_data'
 
 # === fixtures ===
 @pytest.fixture(scope='module')
 def db():
-	db = DatabaseAPI(MONGO_HOST, MONGO_PORT)
+	db = DatabaseAPI(MONGO_HOST, MONGO_PORT, MONGO_DB)
 	yield db
-	db.client.drop_database('app_data')
+	db.client.drop_database(MONGO_DB)
 	db.client.close()
 
 # === basic tests ===
@@ -25,7 +26,7 @@ def test_reconnection(db):
 
 # === test db functions ===
 def test__bucket(db):
-	assert db._bucket('foo') == db.client['app_data']['foo']
+	assert db._bucket('foo') == db.client[MONGO_DB]['foo']
 
 def test_exists(db):
 	B = 'test_exists'
