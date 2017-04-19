@@ -10,8 +10,9 @@ import next.utils as utils
 from next.database_client.DatabaseAPI import DatabaseAPI
 
 class LoggerAPI(DatabaseAPI):
-    def __init__(self):
-        super(LoggerAPI, self).__init__(database_name=constants.logs_database_id)
+    def __init__(self, mongo_host=constants.MONGODB_HOST, mongo_port=constants.MONGODB_PORT,
+                    database_name=constants.logs_database_id):
+        super(LoggerAPI, self).__init__(mongo_host, mongo_port, database_name)
 
     def log(self,bucket_id,log_dict):
         """
@@ -38,4 +39,4 @@ class LoggerAPI(DatabaseAPI):
         Inputs: 
             (string) bucket_id, (dict of string values) pattern_dict
         """
-        self.delete_logs_with_filter(bucket_id, pattern_dict)
+        self.delete_docs_with_filter(bucket_id, pattern_dict)
