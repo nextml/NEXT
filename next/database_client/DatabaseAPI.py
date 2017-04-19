@@ -365,12 +365,10 @@ class DatabaseAPI(object):
             {'$unset': {key: True}})
 
     def ensure_index(self,bucket_id,index_dict):
-        didSucceed,message = self.permStore.create_index(constants.app_data_database_id,bucket_id,index_dict)
-        return didSucceed,message
+        self._bucket(bucket_id).create_index(index_dict.items())
 
     def drop_all_indexes(self,bucket_id):
-        didSucceed,message = self.permStore.drop_all_indexes(constants.app_data_database_id,bucket_id)
-        return didSucceed,message
+        self._bucket(bucket_id).drop_indexes()
 
     def delete_docs_with_filter(self,bucket_id,pattern_dict):
         docs,didSucceed,message = self.permStore.getDocsByPattern(constants.app_data_database_id,bucket_id,pattern_dict)
