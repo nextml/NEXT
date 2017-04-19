@@ -428,30 +428,32 @@ class DatabaseAPI(object):
         return self.get(bucket_id, doc_uid, key)
 
     @timed(op_type='get')
-    def pop_list(self, bucket_id, doc_uid, key, value):
+    def pop_list(self, bucket_id, doc_uid, key, end):
         """
         Inputs:
-            (string) bucket_id, (string) doc_uid, (string) key, (int) value
-            value=-1 pops the last item of the list
-            value=0 pops the first item of the list
+            (string) bucket_id, (string) doc_uid, (string) key, (int) end
+            end=-1 pops the last item of the list
+            end=0 pops the first item of the list
 
         Outputs:
-            (python object) value, (bool) didSucceed, (string) message
+            (python object) end, (bool) didSucceed, (string) message
 
         Usage: ::\n
-            didSucceed,message = db.pop_list(bucket_id,doc_uid,key,value)       
+            didSucceed,message = db.pop_list(bucket_id,doc_uid,key,end)       
         """
 
-        try:
-            response, dt = utils.timeit(self.permStore.pop_list)(constants.app_data_database_id,
-                                                                 bucket_id, doc_uid, key, value)
-            value, didSucceedPerm, messagePerm = response
-            self.duration_permStoreSet += dt
-            return value, didSucceedPerm, messagePerm
-        except Exception as e:
-            error = "DatabaseAPI.pop_list failed with exception: {}".format(e)
-            utils.debug_print(error)
-            return None, False, error
+        # For Mongo's $pop, 1 is the last element and -1 is the first.
+        if end == 0:
+            mongo_idx = -1
+        elif end == -1:
+            mongo_idx = 1
+        else:
+            raise DatabaseException("Can only pop first (index=0) or last (index=-1) element of list!")
+
+        val = self._bucket(bucket_id).find_and_modify({"_id": doc_uid},
+            {'$pop': {key: mongo_idx}}).get(key)
+
+        return from_db_fmt(val[end])
 
     @timed(op_type='set')
     def append_list(self,bucket_id,doc_uid,key,value):
@@ -468,14 +470,9 @@ class DatabaseAPI(object):
             didSucceed,message = db.set_list(bucket_id,doc_uid,key,value)
         """
 
-        try:
-            response,dt = utils.timeit(self.permStore.append_list)(constants.app_data_database_id,bucket_id,doc_uid,key,value)
-            didSucceedPerm,messagePerm = response
-            self.duration_permStoreSet += dt
-            return didSucceedPerm,messagePerm
-        except:
-            error = "DatabaseAPI.append_list Failed with unknown exception"
-            return False,error
+        val = to_db_fmt(value)
+        self._bucket(bucket_id).update_one({"_id": doc_uid},
+            {'$push': {key: value}}, upsert=True)
 
     @timed(op_type='set')
     def set_list(self,bucket_id,doc_uid,key,value):
