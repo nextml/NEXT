@@ -246,8 +246,6 @@ class DatabaseAPI(object):
     """
 
     def __init__(self, mongo_host=constants.MONGODB_HOST, mongo_port=constants.MONGODB_PORT):
-        self.duration_permStoreSet = 0.0
-        self.duration_permStoreGet = 0.0
 
         self.client = None
         self.connect_mongo(mongo_host, mongo_port)
@@ -257,21 +255,6 @@ class DatabaseAPI(object):
     def __del__(self):
         if self.client is not None:
             self.client.close()
-
-    def timed(op_type='set'):
-        def decorator(f):
-            @wraps(f)
-            def wrapper(self, *args, **kwargs):
-                result, dt = utils.timeit(f)(self, *args, **kwargs)
-
-                if op_type == 'set':
-                    self.duration_permStoreSet += dt
-                elif op_type == 'get':
-                    self.duration_permStoreGet += dt
-
-                return result
-            return wrapper
-        return decorator
 
     def connect_mongo(self, host, port):
         # Note: w=0 disables write acknowledgement, making PyMongo send writes
@@ -292,7 +275,6 @@ class DatabaseAPI(object):
     def _bucket(self, bucket_id):
         return self.client[constants.app_data_database_id][bucket_id]
 
-    @timed(op_type='get')
     def exists(self,bucket_id,doc_uid,key):
         # if the document isn't found, just set doc to an empty dict,
         # so that any .get(key) call returns None
@@ -300,12 +282,10 @@ class DatabaseAPI(object):
             projection={key: True}) or {}
         return doc.get(key) is not None
 
-    @timed(op_type='get')
     def get(self,bucket_id,doc_uid,key):
         val = self._bucket(bucket_id).find_one({"_id": doc_uid}, {key: True}).get(key)
         return from_db_fmt(val)
 
-    @timed(op_type='get')
     def get_many(self,bucket_id,doc_uid,key_list):
         projection = {k: True for k in key_list}
         doc = self._bucket(bucket_id).find_one({"_id": doc_uid}, projection)
@@ -313,20 +293,17 @@ class DatabaseAPI(object):
 
         return from_db_fmt(val)
 
-    @timed(op_type='get')
     def get_and_delete(self,bucket_id,doc_uid,key):
         doc = self._bucket(bucket_id).find_one_and_update({"_id": doc_uid},
             update={'$unset': {key: ''}}, projection={key: True})
 
         return from_db_fmt(doc.get(key))
 
-    @timed(op_type='set')
     def increment(self,bucket_id,doc_uid,key,value=1):
         return self._bucket(bucket_id).find_one_and_update({"_id": doc_uid},
             update={'$inc': {key: value}}, projection={key: True},
             new=True, upsert=True).get(key)
 
-    @timed(op_type='set')
     def increment_many(self,bucket_id,doc_uid,key_value_dict):
         projection = {k: True for k in key_value_dict.keys()}
         values = {k: v for k, v in key_value_dict.items() if v != 0}
@@ -336,11 +313,9 @@ class DatabaseAPI(object):
 
         return {k: new_doc.get(k) for k in key_value_dict.keys()}
 
-    @timed(op_type='get')
     def get_list(self,bucket_id,doc_uid,key):
         return self.get(bucket_id, doc_uid, key)
 
-    @timed(op_type='get')
     def pop_list(self, bucket_id, doc_uid, key, end):
         # For Mongo's $pop, 1 is the last element and -1 is the first.
         if end == 0:
@@ -355,42 +330,34 @@ class DatabaseAPI(object):
 
         return from_db_fmt(val[end])
 
-    @timed(op_type='set')
     def append_list(self,bucket_id,doc_uid,key,value):
         self._bucket(bucket_id).update_one({"_id": doc_uid},
             {'$push': {key: to_db_fmt(value)}}, upsert=True)
 
-    @timed(op_type='set')
     def set_list(self,bucket_id,doc_uid,key,value):
         self.set(bucket_id, doc_uid, key, value)
 
-    @timed(op_type='set')
     def set_doc(self,bucket_id,doc_uid,doc):
         if doc_uid:
             doc['_id'] = doc_uid
         self._bucket(bucket_id).replace_one({"_id": doc_uid}, to_db_fmt(doc), upsert=True)
 
-    @timed(op_type='get')
     def get_doc(self,bucket_id,doc_uid):
         return from_db_fmt(self._bucket(bucket_id).find_one({"_id": doc_uid}))
 
-    @timed(op_type='get')
     def get_docs_with_filter(self,bucket_id,pattern_dict):
         docs_cursor = self._bucket(bucket_id).find(pattern_dict)
 
         return [from_db_fmt(doc) for doc in docs_cursor]
 
-    @timed(op_type='set')
     def set(self,bucket_id,doc_uid,key,value):
         self._bucket(bucket_id).update_one({"_id": doc_uid},
             {'$set': {key: to_db_fmt(value)}}, upsert=True)
 
-    @timed(op_type='set')
     def set_many(self,bucket_id,doc_uid,key_value_dict):
         self._bucket(bucket_id).update_one({"_id": doc_uid},
             {'$set': to_db_fmt(key_value_dict)})
 
-    @timed(op_type='set')
     def delete(self,bucket_id,doc_uid,key):
         self._bucket(bucket_id).update_one({"_id": doc_uid},
             {'$unset': {key: True}})
