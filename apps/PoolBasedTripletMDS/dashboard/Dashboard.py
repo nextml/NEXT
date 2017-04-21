@@ -32,7 +32,7 @@ class MyAppDashboard(AppDashboard):
 
         for algorithm in args['alg_list']:
             alg_label = algorithm['alg_label']
-            list_of_log_dict,didSucceed,message = butler.ell.get_logs_with_filter(app.app_id+':ALG-EVALUATION',{'exp_uid':app.exp_uid, 'alg_label':alg_label})
+            list_of_log_dict = butler.ell.get_logs_with_filter(app.app_id+':ALG-EVALUATION',{'exp_uid':app.exp_uid, 'alg_label':alg_label})
             list_of_log_dict = sorted(list_of_log_dict, key=lambda item: utils.str2datetime(item['timestamp']) )
             x = []
             y = []
