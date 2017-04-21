@@ -33,9 +33,13 @@ class SimpleTargetManager(object):
         Get a target from the targetset. Th
         """
         # Get an individual target form the DB given exp_uid and index
-        got_target, didSucceed, message = self.db.get_docs_with_filter(self.bucket_id,
-                                                                       {'exp_uid': exp_uid,
-                                                                        'target_id': target_id})
+        try:
+            got_target = self.db.get_docs_with_filter(self.bucket_id,
+                                                      {'exp_uid': exp_uid,
+                                                      'target_id': target_id})
+        except e:
+            raise Exception("Failed to get_target_item: " + str(e))
+
         try:
             # targets are something else
             target = got_target.pop(0)
@@ -46,8 +50,6 @@ class SimpleTargetManager(object):
                       'primary_type':'text',
                       'alt_description':str(target_id),
                       'alt_type':'text'}
-        if not didSucceed:
-            raise Exception("Failed to get_target_item given index: {}".format(message))
         # This line might fail; only tested under the except: statement above
         #del target['exp_uid']
         return target
