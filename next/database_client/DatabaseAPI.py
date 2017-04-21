@@ -107,6 +107,9 @@ class DatabaseAPI(object):
         if not self.is_connected():
             raise DatabaseException("Server not available!")
 
+    def close():
+        self.client.close()
+
     def is_connected(self):
         try:
             # The `ismaster` command is very cheap and does not require authentication

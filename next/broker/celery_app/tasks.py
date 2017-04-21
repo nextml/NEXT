@@ -7,20 +7,58 @@ import time
 import json
 import traceback
 import numpy
-from next.constants import DEBUG_ON
 import hashlib
 
-# import next.logging_client.LoggerHTTP as ell
-from next.database_client.DatabaseAPI import DatabaseAPI
-db = DatabaseAPI()
-from next.logging_client.LoggerAPI import LoggerAPI
-ell = LoggerAPI()
 import next.utils
 import next.constants
-import next.apps.Butler as Butler
+from next.constants import DEBUG_ON
+
+from next.database_client.DatabaseAPI import DatabaseAPI, DatabaseException
+from next.logging_client.LoggerAPI import LoggerAPI
+
+from next.apps.Butler import Butler
 import next.lib.pijemont.verifier as verifier
 
-Butler = Butler.Butler
+db, ell = None, None
+
+def worker_connect_db():
+    global db, ell
+    print("Initializing worker database connection")
+    backoff_dt = 0.01
+    while True:
+        try:
+            db, ell = DatabaseAPI(), LoggerAPI()
+            break
+        except DatabaseException as e:
+            print("Failed to connect to database ({}), retrying in {}s".format(e, backoff_dt))
+            time.sleep(backoff_dt)
+            backoff_dt *= 2
+
+
+# if we're not using celery, just initialize the database globally
+if next.constants.CELERY_ON:
+    worker_connect_db()
+
+# runs for each worker process spawned by Celery
+# we initialize the DatabaseAPI per worker here
+@celery.signals.worker_process_init.connect
+def on_connect(**kwargs):
+    # make sure every worker has a different random seed (very important for randomized algorithms)
+    numpy.random.seed()
+
+    worker_connect_db()
+
+# runs when each Celery worker process shuts down
+# we'll close the database connections here
+@celery.signals.worker_process_shutdown.connect
+def on_shutdown(**kwargs):
+    global db, ell
+    if db:
+        print("Closing worker's database connections")
+        db.close()
+    if ell:
+        print("Closing worker's logger connections")
+        ell.close()
 
 class App_Wrapper:
         def __init__(self, app_id, exp_uid, db, ell):
@@ -163,14 +201,6 @@ def apply_sync_by_namespace(app_id, exp_uid, alg_id, alg_label, task_name, args,
 		# log_entry = { 'exp_uid':exp_uid,'task':'daemonProcess','error':error,'timestamp':next.utils.datetimeNow() } 
 		# ell.log( app_id+':APP-EXCEPTION', log_entry  )
 		return None
-
-# forces each worker to get its own random seed. 
-@celery.signals.worker_process_init.connect()
-def seed_rng(**_):
-    """
-    Seeds the numpy random number generator.
-    """
-    numpy.random.seed()
 
 # If celery isn't off, celery-wrap the functions so they can be called with apply_async
 if next.constants.CELERY_ON:
