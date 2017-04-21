@@ -63,6 +63,10 @@ def from_db_fmt(x):
     if isinstance(x, dict):
         return {k: from_db_fmt(v) for k, v in x.items()}
 
+    # further code occasionally serializes `ObjectId`s to json, so stringify them now
+    if isinstance(x, ObjectId):
+        return str(x)
+
     if isinstance(x, Binary):
         # this might be pickled data; let's attempt to deserialize it
         try:
