@@ -153,7 +153,7 @@ class Collection(object):
         return decorator
 
 
-    @timed
+    @timed(op_type='set')
     def set(self, uid="", key=None, value=None, exp=None):
         """
         Set an object in the collection, or an entry in an object in the collection.
@@ -166,7 +166,7 @@ class Collection(object):
         else:
             self.db.set(self.collection, uid, key, value)
 
-    @timed
+    @timed(op_type='set')
     def set_many(self, uid="", key_value_dict=None, exp=None):
         """
         For each key in key_value_dict, sets value by key_value_dict[key]
@@ -232,7 +232,7 @@ class Collection(object):
         uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp is None else exp))
         return self.db.increment_many(self.collection, uid, key_value_dict)
 
-    @timed
+    @timed(op_type='set')
     def append(self, uid="", key=None, value=None, exp=None):
         """
         Append a value to collection[uid][key] (which is assumed to be a list)
