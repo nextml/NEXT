@@ -104,12 +104,11 @@ def test_pop_list(db):
     assert db.get(B, doc_uid, 'a') == range(1, 9+1)
 
 def test_append_list(db):
-    B = 'test_pop_list'
+    B = 'test_append_list'
 
     doc_uid = db._bucket(B).insert_one({'a': [1, 2, 3, 4]}).inserted_id
 
-    db.append_list(B, doc_uid, 'a', 10)
-
+    assert db.append_list(B, doc_uid, 'a', 10) == [1, 2, 3, 4, 10]
     assert db.get(B, doc_uid, 'a') == [1, 2, 3, 4, 10]
 
 def test_set(db):
