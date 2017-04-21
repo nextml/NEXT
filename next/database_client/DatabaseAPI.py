@@ -170,8 +170,8 @@ class DatabaseAPI(object):
         return from_db_fmt(val[end])
 
     def append_list(self,bucket_id,doc_uid,key,value):
-        self._bucket(bucket_id).update_one({"_id": doc_uid},
-            {'$push': {key: to_db_fmt(value)}}, upsert=True)
+        return self._bucket(bucket_id).find_one_and_update({"_id": doc_uid},
+            {'$push': {key: to_db_fmt(value)}}, new=True, upsert=True).get(key)
 
     def set_list(self,bucket_id,doc_uid,key,value):
         self.set(bucket_id, doc_uid, key, value)
