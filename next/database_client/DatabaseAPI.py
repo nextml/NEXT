@@ -179,7 +179,9 @@ class DatabaseAPI(object):
     def set_doc(self,bucket_id,doc_uid,doc):
         if doc_uid is not None:
             doc['_id'] = doc_uid
-        self._bucket(bucket_id).replace_one({"_id": doc_uid}, to_db_fmt(doc), upsert=True)
+            self._bucket(bucket_id).replace_one({"_id": doc_uid}, to_db_fmt(doc), upsert=True)
+        else:
+            self._bucket(bucket_id).insert_one(to_db_fmt(doc))
 
     def get_doc(self,bucket_id,doc_uid):
         return from_db_fmt(self._bucket(bucket_id).find_one({"_id": doc_uid}))
