@@ -22,31 +22,36 @@ import next.lib.pijemont.verifier as verifier
 db, ell = None, None
 
 def worker_connect_db():
-    global db, ell
-    print("Initializing worker database connection")
+    next.utils.debug_print("Initializing worker database connection")
     backoff_dt = 0.01
     while True:
         try:
             db, ell = DatabaseAPI(), LoggerAPI()
             break
         except DatabaseException as e:
-            print("Failed to connect to database ({}), retrying in {}s".format(e, backoff_dt))
+            next.utils.debug_print("Failed to connect to database ({}), retrying in {}s".format(e, backoff_dt))
             time.sleep(backoff_dt)
             backoff_dt *= 2
 
+            # If we've tried too many times, make the database failure /loud/.
+            if backoff_dt > 1:
+                raise e
+
+    return db, ell
 
 # if we're not using celery, just initialize the database globally
 if next.constants.CELERY_ON:
-    worker_connect_db()
+    db, ell = worker_connect_db()
 
 # runs for each worker process spawned by Celery
 # we initialize the DatabaseAPI per worker here
 @celery.signals.worker_process_init.connect
 def on_connect(**kwargs):
+    global db, ell
     # make sure every worker has a different random seed (very important for randomized algorithms)
     numpy.random.seed()
 
-    worker_connect_db()
+    db, ell = worker_connect_db()
 
 # runs when each Celery worker process shuts down
 # we'll close the database connections here
@@ -54,10 +59,10 @@ def on_connect(**kwargs):
 def on_shutdown(**kwargs):
     global db, ell
     if db:
-        print("Closing worker's database connections")
+        next.utils.debug_print("Closing worker's database connections")
         db.close()
     if ell:
-        print("Closing worker's logger connections")
+        next.utils.debug_print("Closing worker's logger connections")
         ell.close()
 
 class App_Wrapper:
