@@ -94,7 +94,7 @@ class AppDashboard(object):
       alg_label = algorithm['alg_label']
       list_of_log_dict = butler.ell.get_logs_with_filter(app.app_id+':ALG-DURATION',
                                                                             {'exp_uid':app.exp_uid,'alg_label':alg_label,'task':task})
-      list_of_log_dict = sorted(list_of_log_dict, key=lambda item: item['timestamp'] )
+      list_of_log_dict = sorted(list_of_log_dict, key=lambda item: utils.str2datetime(item['timestamp']) )
       
       x = []
       y = []
@@ -174,7 +174,7 @@ class AppDashboard(object):
     """
     list_of_log_dict = butler.ell.get_logs_with_filter(app.app_id+':ALG-DURATION',
                                                                           {'exp_uid':app.exp_uid,'alg_label':alg_label,'task':task})
-    list_of_log_dict = sorted(list_of_log_dict, key=lambda item: item['timestamp'] )
+    list_of_log_dict = sorted(list_of_log_dict, key=lambda item: utils.str2datetime(item['timestamp']) )
 
     y = []
     for item in list_of_log_dict:
