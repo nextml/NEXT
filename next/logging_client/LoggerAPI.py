@@ -7,12 +7,20 @@ Rewritten by: Liam Marshall <limarshall@wisc.edu>, 2017/04/19
 
 import next.constants as constants
 import next.utils as utils
+import datetime
 from next.database_client.DatabaseAPI import DatabaseAPI
 
 class LoggerAPI(DatabaseAPI):
     def __init__(self, mongo_host=constants.MONGODB_HOST, mongo_port=constants.MONGODB_PORT,
                     database_name=constants.logs_database_id):
         super(LoggerAPI, self).__init__(mongo_host, mongo_port, database_name)
+
+
+    def _normalize_logentry(self, log):
+        if log.get('timestamp') and isinstance(log.get('timestamp'), datetime.datetime):
+            log['timestamp'] = str(log['timestamp'])
+
+        return log
 
     def log(self,bucket_id,log_dict):
         """
@@ -30,7 +38,8 @@ class LoggerAPI(DatabaseAPI):
         Inputs: 
             (string) bucket_id, (dict of string values) pattern_dict
         """
-        return self.get_docs_with_filter(bucket_id, pattern_dict)
+        return [self._normalize_logentry(d)
+            for d in self.get_docs_with_filter(bucket_id, pattern_dict)]
 
     def delete_logs_with_filter(self,bucket_id,pattern_dict):
         """
