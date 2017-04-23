@@ -57,7 +57,6 @@ def on_connect(**kwargs):
 # we'll close the database connections here
 @celery.signals.worker_process_shutdown.connect
 def on_shutdown(**kwargs):
-    global db, ell
     if db:
         next.utils.debug_print("Closing worker's database connections")
         db.close()
