@@ -126,13 +126,14 @@ def test_set(db):
 def test_set_many(db):
     B = 'test_set_many'
 
-    doc_uid = db._bucket(B).insert_one({}).inserted_id
+    doc_uid = db._bucket(B).insert_one({'a': 3, 'x': 'bar'}).inserted_id
 
-    assert db.get(B, doc_uid, 'a') == None
+    assert db.get(B, doc_uid, 'a') == 3
+    assert db.get(B, doc_uid, 'x') == 'bar'
 
     # db.set_many() takes a dict and sets multiple keys
     db.set_many(B, doc_uid, {'a': 4, 'b': 'foo'})
-    assert db.get_doc(B, doc_uid) == {'_id': doc_uid, 'a': 4, 'b': 'foo'}
+    assert db.get_doc(B, doc_uid) == {'_id': str(doc_uid), 'a': 4, 'b': 'foo', 'x': 'bar'}
 
 def test_set_doc(db):
     B = 'test_set_doc'
@@ -140,9 +141,9 @@ def test_set_doc(db):
     doc_uid = db._bucket(B).insert_one({}).inserted_id
 
     # replace an existing document
-    assert db.get_doc(B, doc_uid) == {'_id': doc_uid}
+    assert db.get_doc(B, doc_uid) == {'_id': str(doc_uid)}
     db.set_doc(B, doc_uid, {'a': 5, 'b': 'foo'})
-    assert db.get_doc(B, doc_uid) == {'_id': doc_uid,
+    assert db.get_doc(B, doc_uid) == {'_id': str(doc_uid),
         'a': 5, 'b': 'foo'}
 
     # add a new document with _id='asdf'
@@ -155,7 +156,7 @@ def test_get_doc(db):
 
     doc_uid = db._bucket(B).insert_one({'a': 3}).inserted_id
 
-    assert db.get_doc(B, doc_uid) == {'_id': doc_uid, 'a': 3}
+    assert db.get_doc(B, doc_uid) == {'_id': str(doc_uid), 'a': 3}
 
 def test_get_docs_with_filter(db):
     B = 'test_get_doc'
