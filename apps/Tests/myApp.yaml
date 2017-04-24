@@ -1,0 +1,12 @@
+extends: [base.yaml]
+initExp:
+  args:
+    app_id:
+      values: [Tests]
+    args:
+      values:
+        alg_list:
+          values:
+            values:
+              alg_id:
+                values: [TestAlg]
