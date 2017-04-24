@@ -48,7 +48,9 @@ if next.constants.CELERY_ON:
 @celery.signals.worker_process_init.connect
 def on_connect(**kwargs):
     global db, ell
-    # make sure every worker has a different random seed (very important for randomized algorithms)
+    # make sure every worker has a different random seed
+    # by default `seed` reads from /dev/urandom or seeds from clock
+    # and as of celery 3.1.25, kwargs doesn't contain any unique info per worker
     numpy.random.seed()
 
     db, ell = worker_connect_db()
