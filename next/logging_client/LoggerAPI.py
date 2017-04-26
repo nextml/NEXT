@@ -1,8 +1,6 @@
 """
 API for logging to a log database.
 Kept for backwards-compatibility.
-
-Rewritten by: Liam Marshall <limarshall@wisc.edu>, 2017/04/19
 """
 
 import next.constants as constants

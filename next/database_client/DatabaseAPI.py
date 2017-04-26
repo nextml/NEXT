@@ -1,7 +1,5 @@
 """
 Layer for interfacing with Mongo.
-
-Rewritten by: Liam Marshall <limarshall@wisc.edu>, 2017/04/19
 """
 
 import cPickle
