@@ -105,7 +105,7 @@ def test_pop_list(db):
 
     # popping from an empty list should raise an exception
     db.set(B, doc_uid, 'a', [])
-    with pytest.raises(DatabaseException):
+    with pytest.raises(IndexError):
         db.pop_list(B, doc_uid, 'a', 0)
 
 def test_append_list(db):

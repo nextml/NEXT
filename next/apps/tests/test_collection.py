@@ -93,7 +93,7 @@ def test_pop(db):
     assert db.get(B, 'f', 'a') == [1]
     assert c.pop('f', 'a') == 1
     assert db.get(B, 'f', 'a') == []
-    with pytest.raises(DatabaseException):
+    with pytest.raises(IndexError):
         c.pop('f', 'a')
 
     # TODO: test pop from head

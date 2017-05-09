@@ -175,7 +175,7 @@ class DatabaseAPI(object):
         try:
             return from_db_fmt(val[end])
         except IndexError:
-            raise DatabaseException("Cannot pop from empty list!")
+            raise IndexError("Cannot pop from empty list!")
 
     def append_list(self,bucket_id,doc_uid,key,value):
         return self._bucket(bucket_id).find_one_and_update({"_id": doc_uid},
