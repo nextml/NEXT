@@ -172,7 +172,10 @@ class DatabaseAPI(object):
         val = self._bucket(bucket_id).find_and_modify({"_id": doc_uid},
             {'$pop': {key: mongo_idx}}).get(key)
 
-        return from_db_fmt(val[end])
+        try:
+            return from_db_fmt(val[end])
+        except IndexError:
+            raise DatabaseException("Cannot pop from empty list!")
 
     def append_list(self,bucket_id,doc_uid,key,value):
         return self._bucket(bucket_id).find_one_and_update({"_id": doc_uid},

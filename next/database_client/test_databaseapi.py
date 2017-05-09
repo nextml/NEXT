@@ -2,7 +2,7 @@ import pytest
 
 import pymongo
 
-from next.database_client.DatabaseAPI import to_db_fmt, from_db_fmt, DatabaseAPI
+from next.database_client.DatabaseAPI import to_db_fmt, from_db_fmt, DatabaseAPI, DatabaseException
 
 # IMPORTANT NOTE: only uses the `test_data` database; it gets cleared after each test session
 MONGO_HOST, MONGO_PORT = 'localhost', 27017
@@ -102,6 +102,11 @@ def test_pop_list(db):
 
     assert db.pop_list(B, doc_uid, 'a', 0) == 0
     assert db.get(B, doc_uid, 'a') == range(1, 9+1)
+
+    # popping from an empty list should raise an exception
+    db.set(B, doc_uid, 'a', [])
+    with pytest.raises(DatabaseException):
+        db.pop_list(B, doc_uid, 'a', 0)
 
 def test_append_list(db):
     B = 'test_append_list'
