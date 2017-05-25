@@ -842,7 +842,7 @@ class PermStore(object):
         try:
             dict_return = self.client[database_id][bucket_id].delete_one( filter_dict  )
             return True,str(dict_return)
-        except Exception, err:
+        except Exception as err:
             error = traceback.format_exc()
             return False,error
 

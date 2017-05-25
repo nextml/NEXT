@@ -5,6 +5,7 @@ last updated: 9/16/15
 
 Flask controller for dashboards.
 """
+from __future__ import print_function
 import os
 import json
 import yaml
@@ -56,7 +57,7 @@ def experiment_list():
                                     'num_participants':len(rm.get_participant_uids(exp_uid)),
                                     })
             except IndexError as e:
-                print e
+                print(e)
                 pass
 
     if constants.SITE_KEY:

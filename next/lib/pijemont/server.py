@@ -1,6 +1,8 @@
+from __future__ import print_function
+from __future__ import absolute_import
 from flask import Flask, request, render_template
 import json, sys, verifier
-import doc as doc_gen
+from . import doc as doc_gen
 app = Flask(__name__, static_url_path='/static')
 
 @app.route('/doc/<string:form>')

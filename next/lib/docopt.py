@@ -6,6 +6,7 @@
  * Copyright (c) 2013 Vladimir Keleshev, vladimir@keleshev.com
 
 """
+from __future__ import print_function
 import sys
 import re
 

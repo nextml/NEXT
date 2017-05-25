@@ -1,3 +1,4 @@
+from __future__ import print_function
 import yaml
 import random
 import sys
@@ -140,10 +141,10 @@ def debug_print(*args, **kwargs):
         if type(a) in {str}:
             lines = a.split('\n')
             for line in lines:
-                print '{}{}{}'.format(color_ansi[color], line, color_ansi['reset all'])
+                print('{}{}{}'.format(color_ansi[color], line, color_ansi['reset all']))
         else:
-            print '{}{}{}'.format(color_ansi[color], a, color_ansi['reset all'])
-    print ''
+            print('{}{}{}'.format(color_ansi[color], a, color_ansi['reset all']))
+    print('')
 
 def random_string(length=20):
     letters = list('qwertyuiopasdfghkjlzxcvbnm')

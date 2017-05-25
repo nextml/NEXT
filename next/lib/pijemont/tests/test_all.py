@@ -9,6 +9,7 @@ The following command will print sys.stdout
     py.test -s
 
 """
+from __future__ import print_function
 
 import json, sys, yaml, os
 from pprint import pprint

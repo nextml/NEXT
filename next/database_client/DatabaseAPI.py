@@ -166,6 +166,7 @@ Retrieve all logs involving the algorithm alg_id='LUCB' of exp_uid='W0DA0DJAD9JA
     list_of_log_dict,didSucceed,message = db.getLogsByPattern(app_id,filter_dict)
 
 """
+from __future__ import print_function
 
 import next.constants as constants
 import next.utils as utils
@@ -177,7 +178,7 @@ import cPickle
 try:
     import next.broker.broker
 except:
-    print "Warning: you will not be able to submit jobs to the broker"
+    print("Warning: you will not be able to submit jobs to the broker")
     pass
 
 

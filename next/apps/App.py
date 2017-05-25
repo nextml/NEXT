@@ -106,7 +106,7 @@ class App(object):
             args_dict['git_hash'] = git_hash
             self.butler.experiment.set(value=args_dict)
             return '{}', True, ''
-        except Exception, error:
+        except Exception as error:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             full_error = str(traceback.format_exc())+'\n'+str(error)
             utils.debug_print("initExp Exception: " + full_error, color='red')
@@ -176,7 +176,7 @@ class App(object):
                               'query_uid':query_uid})
             self.butler.queries.set(uid=query_uid, value=query_doc)
             return json.dumps({'args':query_doc,'meta':{'log_entry_durations':self.log_entry_durations}}), True,''
-        except Exception, error:
+        except Exception as error:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             full_error = str(traceback.format_exc())+'\n'+str(error)
             utils.debug_print("getQuery Exception: " + full_error, color='red')
@@ -206,7 +206,7 @@ class App(object):
 
             return json.dumps({'args': {}, 'meta': {'log_entry_durations':self.log_entry_durations}}), True, ''
         
-        except Exception, error:
+        except Exception as error:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             full_error = str(traceback.format_exc())+'\n'+str(error)
             utils.debug_print("processAnswer Exception: " + full_error, color='red')
@@ -237,7 +237,7 @@ class App(object):
             return json.dumps({'args': myapp_response,
                                'meta': {'log_entry_durations':self.log_entry_durations,
                                         'timestamp': str(utils.datetimeNow())}}), True, ''
-        except Exception, error:
+        except Exception as error:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             full_error = str(traceback.format_exc())+'\n'+str(error)
             utils.debug_print("getModel Exception: " + full_error, color='red')
