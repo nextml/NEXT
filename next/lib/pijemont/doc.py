@@ -1,3 +1,4 @@
+from builtins import str
 import json, sys, yaml, verifier
 
 def get_docs(filename,base_path):

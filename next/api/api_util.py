@@ -6,6 +6,7 @@ Author: Lalit Jain, lalitkumarj@gmail.com
 """
 from __future__ import print_function
 
+from builtins import str
 import time
 
 def timeit(f):
@@ -42,7 +43,7 @@ def attach_meta(response, meta, **kwargs):
 
     Usage: :\n
     """
-    for k, v in kwargs.iteritems():
+    for k, v in kwargs.items():
         meta[k] = v
         
     response["meta"] = meta

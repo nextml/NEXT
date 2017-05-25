@@ -1,4 +1,7 @@
 from __future__ import print_function
+from builtins import str
+from builtins import next
+from builtins import range
 import yaml
 import random
 import sys

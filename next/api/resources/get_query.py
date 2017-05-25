@@ -3,6 +3,7 @@ next_backend Query Resource
 Query resource for handling restful querying of experiments in next_backend. 
 """
 
+from builtins import str
 from flask_restful import Resource, reqparse
 
 import json
@@ -51,7 +52,7 @@ class getQuery(Resource):
         # Fetch app_id data from resource manager
         app_id = resource_manager.get_app_id(exp_uid)
         # Standardized participant_uid
-        if 'participant_uid' in args_data['args'].keys():
+        if 'participant_uid' in list(args_data['args'].keys()):
             args_data['args']['participant_uid'] = exp_uid+"_" + \
                                 str(args_data['args']['participant_uid'])
 

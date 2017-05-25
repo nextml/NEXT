@@ -1,3 +1,6 @@
+from builtins import str
+from builtins import range
+from builtins import object
 import next.utils as utils
 
 class SimpleTargetManager(object):
@@ -58,7 +61,7 @@ class SimpleTargetManager(object):
             raise DatabaseException("Failed to get_target_mapping: %s"%(message))
         # Pop target_blob_dict out of list
         for i in range(len(mongotized_target_blob)):
-            if 'targetless' in mongotized_target_blob[i].keys():
+            if 'targetless' in list(mongotized_target_blob[i].keys()):
                 mongotized_target_blob.pop(i)
                 break
         try:

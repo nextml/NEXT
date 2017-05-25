@@ -1,4 +1,5 @@
 from __future__ import print_function
+from builtins import str
 import sys
 import random
 import traceback
@@ -82,14 +83,14 @@ class ExperimentAssistant(Resource):
         else:
             args['upload'] = True
 
-        utils.debug_print('args.keys() = ', args.keys())
+        utils.debug_print('args.keys() = ', list(args.keys()))
 
         args['args'] = yaml.load(args['args'])
 
         try:
             init_exp_args = args['args']
-            utils.debug_print("args.keys = ", args['args'].keys())
-            if 'targets' in args.keys():
+            utils.debug_print("args.keys = ", list(args['args'].keys()))
+            if 'targets' in list(args.keys()):
                 target_zipfile = args['targets']
                 utils.debug_print("args = ", args)
                 if args.get('upload', True):

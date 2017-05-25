@@ -1,5 +1,9 @@
 from __future__ import absolute_import
 from __future__ import print_function
+from __future__ import division
+from builtins import str
+from builtins import object
+
 from .celery_broker import app
 import celery.signals
 import os
@@ -23,7 +27,7 @@ import next.lib.pijemont.verifier as verifier
 
 Butler = Butler.Butler
 
-class App_Wrapper:
+class App_Wrapper(object):
         def __init__(self, app_id, exp_uid, db, ell):
                 self.app_id = app_id
                 self.exp_uid = exp_uid
@@ -35,7 +39,7 @@ class App_Wrapper:
                 args_out_json,didSucceed,message = response
                 args_out_dict = json.loads(args_out_json)
                 meta = args_out_dict.get('meta',{})
-                if 'log_entry_durations' in meta.keys():
+                if 'log_entry_durations' in list(meta.keys()):
                         self.log_entry_durations = meta['log_entry_durations']
                         self.log_entry_durations['timestamp'] = next.utils.datetimeNow()                  
                 return args_out_dict['args']
@@ -45,7 +49,7 @@ def apply(app_id, exp_uid, task_name, args_in_json, enqueue_timestamp):
 	enqueue_datetime = next.utils.str2datetime(enqueue_timestamp)
 	dequeue_datetime = next.utils.datetimeNow()
 	delta_datetime = dequeue_datetime - enqueue_datetime
-	time_enqueued = delta_datetime.seconds + delta_datetime.microseconds/1000000.
+	time_enqueued = delta_datetime.seconds + delta_datetime.microseconds / 1000000
 
 	# modify args_in
 	if task_name == 'processAnswer':
@@ -77,7 +81,7 @@ def apply_dashboard(app_id, exp_uid, args_in_json, enqueue_timestamp):
 	enqueue_datetime = next.utils.str2datetime(enqueue_timestamp)
 	dequeue_datetime = next.utils.datetimeNow()
 	delta_datetime = dequeue_datetime - enqueue_datetime
-	time_enqueued = delta_datetime.seconds + delta_datetime.microseconds/1000000.
+	time_enqueued = delta_datetime.seconds + delta_datetime.microseconds / 1000000
         dir, _ = os.path.split(__file__)
         reference_dict,errs = verifier.load_doc('{}/myApp.yaml'.format(app_id, app_id),"apps/")
         if len(errs) > 0:
@@ -101,10 +105,10 @@ def apply_dashboard(app_id, exp_uid, args_in_json, enqueue_timestamp):
             if 'meta' not in cached_response:
               cached_response['meta']={}
             cached_response['meta']['cached'] = 1
-            if delta_datetime.seconds/60<1:
+            if delta_datetime.seconds/60 < 1:
                 cached_response['meta']['last_dashboard_update'] = '<1 minute ago'
             else:
-                cached_response['meta']['last_dashboard_update'] = str(delta_datetime.seconds/60)+' minutes ago'
+                cached_response['meta']['last_dashboard_update'] = str(delta_datetime.seconds // 60) + ' minutes ago'
 
         if cached_response==None:
             dashboard_string = 'apps.' + app_id + '.dashboard.Dashboard'
@@ -137,7 +141,7 @@ def apply_sync_by_namespace(app_id, exp_uid, alg_id, alg_label, task_name, args,
 	enqueue_datetime = next.utils.str2datetime(enqueue_timestamp)
 	dequeue_datetime = next.utils.datetimeNow()
 	delta_datetime = dequeue_datetime - enqueue_datetime
-	time_enqueued = delta_datetime.seconds + delta_datetime.microseconds/1000000.
+	time_enqueued = delta_datetime.seconds + delta_datetime.microseconds / 1000000
 
 	try:
 		print('>>>>>>>> Starting namespace:%s,  job_uid=%s,  time_enqueued=%s <<<<<<<<<' % (namespace,job_uid,time_enqueued))

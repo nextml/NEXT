@@ -1,4 +1,6 @@
 from __future__ import print_function
+from builtins import str
+from builtins import object
 import next.utils as utils
 
 from datetime import datetime,timedelta
@@ -16,7 +18,7 @@ import json
 import time
 import next.utils as utils
 
-class JobBroker:
+class JobBroker(object):
 
     # Initialization method for the broker
     def __init__(self):

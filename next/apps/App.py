@@ -7,6 +7,8 @@ of an app is verified before creation.
 """
 
 # TODO: include docstrings (copy and paste from PoolBasedTripletsMDS.py)
+from builtins import str
+from builtins import object
 import os
 import sys
 import numpy

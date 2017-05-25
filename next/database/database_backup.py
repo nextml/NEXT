@@ -8,6 +8,7 @@ simply download the file from S3, un-tar it, and use the command:
 where {hostname} and {port} are as they are below
 """
 from __future__ import print_function
+from builtins import str
 import sys
 sys.path.append("/next_backend")
 

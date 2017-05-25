@@ -9,7 +9,10 @@ example use:
 get a tripletMDS query:
 curl -X GET http://localhost:8001/api/experiment/[exp_uid]/participants
 '''
-from StringIO import StringIO
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from io import StringIO
 import pandas as pd
 from flask import Flask, send_file, request, abort
 from flask_restful import Resource, reqparse

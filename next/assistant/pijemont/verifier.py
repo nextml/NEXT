@@ -1,4 +1,6 @@
 from __future__ import print_function
+from builtins import str
+from builtins import range
 import yaml, json
 import random
 import traceback
@@ -172,11 +174,11 @@ def verify_helper(name, input_element, reference_dict):
             ans += [{"name":name, "message":"invalid boolean"}]
 
     elif reference_dict['type'] in NUM:
-        if not isinstance(input_element, (int, long, float)):
+        if not isinstance(input_element, (int, float)):
             ans += [{"name":name, "message":"invalid number"}]
 
     elif reference_dict['type'] in STRING:
-        if not isinstance(input_element, (str, unicode)):
+        if not isinstance(input_element, (str)):
             ans += [{"name":name, "message":"expected a string, got {}".format(type(input_element))}]
         elif 'values' in reference_dict and not input_element in reference_dict['values']:
             ans += [{"name":name, "message":"argument must be one of the specified strings: "+", ".join(reference_dict['values'])}]
