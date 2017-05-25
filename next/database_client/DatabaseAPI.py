@@ -168,12 +168,16 @@ Retrieve all logs involving the algorithm alg_id='LUCB' of exp_uid='W0DA0DJAD9JA
 """
 from __future__ import print_function
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
 import next.constants as constants
 import next.utils as utils
 import next.database_client.CacheStore.CacheStore as CacheStore
 import next.database_client.PermStore.PermStore as PermStore
 
-import cPickle
+import pickle
 
 try:
     import next.broker.broker
@@ -1075,7 +1079,7 @@ class DatabaseAPI(object):
                         for key in doc:
                             pickled_value = doc[key]
                             try:
-                                value = cPickle.loads(pickled_value)
+                                value = pickle.loads(pickled_value)
                             except:
                                 value = pickled_value
                             str_value = str(value)
@@ -1111,7 +1115,7 @@ class DatabaseAPI(object):
             for key in doc:
                 pickled_value = doc[key]
                 try:
-                    value = cPickle.loads(pickled_value)
+                    value = pickle.loads(pickled_value)
                 except:
                     value = pickled_value
                 str_value = str(value)

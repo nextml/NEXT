@@ -119,12 +119,18 @@ Doc retrival with time ::\n
 
 """
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
+from past.builtins import basestring
+from builtins import object
 from pymongo import MongoClient
 from pymongo.errors import OperationFailure
 import next.constants as constants
 import next.utils as utils
 from bson.binary import Binary
-import cPickle
+import pickle
 import traceback
 from datetime import datetime
 import numpy as np
@@ -217,19 +223,19 @@ class PermStore(object):
             input_val = input_val.tolist()
         elif isinstance(input_val,list):
             start = time.time()
-            if len(input_val) > 100 and type(input_val) in {int, float, complex, long}:
+            if len(input_val) > 100 and type(input_val) in {int, float, complex, int}:
                 return input_val
             for idx in range(len(input_val)):
                 input_val[idx] = self.makeProperDatabaseFormat(input_val[idx])
         elif isinstance(input_val, basestring):
             pass
-        elif isinstance(input_val, (int, long, float) ):
+        elif isinstance(input_val, (int, float) ):
             pass
         elif isinstance(input_val, datetime ):
             pass
         else:
             # pickle value so we can handle any python type
-            pickled_input = cPickle.dumps(input_val, protocol=2)
+            pickled_input = pickle.dumps(input_val, protocol=2)
             input_val = Binary(pickled_input)
         return input_val
     
@@ -238,12 +244,12 @@ class PermStore(object):
             for key in input_val:
                 input_val[key] = self.undoDatabaseFormat(input_val[key])
         elif isinstance(input_val,list):
-            if len(input_val) > 100 and type(input_val[0]) in {int, float, long, complex}:
+            if len(input_val) > 100 and type(input_val[0]) in {int, float, int, complex}:
                 return input_val
             for idx in range(len(input_val)):
                 input_val[idx] = self.undoDatabaseFormat(input_val[idx])
         elif isinstance(input_val, Binary):
-            input_val = cPickle.loads(input_val)
+            input_val = pickle.loads(input_val)
         return input_val
     
     
@@ -381,7 +387,7 @@ class PermStore(object):
         if doc == None:
             message = 'MongoDB.get '+bucket_id+'.'+doc_uid+' does not exist'
             return None,True,message
-        for key in key_value_dict.keys():
+        for key in list(key_value_dict.keys()):
             key_value_dict[key] = doc.get(key,None)
 
         return_value = self.undoDatabaseFormat(key_value_dict)
@@ -538,11 +544,11 @@ class PermStore(object):
                 return False,message
 
         try:
-            key_value_dict_to_return = {key:1 for key in key_value_dict.keys()}
-            key_value_dict_to_increment = {key:key_value_dict[key] for key in key_value_dict.keys() if key_value_dict[key]!=0}
+            key_value_dict_to_return = {key:1 for key in list(key_value_dict.keys())}
+            key_value_dict_to_increment = {key:key_value_dict[key] for key in list(key_value_dict.keys()) if key_value_dict[key]!=0}
             new_doc = self.client[database_id][bucket_id].find_one_and_update(filter={"_id":doc_uid},update={'$inc': key_value_dict_to_increment},projection=key_value_dict_to_return,new=True,upsert=True)
 
-            for key in key_value_dict_to_return.keys():
+            for key in list(key_value_dict_to_return.keys()):
                 key_value_dict_to_return[key] = new_doc[key]
             return key_value_dict_to_return,True,'From Mongo'
         except:
