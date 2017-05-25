@@ -2,6 +2,7 @@
 """
 Helper methods for database backup and restore.
 """
+from builtins import str
 import shutil
 import tempfile
 import subprocess

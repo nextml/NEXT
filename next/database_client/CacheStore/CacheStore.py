@@ -31,9 +31,12 @@ Database inspection ::\n
     databaseNames,didSucceed,message = db.getDatabaseNames()
 """
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
 import redis
 import next.constants as constants
-import cPickle
+import pickle
 
 class CacheStore(object):
     """
@@ -124,7 +127,7 @@ class CacheStore(object):
             value = self.r.get(redis_key)
 
             try:
-                return_value = cPickle.loads(value)
+                return_value = pickle.loads(value)
             except:
                 return_value = value
 
@@ -178,7 +181,7 @@ class CacheStore(object):
             new_list_value = []
             for value in list_value:
                 try:
-                    new_list_value.append( cPickle.loads(value) )
+                    new_list_value.append( pickle.loads(value) )
                 except:
                     new_list_value.append( value )
 
@@ -203,7 +206,7 @@ class CacheStore(object):
         try:
             if type(value)!=str:
                 # pickle value so we can handle any python type
-                value = cPickle.dumps(value, protocol=2)
+                value = pickle.dumps(value, protocol=2)
 
             redis_key = self.getRedisKey(database_id,bucket_id,doc_uid,key)
 
@@ -235,7 +238,7 @@ class CacheStore(object):
             for value in value_list:
                 if type(value)!=str:
                     # pickle value so we can handle any python type
-                    value = cPickle.dumps(value, protocol=2)
+                    value = pickle.dumps(value, protocol=2)
                 pipe.rpush(redis_key,value)
             returns = pipe.execute()
 
@@ -260,7 +263,7 @@ class CacheStore(object):
         try:
             if type(value)!=str:
                 # pickle value so we can handle any python type
-                value = cPickle.dumps(value, protocol=2)
+                value = pickle.dumps(value, protocol=2)
 
             redis_key = self.getRedisKey(database_id,bucket_id,doc_uid,key)
 

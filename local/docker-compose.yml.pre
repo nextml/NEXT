@@ -94,7 +94,7 @@ mongodb:
 
 mongodbbackup:
   build: {{NEXT_DIR}}/next/base_docker_image
-  command: python ./next/database/daemon_database_backup.py
+  command: python3 ./next/database/daemon_database_backup.py
   volumes:
    - {{NEXT_DIR}}:/next_backend
   volumes_from:

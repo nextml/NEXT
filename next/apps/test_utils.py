@@ -1,6 +1,7 @@
 """
 This file is to provide a unifed testing framework for NEXT.
 """
+from __future__ import print_function
 import requests
 import os
 import json
@@ -26,7 +27,7 @@ def initExp(initExp_args_dict, assert_200=True):
     #################################################
     url = "http://"+HOSTNAME+"/api/experiment/"+exp_uid
     response = requests.get(url)
-    print "GET experiment response =", response.text, response.status_code
+    print("GET experiment response =", response.text, response.status_code)
     if assert_200: assert response.status_code is 200
     initExp_response_dict = json.loads(response.text)
     return initExp_response_dict, {'exp_uid': exp_uid}
@@ -36,11 +37,11 @@ def getQuery(getQuery_args_dict, assert_200=True, verbose=False):
     url = 'http://'+HOSTNAME+'/api/experiment/getQuery'
     response,dt = timeit(requests.post)(url, json.dumps(getQuery_args_dict),headers={'content-type':'application/json'})
     if verbose:
-        print "POST getQuery response = ", response.text, response.status_code
+        print("POST getQuery response = ", response.text, response.status_code)
     if assert_200: assert response.status_code is 200
 
     if verbose:
-        print "POST getQuery duration = ", dt
+        print("POST getQuery duration = ", dt)
     query_dict = json.loads(response.text)
     return query_dict, dt
 
@@ -48,15 +49,15 @@ def getQuery(getQuery_args_dict, assert_200=True, verbose=False):
 def processAnswer(processAnswer_args_dict, assert_200=True, verbose=False):
     url = 'http://'+HOSTNAME+'/api/experiment/processAnswer'
     if verbose:
-        print "POST processAnswer args = ", processAnswer_args_dict
+        print("POST processAnswer args = ", processAnswer_args_dict)
     response,dt = timeit(requests.post)(url, json.dumps(processAnswer_args_dict), headers={'content-type':'application/json'})
     if verbose:
-        print "POST processAnswer response", response.text, response.status_code
+        print("POST processAnswer response", response.text, response.status_code)
     if assert_200: assert response.status_code is 200
 
     if verbose:
-        print "POST processAnswer duration = ", dt
-        print
+        print("POST processAnswer duration = ", dt)
+        print()
     processAnswer_json_response = eval(response.text)
     return processAnswer_json_response, dt
 
@@ -108,7 +109,7 @@ def getModel(exp_uid, app_id, supported_alg_ids, alg_list, assert_200=True):
 def getExp(exp_uid, assert_200=True):
     url = "http://"+HOSTNAME+"/api/experiment/"+exp_uid
     response = requests.get(url)
-    print "GET experiment response =",response.text, response.status_code
+    print("GET experiment response =",response.text, response.status_code)
     if assert_200: assert response.status_code is 200
     initExp_response_dict = json.loads(response.text)
     return initExp_response_dict

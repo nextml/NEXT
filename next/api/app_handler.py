@@ -62,5 +62,5 @@ class AppHandler(Resource):
             response_dict = json.loads(response_json)
             return attach_meta(response_dict, meta_success), 200
 
-        except Exception, error:
+        except Exception as error:
             return attach_meta({}, meta_error['Error'], backend_error=message)

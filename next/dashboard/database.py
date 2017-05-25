@@ -3,6 +3,8 @@ next_backend Logs Resource
 author: Christopher Fernandez, Lalit Jain
 Logs resource for all logs associated with a specified experiment. 
 """
+from __future__ import print_function
+from builtins import str
 from flask import Response, request, redirect
 from flask_restful import Resource, reqparse
 
@@ -52,7 +54,7 @@ class DatabaseBackup(Resource):
         :statuscode 400: database backup failed to be generated
     	""" 
         exp_uid_list = request.args.getlist('exp_uid') ## returns a list
-        print exp_uid_list
+        print(exp_uid_list)
         name = '{}.{}'.format(str(next.utils.datetimeNow().strftime("%Y-%m-%d_%H:%M:%S")),
                               'tar.gz')
         location = make_mongodump(name,exp_uid_list)

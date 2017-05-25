@@ -1,3 +1,6 @@
+from __future__ import print_function
+from builtins import str
+from builtins import object
 import next.utils as utils
 
 from datetime import datetime,timedelta
@@ -15,7 +18,7 @@ import json
 import time
 import next.utils as utils
 
-class JobBroker:
+class JobBroker(object):
 
     # Initialization method for the broker
     def __init__(self):
@@ -178,7 +181,7 @@ class JobBroker:
             tmp = self.r.get('MINIONWORKER_HOSTNAME')
             if tmp!=None:
                 self.hostname=tmp
-                print 'Hostname = %s  from Redis' % self.hostname
+                print('Hostname = %s  from Redis' % self.hostname)
                 break
             else:
                 fid = open('/etc/hosts','r')
@@ -187,11 +190,11 @@ class JobBroker:
                     if 'MINIONWORKER' in line:
                         self.hostname = line.split('\t')[1].split(' ')[1]
                         self.r.set('MINIONWORKER_HOSTNAME',self.hostname)
-                        print 'Hostname = %s  from /etc/hosts' % self.hostname 
+                        print('Hostname = %s  from /etc/hosts' % self.hostname) 
                         break
                     line = fid.readline()
             ttw += .01
-            print 'Failed to retrieve hostname... trying again in %f seconds' % ttw
+            print('Failed to retrieve hostname... trying again in %f seconds' % ttw)
 
         return self.hostname
     

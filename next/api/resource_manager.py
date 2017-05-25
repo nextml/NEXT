@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import object
 import next.utils as utils
 import yaml
 
@@ -6,7 +8,7 @@ db = DatabaseAPI()
 from next.logging_client.LoggerAPI import LoggerAPI
 ell = LoggerAPI()
 
-class ResourceManager:
+class ResourceManager(object):
     """
     resource_manager
     Author: Lalit Jain, Kevin Jamieson, Chris Fernandez

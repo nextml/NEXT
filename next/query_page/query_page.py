@@ -1,3 +1,4 @@
+from builtins import str
 import os
 
 from flask import Blueprint, render_template, flash, request, redirect, url_for

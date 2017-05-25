@@ -1,7 +1,9 @@
+from __future__ import print_function
+from builtins import object
 import ply.yacc as yacc
 import ply.lex as lex
 
-class condition_lexer:
+class condition_lexer(object):
     def __init__(self):
         self.lexer = lex.lex(module=self)
 
@@ -40,7 +42,7 @@ class condition_lexer:
             else:
                 break    
 
-class condition_parser:
+class condition_parser(object):
     def __init__(self):
         self.lexer = condition_lexer()
         self.tokens = self.lexer.tokens

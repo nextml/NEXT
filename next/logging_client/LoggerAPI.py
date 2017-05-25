@@ -30,11 +30,14 @@ Initialization::\n
 
 """
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
 import next.constants as constants
 import next.utils as utils
 import next.database_client.PermStore.PermStore as PermStore
 
-import cPickle
+import pickle
 
 class LoggerAPI(object):
     """

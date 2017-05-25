@@ -1,8 +1,14 @@
+from __future__ import division
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
+from builtins import object
 import next.utils as utils
 import os
 import next.constants as constants
 import redis
-import StringIO
+import io
 
 
 class Memory(object):
@@ -26,9 +32,9 @@ class Memory(object):
 
     def num_entries(self, size):
         if size % self.max_entry_size == 0:
-            return size / self.max_entry_size
+            return size // self.max_entry_size
         else:
-            return (size / self.max_entry_size) + 1
+            return size // self.max_entry_size + 1
         
     def set(self, key, value):
         self.check_prefix()
@@ -90,7 +96,7 @@ class Memory(object):
             self.ensure_connection()
             key = self.key_prefix + key
             d = self.cache.get(key)
-            f = StringIO.StringIO()
+            f = io.StringIO()
             n, l = d.split(":")
             l = int(l)
             n = int(n)
