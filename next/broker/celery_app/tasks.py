@@ -40,7 +40,7 @@ def worker_connect_db():
     return db, ell
 
 # if we're not using celery, just initialize the database globally
-if next.constants.CELERY_ON:
+if not next.constants.CELERY_ON:
     db, ell = worker_connect_db()
 
 # runs for each worker process spawned by Celery
