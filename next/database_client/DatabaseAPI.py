@@ -28,6 +28,10 @@ class DatabaseException(BaseException):
     pass
 
 def to_db_fmt(x):
+    # convert tuples to lists
+    if isinstance(x, tuple):
+        return to_db_fmt(list(x))
+
     # recursive descent through lists
     if isinstance(x, list):
         return [to_db_fmt(v) for v in x]
