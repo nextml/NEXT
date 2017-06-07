@@ -87,22 +87,23 @@ class ExperimentAssistant(Resource):
 
         try:
             init_exp_args = args['args']
-            utils.debug_print("args.keys = ", args['args'].keys())
             if 'targets' in args.keys():
                 target_zipfile = args['targets']
-                utils.debug_print("args = ", args)
                 if args.get('upload', True):
                     bucket_id = args['bucket_id']
                     key_id = args['key_id']
                     secret_key = args['secret_key']
 
-                    for x_ in ['bucket_id', 'secret_key', 'key_id']:
-                        utils.debug_print(x_, args[x_])
-                    # Unpack the targets
                     targets = target_unpacker.unpack(target_zipfile, key_id,
                                                      secret_key, bucket_id)
                 else:
-                    targets = target_unpacker.unpack_csv_file(target_zipfile)
+                    filenames = target_unpacker.get_filenames_from_zip(target_zipfile)
+                    if len(filenames) > 1:
+                        raise ValueError('Specify exactly one file in the ZIP file')
+                    filename = filenames[0]
+                    extension = filename.split('.')[-1]
+                    targets = target_unpacker.unpack_text_file(target_zipfile,
+                                                               kind=extension)
                 init_exp_args['args']['targets'] = {'targetset':  targets}
 
             # Init the experiment:

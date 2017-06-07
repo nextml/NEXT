@@ -6,6 +6,7 @@ from StringIO import StringIO
 import base64
 import random
 import sys
+import json
 
 if __name__ == "__main__":
     sys.path.append('../..')
@@ -57,6 +58,12 @@ def upload_target(filename, file_obj, bucket_name, aws_key, aws_secret_key,
             'alt_type': 'text',
             'alt_description': filename}
 
+def get_filenames_from_zip(s):
+    base64_zip = io.BytesIO(s)
+    zip_file = zipfile.ZipFile(base64_zip)
+    return zip_file.namelist()
+
+
 def unpack(s, aws_key, aws_secret_key, bucket_name, n_jobs=None,
            get_bucket=True):
     base64_zip = io.BytesIO(s)
@@ -88,22 +95,27 @@ def unpack(s, aws_key, aws_secret_key, bucket_name, n_jobs=None,
     return targets
 
 
-def unpack_csv_file(s):
+def unpack_text_file(s, kind='csv'):
+    kind = kind.lower()  # always lower case extension
     base64_zip = io.BytesIO(s)
     zip_file = zipfile.ZipFile(base64_zip)
     files = zipfile_to_dictionary(zip_file)
-    # assuming len(files) == 1 and files[0][-3:] == 'csv'
-    # if len(files) > 1 or files.keys()[0][-3:] not in {'csv', 'txt'}:
-        # raise ValueError('Only one TXT/CSV file supported in the ZIP file')
 
-    strings = files[files.keys()[0]].split('\n')
-    targets = [{'target_id': str(i),
-                'primary_type': 'text',
-                'primary_description': string,
-                'alt_type': 'text',
-                'alt_description': string}
-               for i, string in enumerate(strings[:-1])]  # -1 because last newline
-    return targets
+    # files is has at least one key; (tested before call in assistant_blueprint.py)
+    file_str = files[files.keys()[0]]
+    if kind in {'csv', 'txt'}:
+        strings = file_str.split('\n')[:-1]  # -1 because last newline
+        targets = [{'target_id': str(i),
+                    'primary_type': 'text',
+                    'primary_description': string,
+                    'alt_type': 'text',
+                    'alt_description': string}
+                   for i, string in enumerate(strings)]
+        return targets
+    elif kind in {'json'}:
+        return json.loads(file_str)
+    else:
+        raise ValueError('`kind` not regonized in `unpack_text_file`')
 
 
 if __name__ == "__main__":

@@ -62,12 +62,21 @@
 	  <button id="initExp" onclick="submit_form()">Launch</button>
       <br /><br />
       <p>
-      Upload text targets by
+      Upload image (or videos/etc) targets by including many different files in
+      the ZIP file. There are uploaded to S3 using the credentials.
+      </p>
+      <p>
+      Upload text or JSON targets by
 
       <ul>
           <li>Leaving the AWS fields blank (Bucket ID, Key ID, Secret key)</li>
-          <li>Uploading a ZIP file that containts a CSV or TXT file with one
-              target on each line</li>
+          <li>Uploading a ZIP file that containts exactly one CSV, TXT or JSON
+              file.
+              <ul>
+                  <li>CSV or TXT files should have one target on each line</li>
+                  <li>JSON files are loaded and replace the "targets" key in the
+                      "initExp" arguments</li>
+              </ul>
       </ul>
       </p>
 	  <h2>Status</h2>
