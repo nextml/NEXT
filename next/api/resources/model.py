@@ -57,25 +57,26 @@ class GetModel(Resource):
         """
         args = request.args.get('args', '{}')
         args = ast.literal_eval(args)
-        csv = args.get('csv', False)
         format = args.get('format', False)
-        utils.debug_print('api format =', format)
+        csv = args.get('csv', False)
         if 'csv' in args:
             del args['csv']
+        if csv not in {'0', 0, False}:
+            csv = True
+        if csv and 'alg_label' in args:
+            raise ValueError('Cannot return one CSV for one algorithm')
+        if csv and not format:
+            raise ValueError('cannot specify csv=True and args["format"]=False.')
 
         exp_uid = str(exp_uid)
         args = {'exp_uid': exp_uid, 'args': args}
-
         app_id = resource_manager.get_app_id(exp_uid)
+
         response_json, _, _ = broker.applyAsync(app_id, exp_uid, "getModel",
                                                 json.dumps(args))
         response_dict = json.loads(response_json)
 
-        if csv not in {'0', 0, False}:
-            csv = True
         formatted_responses = 'models' in response_dict.keys()
-        if csv and not format:
-            raise ValueError('cannot specify csv=True and args["format"]=False.')
         if csv and formatted_responses:
             csvs = [{'data': _result_to_csv_str(results),
                      'filename': alg_label + '.csv'}
