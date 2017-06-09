@@ -6,6 +6,7 @@ import traceback
 import time
 from next.api.api_util import attach_meta
 import pandas
+import ast
 
 import json
 from io import BytesIO
@@ -41,38 +42,50 @@ meta_success = {
     'status': 'OK'
 }
 
+
 class GetModel(Resource):
-    def get(self, exp_uid, csv=False):
-        post_parser.add_argument('exp_uid', type=str, required=True)
-        post_parser.add_argument('csv', type=bool, required=False)
-        post_parser.add_argument('args', type=dict, required=False)
+    def get(self, exp_uid, **kwargs):
+        """
+        args are encoded in the URL as JSON. These args are passed to getModel
+        as `args`.
+
+        `csv` is included in `args`. It can be
+
+        e.g.,
+        /api/experiment/{exp_uid}/getModel?args={'format':True,'csv':True}
+
+        """
+        args = request.args.get('args', '{}')
+        args = ast.literal_eval(args)
+        csv = args.get('csv', False)
+        format = args.get('format', False)
+        utils.debug_print('api format =', format)
+        if 'csv' in args:
+            del args['csv']
+
         exp_uid = str(exp_uid)
-
-        csv = request.args.get('csv', False)
-        if int(csv) != 0:
-            csv = True
-
-        args = {'exp_uid': exp_uid, 'args': request.args}
+        args = {'exp_uid': exp_uid, 'args': args}
 
         app_id = resource_manager.get_app_id(exp_uid)
-        utils.debug_print(exp_uid, type(exp_uid), app_id)
-
-        utils.debug_print('In model.py#L56')
         response_json, _, _ = broker.applyAsync(app_id, exp_uid, "getModel",
                                                 json.dumps(args))
-        utils.debug_print('In model.py#L58')
         response_dict = json.loads(response_json)
 
-        if csv:
-            csvs = [{'data': format_results(results['targets']),
+        if csv not in {'0', 0, False}:
+            csv = True
+        formatted_responses = 'models' in response_dict.keys()
+        if csv and not format:
+            raise ValueError('cannot specify csv=True and args["format"]=False.')
+        if csv and formatted_responses:
+            csvs = [{'data': _result_to_csv_str(results),
                      'filename': alg_label + '.csv'}
-                    for alg_label, results in results.items()]
+                    for alg_label, results in response_dict['models'].items()]
             zipfile = _create_zipfile(csvs)
             return send_file(zipfile,
-                             attachment_filename='alg_results.zip',
+                             attachment_filename='results.zip',
                              as_attachment=True)
 
-        return attach_meta(results, meta_success), 200
+        return attach_meta(response_dict, meta_success), 200
 
 
 def _get_target_mapping(exp_uid, bucket_id='targets'):
@@ -83,6 +96,7 @@ def _get_target_mapping(exp_uid, bucket_id='targets'):
     targets = target_manager.get_targetset(exp_uid)
     mapping = {target['target_id']: target for target in targets}
     return {'meta': meta, 'mapping': mapping}
+
 
 def _create_zipfile(files):
     """ adapted from https://stackoverflow.com/questions/27337013/how-to-send-zip-files-in-the-python-flask-framework/27337047#27337047 """
@@ -97,19 +111,8 @@ def _create_zipfile(files):
     return memory_file
 
 
-def format_results(results):
-    formatted_results = [{k: v for k, v in result.items() if k != 'target'}
-                         for result in results]
-
-    for result, formatted_result in zip(results, formatted_results):
-        for key in result['target'].keys():
-            if not ('alt' in key):
-                formatted_result[key] = result['target'][key]
-        for key in ['_id', 'index']:
-            if key in formatted_result:
-                del formatted_result[key]
-
-    df = pd.DataFrame(formatted_results)
+def _result_to_csv_str(result_list):
+    df = pd.DataFrame(result_list)
     str_file = StringIO()
     df.to_csv(str_file, encoding='utf-8')
-    return str_file.getvalue()  # return a str object
+    return str_file.getvalue()

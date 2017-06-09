@@ -59,8 +59,13 @@ class App(object):
         self.log_entry_durations = log_entry_durations
         return alg_response['rets']
 
+
+    def _make_butler_for_alg(self, alg_label, alg_id):
+        return Butler(self.app_id, self.exp_uid, self.myApp.TargetManager,
+                      self.butler.db, self.butler.ell, alg_label, alg_id)
+
     def call_app_fn(self, alg_label, alg_id, func_name, args):
-        butler = Butler(self.app_id, self.exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, alg_label, alg_id)
+        butler = self._make_butler_for_alg(alg_label, alg_id)
         alg = utils.get_app_alg(self.app_id, alg_id)
         def alg_wrapper(alg_args={}):
             return self.run_alg(butler, alg_label, alg, func_name, alg_args)
@@ -212,27 +217,47 @@ class App(object):
             utils.debug_print("processAnswer Exception: " + full_error, color='red')
             log_entry = { 'exp_uid':exp_uid,'task':'processAnswer','error':full_error,'timestamp':utils.datetimeNow(),'args_json':args_json }
             self.butler.ell.log( self.app_id+':APP-EXCEPTION', log_entry  )
-    	    traceback.print_tb(exc_traceback)
-    	    raise Exception(error)
+            traceback.print_tb(exc_traceback)
+            raise Exception(error)
 
     def getModel(self, exp_uid, args_json):
         try:
-            utils.debug_print('in getModel')
             args_dict = self.helper.convert_json(args_json)
             args_dict = verifier.verify(args_dict, self.reference_dict['getModel']['args'])
-            if 'alg_label' in args_dict['args']:
+
+            format_ = False
+            if 'format' in args_dict['args'] and args_dict['args']['format']:
+                format_ = True
+            utils.debug_print('App format =', format_)
+
+            if format_ and 'format_getModel_result' not in dir(self.myApp):
+                raise Exception('myApp can not format results with out definition of `format_getModel_result`')
+
+            init_args = self.butler.experiment.get(key='args')
+            get_results_for_one_alg = 'alg_label' in args_dict['args']
+            if get_results_for_one_alg:
                 alg_label = args_dict['args']['alg_label']
-                args = self.butler.experiment.get(key='args')
-                for algorithm in args['alg_list']:
-                    if alg_label == algorithm['alg_label']:
-                        alg_id = algorithm['alg_id']
+                alg_id = _get_alg_id(init_args, alg_label)
 
                 myapp_response = self.call_app_fn(alg_label, alg_id, 'getModel', args_dict)
                 myapp_response['alg_label'] = alg_label
-                myapp_response['exp_uid'] = exp_uid
-            else:
-                myapp_response = self.getResults(exp_uid, args_dict)
 
+                if format_:
+                    myapp_respone = self.myApp.format_results(myapp_response)
+
+            else:
+                myapp_response = {'models': self.getModels(exp_uid, args_dict)}
+                if format_:
+                    models = {}
+                    for alg_label, model in myapp_response['models'].items():
+                        args = {'args': {'getModel_result': model}}
+                        app_id = _get_alg_id(init_args, alg_label)
+                        model = self.call_app_fn(alg_label, app_id,
+                                                 'format_getModel_result', args)
+                        models[alg_label] = model
+
+                    myapp_response['models'] = models
+            myapp_response['exp_uid'] = exp_uid
 
             # Log the response of the getModel in ALG-EVALUATION
             if args_dict['args']['logging']:
@@ -251,40 +276,23 @@ class App(object):
             traceback.print_tb(exc_traceback)
             return Exception(error)
 
-    def getResults(self, exp_uid, args):
-        """
-        Inputs
-        ------
-        getModel args
+    def getModels(self, exp_uid, args):
+        exp_args = self.butler.experiment.get(key='args')
+        algs = exp_args['alg_list']
 
-        Returns
-        --------
-        {alg_label: getModel_result[special_key]}
+        alg_models = {alg['alg_label']: self.call_app_fn(alg['alg_label'], alg['alg_id'], 'getModel', args)
+                   for alg in algs}
 
-        """
-        utils.debug_print('In getResults...')
-        args = self.butler.experiment.get(key='args')
-        utils.debug_print(args)
+        # Running in to bug when getModel only returns a dictionary with
+        # arbitrary values and keys...
+        #  verifier.verify(result, self.reference_dict['getModel']['rets'])
 
-        results = [self.call_app_fn(alg['alg_label'], alg['alg_id'], 'getModel', args)
-                   for alg in algs]
-        for result, alg in zip(results, algs):
-            result.update({'alg_label': alg['alg_label'], 'exp_uid': exp_uid})
+        return alg_models
 
-        if 'result_formatters' not in dir(self.myApp):
-            return results
-        if type(self.myApp.result_formatters) != dict:
-            raise Exception("self.myApp.result_formatter isn't a dict")
-        for _, value in self.myApp.result_formatters.items():
-            if not callable(value):
-                raise Exception("self.myApp.result_formatter has at least one item that isn't callable")
-
-        results = [{result_label: formatter(result[key])
-                    for result_label, formatter in self.myApp.result_formatters}
-                   for result in results]
-
-        return results
-
+def _get_alg_id(args, alg_label):
+    for algorithm in args['alg_list']:
+        if alg_label == algorithm['alg_label']:
+            return algorithm['alg_id']
 
 class Helper(object):
     #TODO: This is never called?? Can we please remove this class?
