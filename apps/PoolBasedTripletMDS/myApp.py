@@ -51,7 +51,7 @@ class MyApp:
         # make a getModel call ~ every n/4 queries - note that this query will NOT be included in the predict
         experiment = butler.experiment.get()
         num_reported_answers = butler.experiment.increment(key='num_reported_answers_for_' + query['alg_label'])
-        
+
         n = experiment['args']['n']
         if num_reported_answers % ((n+4)/4) == 0:
             butler.job('getModel', json.dumps({'exp_uid':butler.exp_uid,'args':{'alg_label':query['alg_label'], 'logging':True}}))
@@ -82,4 +82,19 @@ class MyApp:
 
         return formatted
 
+    def format_getModel_result(self, butler, alg, args):
+        model = args['getModel_result']
+        utils.debug_print(model)
+        X = model['X']
+        targets = self.TargetManager.get_targetset(butler.exp_uid)
+        utils.debug_print('targets[0]', targets[0])
+        if len(X) != len(targets):
+            raise ValueError('Not same number of targets and embedding points')
+        for i, x in enumerate(X):
+            d = {'x_'+str(j): xj for j, xj in enumerate(x)}
+            targets[i].update(d)
 
+        to_remove = ['primary_type', 'alt_type', 'exp_uid', '_id']
+        targets = utils.remove_keys_from_targets(to_remove, targets)
+
+        return targets

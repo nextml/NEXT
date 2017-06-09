@@ -177,3 +177,10 @@ def timeit(f):
     # `a, dt = utils.timeit(...)(...)`.    
     return result, (te-ts)
   return timed
+
+def remove_keys_from_targets(keys, targets):
+    for key in keys:
+        for i, target in enumerate(targets):
+            if key in target:
+                del targets[i][key]
+    return targets
