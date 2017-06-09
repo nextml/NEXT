@@ -43,38 +43,27 @@ meta_success = {
 
 class GetModel(Resource):
     def get(self, exp_uid, csv=False):
-        model_args = post_parser.parse_args()
+        post_parser.add_argument('exp_uid', type=str, required=True)
+        post_parser.add_argument('csv', type=bool, required=False)
+        post_parser.add_argument('args', type=dict, required=False)
+        exp_uid = str(exp_uid)
+
         csv = request.args.get('csv', False)
         if int(csv) != 0:
             csv = True
 
-        utils.debug_print(model_args, request.args, csv)
-        args = {'exp_uid': exp_uid, 'args': model_args}
+        args = {'exp_uid': exp_uid, 'args': request.args}
 
-        algs = resource_manager.get_algs_for_exp_uid(exp_uid)
         app_id = resource_manager.get_app_id(exp_uid)
+        utils.debug_print(exp_uid, type(exp_uid), app_id)
 
-        results = {}
-        for alg in algs:
-            args['args']['alg_label'] = alg['alg_label']
-
-            r = broker.applyAsync(app_id,exp_uid,"getModel", json.dumps(args))
-            response_json, didSucceed, message = r
-
-            response_dict = json.loads(response_json)
-            response_dict['alg'] = alg
-            results[alg['alg_label']] = response_dict
-
-        results['target_mapping'] = _get_target_mapping(exp_uid)
+        utils.debug_print('In model.py#L56')
+        response_json, _, _ = broker.applyAsync(app_id, exp_uid, "getModel",
+                                                json.dumps(args))
+        utils.debug_print('In model.py#L58')
+        response_dict = json.loads(response_json)
 
         if csv:
-            if 'target' not in response_dict:
-                return ('`target` not a key for getModel results. Likely means that '
-                        'application does not provide ranking/sorting of '
-                        'objects that can be formulated as table. Download '
-                        'the JSON object and use the included `target_id` '
-                        'mapping to index the alg results')
-
             csvs = [{'data': format_results(results['targets']),
                      'filename': alg_label + '.csv'}
                     for alg_label, results in results.items()]

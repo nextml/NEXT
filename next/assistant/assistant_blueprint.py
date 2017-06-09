@@ -98,7 +98,9 @@ class ExperimentAssistant(Resource):
                                                      secret_key, bucket_id)
                 else:
                     filenames = target_unpacker.get_filenames_from_zip(target_zipfile)
+                    utils.debug_print(filenames)
                     if len(filenames) == 1:
+                        utils.debug_print('Raising valueerror, len != 1,', filenames)
                         raise ValueError('Specify exactly one file in the ZIP file')
                     filename = filenames[0]
                     extension = filename.split('.')[-1]
