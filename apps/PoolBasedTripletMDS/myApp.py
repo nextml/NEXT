@@ -92,7 +92,7 @@ class MyApp:
             d = {'x_'+str(j): xj for j, xj in enumerate(x)}
             targets[i].update(d)
 
-        to_remove = ['primary_type', 'alt_type', 'exp_uid', '_id']
+        to_remove = ['exp_uid', 'alt_type', '_id']
         targets = utils.remove_keys_from_targets(to_remove, targets)
 
         return targets

@@ -166,7 +166,7 @@ class MyApp:
     def format_getModel_result(self, butler, alg, args):
         model = args['getModel_result']
         results = model['targets']
-        target_keys_to_keep = ['primary_description', 'alt_description', 'target_id']
+        target_keys_to_keep = ['primary_description', 'primary_type', 'alt_description', 'target_id']
         for result in results:
             target = result['target']
             result.update({key: target[key] for key in target_keys_to_keep})
