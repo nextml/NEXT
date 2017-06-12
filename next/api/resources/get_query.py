@@ -70,6 +70,3 @@ class getQuery(Resource):
             return {'html':template.render(query=response_dict), 'args':response_dict}, 200, {'Access-Control-Allow-Origin':'*', 'Content-Type':'application/json'}
         
         return attach_meta(response_dict,meta_success), 200
-        
-            
-

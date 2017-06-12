@@ -84,10 +84,8 @@ class MyApp:
 
     def format_getModel_result(self, butler, alg, args):
         model = args['getModel_result']
-        utils.debug_print(model)
         X = model['X']
         targets = self.TargetManager.get_targetset(butler.exp_uid)
-        utils.debug_print('targets[0]', targets[0])
         if len(X) != len(targets):
             raise ValueError('Not same number of targets and embedding points')
         for i, x in enumerate(X):

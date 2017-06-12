@@ -123,7 +123,7 @@ class App(object):
 
     def getQuery(self, exp_uid, args_json):
         try:
-    	    args_dict = self.helper.convert_json(args_json)
+            args_dict = self.helper.convert_json(args_json)
             args_dict = verifier.verify(args_dict, self.reference_dict['getQuery']['args'])
             experiment_dict = self.butler.experiment.get()
             alg_list = experiment_dict['args']['alg_list']
@@ -228,7 +228,6 @@ class App(object):
             format_ = False
             if 'format' in args_dict['args'] and args_dict['args']['format']:
                 format_ = True
-            utils.debug_print('App format =', format_)
 
             if format_ and 'format_getModel_result' not in dir(self.myApp):
                 raise Exception('myApp can not format results with out definition of `format_getModel_result`')
@@ -243,7 +242,8 @@ class App(object):
                 myapp_response['alg_label'] = alg_label
 
                 if format_:
-                    myapp_respone = self.myApp.format_results(myapp_response)
+                    myapp_response = self.call_app_fn(alg_label, alg_id,
+                                                      'format_getModel_result', args_dict)
 
             else:
                 myapp_response = {'models': self.getModels(exp_uid, args_dict)}
