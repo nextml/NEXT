@@ -43,60 +43,35 @@ meta_success = {
 }
 
 
-class GetModel(Resource):
+class GetResults(Resource):
     def get(self, exp_uid, **kwargs):
         """
-        args are encoded in the URL as JSON. These args are passed to getModel
-        as `args`.
-
-        `csv` is included in `args`. It can be
-
-        e.g.,
-        /api/experiment/{exp_uid}/getModel?args={'format':True,'csv':True}
-
+        Endpoint:
+        /api/experiment/{exp_uid}/getResults?csv=1
         """
-        args = request.args.get('args', '{}')
-        args = ast.literal_eval(args)
-        format = args.get('format', False)
-        csv = args.get('csv', False)
-        if 'csv' in args:
-            del args['csv']
-        if csv not in {'0', 0, False}:
-            csv = True
-        if csv and 'alg_label' in args:
-            raise ValueError('Cannot return one CSV for one algorithm')
-        if csv and not format:
-            raise ValueError('cannot specify csv=True and args["format"]=False.')
+        csv = request.args.get('csv', False)
+        if type(csv) in {unicode, str}:
+            csv = str(csv).lower()
+        csv = csv not in {'0', 0, False, 'false'}
 
         exp_uid = str(exp_uid)
-        args = {'exp_uid': exp_uid, 'args': args}
+        args = {'exp_uid': exp_uid, 'args': {}}
         app_id = resource_manager.get_app_id(exp_uid)
 
-        response_json, _, _ = broker.applyAsync(app_id, exp_uid, "getModel",
-                                                json.dumps(args))
-        response_dict = json.loads(response_json)
+        response_json, _, _ = broker.applyAsync(app_id, exp_uid, "getResults", '{}')
+        results = json.loads(response_json)
+        response = {'results': results}
 
-        formatted_responses = 'models' in response_dict.keys()
-        if csv and formatted_responses:
-            csvs = [{'data': _result_to_csv_str(results),
+        if csv:
+            csvs = [{'data': _result_to_csv_str(result),
                      'filename': alg_label + '.csv'}
-                    for alg_label, results in response_dict['models'].items()]
+                    for alg_label, result in results.items()]
             zipfile = _create_zipfile(csvs)
             return send_file(zipfile,
                              attachment_filename='results.zip',
                              as_attachment=True)
 
-        return attach_meta(response_dict, meta_success), 200
-
-
-def _get_target_mapping(exp_uid, bucket_id='targets'):
-    from next.apps.SimpleTargetManager import SimpleTargetManager
-    meta = ('Mapping from indices totarget filenames, which all '
-            'algorithmis use internally')
-    target_manager = SimpleTargetManager(db)
-    targets = target_manager.get_targetset(exp_uid)
-    mapping = {target['target_id']: target for target in targets}
-    return {'meta': meta, 'mapping': mapping}
+        return attach_meta(response, meta_success), 200
 
 
 def _create_zipfile(files):

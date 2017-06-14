@@ -165,31 +165,25 @@ getModel:
       type: dict
       values: 
         alg_label:
-          optional: true
-          description: alg_label of algorithm to request a model from. If not present, return the models for all algs under the key `models`
+          description: alg_label of algorithm to request a model from.
           type: str
         logging:
           description: If this field is set to true, a getModel call is made and the result is logged in the logs under app_id:APP-EVALUATION. This embedding can be accessed through butler.logs.
-          type: boolean
-          default: false
-        format:
-          description: Whether to include `myApp.format_results` representation of the results
           type: boolean
           default: false
   rets:
     description: Return a dictionary.
     type: any
 
-format_getModel_result:
+getResults:
   description: A function to format the get model result for public consumption. This function should add target information to the getModel result.
   args:
-    args:
-      description: Arguments for this fucntion.
-      type: dict
-      values:
-        getModel_result:
-          type: any
-          description: The value that getModel returns.
+    exp_uid:
+      description: Unique experiment id.
+      type: str
+    model:
+      type: any
+      description: what ever getModel returns
   rets:
     description: The results with target information. This result is available for downloads on the dashboard, both as JSON and CSV (as parsed by Pandas). This works best when this value of a list of dicts.
     type: any

@@ -82,12 +82,12 @@ class MyApp:
 
         return formatted
 
-    def format_getModel_result(self, butler, alg, args):
-        model = args['getModel_result']
+    def getResults(self, butler, exp_uid, model):
         X = model['X']
         targets = self.TargetManager.get_targetset(butler.exp_uid)
         if len(X) != len(targets):
             raise ValueError('Not same number of targets and embedding points')
+
         for i, x in enumerate(X):
             d = {'x_'+str(j): xj for j, xj in enumerate(x)}
             targets[i].update(d)

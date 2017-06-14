@@ -225,13 +225,6 @@ class App(object):
             args_dict = self.helper.convert_json(args_json)
             args_dict = verifier.verify(args_dict, self.reference_dict['getModel']['args'])
 
-            format_ = False
-            if 'format' in args_dict['args'] and args_dict['args']['format']:
-                format_ = True
-
-            if format_ and 'format_getModel_result' not in dir(self.myApp):
-                raise Exception('myApp can not format results with out definition of `format_getModel_result`')
-
             init_args = self.butler.experiment.get(key='args')
             get_results_for_one_alg = 'alg_label' in args_dict['args']
             if get_results_for_one_alg:
@@ -240,23 +233,8 @@ class App(object):
 
                 myapp_response = self.call_app_fn(alg_label, alg_id, 'getModel', args_dict)
                 myapp_response['alg_label'] = alg_label
-
-                if format_:
-                    myapp_response = self.call_app_fn(alg_label, alg_id,
-                                                      'format_getModel_result', args_dict)
-
             else:
-                myapp_response = {'models': self.getModels(exp_uid, args_dict)}
-                if format_:
-                    models = {}
-                    for alg_label, model in myapp_response['models'].items():
-                        args = {'args': {'getModel_result': model}}
-                        app_id = _get_alg_id(init_args, alg_label)
-                        model = self.call_app_fn(alg_label, app_id,
-                                                 'format_getModel_result', args)
-                        models[alg_label] = model
-
-                    myapp_response['models'] = models
+                myapp_response = {'models': self._getModels(exp_uid, args_dict)}
             myapp_response['exp_uid'] = exp_uid
 
             # Log the response of the getModel in ALG-EVALUATION
@@ -276,23 +254,45 @@ class App(object):
             traceback.print_tb(exc_traceback)
             return Exception(error)
 
-    def getModels(self, exp_uid, args):
-        exp_args = self.butler.experiment.get(key='args')
+    def getResults(self, exp_uid, args_json):
+        try:
+            args_dict = self.helper.convert_json(args_json)
+            init_args = self.butler.experiment.get(key='args')
+            models = self._getModels(self.butler)
+
+            results = {}
+            for alg_label, model in models.items():
+                alg_id = _get_alg_id(init_args, alg_label)
+                butler = self._make_butler_for_alg(alg_label, alg_id)
+                results[alg_label] = self.myApp.getResults(butler, exp_uid, model)
+            return json.dumps({'args': results, 'meta': {'log_entry_durations': self.log_entry_durations}}), True, ''
+
+        except Exception, error:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            full_error = str(traceback.format_exc())+'\n'+str(error)
+            utils.debug_print("getModel Exception: " + full_error, color='red')
+            log_entry = { 'exp_uid':exp_uid,'task':'getResults','error':full_error,'timestamp':utils.datetimeNow(),'args_json':args_json }
+            self.butler.ell.log( self.app_id+':APP-EXCEPTION', log_entry  )
+            traceback.print_tb(exc_traceback)
+            return Exception(error)
+
+    def _getModels(self, butler):
+        exp_args = butler.experiment.get(key='args')
         algs = exp_args['alg_list']
 
-        alg_models = {alg['alg_label']: self.call_app_fn(alg['alg_label'], alg['alg_id'], 'getModel', args)
-                   for alg in algs}
+        models = {}
+        for alg in algs:
+            args = {'exp_uid': butler.exp_uid, 'args': {'alg_label': alg['alg_label']}}
+            model = self.call_app_fn(alg['alg_label'], alg['alg_id'], 'getModel', args)
+            models[alg['alg_label']] = model
 
-        # Running in to bug when getModel only returns a dictionary with
-        # arbitrary values and keys...
-        #  verifier.verify(result, self.reference_dict['getModel']['rets'])
-
-        return alg_models
+        return models
 
 def _get_alg_id(args, alg_label):
     for algorithm in args['alg_list']:
         if alg_label == algorithm['alg_label']:
             return algorithm['alg_id']
+    raise ValueError('alg_id not found')
 
 class Helper(object):
     #TODO: This is never called?? Can we please remove this class?
