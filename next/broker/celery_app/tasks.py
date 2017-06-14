@@ -38,6 +38,15 @@ class App_Wrapper:
                         self.log_entry_durations = meta['log_entry_durations']
                         self.log_entry_durations['timestamp'] = next.utils.datetimeNow()                  
                 return args_out_dict['args']
+        def getResults(self, args_in_json):
+                response = self.next_app.getResults(self.next_app.exp_uid, args_in_json)
+                args_out_json,didSucceed,message = response
+                args_out_dict = json.loads(args_out_json)
+                meta = args_out_dict.get('meta',{})
+                if 'log_entry_durations' in meta.keys():
+                        self.log_entry_durations = meta['log_entry_durations']
+                        self.log_entry_durations['timestamp'] = next.utils.datetimeNow()                  
+                return args_out_dict['args']
                 
 # Main application task
 def apply(app_id, exp_uid, task_name, args_in_json, enqueue_timestamp):
