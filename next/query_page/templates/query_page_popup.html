@@ -27,7 +27,7 @@
             <h1 class="modal-title" id="modal-title">Debrief</h1>
           </div>
           <div class="modal-body">
-            <h4 id="debrief_text">{{experiment['args']['debrief']}}</h4>
+            <h4 id="debrief_text">{{experiment['args']['debrief']|safe}}</h4>
             <br><br>
             User ID: <div id="participant_uid"></div>
           </div>
@@ -42,7 +42,7 @@
             <h1 class="modal-title" id="modal-title">Instructions</h1>
           </div>
           <div class="modal-body">
-            <p id="instruction_text">{{experiment['args']['instructions']}}</p>
+            <p id="instruction_text">{{experiment['args']['instructions']|safe}}</p>
             <br>
           <div class="modal-footer">
             <button type="button" class="btn btn-danger"
@@ -56,7 +56,7 @@
     <div class="container" style="height:90%">
       <!-- instructions at top of page -->
       <div id="top_instructions" class="row" >
-        <center><p id="directions_text">{{experiment['args']['instructions']}}</p></center>
+        <center><p id="directions_text">{{experiment['args']['instructions']|safe}}</p></center>
       </div>
       <!-- widget wrapper -->
       <div id="wrapper">

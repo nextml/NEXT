@@ -26,7 +26,7 @@ fi
     # this seems unnecessary for local, the reason it's commented out
     # it has something to do with docker which requires sudo access
 
-    # this comes 
+    # this comes
 	# http://www.speedguide.net/articles/linux-tweaking-121
 	# from https://code.google.com/p/lusca-cache/issues/detail?id=89#c4
 	# http://stackoverflow.com/questions/11190595/repeated-post-request-is-causing-error-socket-error-99-cannot-assign-reques
@@ -45,7 +45,7 @@ function abspath() {
 }
 
 echo "Changing next_worker_startup.sh permissions..."
-if [ "$#" -lt 2 ]; then 
+if [ "$#" -lt 2 ]; then
     dir=$(abspath ..);
     chmod +x ../next/broker/next_worker_startup.sh
     echo "No path to NEXT provided.  Assuming ../";
@@ -56,7 +56,9 @@ else
 fi
 
 cp -f docker-compose.yml.pre docker-compose.yml
+git_hash="$(git rev-parse HEAD)"
 sed -i -e 's|{{NEXT_DIR}}|'"$dir"'|g' docker-compose.yml
+sed -i -e 's|{{GIT_HASH}}|'"$git_hash"'|g' docker-compose.yml
 
 echo "Stopping any existing machines..."
 docker-compose stop
