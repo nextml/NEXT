@@ -9,6 +9,7 @@ import traceback
 import numpy
 from next.constants import DEBUG_ON
 import hashlib
+from functools import wraps
 
 # import next.logging_client.LoggerHTTP as ell
 from next.database_client.DatabaseAPI import DatabaseAPI
@@ -36,41 +37,65 @@ class App_Wrapper:
                 meta = args_out_dict.get('meta',{})
                 if 'log_entry_durations' in meta.keys():
                         self.log_entry_durations = meta['log_entry_durations']
-                        self.log_entry_durations['timestamp'] = next.utils.datetimeNow()                  
+                        self.log_entry_durations['timestamp'] = next.utils.datetimeNow()
                 return args_out_dict['args']
-                
+
+def handle_exception(f, app, task_name):
+    @wraps(f)
+    def wrapper(exp_uid, args_json):
+        try:
+            return f(exp_uid, args_json)
+        except Exception as e:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            full_error = str(traceback.format_exc())+'\n'+str(e)
+            next.utils.debug_print("{} Exception: {}".format(task_name, e), color='red')
+            log_entry = {'exp_uid': exp_uid,
+                         'task': task_name,
+                         'error': full_error,
+                         'timestamp': next.utils.datetimeNow(),
+                         'args_json': args_json}
+            app.butler.ell.log(app.app_id+':APP-EXCEPTION', log_entry)
+            traceback.print_tb(exc_traceback)
+            return '{}', False, str(e)
+    return wrapper
+
 # Main application task
 def apply(app_id, exp_uid, task_name, args_in_json, enqueue_timestamp):
-	enqueue_datetime = next.utils.str2datetime(enqueue_timestamp)
-	dequeue_datetime = next.utils.datetimeNow()
-	delta_datetime = dequeue_datetime - enqueue_datetime
-	time_enqueued = delta_datetime.seconds + delta_datetime.microseconds/1000000.
+    enqueue_datetime = next.utils.str2datetime(enqueue_timestamp)
+    dequeue_datetime = next.utils.datetimeNow()
+    delta_datetime = dequeue_datetime - enqueue_datetime
+    time_enqueued = delta_datetime.seconds + delta_datetime.microseconds/1000000.
 
-	# modify args_in
-	if task_name == 'processAnswer':
-		args_in_dict = json.loads(args_in_json)
-		args_in_dict['args']['timestamp_answer_received'] = enqueue_timestamp
-		args_in_json = json.dumps(args_in_dict)
-	# get stateless app
-	next_app = next.utils.get_app(app_id, exp_uid, db, ell)
-	# pass it to a method
-	method = getattr(next_app, task_name)
-	response, dt = next.utils.timeit(method)(exp_uid, args_in_json)
-        args_out_json,didSucceed,message = response
-        args_out_dict = json.loads(args_out_json)
-	if 'args' in args_out_dict:
-		return_value = (json.dumps(args_out_dict['args']),didSucceed,message)
-		meta = args_out_dict.get('meta',{})
-		if 'log_entry_durations' in meta:
-			log_entry_durations = meta['log_entry_durations']
-			log_entry_durations['app_duration'] = dt
-			log_entry_durations['duration_enqueued'] = time_enqueued
-			log_entry_durations['timestamp'] = next.utils.datetimeNow()
-			ell.log( app_id+':ALG-DURATION', log_entry_durations  )
-	else:
-		return_value = (args_out_json,didSucceed,message)
-	print '#### Finished %s,  time_enqueued=%s,  execution_time=%s ####' % (task_name,time_enqueued,dt)
-	return return_value
+    # modify args_in
+    if task_name == 'processAnswer':
+        args_in_dict = json.loads(args_in_json)
+        args_in_dict['args']['timestamp_answer_received'] = enqueue_timestamp
+        args_in_json = json.dumps(args_in_dict)
+
+    # get stateless app
+    next_app = next.utils.get_app(app_id, exp_uid, db, ell)
+    # pass it to a method
+    method = getattr(next_app, task_name)
+
+    response, dt = next.utils.timeit(handle_exception(method, next_app, task_name))(exp_uid, args_in_json)
+    args_out_json, didSucceed, message = response
+    args_out_dict = json.loads(args_out_json)
+
+    if 'args' in args_out_dict:
+        return_value = (json.dumps(args_out_dict['args']), didSucceed, message)
+        meta = args_out_dict.get('meta', {})
+        if 'log_entry_durations' in meta:
+            log_entry_durations = meta['log_entry_durations']
+            log_entry_durations['app_duration'] = dt
+            log_entry_durations['duration_enqueued'] = time_enqueued
+            log_entry_durations['timestamp'] = next.utils.datetimeNow()
+            ell.log( app_id+':ALG-DURATION', log_entry_durations  )
+    else:
+        return_value = (args_out_json, didSucceed, message)
+
+    print('#### Finished %s,  time_enqueued=%s,  execution_time=%s ####' % (task_name, time_enqueued, dt))
+
+    return return_value
 
 def apply_dashboard(app_id, exp_uid, args_in_json, enqueue_timestamp):
 	enqueue_datetime = next.utils.str2datetime(enqueue_timestamp)
@@ -93,7 +118,7 @@ def apply_dashboard(app_id, exp_uid, args_in_json, enqueue_timestamp):
         app = App_Wrapper(app_id, exp_uid, db, ell)
         cached_doc = app.butler.dashboard.get(uid=stat_uid)
         cached_response = None
-        if (int(stat_args.get('force_recompute',0))==0) and (cached_doc is not None):    
+        if (int(stat_args.get('force_recompute',0))==0) and (cached_doc is not None):
           delta_datetime = (next.utils.datetimeNow() - next.utils.str2datetime(cached_doc['timestamp']))
           if delta_datetime.seconds < next.constants.DASHBOARD_STALENESS_IN_SECONDS:
             cached_response = json.loads(cached_doc['data_dict'])
@@ -112,7 +137,7 @@ def apply_dashboard(app_id, exp_uid, args_in_json, enqueue_timestamp):
             dashboard = dashboard(db, ell)
             stats_method = getattr(dashboard, stat_id)
             response,dt = next.utils.timeit(stats_method)(app,app.butler,**args_dict['args']['params'])
-            
+
             save_dict = {'exp_uid':app.exp_uid,
                     'stat_uid':stat_uid,
                     'timestamp':next.utils.datetime2str(next.utils.datetimeNow()),
@@ -132,7 +157,7 @@ def apply_dashboard(app_id, exp_uid, args_in_json, enqueue_timestamp):
 	return json.dumps(response), True, ''
 
 
-def apply_sync_by_namespace(app_id, exp_uid, alg_id, alg_label, task_name, args, namespace, job_uid, enqueue_timestamp, time_limit):	
+def apply_sync_by_namespace(app_id, exp_uid, alg_id, alg_label, task_name, args, namespace, job_uid, enqueue_timestamp, time_limit):
 	enqueue_datetime = next.utils.str2datetime(enqueue_timestamp)
 	dequeue_datetime = next.utils.datetimeNow()
 	delta_datetime = dequeue_datetime - enqueue_datetime
@@ -153,18 +178,18 @@ def apply_sync_by_namespace(app_id, exp_uid, alg_id, alg_label, task_name, args,
                 log_entry_durations['timestamp'] = next.utils.datetimeNow()
                 ell.log( app_id+':ALG-DURATION', log_entry_durations)
 		print '########## Finished namespace:%s,  job_uid=%s,  time_enqueued=%s,  execution_time=%s ##########' % (namespace,job_uid,time_enqueued,dt)
-		return 
+		return
 	except Exception, error:
 		exc_type, exc_value, exc_traceback = sys.exc_info()
                 print "tasks Exception: {} {}".format(error, traceback.format_exc())
-                traceback.print_tb(exc_traceback)           
- 
+                traceback.print_tb(exc_traceback)
+
 		# error = traceback.format_exc()
-		# log_entry = { 'exp_uid':exp_uid,'task':'daemonProcess','error':error,'timestamp':next.utils.datetimeNow() } 
+		# log_entry = { 'exp_uid':exp_uid,'task':'daemonProcess','error':error,'timestamp':next.utils.datetimeNow() }
 		# ell.log( app_id+':APP-EXCEPTION', log_entry  )
 		return None
 
-# forces each worker to get its own random seed. 
+# forces each worker to get its own random seed.
 @celery.signals.worker_process_init.connect()
 def seed_rng(**_):
     """
