@@ -4,7 +4,7 @@ Flask-Login
 gunicorn
 pymongo
 redis
-celery==3.1.25
+celery
 boto
 greenlet
 mpld3
