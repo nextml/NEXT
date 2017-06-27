@@ -8,11 +8,12 @@ Flask controller for dashboards.
 import os
 import json
 import yaml
+from operator import itemgetter
 from flask import Blueprint, render_template, url_for, request, jsonify
 from jinja2 import Environment, PackageLoader, ChoiceLoader
 import requests
 
-import next.broker.broker 
+import next.broker.broker
 import next.constants as constants
 import next.database_client.PermStore as PermStore
 from next.api.resource_manager import ResourceManager
@@ -66,7 +67,8 @@ def experiment_list():
 
     return render_template('experiment_list.html',
                            dashboard_url=dashboard_url,
-                           experiments = reversed(experiments))
+                           experiments = sorted(experiments,
+                                key=itemgetter('start_date'), reverse=True))
 
 @dashboard.route('/get_stats', methods=['POST'])
 def get_stats():
