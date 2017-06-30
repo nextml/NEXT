@@ -6,8 +6,8 @@ import StringIO
 
 
 class Memory(object):
-    def __init__(self, collection='', exp_uid=''):
-        self.key_prefix = collection + exp_uid
+    def __init__(self, collection='', exp_uid='', uid_prefix=''):
+        self.key_prefix = collection + uid_prefix.format(exp_uid=exp_uid)
         self.cache = None
         self.max_entry_size = 500000000  # 500MB
 
