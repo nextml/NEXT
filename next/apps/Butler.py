@@ -132,7 +132,7 @@ class Collection(object):
         self.get_durations = 0.0
         self.set_durations = 0.0
         self.timing = timing
-        self.memory = Memory(collection, exp_uid)
+        self.memory = Memory(collection, exp_uid, uid_prefix)
 
     def set(self, uid="", key=None, value=None, exp=None):
         """
