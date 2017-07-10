@@ -162,7 +162,7 @@ class JobBroker:
             else:
                 return result
 
-    def __get_domain_for_job(self,job_id):
+    def __get_domain_for_job(self, job_id):
         """
         Computes which domain to run a given job_id on.
         Git Commit: c1e4f8aacaa42fae80e111979e3f450965643520 has support
@@ -172,26 +172,21 @@ class JobBroker:
         This implementation assumes just a single master node and no workers
         so only a single hostname (e.g. localhost) has celery workers.
         """
-        ttw = 0
-        while self.hostname==None:
-            time.sleep(ttw)
-            tmp = self.r.get('MINIONWORKER_HOSTNAME')
-            if tmp!=None:
-                self.hostname=tmp
-                print 'Hostname = %s  from Redis' % self.hostname
-                break
-            else:
-                fid = open('/etc/hosts','r')
-                line = fid.readline()
-                while line!='':
+        if self.r.exists('MINIONWORKER_HOSTNAME'):
+            self.hostname = self.r.get('MINIONWORKER_HOSTNAME')
+            utils.debug_print('Hostname = %s from Redis' % self.hostname)
+        else:
+            with open('/etc/hosts', 'r') as fid:
+                for line in fid:
                     if 'MINIONWORKER' in line:
                         self.hostname = line.split('\t')[1].split(' ')[1]
-                        self.r.set('MINIONWORKER_HOSTNAME',self.hostname)
-                        print 'Hostname = %s  from /etc/hosts' % self.hostname 
+                        self.r.set('MINIONWORKER_HOSTNAME', self.hostname, ex=360)  # expire after 10 minutes
+                        utils.debug_print('Hostname = %s from /etc/hosts' % self.hostname)
                         break
-                    line = fid.readline()
-            ttw += .01
-            print 'Failed to retrieve hostname... trying again in %f seconds' % ttw
+        if self.hostname is None:
+            import socket
+            self.hostname = socket.gethostname()
+            self.r.set('MINIONWORKER_HOSTNAME', self.hostname, ex=360)  # expire after 10 minutes
+            utils.debug_print('Hostname = %s from socket.gethostname() - minionworker?' % self.hostname)
 
         return self.hostname
-    
