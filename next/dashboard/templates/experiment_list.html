@@ -1,3 +1,4 @@
+{% from "macros.html" import experiment_list %}
 {% extends "outline.html" %}
 
 {% block title %} Experiment List {% endblock %}
@@ -28,34 +29,18 @@ function untoggle_parent(source) {
   </div>
 
   <div class="col-sm-10 col-sm-offset-1">
-    <table class="table table-bordered left">
-      <thead>
-    <th> <input type="checkbox" name="check_box_parent" onClick="toggle(this)" /> </th> 
-	<th> Experiment ID </th>
-	<th> Number of participants </th>
-	<th> App ID </th>
-	<th> Date </th>
-      </thead>
-      {% for experiment in experiments %}
-      <tr>
-    <td>
-      <input type="checkbox" name="exp_check_boxes"  onClick="untoggle_parent(this)" value="{{ experiment.exp_uid }}">
-    </td>
-	<td>
-	  <a href="{{ url_for('dashboard.experiment_dashboard', exp_uid=experiment.exp_uid, app_id=experiment.app_id) }}">{{ experiment.exp_uid }}</a>
-	</td>
-	<td>
-	  {{ experiment.num_participants }}
-	</td>
-	<td>
-	  {{ experiment.app_id }}
-	</td>
-	<td>
-	  {{ experiment.start_date }}
-	</td>
-      </tr>
-      {% endfor %}
-    </table>
+    <ul class="nav nav-tabs">
+      <li role="presentation" class="active"><a href="#live" aria-controls="live" role="tab" data-toggle="tab">Live</a></li>
+      <li role="presentation"><a href="#retired" aria-controls="retired" role="tab" data-toggle="tab">Retired</a></li>
+    </ul>
+    <div class="tab-content">
+      <div role="tabpanel" class="tab-pane active" id="live">
+      {{ experiment_list(experiments|rejectattr("retired")) }}
+      </div>
+      <div role="tabpanel" class="tab-pane" id="retired">
+      {{ experiment_list(experiments|selectattr("retired")) }}
+      </div>
+    </div>
   </div>
 </div>
 
