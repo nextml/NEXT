@@ -3,12 +3,10 @@
 {% block title %} Experiment List {% endblock %}
 
 {% block sidebar %}
-
-{% endblock %} 
+{% endblock %}
 
 {% block body %}
-<!-- <div class="col-lg-12 "> -->
-<script language="JavaScript">
+<script type="text/javascript">
 function toggle(source) {
   checkboxes = document.getElementsByName('exp_check_boxes');
   for(var i=0, n=checkboxes.length;i<n;i++) {
@@ -16,9 +14,9 @@ function toggle(source) {
   }
 }
 function untoggle_parent(source) {
-  parent = document.getElementsByName('check_box_parent')[0]; 
+  parent = document.getElementsByName('check_box_parent')[0];
   if (parent.checked){
-  	parent.checked = source.checked
+    parent.checked = source.checked
   }
 }
 </script>
@@ -26,8 +24,9 @@ function untoggle_parent(source) {
 <div class="row">
   <div class="col-lg-8 col-lg-offset-2">
     <h1 style="text-align:center;" class="page-header">Experiments</h1>
-    <p style="text-align:center;padding-bottom:20px;">Click on an experiment to see it's dashboard</p>
+    <p style="text-align:center;padding-bottom:20px;">Click on an experiment to see its dashboard.</p>
   </div>
+
   <div class="col-sm-10 col-sm-offset-1">
     <table class="table table-bordered left">
       <thead>
@@ -60,8 +59,9 @@ function untoggle_parent(source) {
   </div>
 </div>
 
-<script language="JavaScript">
+<script type="text/javascript">
 function backup_selected_experiments() {
+  // TODO(liam): there's a vastly better way to construct these query strings
   checkboxes = document.getElementsByName('exp_check_boxes');
   var url = "{{url_for('dashboard.databasebackup')}}?";
   var k=0
@@ -78,12 +78,10 @@ function backup_selected_experiments() {
   if(k>0){
   	window.open(url);
   }
-  
 }
 </script>
 
 <div class="row col-md-offset-1">
-
   <div class="col-md-5" style="border-right: 1px solid #ccc;">
     <div class="center-block">
     <!-- Backup button -->
@@ -95,38 +93,36 @@ function backup_selected_experiments() {
   </div>
 
   <div class="col-md-5">
-    <div class="center-block"
-	 <!-- Restore -->
+    <div class="center-block">
+      <!-- Restore -->
       <form method="post" enctype="multipart/form-data" class="box" action="{{url_for('dashboard.databaserestore')}}">
-	   <div class="form-group">
-	     <label for="exampleInputFile">Restore Experiments from Backup</label>
-	     <p>Select a database backup file for restoring.</p><p> <font color="red">Warning: Restoring is an "insert only" action meaning that no action is taken for those experiments that already exist in the system.</font></p>
-	     <input type="file" id="exampleInputFile" name="primary_file">
-	   </div>
-	   <script>
-	     loading = function(){
-	     console.log('please wait!');
-	     $('#pleaseWaitDialog').modal('show');//.show();
-	     };
-	   </script>
-	   
-	   <!-- Waiting for dialog -->
-	   <div class="modal fade" id="pleaseWaitDialog" tabindex="-1" role="dialog" aria-labelledby="notice" aria-hidden="true" data-keyboard="false">
-	     <div class="modal-dialog modal-lg">
-	       <div class="modal-content">
-		 <div class="modal-body" id="question-info" style='text-align:center;'></div>
-		 <center>
-		   <img src="{{ dashboard_url }}/static/img/loader.gif" style="width:300px; height:75;" />
-		   <br>
-		   Uploading...
-		 </center>
-	       </div>
-	     </div>
-	   </div>
-	   <input type="submit" onclick="loading();" class="btn btn-info" style="margin-bottom:20px" value="Restore" />  
-	 </form>
+        <div class="form-group">
+          <label for="exampleInputFile">Restore Experiments from Backup</label>
+          <p>Select a database backup file for restoring.</p>
+          <p style="color:red;">Warning: Restoring is an "insert only" action meaning that no action is taken for those experiments that already exist in the system.</p>
+          <input type="file" id="exampleInputFile" name="primary_file">
+        </div>
+        <script>
+        loading = function (){
+          console.log('please wait!');
+          $('#pleaseWaitDialog').modal('show');//.show();
+        };
+        </script>
+
+        <!-- Waiting for dialog -->
+        <div class="modal fade" id="pleaseWaitDialog" tabindex="-1" role="dialog" aria-labelledby="notice" aria-hidden="true" data-keyboard="false">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-body" id="question-info" style='text-align:center;'></div>
+                <img src="{{ dashboard_url }}/static/img/loader.gif" style="width:300px; height:75;" />
+                <p>Uploading...</p>
+            </div>
+          </div>
+        </div>
+
+        <input type="submit" onclick="loading();" class="btn btn-info" style="margin-bottom:20px" value="Restore" />
+      </form>
+    </div>
   </div>
 </div>
-</div>
-<!-- </div> -->
-{% endblock %} 
+{% endblock %}
