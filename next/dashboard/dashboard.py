@@ -54,6 +54,7 @@ def experiment_list():
                                     'app_id': app_id,
                                     'start_date': start_date,
                                     'num_participants':len(rm.get_participant_uids(exp_uid)),
+                                    'retired': rm.is_exp_retired(exp_uid),
                                     })
             except IndexError as e:
                 print e
