@@ -61,22 +61,13 @@ function untoggle_parent(source) {
 
 <script type="text/javascript">
 function backup_selected_experiments() {
-  // TODO(liam): there's a vastly better way to construct these query strings
-  checkboxes = document.getElementsByName('exp_check_boxes');
-  var url = "{{url_for('dashboard.databasebackup')}}?";
-  var k=0
-  for(var i=0, n=checkboxes.length;i<n;i++) {
-    if (checkboxes[i].checked){
-    	if(k==0){
-    		url += 'exp_uid='+checkboxes[i].value;
-    		k+=1;
-    	}else{
-    		url += '&exp_uid='+checkboxes[i].value;
-    	}
-    }
-  }
-  if(k>0){
-  	window.open(url);
+  var base_url = "{{url_for('dashboard.databasebackup')}}";
+
+  checked_ids = $("[name='exp_check_boxes']:checked").map(function(){return this.value;}).get();
+
+  if (checked_ids.length > 0){
+    var url = base_url + '?' + $.param({'exp_uid': checked_ids});
+    window.open(url);
   }
 }
 </script>
