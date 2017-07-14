@@ -9,6 +9,7 @@ import os
 import json
 import yaml
 from flask import Blueprint, render_template, url_for, request, jsonify
+import flask_restful.inputs
 from jinja2 import Environment, PackageLoader, ChoiceLoader
 import requests
 
@@ -54,6 +55,7 @@ def experiment_list():
                                     'app_id': app_id,
                                     'start_date': start_date,
                                     'num_participants':len(rm.get_participant_uids(exp_uid)),
+                                    'retired': rm.is_exp_retired(exp_uid),
                                     })
             except IndexError as e:
                 print e
@@ -105,6 +107,13 @@ def system_monitor():
                            cadvisor_url=cadvisor_url,
                            mongodb_url=mongodb_url)
 
+@dashboard.route('/experiment/<exp_uid>/retire', methods=['POST'])
+def retire_exp(exp_uid):
+    retired = request.form.get('retired', default=True,
+        type=flask_restful.inputs.boolean)
+    rm.set_exp_retired(exp_uid, retired)
+
+    return '', 200
 
 @dashboard.route('/experiment_dashboard/<exp_uid>/<app_id>')
 def experiment_dashboard(exp_uid, app_id):

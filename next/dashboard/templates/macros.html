@@ -1,0 +1,25 @@
+{% macro experiment_list(experiments) %}
+  <table class="table table-bordered left">
+    <thead>
+      <th><input type="checkbox" name="check_box_parent" onClick="toggle(this)" /></th>
+      <th>Experiment ID</th>
+      <th>Number of participants</th>
+      <th>App ID</th>
+      <th>Start date</th>
+    </thead>
+
+    {% for experiment in experiments %}
+    <tr>
+      <td>
+        <input type="checkbox" name="exp_check_boxes"  onClick="untoggle_parent(this)" value="{{ experiment.exp_uid }}">
+      </td>
+      <td>
+        <a href="{{ url_for('dashboard.experiment_dashboard', exp_uid=experiment.exp_uid, app_id=experiment.app_id) }}">{{ experiment.exp_uid }}</a>
+      </td>
+      <td>{{ experiment.num_participants }}</td>
+      <td>{{ experiment.app_id }}</td>
+      <td>{{ experiment.start_date }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+{%- endmacro %}
