@@ -55,16 +55,34 @@ function backup_selected_experiments() {
     window.open(url);
   }
 }
+
+function selection_set_retired(retired) {
+  checked_ids = $("[name='exp_check_boxes']:checked").map(function(){return this.value;}).get();
+
+  for (var id of checked_ids) {
+    $.post("{{dashboard_url}}/experiment/"+id+"/retire", {'retired': retired});
+  }
+
+  location.reload();
+}
 </script>
 
 <div class="row col-md-offset-1">
   <div class="col-md-5" style="border-right: 1px solid #ccc;">
-    <div class="center-block">
-    <!-- Backup button -->
-    <label for="exampleInputFile">Backup Experiments</label>
-    <p class="help-block">Download backup of experiments selected above.</p>
-    <a class="btn btn-info" role="button" onClick="backup_selected_experiments()"> Download</a>
-    <!-- <a class="btn btn-info" role="button" href="/api/database/databasebackup"> Download </a> -->
+    <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #ccc;">
+      <!-- Backup button -->
+      <label for="btn_backup_experiments">Backup Experiments</label>
+      <p class="help-block">Download backup of experiments selected above.</p>
+      <a class="btn btn-info" role="button" id="btn_backup_experiments" onClick="backup_selected_experiments()">Download</a>
+    </div>
+    <div style="padding-bottom: 15px;">
+      <label for="btn_retire_experiments">Retire Experiments</label>
+      <p class="help-block">Retire the experiments selected above.</p>
+      <p class="help-block"><strong>Note:</strong> Retiring an experiment only affects the dashboard; the experiment <em>is still active</em>.</p>
+      <div class="btn-group" role="group">
+        <a class="btn btn-info" role="button" id="btn_retire_experiments" onClick="selection_set_retired(true)">Retire</a>
+        <a class="btn btn-info" role="button" id="btn_unretire_experiments" onClick="selection_set_retired(false)">Unretire</a>
+      </div>
     </div>
   </div>
 
