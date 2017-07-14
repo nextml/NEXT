@@ -69,36 +69,34 @@ function backup_selected_experiments() {
   </div>
 
   <div class="col-md-5">
-    <div class="center-block">
-      <!-- Restore -->
-      <form method="post" enctype="multipart/form-data" class="box" action="{{url_for('dashboard.databaserestore')}}">
-        <div class="form-group">
-          <label for="exampleInputFile">Restore Experiments from Backup</label>
-          <p>Select a database backup file for restoring.</p>
-          <p style="color:red;">Warning: Restoring is an "insert only" action meaning that no action is taken for those experiments that already exist in the system.</p>
-          <input type="file" id="exampleInputFile" name="primary_file">
-        </div>
-        <script>
-        loading = function (){
-          console.log('please wait!');
-          $('#pleaseWaitDialog').modal('show');//.show();
-        };
-        </script>
+    <!-- Restore -->
+    <form method="post" enctype="multipart/form-data" class="box" action="{{url_for('dashboard.databaserestore')}}">
+      <div class="form-group">
+        <label for="exampleInputFile">Restore Experiments from Backup</label>
+        <p class="help-block">Select a database backup file for restoring.</p>
+        <p class="help-block" style="color:red;">Warning: Restoring is an "insert only" action meaning that no action is taken for those experiments that already exist in the system.</p>
+        <input type="file" id="exampleInputFile" name="primary_file">
+      </div>
+      <script>
+      loading = function (){
+        console.log('please wait!');
+        $('#pleaseWaitDialog').modal('show');//.show();
+      };
+      </script>
 
-        <!-- Waiting for dialog -->
-        <div class="modal fade" id="pleaseWaitDialog" tabindex="-1" role="dialog" aria-labelledby="notice" aria-hidden="true" data-keyboard="false">
-          <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-              <div class="modal-body" id="question-info" style='text-align:center;'></div>
-                <img src="{{ dashboard_url }}/static/img/loader.gif" style="width:300px; height:75;" />
-                <p>Uploading...</p>
-            </div>
+      <!-- Waiting for dialog -->
+      <div class="modal fade" id="pleaseWaitDialog" tabindex="-1" role="dialog" aria-labelledby="notice" aria-hidden="true" data-keyboard="false">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-body" id="question-info" style='text-align:center;'></div>
+              <img src="{{ dashboard_url }}/static/img/loader.gif" style="width:300px; height:75;" />
+              <p>Uploading...</p>
           </div>
         </div>
+      </div>
 
-        <input type="submit" onclick="loading();" class="btn btn-info" style="margin-bottom:20px" value="Restore" />
-      </form>
-    </div>
+      <input type="submit" onclick="loading();" class="btn btn-info" style="margin-bottom:20px" value="Restore" />
+    </form>
   </div>
 </div>
 {% endblock %}
