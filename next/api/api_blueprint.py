@@ -32,10 +32,6 @@ api_interface.add_resource(Logs,
                            '/experiment/<string:exp_uid>/logs',
                            '/experiment/<string:exp_uid>/logs/<log_type>')
 
-from next.api.resources.retired import Retired
-api_interface.add_resource(Retired,
-                           '/experiment/<string:exp_uid>/retire')
-
 from next.api.resources.participants import Participants
 api_interface.add_resource(Participants,
                            '/experiment/<string:exp_uid>/participants')
