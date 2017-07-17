@@ -148,19 +148,21 @@ class MyApp:
         for response in responses:
             targets = {'target_' + target['label']: target['target']['primary_description']
                        for target in response['target_indices']}
+            ids = {target['label'] + '_id': target['target']['target_id']
+                   for target in response['target_indices']}
             if 'winner_id' not in response:
                 continue
-            winner = {t['target']['target_id'] == response['winner_id']:
-                    t['target']['primary_description']
-                      for t in response['target_indices']}
-            response.update({'target_winner': winner[True]})
+            won = {t['target']['target_id'] == response['winner_id']: t
+                   for t in response['target_indices']}
+            winner = won[True]
+            response.update({'target_winner': winner['target']['primary_description'],
+                             'winner_id': winner['target']['target_id']})
 
-            for key in ['q', '_id', 'target_indices', 'winner_id', 'context_type']:
+            for key in ['_id', 'target_indices']:
                 if key in response:
                     del response[key]
             response.update(targets)
+            response.update(ids)
             formatted += [response]
 
         return formatted
-
-
