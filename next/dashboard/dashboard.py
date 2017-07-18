@@ -39,6 +39,14 @@ from next.dashboard.database import DatabaseBackup, DatabaseRestore
 dashboard_interface.add_resource(DatabaseBackup,'/database/databasebackup', endpoint='databasebackup')
 dashboard_interface.add_resource(DatabaseRestore,'/database/databaserestore', endpoint='databaserestore')
 
+if constants.SITE_KEY:
+    DASHBOARD_URL = '/dashboard/{}'.format(constants.SITE_KEY)
+else:
+    DASHBOARD_URL = '/dashboard'
+
+@dashboard.context_processor
+def inject_to_templates():
+    return dict(dashboard_url=DASHBOARD_URL)
 
 @dashboard.route('/experiment_list')
 def experiment_list():
@@ -61,13 +69,7 @@ def experiment_list():
                 print e
                 pass
 
-    if constants.SITE_KEY:
-        dashboard_url='/dashboard/{}'.format(constants.SITE_KEY)
-    else:
-        dashboard_url='/dashboard'
-
     return render_template('experiment_list.html',
-                           dashboard_url=dashboard_url,
                            experiments=sorted(experiments,
                                 key=lambda e: e['start_date'], reverse=True))
 
@@ -90,10 +92,6 @@ def system_monitor():
     """
     host_url = 'http://{}:{}'.format(constants.NEXT_BACKEND_GLOBAL_HOST,
                                      constants.NEXT_BACKEND_GLOBAL_PORT)
-    if constants.SITE_KEY:
-        dashboard_url='/dashboard/{}'.format(constants.SITE_KEY)
-    else:
-        dashboard_url='/dashboard'
 
     rabbit_url = 'http://{}:{}'.format(constants.NEXT_BACKEND_GLOBAL_HOST,
                                        15672)
@@ -102,7 +100,6 @@ def system_monitor():
     mongodb_url = 'http://{}:{}'.format(constants.NEXT_BACKEND_GLOBAL_HOST,
                                         28017)
     return render_template('system_monitor.html',
-                           dashboard_url=dashboard_url,
                            rabbit_url=rabbit_url,
                            cadvisor_url=cadvisor_url,
                            mongodb_url=mongodb_url)
@@ -134,10 +131,6 @@ def experiment_dashboard(exp_uid, app_id):
 
     host_url = ''# 'http://{}:{}'.format(constants.NEXT_BACKEND_GLOBAL_HOST,
     #                       constants.NEXT_BACKEND_GLOBAL_PORT)
-    if constants.SITE_KEY:
-        dashboard_url='/dashboard/{}'.format(constants.SITE_KEY)
-    else:
-        dashboard_url='/dashboard'
 
     env = Environment(loader=ChoiceLoader([PackageLoader('apps.{}'.format(app_id),
                                                          'dashboard'),
@@ -147,7 +140,6 @@ def experiment_dashboard(exp_uid, app_id):
     return template.render(app_id=app_id,
                            exp_uid=exp_uid,
                            alg_list=alg_list,
-                           dashboard_url=dashboard_url,
                            exceptions_present=False,#exceptions_present(exp_uid),
                            url_for=url_for,
                            simple_flag=int(simple_flag),
