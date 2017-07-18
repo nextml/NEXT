@@ -12,7 +12,7 @@ scipy
 greenlet
 gevent
 pandas
-matplotlib
+matplotlib==1.5.3
 mpld3
 pyyaml
 ply
