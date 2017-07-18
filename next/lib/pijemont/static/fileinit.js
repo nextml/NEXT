@@ -32,7 +32,7 @@ function serialise(data){
     ans = "";
     payload = "";
     for(var x in data){
-	if(data[x] == null || data[x] == "") continue; 
+	if(data[x] == null || data[x] == "") continue;
 	ans += x + ":" + data[x].length + ";";
 	payload += data[x]
     }
@@ -60,7 +60,7 @@ function submit_form(){
 	    document.getElementById('exp_status').innerHTML = "Success!  <br /><a target=\"_blank\" href=\"/dashboard/experiment_dashboard/"+ret.exp_uid+"/"+ret.app_id+"\">Experiment dashboard</a><br /><a target=\"_blank\" href=\"/query/query_page/query_page/"+ret.exp_uid+"\">Experiment query page</a>";
 	}
 	else{
-	    document.getElementById('exp_status').innerHTML = "There was an error:  <br /><font color=\"red\"><pre>"+ret.message+"</pre></font>";
+	    document.getElementById('exp_status').innerHTML = "There was an error:  <br /><pre style=\"color:red;\">"+ret.message+"</pre>";
 	    document.getElementById('initExp').disabled = false;
 	}
     });
