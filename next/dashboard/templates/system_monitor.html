@@ -2,46 +2,29 @@
 {% block title %}Backend monitoring{% endblock %}
 
 {% block body %}
-<!-- <div class="col-lg-12 "> -->
-	<div class="col-lg-8 col-lg-offset-2">
-		<h1 style="text-align:center;" class="page-header">Backend System monitoring</h1>
-		<p style="text-align:center;padding-bottom:20px;">Click on a link to see it's statistics</p>
-	</div>
+<div class="col-lg-8 col-lg-offset-2">
+	<h1 class="text-center" class="page-header">Backend System monitoring</h1>
+</div>
 
-	<div class="col-sm-10 col-sm-offset-1">
-		<table class="table table-bordered left">
-		  <thead>
-		    <th> Monitor </th>
-		    <th> Description </th>
-		  </thead>
-		  <tr>
-		    <td>
-		      <a href="{{ rabbit_url }}">RabbitMQ</a>
-		    </td>
-		    <td>
-		    Manages Queues
-		    </td>
-		  </tr>
+<div class="col-sm-10 col-sm-offset-1">
+	<table class="table table-bordered left">
+	  <tr>
+	    <th>Monitor</th>
+	    <th>Description</th>
+	  </tr>
 
-		  <tr>
-		    <td>
-		      <a href="{{ cadvisor_url }}">cAdvisor</a>
-		    </td>
-		    <td>
-		    Some container statistics
-		    </td>
-		  </tr>
-
-		  <tr>
-		    <td>
-		      <a href="{{ mongodb_url }}">MongoDB</a>
-		    </td>
-		    <td>
-		    Basic stats for MongodDB
-		    </td>
-		  </tr>
-
-		</table>
-	</div>
-<!-- </div> -->
-{% endblock %} 
+	  <tr>
+	    <td><a href="{{ rabbit_url }}">RabbitMQ</a></td>
+	    <td>RabbitMQ queue dashboard</td>
+	  </tr>
+	  <tr>
+	    <td><a href="{{ cadvisor_url }}">cAdvisor</a></td>
+	    <td>Container statistics</td>
+	  </tr>
+	  <tr>
+	    <td><a href="{{ mongodb_url }}">MongoDB</a></td>
+	    <td>MongoDB statistics</td>
+	  </tr>
+	</table>
+</div>
+{% endblock %}
