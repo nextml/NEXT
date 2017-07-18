@@ -14,7 +14,7 @@ popup_alert = function(text){
 <div class="modal fade" id="info" tabindex="-1" role="button" aria-labelledby="" aria-hidden="true" data-keyboard="false">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <div class="modal-body" id="question-info" style='text-align:left;'>
+      <div class="modal-body text-left" id="question-info">
       </div>
       <center>
       <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="">Dismiss</button>
@@ -24,15 +24,14 @@ popup_alert = function(text){
   </div>
 </div>
 
-<div class="container-fluid" style ='background-color: #FFFFFF; padding-bottom: 1cm; text-align: center'>
+<div class="container-fluid text-center" style='background-color: #FFFFFF; padding-bottom: 1cm;'>
     <h2 id="header">Experiment Dashboard: {{ exp_uid }}</h2>
 </div>
 
 {% if simple_flag<2 %}
 <!--################## activity #################### -->
-<div class="container-fluid" style ='background-color: #FFFFFF; padding-bottom: 1cm; text-align: center'>
-
-    <div class="col-lg-10 col-lg-offset-1" style"display: inline-block">
+<div class="container-fluid text-center" style='background-color: #FFFFFF; padding-bottom: 1cm;'>
+    <div class="col-lg-10 col-lg-offset-1" style="display: inline-block">
         <div id = "api_activity_histogram_processAnswer"></div><button type="button" class="btn btn-primary btn-xs"
                   onclick="popup_alert('This is a graph depicting the relative frequency of activity over the course of the experiment starting from the launch and ending with the current time.<br><br><b>How it is measured:</b> Events are the timestamps of when answers to queries are received by the system. <br><br><b>How to use this information:</b> Gives the practitioner a qualitative idea of how load on the system has been distributed over time.')">?</button>
     </div>
@@ -66,7 +65,7 @@ popup_alert = function(text){
         });
 </script>
 
-<div class="container-fluid" style ='padding-bottom: 1cm'>
+<div class="container-fluid" style='padding-bottom: 1cm'>
     <div class="col-lg-10 col-lg-offset-1">
         <div class="row">
             <h2> Experiment info </h2>
@@ -126,7 +125,7 @@ popup_alert = function(text){
 
 {% if simple_flag<1 %}
 <!--################## compute_duration_multiline_plot #################### -->
-<div class="container-fluid" style ='background-color: #FFFFFF; padding-bottom: 1cm'>
+<div class="container-fluid" style='background-color: #FFFFFF; padding-bottom: 1cm'>
     <div class="col-lg-10 col-lg-offset-1">
         <div class="row">
             <h2> Algorithm timing comparison
@@ -261,7 +260,7 @@ popup_alert = function(text){
 
 
 <!--###################### compute_duration_detailed_stacked_atea_plots for each algorithm ###################-->
-<div class="container-fluid" style ='padding-bottom: 1cm'>
+<div class="container-fluid" style='padding-bottom: 1cm'>
     <div class="col-lg-10 col-lg-offset-1">
         <h2> Individual algorithm timing breakdown
             <button type="button" class="btn btn-primary btn-xs"
@@ -433,7 +432,7 @@ popup_alert = function(text){
 
 
 <!--###################### network_delay_histogram #######################-->
-<div class="container-fluid" style ='padding-bottom: 1cm; background-color: #FFFFFF'>
+<div class="container-fluid" style='padding-bottom: 1cm; background-color: #FFFFFF'>
     <div class="col-lg-10 col-lg-offset-1">
         <h2> Client-side timing
             <button type="button" class="btn btn-primary btn-xs"
