@@ -22,10 +22,26 @@
     <style type="text/css">
       @import url('http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic|Montserrat:700|Merriweather:400italic');
 
+      html {
+        position: relative;
+        min-height: 100%;
+      }
+
       body {
         background-color: #f8f8f8;
         font-family: 'Lato', sans-serif;
         font-weight: 300;
+
+        margin-bottom: 45px;
+      }
+
+      .footer {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 45px;
+        line-height: 45px;
+        background: #e9e9e9 ;
       }
 
       .embedding {
@@ -77,8 +93,11 @@
     <div class="container">
       {% block body %} {% endblock %}
     </div>
+
+    <footer class="footer">
       <div class="container">
-        {% block body %} {% endblock %}
+        <p>NEXT v{{next_version}} (running git commit <code>{{next_git_hash[:8]}}</code>)</p>
       </div>
+    </footer>
   </body>
 </html>

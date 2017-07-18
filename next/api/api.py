@@ -17,6 +17,11 @@ else:
 app.register_blueprint(dashboard, url_prefix=dashboard_prefix)
 app.register_blueprint(query_page, url_prefix='/query')
 
+@app.context_processor
+def inject_global_templatevars():
+    return dict(next_git_hash=constants.GIT_HASH,
+                next_version=constants.VERSION)
+
 import logging
 import sys
 # Log to standard out. Remember to turn off in production
@@ -35,4 +40,4 @@ def internal_system_error(error):
         }
     }
     return json.dumps(response), 404
-                  
+
