@@ -5,7 +5,7 @@ gunicorn
 requests
 pymongo
 redis
-celery==3.1.25
+celery
 boto
 numpy
 scipy

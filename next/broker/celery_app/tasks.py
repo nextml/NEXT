@@ -172,6 +172,12 @@ def seed_rng(**_):
     """
     numpy.random.seed()
 
+
+@celery.signals.worker_ready.connect
+def worker_is_ready(**kwargs):
+    next.utils.debug_print("{} ready.".format(kwargs['sender'].hostname))
+
+
 # If celery isn't off, celery-wrap the functions so they can be called with apply_async
 if next.constants.CELERY_ON:
         apply = app.task(apply)
