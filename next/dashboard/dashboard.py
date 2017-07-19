@@ -71,7 +71,8 @@ def experiment_list():
 
     return render_template('experiment_list.html',
                            experiments=sorted(experiments,
-                                key=lambda e: e['start_date'], reverse=True))
+                                              key=lambda e: e['start_date'],
+                                              reverse=True))
 
 @dashboard.route('/get_stats', methods=['POST'])
 def get_stats():
@@ -120,8 +121,12 @@ def experiment_dashboard(exp_uid, app_id):
     Inputs: ::\n
     	(string) exp_uid, exp_uid for a current experiment.
     """
+
     simple_flag = int(request.args.get('simple',0))
     force_recompute = int(request.args.get('force_recompute',1))
+
+    if rm.get_experiment(exp_uid) is None:
+        return render_template('exp_404.html', exp_uid=exp_uid), 404
 
     # Not a particularly good way to do this.
     alg_label_list = rm.get_algs_for_exp_uid(exp_uid)
