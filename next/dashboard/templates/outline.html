@@ -31,17 +31,19 @@
         background-color: #f8f8f8;
         font-family: 'Lato', sans-serif;
         font-weight: 300;
-
-        margin-bottom: 45px;
       }
 
-      .footer {
-        position: absolute;
-        bottom: 0;
-        width: 100%;
-        height: 45px;
-        line-height: 45px;
-        background: #e9e9e9 ;
+      .navbar {
+        background-color: #67b1ce;
+      }
+
+      .navbar a {
+        color: #f8f8f8 !important;
+      }
+
+      .navbar-default .navbar-brand {
+        font-size: 40px;
+        font-weight: 700;
       }
 
       .embedding {
@@ -69,17 +71,15 @@
 
   <body>
     <!-- Navigation -->
-    <nav class="navbar  navbar-static-top" role="navigation" style="background-color:#67b1ce">
-  	  <div class="container-fluid">
-  	    <div class="navbar-header">
-  	      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#top-navbar">
-        		<span class="icon-bar"></span>
-        		<span class="icon-bar"></span>
-        		<span class="icon-bar"></span>
-  	      </button>
-          <a class="navbar-brand" href="/home">
-            <span style="color:#f8f8f8; font-size:40px; font-weight:700;">NEXT</span>
-          </a>
+    <nav class="navbar navbar-default navbar-static-top" role="navigation">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#top-navbar">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/home">NEXT</a>
         </div>
         <div class="collapse navbar-collapse" id="top-navbar">
           <ul class="nav navbar-nav navbar-right">
@@ -87,17 +87,11 @@
             <li><a href="{{ url_for('dashboard.system_monitor') }}">System</a></li>
           </ul>
         </div>
-  	  </div>
+      </div>
     </nav>
 
     <div class="container">
       {% block body %} {% endblock %}
     </div>
-
-    <footer class="footer">
-      <div class="container">
-        <p>NEXT v{{next_version}} (running git commit <code>{{next_git_hash[:8]}}</code>)</p>
-      </div>
-    </footer>
   </body>
 </html>
