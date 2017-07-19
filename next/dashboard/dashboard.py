@@ -8,7 +8,7 @@ Flask controller for dashboards.
 import os
 import json
 import yaml
-from flask import Blueprint, render_template, url_for, request, jsonify
+from flask import Blueprint, render_template, url_for, request, jsonify, current_app
 import flask_restful.inputs
 from jinja2 import Environment, PackageLoader, ChoiceLoader
 import requests
@@ -129,21 +129,25 @@ def experiment_dashboard(exp_uid, app_id):
                  'alg_label_clean':'_'.join(alg['alg_label'].split())}
                 for alg in alg_label_list]
 
-    host_url = ''# 'http://{}:{}'.format(constants.NEXT_BACKEND_GLOBAL_HOST,
-    #                       constants.NEXT_BACKEND_GLOBAL_PORT)
-
+    # -- Directly use Jinja2 to load and render the app-specific dashboard template.
     env = Environment(loader=ChoiceLoader([PackageLoader('apps.{}'.format(app_id),
                                                          'dashboard'),
                                            PackageLoader('next.dashboard',
                                                          'templates')]))
     template = env.get_template('myAppDashboard.html'.format(app_id)) # looks for /next/apps/{{ app_id }}/dashboard/{{ app_id }}.html
-    return template.render(app_id=app_id,
-                           exp_uid=exp_uid,
-                           alg_list=alg_list,
-                           exceptions_present=False,#exceptions_present(exp_uid),
-                           url_for=url_for,
-                           simple_flag=int(simple_flag),
-                           force_recompute=int(force_recompute))
+    # The context we pass to the dashboard template.
+    ctx = dict(app_id=app_id,
+               exp_uid=exp_uid,
+               alg_list=alg_list,
+               exceptions_present=False,#exceptions_present(exp_uid),
+               url_for=url_for,
+               simple_flag=int(simple_flag),
+               force_recompute=int(force_recompute))
+    # Inject standard Flask context + context processors
+    current_app.update_template_context(ctx)
+
+    # Render the template
+    return template.render(**ctx)
 
 
 def exceptions_present(exp_uid):
