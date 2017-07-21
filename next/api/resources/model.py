@@ -60,24 +60,32 @@ class GetResults(Resource):
 
         response_json, _, _ = broker.applyAsync(app_id, exp_uid, "getResults", '{}')
         results = json.loads(response_json)
-        response = {'results': results}
 
         if csv:
-            csvs = [{'data': _result_to_csv_str(result),
-                     'filename': alg_label + '.csv'}
-                    for alg_label, result in results.items()]
-            zipfile = _create_zipfile(csvs)
-            return send_file(zipfile,
+            results = [{'data': _result_to_csv_str(result),
+                        'filename': alg_label + '.csv'}
+                       for alg_label, result in results.items()]
+
+            return send_file(_create_zipfile(results),
                              attachment_filename='results.zip',
                              as_attachment=True)
 
-        return attach_meta(response, meta_success), 200
+        return attach_meta({'results': results}, meta_success), 200
 
 
 def _create_zipfile(files):
-    """ adapted from https://stackoverflow.com/questions/27337013/how-to-send-zip-files-in-the-python-flask-framework/27337047#27337047 """
+    """ adapted from https://stackoverflow.com/questions/27337013/how-to-send-zip-files-in-the-python-flask-framework/27337047#27337047
+
+    Arguments
+    ---------
+    files : list of dicts. For every dict, dict.keys() == {'data', 'filename'}.
+
+    Returns
+    -------
+    zip_file : compressed zipfile.ZipFile.
+    """
     memory_file = BytesIO()
-    with zipfile.ZipFile(memory_file, 'w') as zf:
+    with zipfile.ZipFile(memory_file, 'w', compression=zipfile.ZIP_DEFLATED) as zf:
         for indiv_file in files:
             data = zipfile.ZipInfo(indiv_file['filename'])
             data.date_time = time.localtime(time.time())[:6]
