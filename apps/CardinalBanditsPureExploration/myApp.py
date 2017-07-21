@@ -125,10 +125,9 @@ class MyApp:
                       for l in response['labels']}
             target = response['target_indices'][0]['target']['primary_description']
             response.update({'target': target, 'target_reward_label': reward[True],
-                'target_reward': reward_num[True]})
+                             'target_reward': reward_num[True]})
 
-            for key in ['_id', 'target_indices',
-                        'context_type', 'labels', 'target_id']:
+            for key in ['_id', 'target_indices', 'labels']:
                 if key in response:
                     del response[key]
             formatted += [response]

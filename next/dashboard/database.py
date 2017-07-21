@@ -1,7 +1,7 @@
 """
-next_backend Logs Resource 
+next_backend Logs Resource
 author: Christopher Fernandez, Lalit Jain
-Logs resource for all logs associated with a specified experiment. 
+Logs resource for all logs associated with a specified experiment.
 """
 from flask import Response, request, redirect
 from flask_restful import Resource, reqparse
@@ -19,7 +19,7 @@ resource_manager = ResourceManager()
 broker = next.broker.broker.JobBroker()
 
 # Request parser. Checks that necessary dictionary keys are available.
-# learningLib functions ensure that all necessary arguments are available. 
+# learningLib functions ensure that all necessary arguments are available.
 post_parser = reqparse.RequestParser(argument_class=APIArgument)
 meta_success = {
     'code': 200,
@@ -39,18 +39,18 @@ class DatabaseBackup(Resource):
         .. sourcecode:: http
 
         GET /databaseBackup HTTP/1.1
-        
+
         **Example response**:
 
         .. sourcecode:: http
-        
+
         HTTP/1.1 200 OK
         Vary: Accept
         Content-Type: application/json
 
         :statuscode 200: Database backup successfully returned
         :statuscode 400: database backup failed to be generated
-    	""" 
+    	"""
         exp_uid_list = request.args.getlist('exp_uid') ## returns a list
         print exp_uid_list
         name = '{}.{}'.format(str(next.utils.datetimeNow().strftime("%Y-%m-%d_%H:%M:%S")),
@@ -67,19 +67,19 @@ class DatabaseRestore(Resource):
     def post(self):
         """
         .. http:get:: /databaseBackup
-        
+
             Get a tar copy of the database.
-        
+
         **Example request**:
-            
+
         .. selfourcecode:: http
-            
+
             GET /databaseBackup HTTP/1.1
-        
+
             **Example response**:
-            
+
             .. sourcecode:: http
-        
+
         HTTP/1.1 200 OK
         Vary: Accept
         Content-Type: application/json
@@ -94,7 +94,9 @@ class DatabaseRestore(Resource):
         zip_file.save(filename)
         restore_mongodump(filename)
         subprocess.call('rm '+filename,shell=True)
-        
-        return redirect('/dashboard/{}/experiment_list'.format(constants.SITE_KEY))
 
-    
+        if constants.SITE_KEY:
+            dashboard_prefix = '/dashboard/{}'.format(constants.SITE_KEY)
+        else:
+            dashboard_prefix = '/dashboard'
+        return redirect(dashboard_prefix + '/experiment_list')

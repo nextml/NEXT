@@ -1,5 +1,5 @@
-# Each piece within the #'s could theoretically be its own machine. But it could also operate just on one big machine. 
-# Right now things are linked through docker. If we dploy with something else that doesn't respect links, thing will have to be refactored. 
+# Each piece within the #'s could theoretically be its own machine. But it could also operate just on one big machine.
+# Right now things are linked through docker. If we dploy with something else that doesn't respect links, thing will have to be refactored.
 # Things could be factored as Minions being indivdiual machines and everything else goes on a master machine.
 
 ######## CADVISOR #########
@@ -20,7 +20,7 @@ minionredis:
   image: redis
   command: redis-server /next_backend/next/database_client/CacheStore/redis.conf
   volumes:
-   - .:/next_backend 
+   - .:/next_backend
   expose:
    - "6379"
 
@@ -28,13 +28,13 @@ minionworker:
   build: next/base_docker_image
   command: ./next/broker/next_worker_startup.sh
   volumes:
-   - .:/next_backend 
+   - .:/next_backend
   working_dir: /next_backend
   links:
-    - mongodb:MONGODB  
+    - mongodb:MONGODB
     - rabbitmq:RABBIT
     - rabbitmqredis:RABBITREDIS
-    - minionredis:MINIONREDIS 
+    - minionredis:MINIONREDIS
   environment:
    - PYTHONUNBUFFERED=TRUE
    - CELERY_SYNC_WORKER_COUNT={{CELERY_SYNC_WORKER_COUNT}}
@@ -67,7 +67,7 @@ nextbackenddocker:
     - minionworker:MINIONWORKER
   environment:
    - PYTHONUNBUFFERED=TRUE
-   - PYTHONPATH=:/next_backend 
+   - PYTHONPATH=:/next_backend
    # global url for dashboards on backend
    - NEXT_BACKEND_GLOBAL_HOST
    - NEXT_BACKEND_GLOBAL_PORT
@@ -81,35 +81,9 @@ nextbackenddocker:
 
 ######### PERSISTENT STORE #########
 mongodb:
-  build: next/base_docker_image
-  command: numactl --interleave=all /usr/bin/mongod --smallfiles --rest
-  volumes:
-   - .:/next_backend 
-   - /dump
-   - /data/db
-  working_dir: /next_backend
-  expose:
-   - "27017" 
+  image: mongo:3.4
   ports:
    - "0.0.0.0:28017:28017" # mongo http monitor
-
-mongodbbackup:
-  build: next/base_docker_image
-  command: python ./next/database/daemon_database_backup.py
-  volumes:
-   - .:/next_backend 
-  volumes_from:
-   - mongodb
-  working_dir: /next_backend
-  links:
-   - mongodb:MONGODB  
-  environment:
-   - NEXT_BACKEND_GLOBAL_HOST
-   - PYTHONPATH=:/next_backend
-   - PYTHONUNBUFFERED=TRUE
-   - AWS_ACCESS_ID
-   - AWS_SECRET_ACCESS_KEY
-   - AWS_BUCKET_NAME
 ####################################
 
 

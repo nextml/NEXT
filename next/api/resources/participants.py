@@ -85,14 +85,14 @@ class Participants(Resource):
         :statuscode 200: Participants responses successfully returned
         :statuscode 400: Participants responses failed to be generated
     	"""
+        true_values ={1, '1', 'True', 'true'}
         zip_true = False
-        if request.args.get('zip'):
-            try:
-                zip_true = eval(request.args.get('zip'))
-            except:
-                pass
+        if 'zip' in request.args.keys():
+            zip_true = True if request.args.get('zip') in true_values else False
+        csv = False
+        if 'csv' in request.args.keys():
+            csv = True if request.args.get('csv') in true_values else False
 
-            
         # Get all participants for exp_uid from resource_manager
         participant_uids = resource_manager.get_participant_uids(exp_uid)
         participant_responses = {}
@@ -104,7 +104,7 @@ class Participants(Resource):
             # Append participant query responses to list
             participant_responses[participant] = response
 
-        if request.args.get('csv'):
+        if csv:
             responses = []
             for participant in participant_uids:
                 response = resource_manager.get_participant_data(participant,
@@ -120,20 +120,20 @@ class Participants(Resource):
                 utils.debug_print(message)
                 return message
 
-            response_file.seek(0)
-            return send_file(response_file,
-                             attachment_filename='responses.csv',
-                             as_attachment=True)
-
         all_responses = {'participant_responses': participant_responses}
         if zip_true:
+            filename, content = ('responses.json', json.dumps(all_responses))
+            if request.args.get('csv'):
+                filename, content = ('responses.csv', response_file.getvalue())
+
             zip_responses = BytesIO()
-            with zipfile.ZipFile(zip_responses, 'w') as zf:
-                zf.writestr('participants.json', json.dumps(all_responses))
+            with zipfile.ZipFile(zip_responses, 'w',
+                                 compression=zipfile.ZIP_DEFLATED) as zf:
+                zf.writestr(filename, content)
             zip_responses.seek(0)
-        
+
             return send_file(zip_responses,
-                             attachment_filename='participants.zip',
+                             attachment_filename=filename + '.zip',
                              as_attachment='True')
         else:
             return api_util.attach_meta(all_responses, meta_success), 200

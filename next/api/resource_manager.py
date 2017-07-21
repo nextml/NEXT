@@ -1,5 +1,6 @@
-import next.utils as utils
+from datetime import datetime
 import yaml
+import next.utils as utils
 
 from next.database_client.DatabaseAPI import DatabaseAPI
 db = DatabaseAPI()
@@ -96,7 +97,7 @@ class ResourceManager:
             rm.get_app_exp_uids('PoolBasedTripletMDS')
         """
         docs,didSucceed,message = db.get_docs_with_filter(app_id+':experiments',{})
-        
+
         exp_uids = []
         for doc in docs:
             exp_uids.append(str(doc['exp_uid']))
@@ -118,7 +119,24 @@ class ResourceManager:
         """
         start_date,didSucceed,message = db.get('experiments_admin',exp_uid,'start_date')
 
-        return start_date
+        if isinstance(start_date, datetime):
+            return start_date
+        else:
+            return utils.str2datetime(start_date)
+
+
+    def is_exp_retired(self, exp_uid):
+        app_id = self.get_app_id(exp_uid)
+        is_retired, didSucceed, message = db.get(app_id+':experiments', exp_uid, 'retired')
+
+        return is_retired or False
+
+
+    def set_exp_retired(self, exp_uid, retired=True):
+        app_id = self.get_app_id(exp_uid)
+
+        didSucceed, message = db.set(app_id+':experiments', exp_uid, 'retired', retired)
+
 
     def get_experiment(self,exp_uid):
         """
@@ -199,7 +217,7 @@ class ResourceManager:
             alg_list = rm.get_algs_for_exp_uid('b5242319c78df48f4ff31e78de5857')
         """
         app_id = self.get_app_id(exp_uid)
-        args,didSucceed,message = db.get(app_id+':experiments',exp_uid,'args') 
+        args,didSucceed,message = db.get(app_id+':experiments',exp_uid,'args')
         alg_list = []
         for alg in args['alg_list']:
             tmp = {}

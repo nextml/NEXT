@@ -2,11 +2,17 @@ Flask
 Flask-Restful
 Flask-Login
 gunicorn
+requests
 pymongo
 redis
 celery==3.1.25
 boto
+numpy
+scipy
 greenlet
+gevent
+pandas
+matplotlib==1.5.3
 mpld3
 pyyaml
 ply
