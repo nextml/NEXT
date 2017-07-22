@@ -128,7 +128,7 @@ class ResourceManager:
 
     def is_exp_retired(self, exp_uid):
         app_id = self.get_app_id(exp_uid)
-        is_retired, didSucceed, message = db.get(app_id+':experiments', exp_uid, 'retired')
+        is_retired = db.get(app_id+':experiments', exp_uid, 'retired')
 
         return is_retired or False
 
@@ -136,7 +136,7 @@ class ResourceManager:
     def set_exp_retired(self, exp_uid, retired=True):
         app_id = self.get_app_id(exp_uid)
 
-        didSucceed, message = db.set(app_id+':experiments', exp_uid, 'retired', retired)
+        db.set(app_id+':experiments', exp_uid, 'retired', retired)
 
 
     def get_experiment(self,exp_uid):
