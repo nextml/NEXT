@@ -9,8 +9,8 @@ import next.utils as utils
 
 
 class Memory(object):
-    def __init__(self, collection='', exp_uid=''):
-        self.key_prefix = collection + exp_uid
+    def __init__(self, collection='', exp_uid='', uid_prefix=''):
+        self.key_prefix = collection + uid_prefix.format(exp_uid=exp_uid)
         self.cache = None
         self.max_entry_size = 500000000  # 500MB
 
@@ -135,7 +135,7 @@ class Collection(object):
         self.get_durations = 0.0
         self.set_durations = 0.0
         self.timing = timing
-        self.memory = Memory(collection, exp_uid)
+        self.memory = Memory(collection, exp_uid, uid_prefix)
 
     def timed(op_type='set'):
         def decorator(f):
