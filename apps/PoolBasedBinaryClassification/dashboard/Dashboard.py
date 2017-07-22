@@ -28,7 +28,7 @@ class MyAppDashboard(AppDashboard):
         alg_list = args['alg_list']
         test_alg_label = alg_list[0]['test_alg_label']
 
-        test_queries, didSucceed, message = butler.db.get_docs_with_filter(app.app_id+':queries',{'exp_uid':app.exp_uid, 'alg_label':test_alg_label})
+        test_queries = butler.db.get_docs_with_filter(app.app_id+':queries',{'exp_uid':app.exp_uid, 'alg_label':test_alg_label})
 
         test_S = [(query['target_index'], query['target_label']) 
                             for query in test_queries
@@ -51,7 +51,7 @@ class MyAppDashboard(AppDashboard):
 
         for algorithm in alg_list:
             alg_label = algorithm['alg_label']
-            list_of_log_dict,didSucceed,message = self.ell.get_logs_with_filter(app.app_id+':ALG-EVALUATION',{'exp_uid':app.exp_uid, 'alg_label':alg_label})
+            list_of_log_dict = self.ell.get_logs_with_filter(app.app_id+':ALG-EVALUATION',{'exp_uid':app.exp_uid, 'alg_label':alg_label})
             list_of_log_dict = sorted(list_of_log_dict, key=lambda item: utils.str2datetime(item['timestamp']) )
             x = []
             y = []

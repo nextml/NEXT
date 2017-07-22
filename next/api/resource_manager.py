@@ -96,7 +96,7 @@ class ResourceManager:
         Usage: ::\n
             rm.get_app_exp_uids('PoolBasedTripletMDS')
         """
-        docs,didSucceed,message = db.get_docs_with_filter(app_id+':experiments',{})
+        docs = db.get_docs_with_filter(app_id+':experiments',{})
 
         exp_uids = []
         for doc in docs:
@@ -117,7 +117,8 @@ class ResourceManager:
         Usage: ::\n
             rm.get_app_exp_uid_start_date('PoolBasedTripletMDS')
         """
-        start_date,didSucceed,message = db.get('experiments_admin',exp_uid,'start_date')
+
+        start_date = db.get('experiments_admin',exp_uid,'start_date')
 
         if isinstance(start_date, datetime):
             return start_date
@@ -157,7 +158,7 @@ class ResourceManager:
         if app_id == None:
             return None
 
-        docs, didSucceed, message = db.get_docs_with_filter(app_id+':experiments',{'exp_uid':exp_uid})
+        docs = db.get_docs_with_filter(app_id+':experiments',{'exp_uid':exp_uid})
 
         if len(docs)>0:
             return docs[0]
@@ -178,8 +179,8 @@ class ResourceManager:
         Usage: ::\n
         	app_id = rm.get_app_id('b5242319c78df48f4ff31e78de5857')
         """
-        app_id,didSucceed,message = db.get('experiments_admin',exp_uid,'app_id')
-        return app_id
+
+        return db.get('experiments_admin',exp_uid,'app_id')
 
 
     def get_algs_doc_for_exp_uid(self,exp_uid):
@@ -198,8 +199,7 @@ class ResourceManager:
             alg_list = rm.get_algs_doc_for_exp_uid('b5242319c78df48f4ff31e78de5857')
         """
         app_id = self.get_app_id(exp_uid)
-        full_alg_list,didSucceed,message = db.get_docs_with_filter(app_id+':algorithms',{'exp_uid':exp_uid})
-        return full_alg_list
+        return db.get_docs_with_filter(app_id+':algorithms',{'exp_uid':exp_uid})
 
     def get_algs_for_exp_uid(self,exp_uid):
         """
@@ -217,7 +217,7 @@ class ResourceManager:
             alg_list = rm.get_algs_for_exp_uid('b5242319c78df48f4ff31e78de5857')
         """
         app_id = self.get_app_id(exp_uid)
-        args,didSucceed,message = db.get(app_id+':experiments',exp_uid,'args')
+        args = db.get(app_id+':experiments',exp_uid,'args')
         alg_list = []
         for alg in args['alg_list']:
             tmp = {}
@@ -239,9 +239,8 @@ class ResourceManager:
 
         """
         app_id = self.get_app_id(exp_uid)
-        git_hash,didSucceed,message = db.get(app_id+':experiments',exp_uid,'git_hash')
 
-        return git_hash
+        return db.get(app_id+':experiments',exp_uid,'git_hash')
 
     def get_participant_uids(self,exp_uid):
         """
@@ -257,7 +256,7 @@ class ResourceManager:
             participant_uids = resource_manager.get_participant_uids(exp_uid)
         """
         app_id = self.get_app_id(exp_uid)
-        participants,didSucceed,message = db.get_docs_with_filter(app_id+':participants',{'exp_uid':exp_uid})
+        participants = db.get_docs_with_filter(app_id+':participants',{'exp_uid':exp_uid})
         participant_uid_list = []
         for participant in participants:
             participant_uid = participant['participant_uid']
@@ -279,7 +278,7 @@ class ResourceManager:
         	responses = resource_manager.get_participant_data(participant_uid,exp_uid)
         """
         app_id = self.get_app_id(exp_uid)
-        queries,didSucceed,message = db.get_docs_with_filter(app_id+':queries',{'participant_uid':participant_uid})
+        queries = db.get_docs_with_filter(app_id+':queries',{'participant_uid':participant_uid})
         return queries
 
 
@@ -303,7 +302,7 @@ class ResourceManager:
 
         all_logs = []
         for log_type in log_types:
-            logs,didSucceed,message = ell.get_logs_with_filter(app_id+':'+log_type,{'exp_uid':exp_uid})
+            logs = ell.get_logs_with_filter(app_id+':'+log_type,{'exp_uid':exp_uid})
             all_logs.extend(logs)
 
         return all_logs
@@ -325,9 +324,7 @@ class ResourceManager:
         app_id = self.get_app_id(exp_uid)
 
         log_types = ['APP-CALL','APP-RESPONSE','APP-EXCEPTION','ALG-DURATION','ALG-EVALUATION']
-        logs,didSucceed,message = ell.get_logs_with_filter(app_id+':'+log_type,{'exp_uid':exp_uid})
-
-        return logs
+        return ell.get_logs_with_filter(app_id+':'+log_type,{'exp_uid':exp_uid})
 
 
 

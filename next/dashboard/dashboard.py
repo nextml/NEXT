@@ -15,7 +15,6 @@ import requests
 
 import next.broker.broker
 import next.constants as constants
-import next.database_client.PermStore as PermStore
 from next.api.resource_manager import ResourceManager
 import next.api.api_util as api_util
 import next.utils as utils
@@ -27,7 +26,6 @@ dashboard = Blueprint('dashboard',
                       static_folder='static')
 
 rm = ResourceManager()
-db = PermStore.PermStore()
 broker = next.broker.broker.JobBroker()
 
 import next.apps.Butler as Butler
@@ -77,7 +75,7 @@ def get_stats():
     exp_uid = args_dict['exp_uid']
     app_id = rm.get_app_id(exp_uid)
 
-    response_json,didSucceed,message = broker.dashboardAsync(app_id,exp_uid,args_dict)
+    response_json, didSucceed, message = broker.dashboardAsync(app_id,exp_uid,args_dict)
     response_dict = json.loads(response_json,parse_float=lambda o:round(float(o),4))
     response_json = json.dumps(response_dict)
     return response_json

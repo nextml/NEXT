@@ -92,7 +92,7 @@ class AppDashboard(object):
 
     for algorithm in alg_list:
       alg_label = algorithm['alg_label']
-      list_of_log_dict,didSucceed,message = butler.ell.get_logs_with_filter(app.app_id+':ALG-DURATION',
+      list_of_log_dict = butler.ell.get_logs_with_filter(app.app_id+':ALG-DURATION',
                                                                             {'exp_uid':app.exp_uid,'alg_label':alg_label,'task':task})
       list_of_log_dict = sorted(list_of_log_dict, key=lambda item: utils.str2datetime(item['timestamp']) )
       
@@ -172,7 +172,7 @@ class AppDashboard(object):
     Expected output (in dict):
       (dict) MPLD3 plot dictionary
     """
-    list_of_log_dict,didSucceed,message = butler.ell.get_logs_with_filter(app.app_id+':ALG-DURATION',
+    list_of_log_dict = butler.ell.get_logs_with_filter(app.app_id+':ALG-DURATION',
                                                                           {'exp_uid':app.exp_uid,'alg_label':alg_label,'task':task})
     list_of_log_dict = sorted(list_of_log_dict, key=lambda item: utils.str2datetime(item['timestamp']) )
 
@@ -252,7 +252,7 @@ class AppDashboard(object):
     Expected output (in dict):
       (dict) MPLD3 plot dictionary
     """
-    list_of_query_dict,didSucceed,message = self.db.get_docs_with_filter(app.app_id+':queries',{'exp_uid':app.exp_uid,'alg_label':alg_label})
+    list_of_query_dict = self.db.get_docs_with_filter(app.app_id+':queries',{'exp_uid':app.exp_uid,'alg_label':alg_label})
     t = []
     for item in list_of_query_dict:
       try:
@@ -282,7 +282,7 @@ class AppDashboard(object):
     Expected output (in dict):
       (dict) MPLD3 plot dictionary
     """
-    list_of_query_dict,didSucceed,message = self.db.get_docs_with_filter(app.app_id+':queries',{'exp_uid':app.exp_uid,'alg_label':alg_label})
+    list_of_query_dict = self.db.get_docs_with_filter(app.app_id+':queries',{'exp_uid':app.exp_uid,'alg_label':alg_label})
 
     t = []
     for item in list_of_query_dict:
