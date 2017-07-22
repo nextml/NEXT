@@ -1,0 +1,24 @@
+initExp:
+  args:
+    dummy:
+      type: bool
+      description: This is here because there's a bug that requires myAlg.initExp to have at least one argument.
+      default: true
+  rets:
+    type: bool
+    values: true
+
+getQuery:
+  rets:
+    type: bool
+    values: true
+
+processAnswer:
+    rets:
+      type: bool
+      values: true
+
+getModel:
+  rets:
+    type: bool
+    values: true

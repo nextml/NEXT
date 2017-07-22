@@ -102,9 +102,10 @@ class App(object):
             args_dict['start_date'] = utils.datetime2str(utils.datetimeNow())
             self.butler.admin.set(uid=exp_uid,value={'exp_uid': exp_uid, 'app_id':self.app_id, 'start_date':str(utils.datetimeNow())})            
             utils.debug_print("ASD "+str(args_dict))
+            self.butler.experiment.set(value={'exp_uid': exp_uid})
             args_dict['args'] = self.init_app(exp_uid, args_dict['args']['alg_list'], args_dict['args'])
             args_dict['git_hash'] = git_hash
-            self.butler.experiment.set(value=args_dict)
+            self.butler.experiment.set_many(key_value_dict=args_dict)
             return '{}', True, ''
         except Exception, error:
             exc_type, exc_value, exc_traceback = sys.exc_info()
