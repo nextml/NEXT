@@ -1,3 +1,4 @@
+<!doctype html>
 <html lang="en">
   <head>
     <meta http-equiv="cache-control" content="no-cache">
@@ -21,10 +22,28 @@
     <style type="text/css">
       @import url('http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic|Montserrat:700|Merriweather:400italic');
 
+      html {
+        position: relative;
+        min-height: 100%;
+      }
+
       body {
         background-color: #f8f8f8;
         font-family: 'Lato', sans-serif;
         font-weight: 300;
+      }
+
+      .navbar {
+        background-color: #67b1ce;
+      }
+
+      .navbar a {
+        color: #f8f8f8 !important;
+      }
+
+      .navbar-default .navbar-brand {
+        font-size: 40px;
+        font-weight: 700;
       }
 
       .embedding {
@@ -51,31 +70,28 @@
   </head>
 
   <body>
-    <div id="wrapper">
-      <!-- Navigation -->
-      <nav class="navbar navbar-default" role="navigation" style="background-color:#67b1ce">
-    	  <div class="container-fluid">
-    	    <div class="navbar-header">
-    	      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#top-navbar">
-          		<span class="icon-bar"></span>
-          		<span class="icon-bar"></span>
-          		<span class="icon-bar"></span>
-    	      </button>
-            <a class="navbar-brand" href="/home">
-              <span style="color:#f8f8f8; font-size:40px; font-weight:700;">NEXT</span>
-            </a>
-          </div>
-          <div class="collapse navbar-collapse" id="top-navbar">
-            <ul class="nav navbar-nav navbar-right">
-              <li><a href="{{ url_for('dashboard.experiment_list') }}">Experiment</a></li>
-              <li><a href="{{ url_for('dashboard.system_monitor') }}">System</a></li>
-            </ul>
-          </div>
-    	  </div>
-      </nav>
-      <div class="container">
-        {% block body %} {% endblock %}
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-static-top" role="navigation">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#top-navbar">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/home">NEXT</a>
+        </div>
+        <div class="collapse navbar-collapse" id="top-navbar">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="{{ url_for('dashboard.experiment_list') }}">Experiment</a></li>
+            <li><a href="{{ url_for('dashboard.system_monitor') }}">System</a></li>
+          </ul>
+        </div>
       </div>
+    </nav>
+
+    <div class="container">
+      {% block body %} {% endblock %}
     </div>
   </body>
 </html>

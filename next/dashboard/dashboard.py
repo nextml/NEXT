@@ -8,7 +8,7 @@ Flask controller for dashboards.
 import os
 import json
 import yaml
-from flask import Blueprint, render_template, url_for, request, jsonify
+from flask import Blueprint, render_template, url_for, request, jsonify, current_app
 import flask_restful.inputs
 from jinja2 import Environment, PackageLoader, ChoiceLoader
 import requests
@@ -37,6 +37,14 @@ from next.dashboard.database import DatabaseBackup, DatabaseRestore
 dashboard_interface.add_resource(DatabaseBackup,'/database/databasebackup', endpoint='databasebackup')
 dashboard_interface.add_resource(DatabaseRestore,'/database/databaserestore', endpoint='databaserestore')
 
+if constants.SITE_KEY:
+    DASHBOARD_URL = '/dashboard/{}'.format(constants.SITE_KEY)
+else:
+    DASHBOARD_URL = '/dashboard'
+
+@dashboard.context_processor
+def inject_to_templates():
+    return dict(dashboard_url=DASHBOARD_URL)
 
 @dashboard.route('/experiment_list')
 def experiment_list():
@@ -59,15 +67,10 @@ def experiment_list():
                 print e
                 pass
 
-    if constants.SITE_KEY:
-        dashboard_url='/dashboard/{}'.format(constants.SITE_KEY)
-    else:
-        dashboard_url='/dashboard'
-
     return render_template('experiment_list.html',
-                           dashboard_url=dashboard_url,
                            experiments=sorted(experiments,
-                                key=lambda e: e['start_date'], reverse=True))
+                                              key=lambda e: e['start_date'],
+                                              reverse=True))
 
 @dashboard.route('/get_stats', methods=['POST'])
 def get_stats():
@@ -88,10 +91,6 @@ def system_monitor():
     """
     host_url = 'http://{}:{}'.format(constants.NEXT_BACKEND_GLOBAL_HOST,
                                      constants.NEXT_BACKEND_GLOBAL_PORT)
-    if constants.SITE_KEY:
-        dashboard_url='/dashboard/{}'.format(constants.SITE_KEY)
-    else:
-        dashboard_url='/dashboard'
 
     rabbit_url = 'http://{}:{}'.format(constants.NEXT_BACKEND_GLOBAL_HOST,
                                        15672)
@@ -100,7 +99,6 @@ def system_monitor():
     mongodb_url = 'http://{}:{}'.format(constants.NEXT_BACKEND_GLOBAL_HOST,
                                         28017)
     return render_template('system_monitor.html',
-                           dashboard_url=dashboard_url,
                            rabbit_url=rabbit_url,
                            cadvisor_url=cadvisor_url,
                            mongodb_url=mongodb_url)
@@ -121,8 +119,12 @@ def experiment_dashboard(exp_uid, app_id):
     Inputs: ::\n
     	(string) exp_uid, exp_uid for a current experiment.
     """
+
     simple_flag = int(request.args.get('simple',0))
     force_recompute = int(request.args.get('force_recompute',1))
+
+    if rm.get_experiment(exp_uid) is None:
+        return render_template('exp_404.html', exp_uid=exp_uid), 404
 
     # Not a particularly good way to do this.
     alg_label_list = rm.get_algs_for_exp_uid(exp_uid)
@@ -130,26 +132,25 @@ def experiment_dashboard(exp_uid, app_id):
                  'alg_label_clean':'_'.join(alg['alg_label'].split())}
                 for alg in alg_label_list]
 
-    host_url = ''# 'http://{}:{}'.format(constants.NEXT_BACKEND_GLOBAL_HOST,
-    #                       constants.NEXT_BACKEND_GLOBAL_PORT)
-    if constants.SITE_KEY:
-        dashboard_url='/dashboard/{}'.format(constants.SITE_KEY)
-    else:
-        dashboard_url='/dashboard'
-
+    # -- Directly use Jinja2 to load and render the app-specific dashboard template.
     env = Environment(loader=ChoiceLoader([PackageLoader('apps.{}'.format(app_id),
                                                          'dashboard'),
                                            PackageLoader('next.dashboard',
                                                          'templates')]))
     template = env.get_template('myAppDashboard.html'.format(app_id)) # looks for /next/apps/{{ app_id }}/dashboard/{{ app_id }}.html
-    return template.render(app_id=app_id,
-                           exp_uid=exp_uid,
-                           alg_list=alg_list,
-                           dashboard_url=dashboard_url,
-                           exceptions_present=False,#exceptions_present(exp_uid),
-                           url_for=url_for,
-                           simple_flag=int(simple_flag),
-                           force_recompute=int(force_recompute))
+    # The context we pass to the dashboard template.
+    ctx = dict(app_id=app_id,
+               exp_uid=exp_uid,
+               alg_list=alg_list,
+               exceptions_present=False,#exceptions_present(exp_uid),
+               url_for=url_for,
+               simple_flag=int(simple_flag),
+               force_recompute=int(force_recompute))
+    # Inject standard Flask context + context processors
+    current_app.update_template_context(ctx)
+
+    # Render the template
+    return template.render(**ctx)
 
 
 def exceptions_present(exp_uid):

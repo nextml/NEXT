@@ -1,7 +1,7 @@
 """
 constants.py
 
-author: Kevin Jamieson, kevin.g.jamieson@gmail.com, 
+author: Kevin Jamieson, kevin.g.jamieson@gmail.com,
 	Lalit Jain, lalitkumarj@gmail.com
 last updated: 2/21/2015
 
@@ -13,6 +13,9 @@ redis and mongodb on 6379 and 27017. This seems to be best practice anyways.
 """
 import os
 
+### NEXT version number ###
+# Remember to edit this each release!
+VERSION = '1.1.1'
 
 # Variable to enable sites. This allows you to build clients and sites on the
 # NEXT system.
@@ -59,7 +62,7 @@ maxStringLengthInInspectDatabase = 200
 RABBIT_HOSTNAME = os.environ.get('RABBIT_PORT_5672_TCP_ADDR', 'localhost')
 RABBIT_PORT= int(os.environ.get('RABBIT_PORT_5672_TCP_PORT', 5672))
 
- 
+
 BROKER_URL = 'amqp://{user}:{password}@{hostname}:{port}/{vhost}/'.format(
     user=os.environ.get('RABBIT_ENV_RABBITMQ_USER', 'guest'),
     password=os.environ.get('RABBIT_ENV_RABBITMQ_PASS', 'guest'),
@@ -69,14 +72,14 @@ BROKER_URL = 'amqp://{user}:{password}@{hostname}:{port}/{vhost}/'.format(
 
 RABBITREDIS_HOSTNAME = os.environ.get('RABBITREDIS_PORT_6379_TCP_ADDR', 'localhost')
 RABBITREDIS_PORT = int(os.environ.get('RABBITREDIS_PORT_6379_TCP_PORT', 6379))
- 
+
 
 # https://github.com/celery/celery/issues/1909 describes the tradeoffs of redis and rabbitmq for results backend
 CELERY_RESULT_BACKEND = 'redis://{hostname}:{port}/{db}/'.format(
     hostname=RABBITREDIS_HOSTNAME,
     port=RABBITREDIS_PORT,
     db=os.environ.get('RABBITREDIS_DB', '0'))
-# CELERY_RESULT_BACKEND = BROKER_URL  
+# CELERY_RESULT_BACKEND = BROKER_URL
 CELERY_TASK_RESULT_EXPIRES=60
 CELERY_TASK_SERIALIZER='json'
 CELERY_ACCEPT_CONTENT=['json']  # Ignore other content

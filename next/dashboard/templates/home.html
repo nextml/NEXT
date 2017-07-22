@@ -1,36 +1,31 @@
 {% extends "outline.html" %}
-
-{% block title %} Index {% endblock %}
-
-{% block sidebar %}
-
-{% endblock %} 
+{% block title %}Index{% endblock %}
 
 {% block body %}
 <div>
   <div class="col-lg-8 col-lg-offset-2">
-    <h1 style="text-align:center;" class="page-header">Welcome to NEXT!</h1>
-    <h4 style="text-align:center;">NEXT is a system to connect machine learning algorithms and humans</h4>
-    <br><br>
-    <p style="text-align:center;padding-bottom:20px;">Here we provide helpful
+    <h1 class="page-header text-center">Welcome to NEXT!</h1>
+    <h4 class="text-center">NEXT is a system to connect machine learning algorithms and humans</h4>
+    <p class="text-center" style="padding: 20px 0;">Here we provide helpful
     links</p>
   </div>
     <div class="row">
 	  <div class="col-sm-10 col-sm-offset-1">
-        <ul>
-            <li><a href="/dashboard/experiment_list">Experiment list</a>: A list of all experiments on this machine.</li>
-            <li><a href="/assistant/init">Experiment launch</a>: Launch a new experiment</li>
-            <li>Application documentation: </li>
-            <ul>
-                {% for app in available_apps %}
-                <li><a href="/assistant/doc/{{app}}/pretty">{{app}}</a></li>
-                {% endfor %}
-            </ul>
-            <li><a href="http://github.com/nextml/NEXT/wiki">NEXT documentation</a> on the GitHub wiki</li>
-            <li><a href="https://github.com/nextml/NEXT">NEXT Source code on GitHub</a></li>
-            <li><a href="http://nextml.org">NEXT project homepage</a></li>
-        </ul>
+      <ul>
+        <li><a href="/dashboard/experiment_list">Experiment list</a>: A list of all experiments on this machine.</li>
+        <li><a href="/assistant/init">Experiment launch</a>: Launch a new experiment</li>
+        <li>Application documentation:
+          <ul>
+            {% for app in available_apps %}
+            <li><a href="/assistant/doc/{{app}}/pretty">{{app}}</a></li>
+            {% endfor %}
+          </ul>
+        </li>
+        <li><a href="http://github.com/nextml/NEXT/wiki">NEXT documentation</a> on the GitHub wiki</li>
+        <li><a href="https://github.com/nextml/NEXT">NEXT Source code on GitHub</a></li>
+        <li><a href="http://nextml.org">NEXT project homepage</a></li>
+      </ul>
 	  </div>
 	</div>
 </div>
-{% endblock %} 
+{% endblock %}

@@ -1,9 +1,7 @@
 {% extends "outline.html" %}
-
-{% block title %} Experiment Dashboard {% endblock %}
+{% block title %}Experiment Dashboard{% endblock %}
 
 {% block body %}
-
 <script>
 // To pop up documnetation on the plots
 popup_alert = function(text){
@@ -16,7 +14,7 @@ popup_alert = function(text){
 <div class="modal fade" id="info" tabindex="-1" role="button" aria-labelledby="" aria-hidden="true" data-keyboard="false">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <div class="modal-body" id="question-info" style='text-align:left;'>
+      <div class="modal-body text-left" id="question-info">
       </div>
       <center>
       <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="">Dismiss</button>
@@ -26,15 +24,14 @@ popup_alert = function(text){
   </div>
 </div>
 
-<div class="container-fluid" style ='background-color: #FFFFFF; padding-bottom: 1cm; text-align: center'>
+<div class="container-fluid text-center" style='background-color: #FFFFFF; padding-bottom: 1cm;'>
     <h2 id="header">Experiment Dashboard: {{ exp_uid }}</h2>
 </div>
 
 {% if simple_flag<2 %}
 <!--################## activity #################### -->
-<div class="container-fluid" style ='background-color: #FFFFFF; padding-bottom: 1cm; text-align: center'>
-
-    <div class="col-lg-10 col-lg-offset-1" style"display: inline-block">
+<div class="container-fluid text-center" style='background-color: #FFFFFF; padding-bottom: 1cm;'>
+    <div class="col-lg-10 col-lg-offset-1" style="display: inline-block">
         <div id = "api_activity_histogram_processAnswer"></div><button type="button" class="btn btn-primary btn-xs"
                   onclick="popup_alert('This is a graph depicting the relative frequency of activity over the course of the experiment starting from the launch and ending with the current time.<br><br><b>How it is measured:</b> Events are the timestamps of when answers to queries are received by the system. <br><br><b>How to use this information:</b> Gives the practitioner a qualitative idea of how load on the system has been distributed over time.')">?</button>
     </div>
@@ -51,7 +48,7 @@ popup_alert = function(text){
         url: "{{ dashboard_url }}/get_stats",
         type: "POST",
         contentType: "application/json",
-        data: JSON.stringify({  
+        data: JSON.stringify({
             'exp_uid': "{{ exp_uid }}",
             'args':{
                 'stat_id' : 'api_activity_histogram',
@@ -68,18 +65,18 @@ popup_alert = function(text){
         });
 </script>
 
-<div class="container-fluid" style ='padding-bottom: 1cm'>   
+<div class="container-fluid" style='padding-bottom: 1cm'>
     <div class="col-lg-10 col-lg-offset-1">
         <div class="row">
-            <h2> Experiment info </h2> 
-            <p> 
+            <h2> Experiment info </h2>
+            <p>
             <b> app_id: </b> {{ app_id }} <br>
             <b> exp_id: </b> {{ exp_uid }} <br>
             <b> git_hash: </b> <span id="git_hash"></span> <br>
             <b> Start date: </b> <span id="exp_start_data"></span> <br>
             <b> Dashboard data generated: </b> <span id="last_dashboard_update"></span> <br>
             <b> Number of participants: </b> <span id="num_participants"></span> <br>
-            <b> Number of answers: </b> <span id="num_queries"></span> <br> 
+            <b> Number of answers: </b> <span id="num_queries"></span> <br>
             <b> Backend Exceptions: </b> <a href="/api/experiment/{{ exp_uid }}/logs/APP-EXCEPTION" target="_blank">Open in new tab</a>  <br>
             <b> Experiment data: </b> <a href="/api/experiment/{{ exp_uid }}" target="_blank">Open in new tab</a>  <br>
             <b> Query page: </b> <a href="/query/query_page/query_page/{{ exp_uid }}" target="_blank">Open in new tab</a>  <br>
@@ -97,7 +94,7 @@ popup_alert = function(text){
         url: "{{ dashboard_url }}/get_stats",
         type: "POST",
         contentType: "application/json",
-        data: JSON.stringify({  
+        data: JSON.stringify({
             'exp_uid': "{{ exp_uid }}",
             'args':{
                 'stat_id' : 'basic_info',
@@ -128,7 +125,7 @@ popup_alert = function(text){
 
 {% if simple_flag<1 %}
 <!--################## compute_duration_multiline_plot #################### -->
-<div class="container-fluid" style ='background-color: #FFFFFF; padding-bottom: 1cm'>
+<div class="container-fluid" style='background-color: #FFFFFF; padding-bottom: 1cm'>
     <div class="col-lg-10 col-lg-offset-1">
         <div class="row">
             <h2> Algorithm timing comparison
@@ -164,7 +161,7 @@ popup_alert = function(text){
         url: "{{ dashboard_url }}/get_stats",
         type: "POST",
         contentType: "application/json",
-        data: JSON.stringify({  
+        data: JSON.stringify({
             'exp_uid': "{{ exp_uid }}",
             'args':{
             "stat_id" : "compute_duration_multiline_plot",
@@ -190,7 +187,7 @@ popup_alert = function(text){
         url: "{{ dashboard_url }}/get_stats",
         type: "POST",
         contentType: "application/json",
-        data: JSON.stringify({  
+        data: JSON.stringify({
             'exp_uid': "{{ exp_uid }}",
             'args':{
             "stat_id" : "compute_duration_multiline_plot",
@@ -216,7 +213,7 @@ popup_alert = function(text){
         url: "{{ dashboard_url }}/get_stats",
         type: "POST",
         contentType: "application/json",
-        data: JSON.stringify({  
+        data: JSON.stringify({
             'exp_uid': "{{ exp_uid }}",
             'args':{
             "stat_id" : "compute_duration_multiline_plot",
@@ -242,7 +239,7 @@ popup_alert = function(text){
         url: "{{ dashboard_url }}/get_stats",
         type: "POST",
         contentType: "application/json",
-        data: JSON.stringify({  
+        data: JSON.stringify({
             'exp_uid': "{{ exp_uid }}",
             'args':{
             "stat_id" : "compute_duration_multiline_plot",
@@ -263,7 +260,7 @@ popup_alert = function(text){
 
 
 <!--###################### compute_duration_detailed_stacked_atea_plots for each algorithm ###################-->
-<div class="container-fluid" style ='padding-bottom: 1cm'>
+<div class="container-fluid" style='padding-bottom: 1cm'>
     <div class="col-lg-10 col-lg-offset-1">
         <h2> Individual algorithm timing breakdown
             <button type="button" class="btn btn-primary btn-xs"
@@ -330,12 +327,12 @@ popup_alert = function(text){
                         url: "{{ dashboard_url }}/get_stats",
                         type: "POST",
                         contentType: "application/json",
-                        data: JSON.stringify({  
+                        data: JSON.stringify({
                             'exp_uid': "{{ exp_uid }}",
                             'args':{
                             'stat_id' : 'compute_duration_detailed_stacked_area_plot',
                             'params'  : {'task':'getQuery', 'alg_label':'{{ alg.alg_label }}' },
-                            'force_recompute': {{ force_recompute }} 
+                            'force_recompute': {{ force_recompute }}
                             }
                             }),
                         dataType: "json"
@@ -356,12 +353,12 @@ popup_alert = function(text){
                         url: "{{ dashboard_url }}/get_stats",
                         type: "POST",
                         contentType: "application/json",
-                        data: JSON.stringify({  
+                        data: JSON.stringify({
                             'exp_uid': "{{ exp_uid }}",
                             'args':{
                             'stat_id' : 'compute_duration_detailed_stacked_area_plot',
                             'params'  : {'task':'processAnswer', 'alg_label':'{{ alg.alg_label }}' },
-                            'force_recompute': {{ force_recompute }} 
+                            'force_recompute': {{ force_recompute }}
                             }
                             }),
                         dataType: "json"
@@ -382,7 +379,7 @@ popup_alert = function(text){
                         url: "{{ dashboard_url }}/get_stats",
                         type: "POST",
                         contentType: "application/json",
-                        data: JSON.stringify({  
+                        data: JSON.stringify({
 
                             'exp_uid': "{{ exp_uid }}",
                             'args':{
@@ -409,13 +406,13 @@ popup_alert = function(text){
                         url: "{{ dashboard_url }}/get_stats",
                         type: "POST",
                         contentType: "application/json",
-                        data: JSON.stringify({  
+                        data: JSON.stringify({
 
                             'exp_uid': "{{ exp_uid }}",
                             'args':{
                             'stat_id' : 'compute_duration_detailed_stacked_area_plot',
                             'params'  : {'task':'daemonProcess', 'alg_label':'{{ alg.alg_label }}' },
-                            'force_recompute': {{ force_recompute }} 
+                            'force_recompute': {{ force_recompute }}
                             }
                             }),
                         dataType: "json"
@@ -435,7 +432,7 @@ popup_alert = function(text){
 
 
 <!--###################### network_delay_histogram #######################-->
-<div class="container-fluid" style ='padding-bottom: 1cm; background-color: #FFFFFF'>
+<div class="container-fluid" style='padding-bottom: 1cm; background-color: #FFFFFF'>
     <div class="col-lg-10 col-lg-offset-1">
         <h2> Client-side timing
             <button type="button" class="btn btn-primary btn-xs"
@@ -489,13 +486,13 @@ popup_alert = function(text){
                     url: "{{ dashboard_url }}/get_stats",
                     type: "POST",
                     contentType: "application/json",
-                    data: JSON.stringify({  
+                    data: JSON.stringify({
 
                         'exp_uid': "{{ exp_uid }}",
                         'args':{
                         'stat_id' : 'response_time_histogram',
                         'params'  : {'alg_label':'{{ alg.alg_label }}'},
-                        'force_recompute': {{ force_recompute }} 
+                        'force_recompute': {{ force_recompute }}
                         }
                         }),
                     dataType: "json"
@@ -516,13 +513,13 @@ popup_alert = function(text){
                     url: "{{ dashboard_url }}/get_stats",
                     type: "POST",
                     contentType: "application/json",
-                    data: JSON.stringify({  
+                    data: JSON.stringify({
 
                         'exp_uid': "{{ exp_uid }}",
                         'args':{
                         'stat_id' : 'network_delay_histogram',
                         'params'  : {'alg_label':'{{ alg.alg_label }}'},
-                        'force_recompute': {{ force_recompute }} 
+                        'force_recompute': {{ force_recompute }}
                         }
                         }),
                     dataType: "json"
@@ -539,9 +536,8 @@ popup_alert = function(text){
 
     </div>
 </div>
-
 {% endif %}
 
- {% block custom_dashboard %}{% endblock %} 
+{% block custom_dashboard %}{% endblock %}
 
 {% endblock %}
