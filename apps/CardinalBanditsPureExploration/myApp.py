@@ -135,3 +135,11 @@ class MyApp:
         return formatted
 
 
+    def getResults(self, butler, exp_uid, model):
+        results = model['targets']
+        target_keys_to_keep = ['primary_description', 'alt_description', 'primary_type', 'target_id']
+        for result in results:
+            target = result['target']
+            result.update({key: target[key] for key in target_keys_to_keep})
+            del result['target']
+        return results

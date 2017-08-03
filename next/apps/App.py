@@ -59,8 +59,13 @@ class App(object):
         self.log_entry_durations = log_entry_durations
         return alg_response['rets']
 
+
+    def _make_butler_for_alg(self, alg_label, alg_id):
+        return Butler(self.app_id, self.exp_uid, self.myApp.TargetManager,
+                      self.butler.db, self.butler.ell, alg_label, alg_id)
+
     def call_app_fn(self, alg_label, alg_id, func_name, args):
-        butler = Butler(self.app_id, self.exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, alg_label, alg_id)
+        butler = self._make_butler_for_alg(alg_label, alg_id)
         alg = utils.get_app_alg(self.app_id, alg_id)
         def alg_wrapper(alg_args={}):
             return self.run_alg(butler, alg_label, alg, func_name, alg_args)
@@ -69,10 +74,10 @@ class App(object):
     def init_alg(self, exp_uid, algorithm, alg_args):
         butler = Butler(self.app_id, exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, algorithm['alg_label'], algorithm['alg_id'])
         alg = utils.get_app_alg(self.app_id, algorithm['alg_id'])
-        
+
         if 'args' in self.algs_reference_dict['initExp']:
             alg_args = verifier.verify(alg_args, self.algs_reference_dict['initExp']['args'])
-            
+
         # I got rid of a timeit function here; it wasn't handling the
         # argument unpacking correctly? --Scott, 2016-3-7
         # TODO: put dt back in and change log_entry to relfect that
@@ -80,7 +85,7 @@ class App(object):
         alg_response = verifier.verify({'rets':alg_response}, {'rets':self.algs_reference_dict['initExp']['rets']})
         log_entry = {'exp_uid':exp_uid, 'alg_label':algorithm['alg_label'], 'task':'initExp', 'duration':-1, 'timestamp':utils.datetimeNow()}
         self.butler.log('ALG-DURATION', log_entry)
-                
+
     def init_app(self, exp_uid, alg_list, args):
         utils.debug_print(str(args))
         def init_algs_wrapper(alg_args={}):
@@ -90,9 +95,9 @@ class App(object):
                 self.butler.algorithms.set(uid=algorithm['alg_label'], value=algorithm)
                 self.init_alg(exp_uid, algorithm, alg_args)
                 # params = algorithm.get('params',None)
-                
+
         return self.myApp.initExp(self.butler, init_algs_wrapper, args)
-    
+
     def initExp(self, exp_uid, args_json):
         try:
             self.helper.ensure_indices(self.app_id,self.butler.db, self.butler.ell)
@@ -100,7 +105,7 @@ class App(object):
             args_dict = verifier.verify(args_dict, self.reference_dict['initExp']['args'])
             args_dict['exp_uid'] = exp_uid # to get doc from db
             args_dict['start_date'] = utils.datetime2str(utils.datetimeNow())
-            self.butler.admin.set(uid=exp_uid,value={'exp_uid': exp_uid, 'app_id':self.app_id, 'start_date':str(utils.datetimeNow())})            
+            self.butler.admin.set(uid=exp_uid,value={'exp_uid': exp_uid, 'app_id':self.app_id, 'start_date':str(utils.datetimeNow())})
             utils.debug_print("ASD "+str(args_dict))
             self.butler.experiment.set(value={'exp_uid': exp_uid})
             args_dict['args'] = self.init_app(exp_uid, args_dict['args']['alg_list'], args_dict['args'])
@@ -111,7 +116,7 @@ class App(object):
             exc_type, exc_value, exc_traceback = sys.exc_info()
             full_error = str(traceback.format_exc())+'\n'+str(error)
             utils.debug_print("initExp Exception: " + full_error, color='red')
-            log_entry = { 'exp_uid':exp_uid,'task':'initExp','error':full_error,'timestamp':utils.datetimeNow(),'args_json':args_json } 
+            log_entry = { 'exp_uid':exp_uid,'task':'initExp','error':full_error,'timestamp':utils.datetimeNow(),'args_json':args_json }
             self.butler.ell.log( self.app_id+':APP-EXCEPTION', log_entry  )
             traceback.print_tb(exc_traceback)
             return '{}', False, str(error)
@@ -119,7 +124,7 @@ class App(object):
 
     def getQuery(self, exp_uid, args_json):
         try:
-    	    args_dict = self.helper.convert_json(args_json)
+            args_dict = self.helper.convert_json(args_json)
             args_dict = verifier.verify(args_dict, self.reference_dict['getQuery']['args'])
             experiment_dict = self.butler.experiment.get()
             alg_list = experiment_dict['args']['alg_list']
@@ -168,7 +173,7 @@ class App(object):
             query_uid = utils.getNewUID()
             args_dict['args'].update(query_uid=query_uid)
             query_doc = self.call_app_fn(alg_label, alg_id, 'getQuery', args_dict)
-            
+
             query_doc.update({'participant_uid':participant_uid,
                               'alg_id':alg_id,
                               'exp_uid':exp_uid,
@@ -181,7 +186,7 @@ class App(object):
             exc_type, exc_value, exc_traceback = sys.exc_info()
             full_error = str(traceback.format_exc())+'\n'+str(error)
             utils.debug_print("getQuery Exception: " + full_error, color='red')
-            log_entry = { 'exp_uid':exp_uid,'task':'getQuery','error':full_error,'timestamp':utils.datetimeNow(),'args_json':args_json } 
+            log_entry = { 'exp_uid':exp_uid,'task':'getQuery','error':full_error,'timestamp':utils.datetimeNow(),'args_json':args_json }
             self.butler.ell.log( self.app_id+':APP-EXCEPTION', log_entry  )
             traceback.print_tb(exc_traceback)
             return '{}', False, str(error)
@@ -206,30 +211,33 @@ class App(object):
             self.butler.queries.set_many(uid=args_dict['args']['query_uid'],key_value_dict=query_update)
 
             return json.dumps({'args': {}, 'meta': {'log_entry_durations':self.log_entry_durations}}), True, ''
-        
+
         except Exception, error:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             full_error = str(traceback.format_exc())+'\n'+str(error)
             utils.debug_print("processAnswer Exception: " + full_error, color='red')
-            log_entry = { 'exp_uid':exp_uid,'task':'processAnswer','error':full_error,'timestamp':utils.datetimeNow(),'args_json':args_json } 
+            log_entry = { 'exp_uid':exp_uid,'task':'processAnswer','error':full_error,'timestamp':utils.datetimeNow(),'args_json':args_json }
             self.butler.ell.log( self.app_id+':APP-EXCEPTION', log_entry  )
-    	    traceback.print_tb(exc_traceback)
-    	    raise Exception(error)
+            traceback.print_tb(exc_traceback)
+            raise Exception(error)
 
     def getModel(self, exp_uid, args_json):
         try:
             args_dict = self.helper.convert_json(args_json)
-            args_dict = verifier.verify(args_dict, self.reference_dict['getModel']['args']) 
-            alg_label = args_dict['args']['alg_label']
-            args = self.butler.experiment.get(key='args')
-            for algorithm in args['alg_list']:
-                if alg_label == algorithm['alg_label']:
-                    alg_id = algorithm['alg_id']
+            args_dict = verifier.verify(args_dict, self.reference_dict['getModel']['args'])
 
-            myapp_response = self.call_app_fn(alg_label, alg_id, 'getModel', args_dict)
+            init_args = self.butler.experiment.get(key='args')
+            get_results_for_one_alg = 'alg_label' in args_dict['args']
+            if get_results_for_one_alg:
+                alg_label = args_dict['args']['alg_label']
+                alg_id = _get_alg_id(init_args, alg_label)
 
+                myapp_response = self.call_app_fn(alg_label, alg_id, 'getModel', args_dict)
+                myapp_response['alg_label'] = alg_label
+            else:
+                myapp_response = {'models': self._getModels(exp_uid, args_dict)}
             myapp_response['exp_uid'] = exp_uid
-            myapp_response['alg_label'] = alg_label
+
             # Log the response of the getModel in ALG-EVALUATION
             if args_dict['args']['logging']:
                 alg_log_entry = {'exp_uid': exp_uid, 'alg_label':alg_label, 'task': 'getModel', 'timestamp': str(utils.datetimeNow())}
@@ -242,11 +250,50 @@ class App(object):
             exc_type, exc_value, exc_traceback = sys.exc_info()
             full_error = str(traceback.format_exc())+'\n'+str(error)
             utils.debug_print("getModel Exception: " + full_error, color='red')
-            log_entry = { 'exp_uid':exp_uid,'task':'getModel','error':full_error,'timestamp':utils.datetimeNow(),'args_json':args_json } 
+            log_entry = { 'exp_uid':exp_uid,'task':'getModel','error':full_error,'timestamp':utils.datetimeNow(),'args_json':args_json }
             self.butler.ell.log( self.app_id+':APP-EXCEPTION', log_entry  )
-            traceback.print_tb(exc_traceback)       
+            traceback.print_tb(exc_traceback)
             return Exception(error)
 
+    def getResults(self, exp_uid, args_json):
+        try:
+            args_dict = self.helper.convert_json(args_json)
+            init_args = self.butler.experiment.get(key='args')
+            models = self._getModels(self.butler)
+
+            results = {}
+            for alg_label, model in models.items():
+                alg_id = _get_alg_id(init_args, alg_label)
+                butler = self._make_butler_for_alg(alg_label, alg_id)
+                results[alg_label] = self.myApp.getResults(butler, exp_uid, model)
+            return json.dumps({'args': results, 'meta': {'log_entry_durations': self.log_entry_durations}}), True, ''
+
+        except Exception, error:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            full_error = str(traceback.format_exc())+'\n'+str(error)
+            utils.debug_print("getModel Exception: " + full_error, color='red')
+            log_entry = { 'exp_uid':exp_uid,'task':'getResults','error':full_error,'timestamp':utils.datetimeNow(),'args_json':args_json }
+            self.butler.ell.log( self.app_id+':APP-EXCEPTION', log_entry  )
+            traceback.print_tb(exc_traceback)
+            return Exception(error)
+
+    def _getModels(self, butler):
+        exp_args = butler.experiment.get(key='args')
+        algs = exp_args['alg_list']
+
+        models = {}
+        for alg in algs:
+            args = {'exp_uid': butler.exp_uid, 'args': {'alg_label': alg['alg_label']}}
+            model = self.call_app_fn(alg['alg_label'], alg['alg_id'], 'getModel', args)
+            models[alg['alg_label']] = model
+
+        return models
+
+def _get_alg_id(args, alg_label):
+    for algorithm in args['alg_list']:
+        if alg_label == algorithm['alg_label']:
+            return algorithm['alg_id']
+    raise ValueError('alg_id not found')
 
 class Helper(object):
     #TODO: This is never called?? Can we please remove this class?
