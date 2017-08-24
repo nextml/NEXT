@@ -1,7 +1,6 @@
 
 class MyAlg:
-    def initExp(self, butler, dummy):
-
+    def initExp(self, butler):
         butler.algorithms.set(key='algorithms_foo', value='algorithms_bar')
 
         return True
