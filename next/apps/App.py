@@ -69,10 +69,10 @@ class App(object):
     def init_alg(self, exp_uid, algorithm, alg_args):
         butler = Butler(self.app_id, exp_uid, self.myApp.TargetManager, self.butler.db, self.butler.ell, algorithm['alg_label'], algorithm['alg_id'])
         alg = utils.get_app_alg(self.app_id, algorithm['alg_id'])
-        
+
         if 'args' in self.algs_reference_dict['initExp']:
             alg_args = verifier.verify(alg_args, self.algs_reference_dict['initExp']['args'])
-            
+
         # I got rid of a timeit function here; it wasn't handling the
         # argument unpacking correctly? --Scott, 2016-3-7
         # TODO: put dt back in and change log_entry to relfect that
@@ -80,9 +80,8 @@ class App(object):
         alg_response = verifier.verify({'rets':alg_response}, {'rets':self.algs_reference_dict['initExp']['rets']})
         log_entry = {'exp_uid':exp_uid, 'alg_label':algorithm['alg_label'], 'task':'initExp', 'duration':-1, 'timestamp':utils.datetimeNow()}
         self.butler.log('ALG-DURATION', log_entry)
-                
+
     def init_app(self, exp_uid, alg_list, args):
-        utils.debug_print(str(args))
         def init_algs_wrapper(alg_args={}):
             for algorithm in alg_list:
                 # Set doc in algorithms bucket. These objects are used by the algorithms to store data.
@@ -90,9 +89,9 @@ class App(object):
                 self.butler.algorithms.set(uid=algorithm['alg_label'], value=algorithm)
                 self.init_alg(exp_uid, algorithm, alg_args)
                 # params = algorithm.get('params',None)
-                
+
         return self.myApp.initExp(self.butler, init_algs_wrapper, args)
-    
+
     def initExp(self, exp_uid, args_json):
         try:
             self.helper.ensure_indices(self.app_id,self.butler.db, self.butler.ell)
@@ -100,8 +99,8 @@ class App(object):
             args_dict = verifier.verify(args_dict, self.reference_dict['initExp']['args'])
             args_dict['exp_uid'] = exp_uid # to get doc from db
             args_dict['start_date'] = utils.datetime2str(utils.datetimeNow())
-            self.butler.admin.set(uid=exp_uid,value={'exp_uid': exp_uid, 'app_id':self.app_id, 'start_date':str(utils.datetimeNow())})            
-            utils.debug_print("ASD "+str(args_dict))
+            self.butler.admin.set(uid=exp_uid,value={'exp_uid': exp_uid, 'app_id':self.app_id, 'start_date':str(utils.datetimeNow())})
+            utils.debug_print("Launching app with arguments: {}".format(args_dict))
             self.butler.experiment.set(value={'exp_uid': exp_uid})
             args_dict['args'] = self.init_app(exp_uid, args_dict['args']['alg_list'], args_dict['args'])
             args_dict['git_hash'] = git_hash
@@ -111,7 +110,7 @@ class App(object):
             exc_type, exc_value, exc_traceback = sys.exc_info()
             full_error = str(traceback.format_exc())+'\n'+str(error)
             utils.debug_print("initExp Exception: " + full_error, color='red')
-            log_entry = { 'exp_uid':exp_uid,'task':'initExp','error':full_error,'timestamp':utils.datetimeNow(),'args_json':args_json } 
+            log_entry = { 'exp_uid':exp_uid,'task':'initExp','error':full_error,'timestamp':utils.datetimeNow(),'args_json':args_json }
             self.butler.ell.log( self.app_id+':APP-EXCEPTION', log_entry  )
             traceback.print_tb(exc_traceback)
             return '{}', False, str(error)
@@ -168,7 +167,7 @@ class App(object):
             query_uid = utils.getNewUID()
             args_dict['args'].update(query_uid=query_uid)
             query_doc = self.call_app_fn(alg_label, alg_id, 'getQuery', args_dict)
-            
+
             query_doc.update({'participant_uid':participant_uid,
                               'alg_id':alg_id,
                               'exp_uid':exp_uid,
@@ -181,7 +180,7 @@ class App(object):
             exc_type, exc_value, exc_traceback = sys.exc_info()
             full_error = str(traceback.format_exc())+'\n'+str(error)
             utils.debug_print("getQuery Exception: " + full_error, color='red')
-            log_entry = { 'exp_uid':exp_uid,'task':'getQuery','error':full_error,'timestamp':utils.datetimeNow(),'args_json':args_json } 
+            log_entry = { 'exp_uid':exp_uid,'task':'getQuery','error':full_error,'timestamp':utils.datetimeNow(),'args_json':args_json }
             self.butler.ell.log( self.app_id+':APP-EXCEPTION', log_entry  )
             traceback.print_tb(exc_traceback)
             return '{}', False, str(error)
@@ -206,12 +205,12 @@ class App(object):
             self.butler.queries.set_many(uid=args_dict['args']['query_uid'],key_value_dict=query_update)
 
             return json.dumps({'args': {}, 'meta': {'log_entry_durations':self.log_entry_durations}}), True, ''
-        
+
         except Exception, error:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             full_error = str(traceback.format_exc())+'\n'+str(error)
             utils.debug_print("processAnswer Exception: " + full_error, color='red')
-            log_entry = { 'exp_uid':exp_uid,'task':'processAnswer','error':full_error,'timestamp':utils.datetimeNow(),'args_json':args_json } 
+            log_entry = { 'exp_uid':exp_uid,'task':'processAnswer','error':full_error,'timestamp':utils.datetimeNow(),'args_json':args_json }
             self.butler.ell.log( self.app_id+':APP-EXCEPTION', log_entry  )
     	    traceback.print_tb(exc_traceback)
     	    raise Exception(error)
@@ -219,7 +218,7 @@ class App(object):
     def getModel(self, exp_uid, args_json):
         try:
             args_dict = self.helper.convert_json(args_json)
-            args_dict = verifier.verify(args_dict, self.reference_dict['getModel']['args']) 
+            args_dict = verifier.verify(args_dict, self.reference_dict['getModel']['args'])
             alg_label = args_dict['args']['alg_label']
             args = self.butler.experiment.get(key='args')
             for algorithm in args['alg_list']:
@@ -242,9 +241,9 @@ class App(object):
             exc_type, exc_value, exc_traceback = sys.exc_info()
             full_error = str(traceback.format_exc())+'\n'+str(error)
             utils.debug_print("getModel Exception: " + full_error, color='red')
-            log_entry = { 'exp_uid':exp_uid,'task':'getModel','error':full_error,'timestamp':utils.datetimeNow(),'args_json':args_json } 
+            log_entry = { 'exp_uid':exp_uid,'task':'getModel','error':full_error,'timestamp':utils.datetimeNow(),'args_json':args_json }
             self.butler.ell.log( self.app_id+':APP-EXCEPTION', log_entry  )
-            traceback.print_tb(exc_traceback)       
+            traceback.print_tb(exc_traceback)
             return Exception(error)
 
 

@@ -133,8 +133,6 @@ def str2datetime(str_time):
     return datetime.strptime(str_time,'%Y-%m-%d %H:%M:%S')
 
 def debug_print(*args, **kwargs):
-    """
-    """
     color = kwargs.get('color', 'yellow')
     for a in args:
         if type(a) in {str}:
@@ -174,6 +172,6 @@ def timeit(f):
     # TODO: delete these three lines. Use
     # `grep -Hnri ,.*,.* = .*utils.timeit` to find all locations this function
     # is are used (typically in `a, b, c, dt = utils.timeit(...)(...)`. We want
-    # `a, dt = utils.timeit(...)(...)`.    
+    # `a, dt = utils.timeit(...)(...)`.
     return result, (te-ts)
   return timed
