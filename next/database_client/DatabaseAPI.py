@@ -131,7 +131,13 @@ class DatabaseAPI(object):
         return doc.get(key) is not None
 
     def get(self,bucket_id,doc_uid,key):
-        val = self._bucket(bucket_id).find_one({"_id": doc_uid}, {key: True}).get(key)
+        doc = self._bucket(bucket_id).find_one({"_id": doc_uid}, {key: True})
+
+        if doc is None:
+            return None
+
+        val = doc.get(key)
+
         return from_db_fmt(val)
 
     def get_many(self,bucket_id,doc_uid,key_list):
@@ -235,4 +241,3 @@ class DatabaseAPI(object):
                                                       task,task_args_json,namespace=namespace,
                                                       ignore_result=ignore_result,time_limit=time_limit)
         return result
-
