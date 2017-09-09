@@ -8,7 +8,21 @@ import next.constants as constants
 import next.utils as utils
 
 
-class Memory(object):
+class NextDictionary(object):
+    def get(self, key):
+        raise NotImplementedError
+
+    def set(self, key, value):
+        raise NotImplementedError
+
+    def __getitem__(self, item):
+        return self.get(key=item)
+
+    def __setitem__(self, key, value):
+        self.set(key=key, value=value)
+
+
+class Memory(NextDictionary):
     def __init__(self, collection='', exp_uid='', uid_prefix=''):
         self.key_prefix = collection + uid_prefix.format(exp_uid=exp_uid)
         self.cache = None
@@ -126,7 +140,7 @@ class Memory(object):
             return None
 
 
-class Collection(object):
+class Collection(NextDictionary):
     def __init__(self, collection, uid_prefix, exp_uid, db, timing=True):
         self.collection = collection
         self.db = db

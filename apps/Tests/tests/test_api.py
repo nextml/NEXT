@@ -1,12 +1,8 @@
 import numpy
 import numpy.random
 import random
-import json
 import time
-import requests
-from scipy.linalg import norm
 from multiprocessing import Pool
-import os
 import sys
 try:
     import next.apps.test_utils as test_utils
@@ -115,6 +111,36 @@ def simulate_one_client(input_args):
             participant_uid)
 
     return r
+
+
+def set_and_get_exp(butler):
+    butler.experiment['exp_key_1'] = 'exp_value_1'
+    butler.experiment.set(key='exp_key_2', value='exp_value_2')
+    butler.experiment.memory['exp_key_mem_1'] = 'exp_value_mem_1'
+    butler.experiment.memory.set(key='exp_key_mem_2', value='exp_value_mem_2')
+    get_exp(butler)
+
+
+def get_exp(butler):
+    assert butler.experiment['exp_key_1'] == butler.experiment.get(key='exp_key_1') == 'exp_value_1'
+    assert butler.experiment['exp_key_2'] == butler.experiment.get(key='exp_key_2') == 'exp_value_2'
+    assert butler.experiment.memory['exp_key_mem_1'] == butler.experiment.memory.get(key='exp_key_mem_1') == 'exp_value_mem_1'
+    assert butler.experiment.memory['exp_key_mem_2'] == butler.experiment.memory.get(key='exp_key_mem_2') == 'exp_value_mem_2'
+
+
+def set_and_get_alg(butler):
+    butler.algorithms['alg_key_1'] = 'alg_value_1'
+    butler.algorithms.set(key='alg_key_2', value='alg_value_2')
+    butler.algorithms.memory['alg_key_mem_1'] = 'alg_value_mem_1'
+    butler.algorithms.memory.set(key='alg_key_mem_2', value='alg_value_mem_2')
+    get_alg(butler)
+
+
+def get_alg(butler):
+    assert butler.algorithms['alg_key_1'] == butler.algorithms.get(key='alg_key_1') == 'alg_value_1'
+    assert butler.algorithms['alg_key_2'] == butler.algorithms.get(key='alg_key_2') == 'alg_value_2'
+    assert butler.algorithms.memory['alg_key_mem_1'] == butler.algorithms.memory.get(key='alg_key_mem_1') == 'alg_value_mem_1'
+    assert butler.algorithms.memory['alg_key_mem_2'] == butler.algorithms.memory.get(key='alg_key_mem_2') == 'alg_value_mem_2'
 
 if __name__ == '__main__':
     test_api()

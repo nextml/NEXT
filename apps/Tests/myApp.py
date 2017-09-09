@@ -1,6 +1,6 @@
-import json
-import next.utils as utils
 import next.apps.SimpleTargetManager
+from apps.Tests.tests.test_api import get_alg, get_exp, set_and_get_exp
+
 
 class MyApp:
     def __init__(self,db):
@@ -8,31 +8,23 @@ class MyApp:
         self.TargetManager = next.apps.SimpleTargetManager.SimpleTargetManager(db)
 
     def initExp(self, butler, init_algs, args):
-
-        butler.experiment.set(key='experiment_foo', value='experiment_bar')
-
+        set_and_get_exp(butler)
         init_algs({})
-
         return args
 
     def getQuery(self, butler, alg, args):
-
-        assert butler.experiment.get(key='experiment_foo') == 'experiment_bar'
-
-        assert alg()
-
+        get_exp(butler)
+        assert alg() == "return_get_query"
         return {}
 
     def processAnswer(self, butler, alg, args):
-
-        assert alg({})
-
-        assert butler.experiment.get(key='experiment_foo') == 'experiment_bar'
-
+        get_exp(butler)
+        assert alg({}) == "return_process_answer"
         return {}
 
     def getModel(self, butler, alg, args):
-
-        assert alg()
-
+        get_exp(butler)
+        assert alg() == "return_get_model"
         return True
+
+
