@@ -1,12 +1,3 @@
-"""
-BR_LilUCB app implements DuelingBanditsPureExplorationPrototype
-
-BR_LilUCB implements the lilUCB algorithm described in
-Jamieson, Malloy, Nowak, Bubeck, "lil' UCB : An Optimal Exploration Algorithm for Multi-Armed Bandits," COLT 2014
-using the Borda reduction described in detail in
-Jamieson et al "Sparse Borda Bandits," AISTATS 2015.
-"""
-
 import numpy
 import numpy as np
 import numpy.random
@@ -141,8 +132,3 @@ def leftright(muhat,lower,upper,threshold):
       return [shit,upper,(shit+upper)/2]
   if muhat==1:
     return [1,1,1]
-
-
-
-
-
