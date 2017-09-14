@@ -72,7 +72,7 @@ def test_get_and_delete(db):
 
 def test_increment(db):
     B = 'test_increment'
-    
+
     doc_uid = db._bucket(B).insert_one({'a': 2}).inserted_id
 
     assert db.increment(B, doc_uid, 'a') == 3
@@ -83,7 +83,7 @@ def test_increment(db):
 def test_increment_many(db):
     B = 'test_increment_many'
     doc = {'a': 0, 'b': 0, 'c': 0}
-    
+
     doc_uid = db._bucket(B).insert_one(doc).inserted_id
 
     assert db.increment_many(B, doc_uid, {'a': 1, 'b': 5, 'c': -7}) \
@@ -121,7 +121,7 @@ def test_set(db):
 
     doc_uid = db._bucket(B).insert_one({}).inserted_id
 
-    assert db.get(B, doc_uid, 'a') == None
+    assert db.get(B, doc_uid, 'a') is None
     db.set(B, doc_uid, 'a', [1,2,3,4])
     assert db.get(B, doc_uid, 'a') == [1,2,3,4]
     # alias of db.set()
@@ -186,7 +186,7 @@ def test_delete(db):
 
     assert db.get(B, doc_uid, 'a') == 3
     db.delete(B, doc_uid, 'a')
-    assert db.get(B, doc_uid, 'a') == None
+    assert db.get(B, doc_uid, 'a') is None
 
 def test_indexes(db):
     B = 'test_indexes'
@@ -247,7 +247,7 @@ def test_from_db_fmt():
     assert does_invert('foobarbaz')
     assert does_invert(1+2j)
 
-    # lists and dicts should invert 
+    # lists and dicts should invert
     assert does_invert([1, 1+2j, 'foo', [1,2.3]])
     assert does_invert({'a': 1, 'b': ['foo', 2]})
 
