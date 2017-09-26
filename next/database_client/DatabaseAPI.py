@@ -28,6 +28,10 @@ class DatabaseException(BaseException):
     pass
 
 def to_db_fmt(x):
+    # leave None as is
+    if x is None:
+        return x
+
     # convert tuples to lists
     if isinstance(x, tuple):
         return to_db_fmt(list(x))
