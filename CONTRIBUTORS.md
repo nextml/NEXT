@@ -8,5 +8,6 @@ NEXT has been developed by the following people (alphabetically):
 * Nick Glattard
 * Lalit Jain
 * Kevin Jamieson
+* Liam Marshall
 * Daniel Ross
 * Scott Sievert
