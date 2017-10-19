@@ -28,6 +28,10 @@ class DatabaseException(BaseException):
     pass
 
 def to_db_fmt(x):
+    # leave None as is
+    if x is None:
+        return x
+
     # convert tuples to lists
     if isinstance(x, tuple):
         return to_db_fmt(list(x))
@@ -46,7 +50,7 @@ def to_db_fmt(x):
         return x.tolist()
 
     # types that MongoDB can natively store
-    if type(x) in {int, float, long, complex, str, unicode, datetime}:
+    if type(x) in {bool, int, float, long, complex, str, unicode, datetime}:
         return x
 
     # interface types. don't repickle these
@@ -235,4 +239,3 @@ class DatabaseAPI(object):
                                                       task,task_args_json,namespace=namespace,
                                                       ignore_result=ignore_result,time_limit=time_limit)
         return result
-
