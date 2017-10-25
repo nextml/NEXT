@@ -28,6 +28,10 @@ class DatabaseException(BaseException):
     pass
 
 def to_db_fmt(x):
+    # leave None as is
+    if x is None:
+        return x
+
     # convert tuples to lists
     if isinstance(x, tuple):
         return to_db_fmt(list(x))
@@ -46,7 +50,7 @@ def to_db_fmt(x):
         return x.tolist()
 
     # types that MongoDB can natively store
-    if type(x) in {int, float, long, complex, str, unicode, datetime}:
+    if type(x) in {bool, int, float, long, complex, str, unicode, datetime}:
         return x
 
     # interface types. don't repickle these
@@ -131,13 +135,7 @@ class DatabaseAPI(object):
         return doc.get(key) is not None
 
     def get(self,bucket_id,doc_uid,key):
-        doc = self._bucket(bucket_id).find_one({"_id": doc_uid}, {key: True})
-
-        if doc is None:
-            return None
-
-        val = doc.get(key)
-
+        val = self._bucket(bucket_id).find_one({"_id": doc_uid}, {key: True}).get(key)
         return from_db_fmt(val)
 
     def get_many(self,bucket_id,doc_uid,key_list):

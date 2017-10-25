@@ -39,7 +39,7 @@
     <img class="center-block" src={{ query.target_indices[0].primary_description }}></img>
     {% elif query.target_indices[0].primary_type == "text" %}
     <div>
-      <div>{{ query.target_indices[0].primary_description }}</div>
+      <div>{{ query.target_indices[0].primary_description|safe }}</div>
     </div>
 
     {% elif query.target_indices[0].primary_type == "video" %}
@@ -58,7 +58,7 @@
     <img class="center-block" src={{ query.target_indices[1].primary_description }}></img>
 
     {% elif query.target_indices[1].primary_type == "text"%}
-    <div>{{ query.target_indices[1].primary_description }}</div>
+    <div>{{ query.target_indices[1].primary_description|safe }}</div>
 
     {% elif query.target_indices[0].primary_type == "video" %}
     <video width="320" height="240" poster="http://jimpunk.net/Loading/wp-content/uploads/loading1.gif" controls autoplay loop>
@@ -73,7 +73,7 @@
     {% if query.target_indices[2].primary_type == "image" or query.target_indices[2].primary_type == "img" %}
     <img class="center-block" src={{ query.target_indices[2].primary_description }}> </img>
     {% elif query.target_indices[2].primary_type == "text" %}
-    <div>{{ query.target_indices[2].primary_description }}</div>
+    <div>{{ query.target_indices[2].primary_description|safe }}</div>
     {% elif query.target_indices[0].primary_type == "video" %}
     <video width="320" height="240" poster="http://jimpunk.net/Loading/wp-content/uploads/loading1.gif" controls autoplay loop>
       <source src={{ query.target_indices[2].primary_description }} type="video/mp4">

@@ -1,9 +1,4 @@
 initExp:
-  args:
-    dummy:
-      type: bool
-      description: This is here because there's a bug that requires myAlg.initExp to have at least one argument.
-      default: true
   rets:
     type: str
 
