@@ -34,7 +34,7 @@ def test_api(assert_200=True, num_arms=5, num_clients=8, delta=0.05,
     app_id = 'DuelingBanditsPureExploration'
     true_means = numpy.array(range(num_arms)[::-1])/float(num_arms)
     pool = Pool(processes=num_clients)
-    supported_alg_ids = ['BR_LilUCB', 'BR_Random', 'ValidationSampling']
+    supported_alg_ids = ['BR_LilUCB', 'BR_Random', 'ValidationSampling', 'BR_KLUCB']
 
     alg_list = []
     for i, alg_id in enumerate(supported_alg_ids):
