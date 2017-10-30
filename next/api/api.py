@@ -17,10 +17,12 @@ else:
 app.register_blueprint(dashboard, url_prefix=dashboard_prefix)
 app.register_blueprint(query_page, url_prefix='/query')
 
+
 @app.context_processor
 def inject_global_templatevars():
     return dict(next_git_hash=constants.GIT_HASH,
                 next_version=constants.VERSION)
+
 
 import logging
 import sys
@@ -28,16 +30,17 @@ import sys
 app.logger.addHandler(logging.StreamHandler(sys.stdout))
 app.logger.setLevel(logging.DEBUG)
 
-#Handle internal errors using a custom error message
+# Handle internal errors using a custom error message
 import json
+
+
 @app.errorhandler(404)
 def internal_system_error(error):
-    response  = {
-        'meta':{
-            'status':'FAIL',
-            'code':404,
-            'message':'Resource not found'
+    response = {
+        'meta': {
+            'status': 'FAIL',
+            'code': 404,
+            'message': 'Resource not found'
         }
     }
     return json.dumps(response), 404
-

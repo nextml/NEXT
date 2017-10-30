@@ -12,11 +12,12 @@ query_page = Blueprint('query_page',
                        template_folder='templates',
                        static_folder='static')
 
+
 @query_page.route('/query_page/<page>')
 @query_page.route('/query_page/<page>/<exp_uid>')
 def load_page(page, exp_uid=None):
     experiment = resource_manager.get_experiment(exp_uid)
-    app_template = page+'.html'
+    app_template = page + '.html'
     if constants.NEXT_BACKEND_GLOBAL_HOST:
         host_url = 'http://{}:{}'.format(constants.NEXT_BACKEND_GLOBAL_HOST,
                                          constants.NEXT_BACKEND_GLOBAL_PORT)
@@ -26,9 +27,7 @@ def load_page(page, exp_uid=None):
     part_id = request.args.get('participant', None)
     participant_uid = str(part_id) if part_id else part_id
 
-
     return render_template(app_template, host_url=host_url, exp_uid=exp_uid,
                            experiment=experiment,
                            participant_uid=participant_uid), \
-        200, {'Cache-Control':'private, max-age=0, no-cache, no-store'}
-
+        200, {'Cache-Control': 'private, max-age=0, no-cache, no-store'}

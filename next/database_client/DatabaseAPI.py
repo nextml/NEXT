@@ -24,8 +24,10 @@ except:
     print "Warning: you will not be able to submit jobs to the broker"
     pass
 
+
 class DatabaseException(BaseException):
     pass
+
 
 def to_db_fmt(x):
     # leave None as is
@@ -60,6 +62,7 @@ def to_db_fmt(x):
     # pickle everything else, wrap in MongoDB `Binary`
     return Binary(cPickle.dumps(x, protocol=2))
 
+
 def from_db_fmt(x):
     # recursive descent through lists
     if isinstance(x, list):
@@ -84,6 +87,7 @@ def from_db_fmt(x):
     # not a datatype we need to deserialize! just pass it out
     return x
 
+
 class DatabaseAPI(object):
     """
     Serves as an API object that can be passed around. See above for usage
@@ -93,7 +97,7 @@ class DatabaseAPI(object):
     """
 
     def __init__(self, mongo_host=constants.MONGODB_HOST, mongo_port=constants.MONGODB_PORT,
-                    database_name=constants.app_data_database_id):
+                 database_name=constants.app_data_database_id):
         self.client = None
         self.connect_mongo(mongo_host, mongo_port)
 
@@ -127,45 +131,46 @@ class DatabaseAPI(object):
     def _bucket(self, bucket_id):
         return self.client[self.db_name][bucket_id]
 
-    def exists(self,bucket_id,doc_uid,key):
+    def exists(self, bucket_id, doc_uid, key):
         # if the document isn't found, just set doc to an empty dict,
         # so that any .get(key) call returns None
-        doc = self._bucket(bucket_id).find_one({"_id":doc_uid},
-            projection={key: True}) or {}
+        doc = self._bucket(bucket_id).find_one({"_id": doc_uid},
+                                               projection={key: True}) or {}
         return doc.get(key) is not None
 
-    def get(self,bucket_id,doc_uid,key):
-        val = self._bucket(bucket_id).find_one({"_id": doc_uid}, {key: True}).get(key)
+    def get(self, bucket_id, doc_uid, key):
+        val = self._bucket(bucket_id).find_one(
+            {"_id": doc_uid}, {key: True}).get(key)
         return from_db_fmt(val)
 
-    def get_many(self,bucket_id,doc_uid,key_list):
+    def get_many(self, bucket_id, doc_uid, key_list):
         projection = {k: True for k in key_list}
         doc = self._bucket(bucket_id).find_one({"_id": doc_uid}, projection)
         val = {k: doc.get(k) for k in key_list}
 
         return from_db_fmt(val)
 
-    def get_and_delete(self,bucket_id,doc_uid,key):
+    def get_and_delete(self, bucket_id, doc_uid, key):
         doc = self._bucket(bucket_id).find_one_and_update({"_id": doc_uid},
-            update={'$unset': {key: ''}}, projection={key: True})
+                                                          update={'$unset': {key: ''}}, projection={key: True})
 
         return from_db_fmt(doc.get(key))
 
-    def increment(self,bucket_id,doc_uid,key,value=1):
+    def increment(self, bucket_id, doc_uid, key, value=1):
         return self._bucket(bucket_id).find_one_and_update({"_id": doc_uid},
-            update={'$inc': {key: value}}, projection={key: True},
-            new=True, upsert=True).get(key)
+                                                           update={'$inc': {key: value}}, projection={key: True},
+                                                           new=True, upsert=True).get(key)
 
-    def increment_many(self,bucket_id,doc_uid,key_value_dict):
+    def increment_many(self, bucket_id, doc_uid, key_value_dict):
         projection = {k: True for k in key_value_dict.keys()}
         values = {k: v for k, v in key_value_dict.items() if v != 0}
 
         new_doc = self._bucket(bucket_id).find_one_and_update({"_id": doc_uid},
-            update={'$inc': values}, projection=projection, new=True, upsert=True)
+                                                              update={'$inc': values}, projection=projection, new=True, upsert=True)
 
         return {k: new_doc.get(k) for k in key_value_dict.keys()}
 
-    def get_list(self,bucket_id,doc_uid,key):
+    def get_list(self, bucket_id, doc_uid, key):
         return self.get(bucket_id, doc_uid, key)
 
     def pop_list(self, bucket_id, doc_uid, key, end):
@@ -175,67 +180,70 @@ class DatabaseAPI(object):
         elif end == -1:
             mongo_idx = 1
         else:
-            raise IndexError("Can only pop first (index=0) or last (index=-1) element of list!")
+            raise IndexError(
+                "Can only pop first (index=0) or last (index=-1) element of list!")
 
         val = self._bucket(bucket_id).find_and_modify({"_id": doc_uid},
-            {'$pop': {key: mongo_idx}}).get(key)
+                                                      {'$pop': {key: mongo_idx}}).get(key)
 
         try:
             return from_db_fmt(val[end])
         except IndexError:
             raise IndexError("Cannot pop from empty list!")
 
-    def append_list(self,bucket_id,doc_uid,key,value):
+    def append_list(self, bucket_id, doc_uid, key, value):
         return self._bucket(bucket_id).find_one_and_update({"_id": doc_uid},
-            {'$push': {key: to_db_fmt(value)}}, new=True, upsert=True).get(key)
+                                                           {'$push': {key: to_db_fmt(value)}}, new=True, upsert=True).get(key)
 
-    def set_list(self,bucket_id,doc_uid,key,value):
+    def set_list(self, bucket_id, doc_uid, key, value):
         self.set(bucket_id, doc_uid, key, value)
 
-    def set_doc(self,bucket_id,doc_uid,doc):
+    def set_doc(self, bucket_id, doc_uid, doc):
         if doc_uid is not None:
             doc['_id'] = doc_uid
-            self._bucket(bucket_id).replace_one({"_id": doc_uid}, to_db_fmt(doc), upsert=True)
+            self._bucket(bucket_id).replace_one(
+                {"_id": doc_uid}, to_db_fmt(doc), upsert=True)
         else:
             self._bucket(bucket_id).insert_one(to_db_fmt(doc))
 
-    def get_doc(self,bucket_id,doc_uid):
+    def get_doc(self, bucket_id, doc_uid):
         return from_db_fmt(self._bucket(bucket_id).find_one({"_id": doc_uid}))
 
-    def get_docs_with_filter(self,bucket_id,pattern_dict):
+    def get_docs_with_filter(self, bucket_id, pattern_dict):
         docs_cursor = self._bucket(bucket_id).find(pattern_dict)
 
         return [from_db_fmt(doc) for doc in docs_cursor]
 
-    def set(self,bucket_id,doc_uid,key,value):
+    def set(self, bucket_id, doc_uid, key, value):
         self._bucket(bucket_id).update_one({"_id": doc_uid},
-            {'$set': {key: to_db_fmt(value)}}, upsert=True)
+                                           {'$set': {key: to_db_fmt(value)}}, upsert=True)
 
-    def set_many(self,bucket_id,doc_uid,key_value_dict):
+    def set_many(self, bucket_id, doc_uid, key_value_dict):
         self._bucket(bucket_id).update_one({"_id": doc_uid},
-            {'$set': to_db_fmt(key_value_dict)})
+                                           {'$set': to_db_fmt(key_value_dict)})
 
-    def delete(self,bucket_id,doc_uid,key):
+    def delete(self, bucket_id, doc_uid, key):
         self._bucket(bucket_id).update_one({"_id": doc_uid},
-            {'$unset': {key: True}})
+                                           {'$unset': {key: True}})
 
-    def ensure_index(self,bucket_id,index_dict):
+    def ensure_index(self, bucket_id, index_dict):
         self._bucket(bucket_id).create_index(index_dict.items())
 
-    def drop_all_indexes(self,bucket_id):
+    def drop_all_indexes(self, bucket_id):
         self._bucket(bucket_id).drop_indexes()
 
-    def delete_docs_with_filter(self,bucket_id,pattern_dict):
+    def delete_docs_with_filter(self, bucket_id, pattern_dict):
         self._bucket(bucket_id).delete_many(pattern_dict)
 
-    def submit_job(self,app_id,exp_uid,task,task_args_json,namespace=None,ignore_result=True,time_limit=0, alg_id=None, alg_label=None):
+    def submit_job(self, app_id, exp_uid, task, task_args_json, namespace=None, ignore_result=True, time_limit=0, alg_id=None, alg_label=None):
         if self.broker is None:
             self.broker = next.broker.broker.JobBroker()
         if namespace is None:
-            result = self.broker.applyAsync(app_id,exp_uid,task,task_args_json,ignore_result=ignore_result)
+            result = self.broker.applyAsync(
+                app_id, exp_uid, task, task_args_json, ignore_result=ignore_result)
         else:
-            result = self.broker.applySyncByNamespace(app_id,exp_uid,
+            result = self.broker.applySyncByNamespace(app_id, exp_uid,
                                                       alg_id, alg_label,
-                                                      task,task_args_json,namespace=namespace,
-                                                      ignore_result=ignore_result,time_limit=time_limit)
+                                                      task, task_args_json, namespace=namespace,
+                                                      ignore_result=ignore_result, time_limit=time_limit)
         return result

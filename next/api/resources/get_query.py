@@ -16,7 +16,7 @@ resource_manager = ResourceManager()
 broker = next.broker.broker.JobBroker()
 
 # Request parser. Checks that necessary dictionary keys are available in a given resource.
-# We rely on learningLib functions to ensure that all necessary arguments are available and parsed. 
+# We rely on learningLib functions to ensure that all necessary arguments are available and parsed.
 post_parser = reqparse.RequestParser(argument_class=APIArgument)
 
 # Custom errors for GET and POST verbs on experiment resource
@@ -24,7 +24,7 @@ meta_error = {
     'ExpDoesNotExistError': {
         'message': "No experiment with the specified experiment ID exists.",
         'code': 400,
-        'status':'FAIL'
+        'status': 'FAIL'
     },
     'QueryGenerationError': {
         'message': "Failed to generate query. Please verify that you have specified the correct application specific query parameters.",
@@ -52,24 +52,23 @@ class getQuery(Resource):
         app_id = resource_manager.get_app_id(exp_uid)
         # Standardized participant_uid
         if 'participant_uid' in args_data['args'].keys():
-            args_data['args']['participant_uid'] = exp_uid+"_" + \
-                                str(args_data['args']['participant_uid'])
+            args_data['args']['participant_uid'] = exp_uid + "_" + \
+                str(args_data['args']['participant_uid'])
 
-        render_widget = args_data['args'].get('widget',False)
+        render_widget = args_data['args'].get('widget', False)
 
-        # Execute getQuery 
-        response_json,didSucceed,message = broker.applyAsync(app_id,exp_uid,"getQuery", json.dumps(args_data))
+        # Execute getQuery
+        response_json, didSucceed, message = broker.applyAsync(
+            app_id, exp_uid, "getQuery", json.dumps(args_data))
         response_dict = json.loads(response_json)
         if not didSucceed:
-            return attach_meta({},meta_error['QueryGenerationError'], backend_error=message)
+            return attach_meta({}, meta_error['QueryGenerationError'], backend_error=message)
 
         if render_widget:
-            TEMPLATES_DIRECTORY = 'apps/{}/widgets'.format(resource_manager.get_app_id(exp_uid))
+            TEMPLATES_DIRECTORY = 'apps/{}/widgets'.format(
+                resource_manager.get_app_id(exp_uid))
             env = Environment(loader=FileSystemLoader(TEMPLATES_DIRECTORY))
-            template=env.get_template("getQuery_widget.html")
-            return {'html':template.render(query=response_dict), 'args':response_dict}, 200, {'Access-Control-Allow-Origin':'*', 'Content-Type':'application/json'}
-        
-        return attach_meta(response_dict,meta_success), 200
-        
-            
+            template = env.get_template("getQuery_widget.html")
+            return {'html': template.render(query=response_dict), 'args': response_dict}, 200, {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'}
 
+        return attach_meta(response_dict, meta_success), 200

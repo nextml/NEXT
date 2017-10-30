@@ -10,10 +10,14 @@ The following command will print sys.stdout
 
 """
 
-import json, sys, yaml, os
+import json
+import sys
+import yaml
+import os
 from pprint import pprint
 import pytest
 from .. import verifier
+
 
 def verify_yaml(test_name, test):
     """
@@ -21,7 +25,8 @@ def verify_yaml(test_name, test):
     in, formats the args (loaded from test_files/{test_name}) then returns both
     """
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    api, errs = verifier.load_doc(test['spec'], os.path.join(dir_path,'specs/'))
+    api, errs = verifier.load_doc(
+        test['spec'], os.path.join(dir_path, 'specs/'))
     if len(errs) > 0:
         return None, None, errs
     fn = test['inputs'][test_name]['function']
@@ -39,7 +44,7 @@ def run_test(filename):
     """
     dir_path = os.path.dirname(os.path.realpath(__file__))
 
-    with open(os.path.join(dir_path,'test_files/{}'.format(filename))) as f:
+    with open(os.path.join(dir_path, 'test_files/{}'.format(filename))) as f:
         test = yaml.load(f.read())
     for test_name in test['inputs']:
         print('    {}'.format(test_name))
@@ -50,7 +55,8 @@ def run_test(filename):
             try:
                 args, expected_out, load_errs = verify_yaml(test_name, test)
                 assert expected_out == args
-                assert (not 'errors' in test['inputs'][test_name]) or test['inputs'][test_name]['errors'] == False
+                assert (not 'errors' in test['inputs'][test_name]
+                        ) or test['inputs'][test_name]['errors'] == False
             except:
                 assert 'errors' in test['inputs'][test_name] and test['inputs'][test_name]['errors'] == True
 
@@ -61,12 +67,13 @@ def test_all():
     """
     print('\n')
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    dir_ = os.path.join(dir_path,'test_files/')
+    dir_ = os.path.join(dir_path, 'test_files/')
     for yaml_filename in os.listdir(dir_):
         if 'DS_Store' in yaml_filename:
             continue
         print('Testing YAML file {}'.format(yaml_filename))
         run_test(yaml_filename)
+
 
 if __name__ == "__main__":
     test_all()

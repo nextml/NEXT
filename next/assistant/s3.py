@@ -21,6 +21,7 @@ def get_bucket(AWS_BUCKET_NAME, AWS_ID, AWS_KEY):
     bucket = conn.get_bucket(AWS_BUCKET_NAME, validate=False)
     return bucket
 
+
 def upload(filename, file_object, bucket):
     k = Key(bucket)
     k.key = filename

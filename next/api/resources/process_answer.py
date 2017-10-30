@@ -28,7 +28,7 @@ resource_manager = ResourceManager()
 broker = next.broker.broker.JobBroker()
 
 # Request parser. Checks that necessary dictionary keys are available in a given resource.
-# We rely on learningLib functions to ensure that all necessary arguments are available and parsed. 
+# We rely on learningLib functions to ensure that all necessary arguments are available and parsed.
 post_parser = reqparse.RequestParser(argument_class=APIArgument)
 
 # Custom errors for GET and POST verbs on experiment resource
@@ -41,11 +41,13 @@ custom_errors = {
 }
 
 meta_success = {
-    'code':200,
-    'status':'OK'
-    }
+    'code': 200,
+    'status': 'OK'
+}
 
 # Answer resource class
+
+
 class processAnswer(Resource):
     def post(self):
         post_parser.add_argument('exp_uid', type=str, required=True)
@@ -56,21 +58,21 @@ class processAnswer(Resource):
         # Pull app_id and exp_uid from parsed args
         exp_uid = args_data["exp_uid"]
 
-        args_data['args']['response_time'] = float(args_data['args']['response_time'])
+        args_data['args']['response_time'] = float(
+            args_data['args']['response_time'])
 
         # Fetch app_id data from resource manager
         app_id = resource_manager.get_app_id(exp_uid)
         # Parse out a target_winner. If the argument doesn't exist, return a meta dictionary error.
-        args_json = json.dumps(args_data) 
-        # Execute processAnswer 
-        response_json,didSucceed,message = broker.applyAsync(app_id,
-                                                             exp_uid,
-                                                             'processAnswer',
-                                                             args_json)
+        args_json = json.dumps(args_data)
+        # Execute processAnswer
+        response_json, didSucceed, message = broker.applyAsync(app_id,
+                                                               exp_uid,
+                                                               'processAnswer',
+                                                               args_json)
 
         if didSucceed:
             return attach_meta(eval(response_json), meta_success), 200
         else:
-            print "Failed to processAnswer", message 
-            return attach_meta({},custom_errors['ReportAnswerError'], backend_error=message)
-    
+            print "Failed to processAnswer", message
+            return attach_meta({}, custom_errors['ReportAnswerError'], backend_error=message)

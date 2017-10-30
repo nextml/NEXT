@@ -26,7 +26,7 @@ meta_error = {
 
     'InitExpError': {
         'message': "Failed to initialize experiment. Please verify that you have specified the correct application specific parameters.",
-       'code': 400,
+        'code': 400,
         'status': 'FAIL'
     },
 }
@@ -36,11 +36,12 @@ meta_success = {
     'status': 'OK'
 }
 
+
 class Experiment(Resource):
     def get(self, exp_uid):
         get_parser = exp_parser.copy()
-        get_parser.add_argument('exp_uid', type=str, required=True )
-        get_parser.add_argument('args', type=dict, required=False )
+        get_parser.add_argument('exp_uid', type=str, required=True)
+        get_parser.add_argument('args', type=dict, required=False)
 
         # Fetch experiment data from resource manager
         experiment = resource_manager.get_experiment(exp_uid)
@@ -65,17 +66,12 @@ class Experiment(Resource):
         # Args from dict to json type
         args_json = json.dumps(args_data)
         # Execute initExp through the broker
-        response_json,didSucceed,message = broker.applyAsync(app_id,
-                                                             exp_uid,
-                                                             'initExp',
-                                                             json.dumps(args_data))
-        
+        response_json, didSucceed, message = broker.applyAsync(app_id,
+                                                               exp_uid,
+                                                               'initExp',
+                                                               json.dumps(args_data))
+
         if not didSucceed:
             return attach_meta({}, meta_error['InitExpError'], backend_error=message), 400
 
-        return attach_meta({'exp_uid':exp_uid}, meta_success), 200
-
-
-
-
-
+        return attach_meta({'exp_uid': exp_uid}, meta_success), 200
