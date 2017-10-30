@@ -36,3 +36,6 @@ from next.api.resources.participants import Participants
 api_interface.add_resource(Participants,
                            '/experiment/<string:exp_uid>/participants')
 
+from next.api.resources.targets import Targets
+api_interface.add_resource(Targets,
+                           '/experiment/<string:exp_uid>/targets')
