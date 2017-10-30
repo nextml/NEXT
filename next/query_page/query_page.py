@@ -26,7 +26,7 @@ def load_page(page, exp_uid=None):
     part_id = request.args.get('participant', None)
     participant_uid = str(part_id) if part_id else part_id
 
-        
+
     return render_template(app_template, host_url=host_url, exp_uid=exp_uid,
                            experiment=experiment,
                            participant_uid=participant_uid), \
