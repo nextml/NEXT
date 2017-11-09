@@ -7,6 +7,7 @@ import base64
 import random
 import sys
 import json
+from collections import OrderedDict
 
 if __name__ == "__main__":
     sys.path.append('../..')
@@ -30,8 +31,9 @@ def zipfile_to_dictionary(zip_file):
     filenames = [f for f in filenames if not any([ignore in f.lower() for ignore in
                                              ['ds_store', 'icon', '__macosx']])]
     filenames = [f for f in filenames if len(f.split('/')[-1]) > 0]
+    filenames = sorted(filenames)
 
-    files = {}
+    files = OrderedDict()
     for filename in filenames:
         f = zip_file.read(filename)
         name = filename.split('/')[-1]
@@ -47,7 +49,7 @@ def upload_target(filename, file_obj, bucket_name, aws_key, aws_secret_key,
 
     utils.debug_print('Uploading target: {}'.format(filename))
     url = s3.upload(filename,  StringIO(file_obj), bucket)
-    target_types = {'png': 'image', 'jpeg': 'image', 'jpg': 'image',
+    target_types = {'png': 'image', 'jpeg': 'image', 'jpg': 'image', 'gif': 'image',
                     'mp4': 'movie', 'mov': 'movie',
                     'txt': 'text', 'csv': 'text'}
     utils.debug_print('Done uploading target: {}'.format(filename))
