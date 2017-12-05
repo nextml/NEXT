@@ -35,4 +35,3 @@ api_interface.add_resource(Logs,
 from next.api.resources.participants import Participants
 api_interface.add_resource(Participants,
                            '/experiment/<string:exp_uid>/participants')
-

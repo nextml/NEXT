@@ -21,7 +21,7 @@ meta_error = {
     'Error': {
         'message': "There was an error calling this API endpoint ",
         'code': 400,
-        'status':'FAIL'
+        'status': 'FAIL'
     }
 }
 
@@ -31,13 +31,13 @@ meta_success = {
 }
 
 
-
 class AppHandler(Resource):
     def post(self, exp_uid, function_name):
         try:
-            post_parser.add_argument('exp_uid', type=str, required=True, help="Experiment ID Required.")
-            post_parser.add_argument('args', type=dict, required=False, help="Experiment args Required.")
-
+            post_parser.add_argument(
+                'exp_uid', type=str, required=True, help="Experiment ID Required.")
+            post_parser.add_argument(
+                'args', type=dict, required=False, help="Experiment args Required.")
 
             # Validate args with post_parser
             args_data = post_parser.parse_args()
@@ -54,7 +54,8 @@ class AppHandler(Resource):
             # and hit the API with those functions.
             # TODO: test this feature
             # implemented by Scott Sievert, 2016-1-26
-            response_json, didSucceed, message = broker.applyAsync(app_id, exp_uid, function_name, args_json)
+            response_json, didSucceed, message = broker.applyAsync(
+                app_id, exp_uid, function_name, args_json)
 
             if not didSucceed:
                 raise Exception(message)

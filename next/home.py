@@ -7,6 +7,7 @@ home = Blueprint('home', __name__,
                  template_folder='../dashboard/templates',
                  static_folder='../dashboard/static')
 
+
 @home.route('/')
 def redirect_form():
     available_apps = utils.get_supported_apps()

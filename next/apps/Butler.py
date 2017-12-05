@@ -23,9 +23,11 @@ class Memory(object):
     def ensure_connection(self):
         try:
             if self.cache is None:
-                self.cache = redis.StrictRedis(host=constants.MINIONREDIS_HOST, port=constants.MINIONREDIS_PORT)
+                self.cache = redis.StrictRedis(
+                    host=constants.MINIONREDIS_HOST, port=constants.MINIONREDIS_PORT)
         except Exception as e:
-            raise Exception("Butler.Collection.Memory could not connect with RedisDB: {}".format(e))
+            raise Exception(
+                "Butler.Collection.Memory could not connect with RedisDB: {}".format(e))
 
     def num_entries(self, size):
         if size % self.max_entry_size == 0:
@@ -43,10 +45,12 @@ class Memory(object):
             utils.debug_print("Setting {} in {} entries".format(l, n))
             for i in range(n):
                 k = key + ":" + str(i)
-                self.cache.set(k, value[i*self.max_entry_size:(i+1)*self.max_entry_size])
+                self.cache.set(
+                    k, value[i * self.max_entry_size:(i + 1) * self.max_entry_size])
             return self.cache.set(key, "{}:{}".format(str(n), str(l)))
         except Exception as e:
-            utils.debug_print("Butler.Collection.Memory.set exception: {}".format(e))
+            utils.debug_print(
+                "Butler.Collection.Memory.set exception: {}".format(e))
             return False
 
     def set_file(self, key, f):
@@ -65,7 +69,8 @@ class Memory(object):
                 self.cache.set(k, v)
             return self.cache.set(key, "{}:{}".format(str(n), str(l)))
         except Exception as e:
-            utils.debug_print("Butler.Collection.Memory.set_file exception: {}".format(e))
+            utils.debug_print(
+                "Butler.Collection.Memory.set_file exception: {}".format(e))
             return False
 
     def get(self, key):
@@ -84,7 +89,8 @@ class Memory(object):
                 ans += self.cache.get(k)
             return ans
         except Exception as e:
-            utils.debug_print("Butler.Collection.Memory.get exception: {}".format(e))
+            utils.debug_print(
+                "Butler.Collection.Memory.get exception: {}".format(e))
             return None
 
     def get_file(self, key):
@@ -104,7 +110,8 @@ class Memory(object):
             f.seek(0, 0)
             return f
         except Exception as e:
-            utils.debug_print("Butler.Collection.Memory.get_file exception: {}".format(e))
+            utils.debug_print(
+                "Butler.Collection.Memory.get_file exception: {}".format(e))
             return None
 
     def lock(self, name, **kwargs):
@@ -113,7 +120,8 @@ class Memory(object):
             name = self.key_prefix + name
             return self.cache.lock(name, **kwargs)
         except Exception as e:
-            utils.debug_print("Butler.Collection.Memory.lock exception: {}".format(e))
+            utils.debug_print(
+                "Butler.Collection.Memory.lock exception: {}".format(e))
             return None
 
     def exists(self, key):
@@ -122,7 +130,8 @@ class Memory(object):
             key = self.key_prefix + key
             return self.cache.exists(key)
         except Exception as e:
-            utils.debug_print("Butler.Collection.Memory.exists exception: {}".format(e))
+            utils.debug_print(
+                "Butler.Collection.Memory.exists exception: {}".format(e))
             return None
 
 
@@ -152,7 +161,6 @@ class Collection(object):
             return wrapper
         return decorator
 
-
     @timed(op_type='set')
     def set(self, uid="", key=None, value=None, exp=None):
         """
@@ -160,7 +168,8 @@ class Collection(object):
         * key == None:    collection[uid] = value
         * key != None:    collection[uid][key] = value
         """
-        uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp is None else exp))
+        uid = (self.uid_prefix +
+               uid).format(exp_uid=(self.exp_uid if exp is None else exp))
         if not key:
             self.db.set_doc(self.collection, uid, value)
         else:
@@ -171,7 +180,8 @@ class Collection(object):
         """
         For each key in key_value_dict, sets value by key_value_dict[key]
         """
-        uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp is None else exp))
+        uid = (self.uid_prefix +
+               uid).format(exp_uid=(self.exp_uid if exp is None else exp))
         return self.db.set_many(self.collection, uid, key_value_dict)
 
     @timed(op_type='get')
@@ -183,7 +193,8 @@ class Collection(object):
         * key != None and pattern == None and type(key) == list:   return {k: collection[uid][k] for k in key}
         * pattern != None:                                         return collection[uid] matching pattern
         """
-        uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp is None else exp))
+        uid = (self.uid_prefix +
+               uid).format(exp_uid=(self.exp_uid if exp is None else exp))
         if key is None and pattern is None:
             return self.db.get_doc(self.collection, uid)
         elif key:
@@ -199,7 +210,8 @@ class Collection(object):
         """
         Get a value from the collection corresponding to the key and then delete the (key,value).
         """
-        uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp is None else exp))
+        uid = (self.uid_prefix +
+               uid).format(exp_uid=(self.exp_uid if exp is None else exp))
         value = self.db.get_and_delete(self.collection, uid, key)
         return value
 
@@ -208,7 +220,8 @@ class Collection(object):
         """
         Check if an object with the specified uid exists
         """
-        uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp is None else exp))
+        uid = (self.uid_prefix +
+               uid).format(exp_uid=(self.exp_uid if exp is None else exp))
         return self.db.exists(self.collection, uid, key)
 
     @timed(op_type='get')
@@ -219,7 +232,8 @@ class Collection(object):
 
         * value: How much the value should be incremented by.
         """
-        uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp is None else exp))
+        uid = (self.uid_prefix +
+               uid).format(exp_uid=(self.exp_uid if exp is None else exp))
         return self.db.increment(self.collection, uid, key, value)
 
     @timed(op_type='get')
@@ -229,7 +243,8 @@ class Collection(object):
 
         * values: How much the value should be incremented by.
         """
-        uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp is None else exp))
+        uid = (self.uid_prefix +
+               uid).format(exp_uid=(self.exp_uid if exp is None else exp))
         return self.db.increment_many(self.collection, uid, key_value_dict)
 
     @timed(op_type='set')
@@ -237,7 +252,8 @@ class Collection(object):
         """
         Append a value to collection[uid][key] (which is assumed to be a list)
         """
-        uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp == None else exp))
+        uid = (self.uid_prefix +
+               uid).format(exp_uid=(self.exp_uid if exp == None else exp))
         self.db.append_list(self.collection, uid, key, value)
 
     @timed(op_type='get')
@@ -248,7 +264,8 @@ class Collection(object):
         value=0 pops the first element of the list
         Other values for "value" will throw error and return a None (not supported in Mongo)
         """
-        uid = (self.uid_prefix+uid).format(exp_uid=(self.exp_uid if exp == None else exp))
+        uid = (self.uid_prefix +
+               uid).format(exp_uid=(self.exp_uid if exp == None else exp))
         return self.db.pop_list(self.collection, uid, key, value)
 
     def getDurations(self):
@@ -271,29 +288,37 @@ class Butler(object):
 
         if self.targets.db is None:
             self.targets.db = self.db
-        self.queries = Collection(self.app_id+":queries", "", self.exp_uid, db)
+        self.queries = Collection(
+            self.app_id + ":queries", "", self.exp_uid, db)
         self.admin = Collection("experiments_admin", "", self.exp_uid, db)
-        self.experiment = Collection(self.app_id+":experiments", "{exp_uid}", self.exp_uid, db)
+        self.experiment = Collection(
+            self.app_id + ":experiments", "{exp_uid}", self.exp_uid, db)
         if alg_label is None:
-            self.algorithms = Collection(self.app_id+":algorithms", "{exp_uid}_", self.exp_uid, db)
+            self.algorithms = Collection(
+                self.app_id + ":algorithms", "{exp_uid}_", self.exp_uid, db)
         else:
-            self.algorithms = Collection(self.app_id+":algorithms", "{exp_uid}_"+alg_label, self.exp_uid, db)
-        self.participants = Collection(self.app_id+":participants", "", self.exp_uid, db)
-        self.dashboard = Collection(self.app_id+":dashboard", "", self.exp_uid, db)
-        self.other = Collection(self.app_id+":other", "{exp_uid}_", self.exp_uid, db)
+            self.algorithms = Collection(
+                self.app_id + ":algorithms", "{exp_uid}_" + alg_label, self.exp_uid, db)
+        self.participants = Collection(
+            self.app_id + ":participants", "", self.exp_uid, db)
+        self.dashboard = Collection(
+            self.app_id + ":dashboard", "", self.exp_uid, db)
+        self.other = Collection(self.app_id + ":other",
+                                "{exp_uid}_", self.exp_uid, db)
 
     def log(self, log_name, log_value):
-        self.ell.log(self.app_id+":"+log_name, log_value)
+        self.ell.log(self.app_id + ":" + log_name, log_value)
 
     def job(self, task, task_args_json, ignore_result=True, time_limit=0):
         if self.alg_label:
             res = self.db.submit_job(self.app_id, self.exp_uid,
-                               task, task_args_json,
-                               self.exp_uid + '_' + self.alg_label,
-                               ignore_result, time_limit,
-                               alg_id=self.alg_id, alg_label=self.alg_label)
+                                     task, task_args_json,
+                                     self.exp_uid + '_' + self.alg_label,
+                                     ignore_result, time_limit,
+                                     alg_id=self.alg_id, alg_label=self.alg_label)
         else:
-            res = self.db.submit_job(self.app_id, self.exp_uid, task, task_args_json, None, ignore_result, time_limit)
+            res = self.db.submit_job(
+                self.app_id, self.exp_uid, task, task_args_json, None, ignore_result, time_limit)
 
         if not ignore_result:
             return res
