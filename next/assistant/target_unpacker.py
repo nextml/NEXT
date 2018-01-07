@@ -105,7 +105,8 @@ def unpack_text_file(s, kind='csv'):
     # files is has at least one key; (tested before call in assistant_blueprint.py)
     file_str = files[files.keys()[0]]
     if kind in {'csv', 'txt'}:
-        strings = file_str.split('\n')[:-1]  # -1 because last newline
+        strings = file_str.split('\n')  # -1 because last newline
+        strings = list(filter(lambda x: len(x) > 0, strings))
         targets = [{'target_id': str(i),
                     'primary_type': 'text',
                     'primary_description': string,
