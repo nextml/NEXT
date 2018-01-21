@@ -92,15 +92,29 @@ initExp:
                   primary_type:
                     type: str
                     description: The type of target
-                    values: [text,image]
+                    values: [text,image,video,video-controls]
                   alt_type: 
                     type: str
                     description: The description of the target
-                    values: [text,image]
+                    values: [text,image,video,video-controls]
             n:
               description: Number of targets. 
               type: num
-            
+        keys_for_all_targets:
+          description: These keys will be applied to every target. This only works with the endpoint /assistant/init/experiment.
+          optional: true
+          type: list
+          values:
+            type: dict
+            description: An entry for every key-value pair to include in all targets
+            values:
+              key:
+                type: str
+                description: the key
+              value:
+                type: str
+                description: the value
+
 
 getQuery: 
   description: JSON for API request to return a query to the user. Guaranteed to return a query_uid that is required to submit an answer to the query. 

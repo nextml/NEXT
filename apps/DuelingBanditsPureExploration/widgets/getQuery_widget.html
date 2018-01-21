@@ -76,10 +76,10 @@ div.row > div.col-xs-12 {
 
 {% if query.context_type %}
 <div class="row" id="center">
-  <div class="col-xs-12"> 
+  <div class="col-xs-12">
       {% if query.context_type == "text" %}
       <div style="display:table;height:100%;width:100%;">
-		<div class="center-block text"> 
+		<div class="center-block text">
 		  {{ query.context }}
 		</div>
       </div>
@@ -89,10 +89,18 @@ div.row > div.col-xs-12 {
       </div>
       {% elif query.context_type == "video" %}
       <div class="image_container">
-      <video width="320" height="240" poster="http://jimpunk.net/Loading/wp-content/uploads/loading1.gif" controls autoplay loop>
+      <video width="320" height="240" controls autoplay loop>
         <source src='{{ query.context }}' type="video/mp4">
       Your browser does not support the video tag.
       </video>
+      </div>
+      {% elif query.context_type == "video-controls" %}
+      <div class="image_container" >
+            <br>
+          <video class="controls" width="320" height="240" style="background: #eee; padding: 5px 15px; border:1px solid #bbb; display: block; margin: 0 auto;" controls muted>
+          <source src='{{ query.context }}' type="video/mp4">
+        Your browser does not support the video tag.
+        </video>
       </div>
       {% else %}
       context_type not recognized
@@ -110,12 +118,20 @@ div.row > div.col-xs-12 {
 	  <div class="text">
 	    {{ query.target_indices[0].target.primary_description }}
 	  </div>
-      {% elif query.target_indices[0].target.primary_type == "video" %}
+     {% elif query.target_indices[0].target.primary_type == "video" %}
       <div class="image_container">
       <video width="320" height="240"  poster="http://jimpunk.net/Loading/wp-content/uploads/loading1.gif" controls autoplay loop>
         <source src='{{ query.target_indices[0].target.primary_description }}' type="video/mp4">
       Your browser does not support the video tag.
       </video>
+      </div>
+      {% elif query.target_indices[0].target.primary_type == "video-controls" %}
+      <div class="image_container" >
+            <br>
+          <video class="controls" width="320" height="240" style="background: #eee; padding: 5px 8px; border:1px solid #bbb; display: block; margin: 0 auto;" controls muted>
+          <source src='{{ query.target_indices[0].target.primary_description }}' type="video/mp4">
+        Your browser does not support the video tag.
+        </video>
       </div>
 	{% endif %}
   </div>
@@ -127,12 +143,20 @@ div.row > div.col-xs-12 {
 	  <div class="text">
 	    {{ query.target_indices[1].target.primary_description }}
 	  </div>
-      {% elif query.target_indices[1].target.primary_type == "video" %}
+     {% elif query.target_indices[1].target.primary_type == "video" %}
       <div class="image_container">
       <video width="320" height="240"  poster="http://jimpunk.net/Loading/wp-content/uploads/loading1.gif" controls autoplay loop>
         <source src='{{ query.target_indices[1].target.primary_description }}' type="video/mp4">
       Your browser does not support the video tag.
       </video>
+      </div>
+      {% elif query.target_indices[1].target.primary_type == "video-controls" %}
+      <div class="image_container" >
+            <br>
+          <video class="controls" width="320" height="240" style="background: #eee; padding: 5px 15px; border:1px solid #bbb; display: block; margin: 0 auto;" controls muted>
+          <source src='{{ query.target_indices[1].target.primary_description }}' type="video/mp4">
+        Your browser does not support the video tag.
+        </video>
       </div>
 	{% endif %}
   </div>
@@ -142,6 +166,9 @@ div.row > div.col-xs-12 {
   console.log()
   document.onkeydown = checkKey;
 
+  $('video.controls').click(function(e){
+      e.stopPropagation();
+  });
   var submit_right = function() {
       next_widget.processAnswer({"target_winner": {{ query.target_indices[1].target.target_id }}});
       $('#right').css({'outline': '2px solid #FF0000'});
@@ -170,7 +197,3 @@ div.row > div.col-xs-12 {
       }
   }
 </script>
-
-
-
-

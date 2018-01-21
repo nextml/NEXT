@@ -93,6 +93,7 @@ def unpack(s, aws_key, aws_secret_key, bucket_name, n_jobs=None,
         targets = [upload_target(name, file, bucket_name, aws_key, aws_secret_key,
                                  i=i, get_bucket=True)
                    for i, (name, file) in enumerate(files.items())]
+
     return targets
 
 

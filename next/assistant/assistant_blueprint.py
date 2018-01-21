@@ -94,7 +94,15 @@ class ExperimentAssistant(Resource):
                     extension = filename.split('.')[-1]
                     targets = target_unpacker.unpack_text_file(target_zipfile,
                                                                kind=extension)
-                init_exp_args['args']['targets'] = {'targetset':  targets}
+                init_exp_args['args']['targets'] = {'targetset': targets}
+
+                if 'keys_for_all_targets' in init_exp_args['args']:
+                    pairs = init_exp_args['args']['keys_for_all_targets']
+
+                    for pair in pairs:
+                        map(lambda target: target.update({pair['key']: pair['value']}),
+                            init_exp_args['args']['targets']['targetset'])
+
 
             # Init the experiment:
             app_id = init_exp_args['app_id']
