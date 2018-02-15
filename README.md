@@ -7,10 +7,15 @@
 NEXT is a system that makes it *easy* to develop, evaluate, and apply active
 learning.
 
-Talk given by Lalit Jain that explains high level features of NEXT to active
-learning researchers:
+**Talks** give a good brief introduction to NEXT at the highest level. If you're starting out, **please watch at least one of these talks**
 
-[![](https://github.com/nextml/NEXT/wiki/Figures/lalit-talk.png)](https://youtu.be/ESXgbZQ1ZTk?t=1732)
+| Link | Audience | Length | Venue |
+|:--:|:--:| :--:| :--:|
+| https://www.youtube.com/watch?v=rTyu4QTXZTc | Scientists and developers | 1 hour | PyData Ann Arbor |
+| https://www.youtube.com/watch?v=blPjDYCvppY | Scientific Python developers | 30 minutes | SciPy 2017 |
+| https://youtu.be/ESXgbZQ1ZTk?t=1732 | Machine learning researchers | 30 minutes | Simons Institute conference on Interactive Learning |
+
+We give more detail on the items on launching experiments and getting setup in the SciPy 2017 proceedings: http://conference.scipy.org/proceedings/scipy2017/pdfs/scott_sievert.pdf.
   
 This readme contains a quick start to launch the NEXT system on EC2, and to
 replicate and launch the experiments from the [NEXT
