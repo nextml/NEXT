@@ -3,15 +3,15 @@
 # Things could be factored as Minions being indivdiual machines and everything else goes on a master machine.
 
 ######## CADVISOR #########
-cadvisor:
-  image: google/cadvisor:latest
-  volumes:
-    - /:/rootfs:ro
-    - /var/run:/var/run:rw
-    - /sys:/sys:ro
-    - /var/lib/docker/:/var/lib/docker:ro
-  ports:
-    - "0.0.0.0:8888:8080"
+# cadvisor:
+#  image: google/cadvisor:latest
+#  volumes:
+#    - /:/rootfs:ro
+#    - /var/run:/var/run:rw
+#    - /sys:/sys:ro
+#    - /var/lib/docker/:/var/lib/docker:ro
+#  ports:
+#    - "0.0.0.0:8888:8080"
 ####################################
 
 
