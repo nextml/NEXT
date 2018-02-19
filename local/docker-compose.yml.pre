@@ -27,7 +27,7 @@ minionredis:
 
 minionworker:
   build: {{NEXT_DIR}}/next/base_docker_image
-  command: ./next/broker/next_worker_startup.sh
+  command: sh ./next/broker/next_worker_startup.sh
   volumes:
    - {{NEXT_DIR}}:/next_backend
   working_dir: /next_backend
