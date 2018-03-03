@@ -52,10 +52,16 @@ def upload_target(filename, file_obj, bucket_name, aws_key, aws_secret_key,
     target_types = {'png': 'image', 'jpeg': 'image', 'jpg': 'image', 'gif': 'image',
                     'mp4': 'video', 'mov': 'video',
                     'txt': 'text', 'csv': 'text'}
+    filetype = filename.split('.')[-1]
+    if filetype not in target_types:
+        msg = ('Target not recognized (extension: "{}"). '
+               'Available extensions: {}').format(filetype, list(target_types.keys()))
+        raise ValueError(msg)
+
     utils.debug_print('Done uploading target: {}'.format(filename))
 
     return {'target_id': str(i),
-            'primary_type': target_types[filename.split('.')[-1]],
+            'primary_type': target_types[filetype],
             'primary_description': url,
             'alt_type': 'text',
             'alt_description': filename}
