@@ -1,6 +1,7 @@
 import yaml
 import random
 import sys
+import pprint
 
 color_ansi = {'yellow': '\x1b[33m',
               'red': '\x1b[31m',
@@ -138,9 +139,17 @@ def debug_print(*args, **kwargs):
         if type(a) in {str}:
             lines = a.split('\n')
             for line in lines:
-                print '{}{}{}'.format(color_ansi[color], line, color_ansi['reset all'])
+                pprint_arg = pprint.pformat(line).split('\n')
+                for line2 in pprint_arg:
+                    print '{}{}{}'.format(color_ansi[color],
+                                          line2,
+                                          color_ansi['reset all'])
         else:
-            print '{}{}{}'.format(color_ansi[color], a, color_ansi['reset all'])
+            pprint_a = pprint.pformat(a).split('\n')
+            for line in pprint_a:
+                print '{}{}{}'.format(color_ansi[color],
+                                      line,
+                                      color_ansi['reset all'])
     print ''
 
 def random_string(length=20):
