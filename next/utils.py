@@ -133,6 +133,22 @@ def str2datetime(str_time):
   except:
     return datetime.strptime(str_time,'%Y-%m-%d %H:%M:%S')
 
+
+def _get_filename(target):
+    return target['alg_description']
+
+
+def filenames_to_ids(filenames, targets):
+    ids = {_get_filename(target): target['id'] for target in targets}
+    if isinstance(filenames, list):
+        return [filenames_to_ids(files) for files in filenames]
+    if isinstance(filenames, tuple):
+        return tuple([filenames_to_ids(files) for files in filenames])
+    if isinstance(filenames, dict):
+        return {k: filenames_to_ids(v) for k, v in filenames.items()}
+    return [ids[filename] for filename in filenames]
+
+
 def debug_print(*args, **kwargs):
     color = kwargs.get('color', 'yellow')
     for a in args:

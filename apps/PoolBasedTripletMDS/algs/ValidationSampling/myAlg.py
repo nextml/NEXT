@@ -24,6 +24,8 @@ class MyAlg:
         if params:
             if 'query_list' in params:
                 query_list = params['query_list']
+                if isinstance(query_list[0][0], str):
+                    query_list = utils.filenames_to_ids(query_list, butler.targets)
 
             elif 'num_tries' in params:
                 num_tries = params['num_tries']
