@@ -135,17 +135,21 @@ def str2datetime(str_time):
 
 
 def _get_filename(target):
-    return target['alg_description']
+    return target['alt_description']
 
 
 def filenames_to_ids(filenames, targets):
-    ids = {_get_filename(target): target['id'] for target in targets}
-    if isinstance(filenames, list):
-        return [filenames_to_ids(files) for files in filenames]
-    if isinstance(filenames, tuple):
-        return tuple([filenames_to_ids(files) for files in filenames])
-    if isinstance(filenames, dict):
-        return {k: filenames_to_ids(v) for k, v in filenames.items()}
+    _to_ids = lambda f, t: filenames_to_ids(f, t)
+    ids = {_get_filename(target): target['target_id'] for target in targets}
+    debug_print("lf", len(filenames))
+
+    if isinstance(filenames[0], list):
+        return [_to_ids(files, targets) for files in filenames]
+    if isinstance(filenames[0], tuple):
+        return tuple([_to_ids(files, targets) for files in filenames])
+    if isinstance(filenames[0], dict):
+        return {k: _to_ids(v, targets) for k, v in filenames.items()}
+
     return [ids[filename] for filename in filenames]
 
 
