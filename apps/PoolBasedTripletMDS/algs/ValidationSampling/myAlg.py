@@ -24,6 +24,9 @@ class MyAlg:
         if params:
             if 'query_list' in params:
                 query_list = params['query_list']
+                if isinstance(query_list[0][0], (str, unicode)):
+                    targetset = butler.targets.get_targetset(butler.exp_uid)
+                    query_list = utils.filenames_to_ids(query_list, targetset)
 
             elif 'num_tries' in params:
                 num_tries = params['num_tries']
@@ -46,6 +49,7 @@ class MyAlg:
         i = num_ans % len(query_list)
 
         query = query_list[i]
+        utils.debug_print(query)
         #  butler.participants.set(key='query', value=query)
 
         # append the current query to do_not_ask
