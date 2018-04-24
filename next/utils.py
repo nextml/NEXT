@@ -139,9 +139,7 @@ def _get_filename(target):
 
 
 def filenames_to_ids(filenames, targets):
-    _to_ids = lambda f, t: filenames_to_ids(f, t)
-    ids = {_get_filename(target): target['target_id'] for target in targets}
-    debug_print("lf", len(filenames))
+    _to_ids = filenames_to_ids
 
     if isinstance(filenames[0], list):
         return [_to_ids(files, targets) for files in filenames]
@@ -149,6 +147,13 @@ def filenames_to_ids(filenames, targets):
         return tuple([_to_ids(files, targets) for files in filenames])
     if isinstance(filenames[0], dict):
         return {k: _to_ids(v, targets) for k, v in filenames.items()}
+
+    ids = {_get_filename(target): target['target_id'] for target in targets}
+
+    not_in_targets = set(filenames) - set(ids)
+    if len(not_in_targets) > 0:
+        msg = 'Filenames specified in init.yaml "{}" in the not found the list of targets'
+        raise ValueError(msg.format(not_in_targets))
 
     return [ids[filename] for filename in filenames]
 
