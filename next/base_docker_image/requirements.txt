@@ -8,6 +8,7 @@ certifi==2017.4.17
 chardet==3.0.4
 click==6.7
 cycler==0.10.0
+decorator==4.1.2
 Flask==0.12.2
 Flask-Login==0.4.0
 Flask-RESTful==0.3.6
@@ -19,6 +20,7 @@ itsdangerous==0.24
 Jinja2==2.9.6
 joblib==0.11
 kombu==3.0.37
+line_profiler==2.1.2
 MarkupSafe==1.0
 matplotlib==1.5.3
 mpld3==0.3
