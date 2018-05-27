@@ -2,6 +2,8 @@ import yaml
 import random
 import sys
 import pprint
+from decorator import decorator
+from line_profiler import LineProfiler
 
 color_ansi = {'yellow': '\x1b[33m',
               'red': '\x1b[31m',
@@ -11,6 +13,18 @@ color_ansi = {'yellow': '\x1b[33m',
               'black': '\x1b[30m',
               'purple': '\x1b[35m',
               'reset all': '\x1b[0m'}
+
+
+@decorator
+def profile_each_line(func, *args, **kwargs):
+    profiler = LineProfiler()
+    profiled_func = profiler(func)
+    retval = None
+    try:
+        retval = profiled_func(*args, **kwargs)
+    finally:
+        profiler.print_stats()
+    return retval
 
 
 def get_supported_apps(apps_path='apps/'):
