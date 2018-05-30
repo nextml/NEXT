@@ -66,6 +66,7 @@ nextbackenddocker:
     - rabbitmqredis:RABBITREDIS
     - mongodb:MONGODB
     - minionworker:MINIONWORKER
+    - minionredis:6379
   environment:
    - PYTHONUNBUFFERED=TRUE
    - PYTHONPATH=:/next_backend
