@@ -7,13 +7,13 @@
 NEXT is a system that makes it *easy* to develop, evaluate, and apply active
 learning.
 
-**Talks** give a good brief introduction to NEXT at the highest level. If you're starting out, **please watch at least one of these talks**
+**Talks** give a good brief introduction to NEXT at the highest level. For scientists and develoeprs, **we most recommend the PyData Ann Arbor talk**. It's an enhanced and refined version of the SciPy talk.
 
-| Link | Audience | Length | Venue |
+| Venue | Audience | Length | Link |
 |:--:|:--:| :--:| :--:|
-| https://www.youtube.com/watch?v=rTyu4QTXZTc | Scientists and developers | 1 hour | PyData Ann Arbor |
-| https://www.youtube.com/watch?v=blPjDYCvppY | Scientific Python developers | 30 minutes | SciPy 2017 |
-| https://youtu.be/ESXgbZQ1ZTk?t=1732 | Machine learning researchers | 30 minutes | Simons Institute conference on Interactive Learning |
+| **PyData Ann Arbor** |**Scientists and developers** | 1 hour |  https://www.youtube.com/watch?v=rTyu4QTXZTc | 
+| SciPy 2017 |  Scientific Python developers | 30 minutes  | https://www.youtube.com/watch?v=blPjDYCvppY |
+| Simons Institute conference on Interactive Learning |  Machine learning researchers | 30 minutes | https://youtu.be/ESXgbZQ1ZTk?t=1732 |
 
 We give more detail on the items on launching experiments and getting setup in the SciPy 2017 proceedings: http://conference.scipy.org/proceedings/scipy2017/pdfs/scott_sievert.pdf.
   
