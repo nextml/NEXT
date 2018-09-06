@@ -3,6 +3,7 @@ UncertaintySampling app of the Online Learning Library for Next.Discovery
 author: Kevin Jamieson, kevin.g.jamieson@gmail.com
 last updated: 1/17/2015
 """
+from __future__ import print_function
 import numpy
 import numpy as np
 import numpy.random

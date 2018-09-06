@@ -1,3 +1,4 @@
+from __future__ import print_function
 import time
 import numpy.random
 from apps.PoolBasedTripletMDS.algs.RandomSampling import utilsMDS

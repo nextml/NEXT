@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy
 import numpy.random
 import random
@@ -56,7 +57,7 @@ def test_api(assert_200=True, num_objects=4, desired_dimension=1,
                         'meta': {'features':features}})
 
     # Test POST Experiment
-    print '\n'*2 + 'Testing POST initExp...'
+    print('\n'*2 + 'Testing POST initExp...')
     initExp_args_dict = {}
     initExp_args_dict['app_id'] = 'PoolBasedBinaryClassification'
     initExp_args_dict['args'] = {}
@@ -92,11 +93,11 @@ def test_api(assert_200=True, num_objects=4, desired_dimension=1,
         exp_uid = experiment['exp_uid']
         pool_args.append((exp_uid,participant_uid,total_pulls_per_client,true_weights,assert_200))
 
-    print "participants are", participants
+    print("participants are", participants)
     results = pool.map(simulate_one_client, pool_args)
 
     for result in results:
-        print result
+        print(result)
 
     test_utils.getModel(exp_uid, app_id, supported_alg_ids, alg_list)
 
@@ -108,7 +109,7 @@ def simulate_one_client(input_args):
     processAnswer_times = []
     for t in range(total_pulls):
 
-        print "participant {} had {} pulls".format(participant_uid, t)
+        print("participant {} had {} pulls".format(participant_uid, t))
 
         # test POST getQuery #
         widget = True

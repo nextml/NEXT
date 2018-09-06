@@ -14,6 +14,7 @@ If you're trying to COMPUTE an embedding, you might simply call:
 You may also consider getLoss to check how well an embedding is performing.
 """
 
+from __future__ import print_function
 from numpy import *
 from numpy.random import *
 import numpy.random
@@ -71,8 +72,8 @@ def main():
     # compute loss on test set
     emp_loss_test,hinge_loss_test,log_loss_test = getLoss(X,Stest)
 
-    print
-    print 'Training loss = %f,   Test loss = %f' %(emp_loss_train,emp_loss_test)
+    print()
+    print('Training loss = %f,   Test loss = %f' %(emp_loss_train,emp_loss_test))
 
 
 def getRandomQuery(X):
@@ -293,12 +294,12 @@ def computeEmbedding(n, d, S, mu=.01, num_random_restarts=0,max_num_passes=0,max
     while num_restarts < num_random_restarts:
         num_restarts += 1
         
-        print "Epoch SGD"
+        print("Epoch SGD")
         ts = time.time()
         X,acc = computeEmbeddingWithEpochSGD(n,d,S,mu,max_num_passes=max_num_passes,epsilon=0.,verbose=verbose)
         te_sgd = time.time()-ts
         
-        print "Gradient Descent"
+        print("Gradient Descent")
         ts = time.time()
         X_new, emp_loss_new, log_loss_new, hinge_loss_new, acc_new = computeEmbeddingWithGD(X, S, mu, max_iters=50, max_norm=max_norm, epsilon=epsilon, verbose=verbose)
         emp_loss_new,hinge_loss_new,log_loss_new = getLoss(X_new,S)
@@ -309,7 +310,7 @@ def computeEmbedding(n, d, S, mu=.01, num_random_restarts=0,max_num_passes=0,max
             emp_loss_old = emp_loss_new
 
         if verbose:
-            print "restart %d:   emp_loss = %f,   hinge_loss = %f,   duration=%f+%f" %(num_restarts,emp_loss_new,hinge_loss_new,te_sgd,te_gd)
+            print("restart %d:   emp_loss = %f,   hinge_loss = %f,   duration=%f+%f" %(num_restarts,emp_loss_new,hinge_loss_new,te_sgd,te_gd))
 
 
     return X_old, emp_loss_old
@@ -365,7 +366,7 @@ def computeEmbeddingWithEpochSGD(n,d,S,mu, max_num_passes=0,max_norm=0,epsilon=0
     # check losses
     if verbose:
         emp_loss,hinge_loss,log_loss = getLoss(X,S)
-        print "iter=%d,   emp_loss=%f,   hinge_loss=%f, log_loss=%f,  a=%f" % (0,emp_loss,hinge_loss,log_loss,a)
+        print("iter=%d,   emp_loss=%f,   hinge_loss=%f, log_loss=%f,  a=%f" % (0,emp_loss,hinge_loss,log_loss,a))
     rel_max_grad = None
     while t < max_iters:
         t += 1
@@ -387,7 +388,7 @@ def computeEmbeddingWithEpochSGD(n,d,S,mu, max_num_passes=0,max_norm=0,epsilon=0
                 rel_avg_grad = sqrt( avg_grad_row_norm_sq / avg_row_norm_sq )
 
                 if verbose:
-                    print "iter=%d,   emp_loss=%f,   hinge_loss=%f,  log_loss=%f,   rel_avg_grad=%f,   rel_max_grad=%f,   a=%f" % (t,emp_loss,hinge_loss,log_loss,rel_avg_grad,rel_max_grad,a)
+                    print("iter=%d,   emp_loss=%f,   hinge_loss=%f,  log_loss=%f,   rel_avg_grad=%f,   rel_max_grad=%f,   a=%f" % (t,emp_loss,hinge_loss,log_loss,rel_avg_grad,rel_max_grad,a))
 
                 if rel_max_grad < epsilon:
                     break
@@ -460,7 +461,7 @@ def computeEmbeddingWithGD(X, S, mu, max_iters=0, max_norm=0, epsilon=0.01, c1=0
     # check losses
     if verbose:
         emp_loss,hinge_loss,log_loss = getLoss(X,S)
-        print "iter=%d,   emp_loss=%f,   hinge_loss=%f, log_loss=%f,   a=%f" % (0,emp_loss,hinge_loss,log_loss,float('nan'))
+        print("iter=%d,   emp_loss=%f,   hinge_loss=%f, log_loss=%f,   a=%f" % (0,emp_loss,hinge_loss,log_loss,float('nan')))
     alpha = .5*n
     t = 0
     emp_loss_0 = float('inf')
@@ -477,7 +478,7 @@ def computeEmbeddingWithGD(X, S, mu, max_iters=0, max_norm=0, epsilon=0.01, c1=0
         rel_avg_grad = sqrt( avg_grad_row_norm_sq / avg_row_norm_sq )
         if rel_max_grad < epsilon:
             if verbose:
-                print "Exiting because of rel_max_grad=%s"%(rel_max_grad) 
+                print("Exiting because of rel_max_grad=%s"%(rel_max_grad)) 
             break
         
         # perform backtracking line search
@@ -502,7 +503,7 @@ def computeEmbeddingWithGD(X, S, mu, max_iters=0, max_norm=0, epsilon=0.01, c1=0
         
         # check losses
         if verbose:
-            print "iter=%d,   emp_loss=%f,   hinge_loss=%f,   log_loss=%f,   rel_avg_grad=%f,   rel_max_grad=%f,   a=%f,   i_t=%d" % (t,emp_loss_k,hinge_loss_k,log_loss_k,rel_avg_grad,rel_max_grad,alpha,inner_t)
+            print("iter=%d,   emp_loss=%f,   hinge_loss=%f,   log_loss=%f,   rel_avg_grad=%f,   rel_max_grad=%f,   a=%f,   i_t=%d" % (t,emp_loss_k,hinge_loss_k,log_loss_k,rel_avg_grad,rel_max_grad,alpha,inner_t))
 
     
     return X,emp_loss_0,hinge_loss_0,log_loss_0,rel_max_grad

@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 class MyAlg:
     def initExp(self, butler):

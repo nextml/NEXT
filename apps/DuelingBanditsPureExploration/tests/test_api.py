@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy
 import numpy as np
 import numpy.random
@@ -52,7 +53,7 @@ def test_api(assert_200=True, num_arms=5, num_clients=8, delta=0.05,
     algorithm_management_settings['mode'] = 'fixed_proportions'
     algorithm_management_settings['params'] = params
 
-    print algorithm_management_settings
+    print(algorithm_management_settings)
 
     #################################################
     # Test POST Experiment
@@ -101,7 +102,7 @@ def simulate_one_client(input_args):
     getQuery_times = []
     processAnswer_times = []
     for t in range(total_pulls):
-        print "        Participant {} had {} total pulls: ".format(participant_uid, t)
+        print("        Participant {} had {} total pulls: ".format(participant_uid, t))
 
         # test POST getQuery #
         # return a widget 1/5 of the time (normally, use HTML)

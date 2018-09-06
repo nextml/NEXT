@@ -4,6 +4,7 @@ author: Kevin Jamieson
 last updated: 12/15/2015
 """
 
+from __future__ import print_function
 import numpy
 import numpy.random
 

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy
 import numpy.random
 import random
@@ -82,7 +83,7 @@ def test_api(assert_200=True, num_objects=5, desired_dimension=2,
     results = pool.map(simulate_one_client, pool_args)
 
     for result in results:
-        print result
+        print(result)
 
     test_utils.getModel(exp_uid, app_id, supported_alg_ids, alg_list)
 
@@ -94,7 +95,7 @@ def simulate_one_client( input_args ):
     getQuery_times = []
     processAnswer_times = []
     for t in range(total_pulls):
-        print "Participant {1} has taken {0} pulls".format(t,participant_uid)
+        print("Participant {1} has taken {0} pulls".format(t,participant_uid))
         # test POST getQuery #
         widget = random.choice([True] + 4*[False])
         widget = True

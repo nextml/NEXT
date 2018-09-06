@@ -3,6 +3,7 @@ CrowdKernel algorithm of the Online Learning Library for Next.Discovery
 author: Lalit Jain, kevin.g.jamieson@gmail.com
 last updated: 4/22/2015
 """
+from __future__ import print_function
 import numpy
 import numpy.random
 from apps.PoolBasedTripletMDS.algs.CrowdKernel import utilsCrowdKernel

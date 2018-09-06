@@ -2,6 +2,7 @@
 # x change the algorithm definitions. Done for LilUCB only
 # o explore the dashboard, see what you need to change
 # ? modify the widgets?
+from __future__ import print_function
 import json
 import numpy
 import next.apps.SimpleTargetManager

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy as np
 import time
 import next.utils as utils

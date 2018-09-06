@@ -7,6 +7,7 @@ using the Borda reduction described in detail in
 Jamieson et al "Sparse Borda Bandits," AISTATS 2015. 
 """
 
+from __future__ import print_function
 import numpy
 import numpy.random
 import next.utils as utils

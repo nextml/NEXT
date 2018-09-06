@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy
 import numpy as np
 import numpy.random
@@ -47,7 +48,7 @@ def test_api(assert_200=True, num_arms=5, num_experiments=1, num_clients=10, tot
     algorithm_management_settings['mode'] = 'fixed_proportions'
     algorithm_management_settings['params'] = params
 
-    print "alg mangement settings", algorithm_management_settings
+    print("alg mangement settings", algorithm_management_settings)
 
 
     # Test POST Experiment
@@ -68,7 +69,7 @@ def test_api(assert_200=True, num_arms=5, num_experiments=1, num_clients=10, tot
     initExp_args_dict['app_id'] = app_id
 
     exp_info = []
-    print 'Initializing experiment...'
+    print('Initializing experiment...')
     for ell in range(num_experiments):
         initExp_response_dict, exp_uid = test_utils.initExp(initExp_args_dict)
         exp_info += [exp_uid]
@@ -78,7 +79,7 @@ def test_api(assert_200=True, num_arms=5, num_experiments=1, num_clients=10, tot
 
         # Test GET Experiment
         initExp_response_dict = test_utils.getExp(exp_uid)
-    print '...done'
+    print('...done')
 
     # Generate participants
     participants = []
@@ -91,7 +92,7 @@ def test_api(assert_200=True, num_arms=5, num_experiments=1, num_clients=10, tot
         exp_uid = experiment['exp_uid']
         pool_args.append((exp_uid,participant_uid,total_pulls,true_means,assert_200))
 
-    print 'Participants are responding'
+    print('Participants are responding')
     results = pool.map(simulate_one_client, pool_args)
 
     for result in results:
@@ -110,7 +111,7 @@ def simulate_one_client(input_args):
     processAnswer_times = []
 
     for t in range(total_pulls):
-        print "Participant {} has had {} pulls".format(participant_uid, t)
+        print("Participant {} has had {} pulls".format(participant_uid, t))
 
         # test POST getQuery #
         getQuery_args_dict = {}

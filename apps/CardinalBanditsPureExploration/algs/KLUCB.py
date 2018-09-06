@@ -15,6 +15,7 @@ sub-Gaussian).
 
 """
 
+from __future__ import print_function
 import numpy
 import numpy.random
 
