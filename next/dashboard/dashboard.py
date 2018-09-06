@@ -5,6 +5,7 @@ last updated: 9/16/15
 
 Flask controller for dashboards.
 """
+from __future__ import print_function
 import os
 import json
 import yaml
@@ -64,7 +65,7 @@ def experiment_list():
                                     'retired': rm.is_exp_retired(exp_uid),
                                     })
             except IndexError as e:
-                print e
+                print(e)
                 pass
 
     return render_template('experiment_list.html',

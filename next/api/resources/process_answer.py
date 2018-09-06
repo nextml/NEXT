@@ -11,6 +11,7 @@ curl -H "Content-Type: application/json" \
 -d '{"exp_uid": "DFPDISJFSA", "app_id": "PoolBasedTripletMDS", "args": {"alg_uid": "33f6d2c3f898cc5b4c528002bfe1351f", "target_indices": [{"index": 6, "flag": 0, "label": "center"}, {"index": 8, "flag": 0, "label": "left"}, {"index": 5, "flag": 0, "label": "right"}], "index_winner": 8, "timestamp_query_generated": "2015-02-11 14:59:20.494993"} }' \
 -X POST http://localhost:8001/experiment/answer
 '''
+from __future__ import print_function
 from flask import Flask
 from flask_restful import Resource, reqparse
 
@@ -71,6 +72,6 @@ class processAnswer(Resource):
         if didSucceed:
             return attach_meta(eval(response_json), meta_success), 200
         else:
-            print "Failed to processAnswer", message 
+            print("Failed to processAnswer", message)
             return attach_meta({},custom_errors['ReportAnswerError'], backend_error=message)
     

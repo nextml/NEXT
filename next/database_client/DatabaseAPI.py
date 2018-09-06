@@ -2,6 +2,7 @@
 Layer for interfacing with Mongo.
 """
 
+from __future__ import print_function
 import cPickle
 import traceback
 from datetime import datetime
@@ -21,7 +22,7 @@ import next.utils as utils
 try:
     import next.broker.broker
 except:
-    print "Warning: you will not be able to submit jobs to the broker"
+    print("Warning: you will not be able to submit jobs to the broker")
     pass
 
 class DatabaseException(BaseException):

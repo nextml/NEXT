@@ -7,6 +7,7 @@ simply download the file from S3, un-tar it, and use the command:
 
 where {hostname} and {port} are as they are below
 """
+from __future__ import print_function
 import sys
 sys.path.append("/next_backend")
 
@@ -26,9 +27,9 @@ AWS_BUCKET_NAME = os.environ.get('AWS_BUCKET_NAME','next-database-backups')
 
 
 timestamp = utils.datetimeNow()
-print "[ %s ] starting backup of MongoDB to S3..." % str(timestamp)
+print("[ %s ] starting backup of MongoDB to S3..." % str(timestamp))
 
-print "[ %s ] constants.AWS_ACCESS_ID = %s" % (str(timestamp),constants.AWS_ACCESS_ID)
+print("[ %s ] constants.AWS_ACCESS_ID = %s" % (str(timestamp),constants.AWS_ACCESS_ID))
 	
 tar_file = ''
 try:
@@ -51,12 +52,12 @@ try:
 	bytes_saved = k.set_contents_from_filename( tar_filename )
 
 	timestamp = utils.datetimeNow()
-	print "[ %s ] done with backup of MongoDB to S3...  %d bytes saved" % (str(timestamp),bytes_saved)
+	print("[ %s ] done with backup of MongoDB to S3...  %d bytes saved" % (str(timestamp),bytes_saved))
 except:
 	error = traceback.format_exc()
 	timestamp = utils.datetimeNow()
-	print "[ %s ] FAILED TO CONNECT TO S3... saving locally" % str(timestamp)
-	print error
+	print("[ %s ] FAILED TO CONNECT TO S3... saving locally" % str(timestamp))
+	print(error)
 
 subprocess.call('rm {tar_filename}'.format(tar_filename=tar_filename),shell=True)
 

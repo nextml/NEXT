@@ -1,3 +1,4 @@
+from __future__ import print_function
 import yaml
 import random
 import sys
@@ -33,7 +34,7 @@ def get_supported_apps(apps_path='apps/'):
 
   Usage: ::\n
     app_id_list = utils.get_supported_apps()
-    print app_id_list
+    print(app_id_list)
     >>> ['StochasticBanditsPureExploration', 'DuelingBanditsPureExploration', 'StochasticLinearBanditsExploreExploit', 'PoolBasedTripletMDS']
   """
   import os
@@ -46,7 +47,7 @@ def get_app(app_id, exp_uid, db, ell):
 
   Usage: ::\n
     app = utils.get_app(app_id)
-    print app
+    print(app)
     >>> <next.apps.StochasticBanditsPureExploration.StochasticBanditsPureExploration.StochasticBanditsPureExploration object at 0x103c9dcd0>
   """
   app_id = str(app_id) # soemtimes input is unicode formatted which causes error
@@ -62,7 +63,7 @@ def get_app_alg(app_id,alg_id):
 
   Usage: ::\n
     alg = utils.get_app_alg(app_id,alg_id)
-    print alg
+    print(alg)
     >>> <next.apps.PoolBasedTripletMDS.RandomSampling.RandomSampling.RandomSampling object at 0x103cb7e10>
   """
   app_id = str(app_id) # soemtimes input is unicode formatted which causes error
@@ -79,10 +80,10 @@ def getDocUID(exp_uid,alg_uid=None):
   gets its own namespace. This method defines that namespace given the exp_uid, or (exp_uid,alg_uid)
 
   Usage::\n
-    print utils.getDocUID(exp_uid)
+    print(utils.getDocUID(exp_uid))
     >>> 'eee9d58c61d580029113ba593446d23a'
 
-    print utils.getDocUID(exp_uid,alg_uid)
+    print(utils.getDocUID(exp_uid,alg_uid))
     >>> 'eee9d58c61d580029113ba593446d23a-f081d374abac6c009f5a74877f8b9f3c'
   """
   if alg_uid==None:
@@ -127,7 +128,7 @@ def datetime2str(obj_datetime):
   Usage: ::\n
     date = utils.datetimeNow()
     date_str = utils.datetime2str(date)
-    print date_str
+    print(date_str)
     >>> '2015-02-17 11:11:07.489925'
   """
   return str(obj_datetime)
@@ -180,16 +181,16 @@ def debug_print(*args, **kwargs):
             for line in lines:
                 pprint_arg = pprint.pformat(line).split('\n')
                 for line2 in pprint_arg:
-                    print '{}{}{}'.format(color_ansi[color],
+                    print('{}{}{}'.format(color_ansi[color],
                                           line2,
-                                          color_ansi['reset all'])
+                                          color_ansi['reset all']))
         else:
             pprint_a = pprint.pformat(a).split('\n')
             for line in pprint_a:
-                print '{}{}{}'.format(color_ansi[color],
+                print('{}{}{}'.format(color_ansi[color],
                                       line,
-                                      color_ansi['reset all'])
-    print ''
+                                      color_ansi['reset all']))
+    print('')
 
 def random_string(length=20):
     letters = list('qwertyuiopasdfghkjlzxcvbnm')

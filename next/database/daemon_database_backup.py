@@ -7,7 +7,7 @@ simply download the file from S3, un-tar it, and use the command:
 
 where {hostname} and {port} are as they are below
 """
-
+from __future__ import print_function
 import sys
 sys.path.append("/next_backend")
 
@@ -23,7 +23,7 @@ import os
 while(1):
 
 	timestamp = utils.datetimeNow()
-	print "[ %s ] Calling database daemon..." % str(timestamp)
+	print("[ %s ] Calling database daemon..." % str(timestamp))
 	subprocess.call('python ./next/database/database_backup.py',shell=True)
 
 	time.sleep(3600*6) # once every 6 hours
