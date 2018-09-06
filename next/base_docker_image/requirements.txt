@@ -30,6 +30,7 @@ ply==3.10
 pymongo==3.4.0
 pyparsing==2.2.0
 python-dateutil==2.6.1
+pytest==3.2.1
 pytz==2017.2
 PyYAML==3.12
 redis==2.10.5
