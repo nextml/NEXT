@@ -4,11 +4,11 @@ author: Christopher Fernandez, Lalit Jain
 Logs resource for all logs associated with a specified experiment. 
 """
 
-'''
+"""
 example use:
 get a tripletMDS query:
 curl -X GET http://localhost:8001/api/experiment/[exp_uid]/logs
-'''
+"""
 from flask import Flask, request, send_file
 from flask_restful import Resource, reqparse
 
@@ -24,26 +24,22 @@ from next.api.resource_manager import ResourceManager
 resource_manager = ResourceManager()
 
 # Request parser. Checks that necessary dictionary keys are available in a given resource.
-# We rely on learningLib functions to ensure that all necessary arguments are available and parsed. 
+# We rely on learningLib functions to ensure that all necessary arguments are available and parsed.
 post_parser = reqparse.RequestParser(argument_class=APIArgument)
 
 # Custom errors for GET and POST verbs on experiment resource
 meta_error = {
-    'ExpDoesNotExistError': {
-        'message': "No experiment with the specified experiment ID exists.",
-        'code': 400,
-        'status':'FAIL'
-    },
+    "ExpDoesNotExistError": {
+        "message": "No experiment with the specified experiment ID exists.",
+        "code": 400,
+        "status": "FAIL",
+    }
 }
 
-meta_success = {
-    'code': 200,
-    'status': 'OK'
-}
+meta_success = {"code": 200, "status": "OK"}
 
 # Logs resource class
 class Logs(Resource):
-
     def get(self, exp_uid, log_type=None):
         """
         .. http:get:: /experiment/<exp_uid>/logs/<log_type>
@@ -77,35 +73,35 @@ class Logs(Resource):
 
         :statuscode 200: Logs successfully returned
         :statuscode 400: Logs failed to be generated
-        """ 
+        """
 
         zip_true = False
-        if request.args.get('zip'):
+        if request.args.get("zip"):
             try:
-                zip_true = eval(request.args.get('zip'))
+                zip_true = eval(request.args.get("zip"))
             except:
                 pass
 
-        
         # Get logs for exp_uid from resource_manager
         if log_type:
-            experiment_logs = resource_manager.get_experiment_logs_of_type(exp_uid,
-                                                                           log_type)
-            all_logs = {'log_data': experiment_logs}
-            return attach_meta(all_logs,meta_success), 200
+            experiment_logs = resource_manager.get_experiment_logs_of_type(
+                exp_uid, log_type
+            )
+            all_logs = {"log_data": experiment_logs}
+            return attach_meta(all_logs, meta_success), 200
         else:
             experiment_logs = resource_manager.get_experiment_logs(exp_uid)
-            all_logs = {'log_data': experiment_logs}
+            all_logs = {"log_data": experiment_logs}
             if zip_true:
                 zip_logs = BytesIO()
-                with zipfile.ZipFile(zip_logs, 'w') as zf:
-                    zf.writestr('logs.json', json.dumps(all_logs))
+                with zipfile.ZipFile(zip_logs, "w") as zf:
+                    zf.writestr("logs.json", json.dumps(all_logs))
                 zip_logs.seek(0)
-                return send_file(zip_logs,
-                                 attachment_filename='logs.zip',
-                                 as_attachment='True')
+                return send_file(
+                    zip_logs, attachment_filename="logs.zip", as_attachment="True"
+                )
             else:
-                return attach_meta(all_logs,meta_success), 200
+                return attach_meta(all_logs, meta_success), 200
 
         if not experiment_logs:
-            return attach_meta({'message':'No logs to report.'},meta_success), 200
+            return attach_meta({"message": "No logs to report."}, meta_success), 200

@@ -22,10 +22,7 @@ broker = next.broker.broker.JobBroker()
 # Request parser. Checks that necessary dictionary keys are available.
 # learningLib functions ensure that all necessary arguments are available.
 post_parser = reqparse.RequestParser(argument_class=APIArgument)
-meta_success = {
-    'code': 200,
-    'status': 'OK'
-}
+meta_success = {"code": 200, "status": "OK"}
 
 # Logs resource class
 class DatabaseBackup(Resource):
@@ -52,15 +49,17 @@ class DatabaseBackup(Resource):
         :statuscode 200: Database backup successfully returned
         :statuscode 400: database backup failed to be generated
     	"""
-        exp_uid_list = request.args.getlist('exp_uid') ## returns a list
-        name = '{}.{}'.format(str(next.utils.datetimeNow().strftime("%Y-%m-%d_%H:%M:%S")),
-                              'tar.gz')
-        location = make_mongodump(name,exp_uid_list)
+        exp_uid_list = request.args.getlist("exp_uid")  ## returns a list
+        name = "{}.{}".format(
+            str(next.utils.datetimeNow().strftime("%Y-%m-%d_%H:%M:%S")), "tar.gz"
+        )
+        location = make_mongodump(name, exp_uid_list)
         zip_file = file(location)
-        return Response(zip_file,
-                        mimetype='application/octet-stream',
-                        headers={'Content-Disposition':
-                                 'attachment;filename={}'.format(name)})
+        return Response(
+            zip_file,
+            mimetype="application/octet-stream",
+            headers={"Content-Disposition": "attachment;filename={}".format(name)},
+        )
 
 
 class DatabaseRestore(Resource):
@@ -87,16 +86,16 @@ class DatabaseRestore(Resource):
         :statuscode 200: Database backup successfully returned
         :statuscode 400: database backup failed to be generated
     	"""
-        zip_file = request.files['primary_file']
+        zip_file = request.files["primary_file"]
         # zip_file is a file object
-        subprocess.call('mkdir -p /dump',shell=True)
-        filename = '/dump/mongo_dump_restore.tar.gz'
+        subprocess.call("mkdir -p /dump", shell=True)
+        filename = "/dump/mongo_dump_restore.tar.gz"
         zip_file.save(filename)
         restore_mongodump(filename)
-        subprocess.call('rm '+filename,shell=True)
+        subprocess.call("rm " + filename, shell=True)
 
         if constants.SITE_KEY:
-            dashboard_prefix = '/dashboard/{}'.format(constants.SITE_KEY)
+            dashboard_prefix = "/dashboard/{}".format(constants.SITE_KEY)
         else:
-            dashboard_prefix = '/dashboard'
-        return redirect(dashboard_prefix + '/experiment_list')
+            dashboard_prefix = "/dashboard"
+        return redirect(dashboard_prefix + "/experiment_list")

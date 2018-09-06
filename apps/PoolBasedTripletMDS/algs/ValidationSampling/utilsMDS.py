@@ -18,13 +18,12 @@ from numpy.random import *
 import numpy.random
 from numpy.linalg import *
 
-#eig = numpy.linalg
+# eig = numpy.linalg
 norm = linalg.norm
 floor = math.floor
 ceil = math.ceil
 
 import time
-
 
 
 def main():
@@ -33,47 +32,48 @@ def main():
 
     Creates some fake data and finds an embedding
     """
-    
+
     # generate some fake data
     n = 30
     d = 2
-    m = int(ceil(40*n*d*log(n)))  # number of labels
-    
-    p = 0.1; # error rate
-    
+    m = int(ceil(40 * n * d * log(n)))  # number of labels
+
+    p = 0.1
+    # error rate
+
     Strain = []
     Stest = []
-    Xtrue = randn(n,d);
-    for iter in range(0,m):
+    Xtrue = randn(n, d)
+    for iter in range(0, m):
 
         # get random triplet
-        q,score = getRandomQuery(Xtrue)
+        q, score = getRandomQuery(Xtrue)
 
         # align it so it agrees with Xtrue: "q[2] is more similar to q[0] than q[1]"
-        query_ordering_disagrees_with_Xtrue = score<0
+        query_ordering_disagrees_with_Xtrue = score < 0
         if query_ordering_disagrees_with_Xtrue:
-            q = [ q[i] for i in [1,0,2]]
+            q = [q[i] for i in [1, 0, 2]]
 
         # add some noise
         R = rand()
-        if R<p:
-            q = [ q[i] for i in [1,0,2]]
+        if R < p:
+            q = [q[i] for i in [1, 0, 2]]
 
-        if iter < .9*m:
+        if iter < .9 * m:
             Strain.append(q)
         else:
             Stest.append(q)
 
-
-    # compute embedding 
-    X,emp_loss_train = computeEmbedding(n,d,Strain,num_random_restarts=2,epsilon=0.01,verbose=True)
+    # compute embedding
+    X, emp_loss_train = computeEmbedding(
+        n, d, Strain, num_random_restarts=2, epsilon=0.01, verbose=True
+    )
 
     # compute loss on test set
-    emp_loss_test,hinge_loss_test = getLoss(X,Stest)
+    emp_loss_test, hinge_loss_test = getLoss(X, Stest)
 
     print()
-    print('Training loss = %f,   Test loss = %f' %(emp_loss_train,emp_loss_test))
-    
+    print("Training loss = %f,   Test loss = %f" % (emp_loss_train, emp_loss_test))
 
 
 def getRandomQuery(X):
@@ -91,8 +91,8 @@ def getRandomQuery(X):
     Usage:
         q,score = getRandomQuery(X)
     """
-    n,d = X.shape
-    
+    n, d = X.shape
+
     while True:
         i = randint(n)
         j = randint(n)
@@ -100,10 +100,11 @@ def getRandomQuery(X):
         if i != j and j != k and k != i:
             break
     q = [i, j, k]
-    score = getTripletScore(X,q)
-    return q,score
+    score = getTripletScore(X, q)
+    return q, score
 
-def getTripletScore(X,q):
+
+def getTripletScore(X, q):
     """
     Given X,q=[i,j,k] returns score = ||x_j - x_k||^2 - ||x_i - x_k||^2
     If score > 0 then the triplet agrees with the embedding, otherwise it does not 
@@ -111,12 +112,12 @@ def getTripletScore(X,q):
     Usage:
         score = getTripletScore(X,[3,4,5])
     """
-    i,j,k = q
+    i, j, k = q
 
-    return dot(X[j],X[j]) -2*dot(X[j],X[k]) + 2*dot(X[i],X[k]) - dot(X[i],X[i])
+    return dot(X[j], X[j]) - 2 * dot(X[j], X[k]) + 2 * dot(X[i], X[k]) - dot(X[i], X[i])
 
 
-def getLoss(X,S):
+def getLoss(X, S):
     """
     Returns loss on X with respect to list of triplets S: 1/len(S) \sum_{q in S} loss(X,q).
     Intuitively, q=[i,j,k] "agrees" with X if ||x_j - x_k||^2 > ||x_i - x_k||^2.
@@ -131,23 +132,24 @@ def getLoss(X,S):
     n = X.shape[0]
     d = X.shape[1]
 
-    emp_loss = 0 # 0/1 loss
-    hinge_loss = 0 # hinge loss
-    
-    for q in S:
-        loss_ijk = getTripletScore(X,q)
+    emp_loss = 0  # 0/1 loss
+    hinge_loss = 0  # hinge loss
 
-        hinge_loss = hinge_loss + max(0,1. - loss_ijk)
-            
+    for q in S:
+        loss_ijk = getTripletScore(X, q)
+
+        hinge_loss = hinge_loss + max(0, 1. - loss_ijk)
+
         if loss_ijk < 0:
             emp_loss = emp_loss + 1.
 
-    emp_loss = emp_loss/len(S)
-    hinge_loss = hinge_loss/len(S)
+    emp_loss = emp_loss / len(S)
+    hinge_loss = hinge_loss / len(S)
 
     return emp_loss, hinge_loss
 
-def getGradient(X,S):
+
+def getGradient(X, S):
     """
     Returns normalized gradient of hinge loss wrt to X and S.
     Intuitively, q=[i,j,k] "agrees" with X if ||x_j - x_k||^2 > ||x_i - x_k||^2.
@@ -158,22 +160,22 @@ def getGradient(X,S):
     Usage:
         G,avg_grad_row_norm_sq,max_grad_row_norm_sq,avg_row_norm_sq = getGradient(X,S)
     """
-    n,d = X.shape
+    n, d = X.shape
     m = len(S)
 
     # pattern for computing gradient
-    H = mat([[2.,0.,-2.],[ 0.,  -2.,  2.],[ -2.,  2.,  0.]])
+    H = mat([[2., 0., -2.], [0., -2., 2.], [-2., 2., 0.]])
 
-    # compute gradient 
-    G = zeros((n,d))
+    # compute gradient
+    G = zeros((n, d))
     for q in S:
-        score = getTripletScore(X,q)
-        if 1.-score>0:
-            grad_partial = dot(H,X[q,:])/m
-            G[q,:] = G[q,:] + grad_partial
+        score = getTripletScore(X, q)
+        if 1. - score > 0:
+            grad_partial = dot(H, X[q, :]) / m
+            G[q, :] = G[q, :] + grad_partial
 
     # compute statistics about gradient used for stopping conditions
-    mu = mean(X,0)
+    mu = mean(X, 0)
     avg_row_norm_sq = 0.
     avg_grad_row_norm_sq = 0.
     max_grad_row_norm_sq = 0.
@@ -182,16 +184,27 @@ def getGradient(X,S):
         row_norm_sq = 0
         grad_row_norm_sq = 0
         for j in range(d):
-            row_norm_sq += (X[i,j]-mu[j])*(X[i,j]-mu[j])
-            grad_row_norm_sq += G[i,j]*G[i,j]
+            row_norm_sq += (X[i, j] - mu[j]) * (X[i, j] - mu[j])
+            grad_row_norm_sq += G[i, j] * G[i, j]
 
-        avg_row_norm_sq += row_norm_sq/n
-        avg_grad_row_norm_sq += grad_row_norm_sq/n
-        max_grad_row_norm_sq = max(max_grad_row_norm_sq,grad_row_norm_sq)
+        avg_row_norm_sq += row_norm_sq / n
+        avg_grad_row_norm_sq += grad_row_norm_sq / n
+        max_grad_row_norm_sq = max(max_grad_row_norm_sq, grad_row_norm_sq)
 
-    return G,avg_grad_row_norm_sq,max_grad_row_norm_sq,avg_row_norm_sq
+    return G, avg_grad_row_norm_sq, max_grad_row_norm_sq, avg_row_norm_sq
 
-def computeEmbedding(n,d,S,num_random_restarts=0,max_num_passes=0,max_iter_GD=0,max_norm=0,epsilon=0.01,verbose=False):
+
+def computeEmbedding(
+    n,
+    d,
+    S,
+    num_random_restarts=0,
+    max_num_passes=0,
+    max_iter_GD=0,
+    max_norm=0,
+    epsilon=0.01,
+    verbose=False,
+):
     """
     Computes an embedding of n objects in d dimensions usin the triplets of S.
     S is a list of triplets such that for each q in S, q = [i,j,k] means that
@@ -215,41 +228,61 @@ def computeEmbedding(n,d,S,num_random_restarts=0,max_num_passes=0,max_iter_GD=0,
         (float) gamma : Equal to a/b where a is max row norm of the gradient matrix and b is the avg row norm of the centered embedding matrix X. This is a means to determine how close the current solution is to the "best" solution.  
     """
 
-    if max_num_passes==0:
+    if max_num_passes == 0:
         max_num_passes_SGD = 16
     else:
         max_num_passes_SGD = max_num_passes
 
-
-    if max_iter_GD ==0:
+    if max_iter_GD == 0:
         max_iter_GD = 50
 
     X_old = None
-    emp_loss_old = float('inf')
+    emp_loss_old = float("inf")
     num_restarts = -1
     while num_restarts < num_random_restarts:
         num_restarts += 1
 
         ts = time.time()
 
-        X,acc = computeEmbeddingWithEpochSGD(n,d,S,max_num_passes=max_num_passes_SGD,max_norm=max_norm,epsilon=epsilon,verbose=verbose)
-        te_sgd = time.time()-ts
+        X, acc = computeEmbeddingWithEpochSGD(
+            n,
+            d,
+            S,
+            max_num_passes=max_num_passes_SGD,
+            max_norm=max_norm,
+            epsilon=epsilon,
+            verbose=verbose,
+        )
+        te_sgd = time.time() - ts
 
         ts = time.time()
-        X_new,emp_loss_new,hinge_loss_new,acc_new = computeEmbeddingWithGD(X,S,max_iters=max_iter_GD,max_norm=max_norm,epsilon=epsilon,verbose=verbose)
+        X_new, emp_loss_new, hinge_loss_new, acc_new = computeEmbeddingWithGD(
+            X,
+            S,
+            max_iters=max_iter_GD,
+            max_norm=max_norm,
+            epsilon=epsilon,
+            verbose=verbose,
+        )
 
-        te_gd = time.time()-ts
+        te_gd = time.time() - ts
 
-        if emp_loss_new<emp_loss_old:
+        if emp_loss_new < emp_loss_old:
             X_old = X_new
             emp_loss_old = emp_loss_new
 
         if verbose:
-            print("restart %d:   emp_loss = %f,   hinge_loss = %f,   duration=%f+%f" %(num_restarts,emp_loss_new,hinge_loss_new,te_sgd,te_gd))
+            print(
+                "restart %d:   emp_loss = %f,   hinge_loss = %f,   duration=%f+%f"
+                % (num_restarts, emp_loss_new, hinge_loss_new, te_sgd, te_gd)
+            )
 
-    return X_old,emp_loss_old
+    return X_old, emp_loss_old
 
-def computeEmbeddingWithEpochSGD(n,d,S,max_num_passes=0,max_norm=0,epsilon=0.01,a0=0.1,verbose=False):
+
+def computeEmbeddingWithEpochSGD(
+    n, d, S, max_num_passes=0, max_norm=0, epsilon=0.01, a0=0.1, verbose=False
+):
     """
     Performs epochSGD where step size is constant across each epoch, epochs are 
     doubling in size, and step sizes are getting cut in half after each epoch.
@@ -280,18 +313,18 @@ def computeEmbeddingWithEpochSGD(n,d,S,max_num_passes=0,max_norm=0,epsilon=0.01,
     m = len(S)
 
     # norm of each object is equal to 1 in expectation
-    X = randn(n,d)
+    X = randn(n, d)
 
-    if max_num_passes==0:
-        max_iters = 16*m
+    if max_num_passes == 0:
+        max_iters = 16 * m
     else:
-        max_iters = max_num_passes*m
+        max_iters = max_num_passes * m
 
-    if max_norm==0:
-        max_norm = 10.*d
+    if max_norm == 0:
+        max_norm = 10. * d
 
     # pattern for computing gradient
-    H = mat([[2.,0.,-2.],[ 0.,  -2.,  2.],[ -2.,  2.,  0.]])
+    H = mat([[2., 0., -2.], [0., -2., 2.], [-2., 2., 0.]])
 
     epoch_length = m
     a = a0
@@ -300,8 +333,11 @@ def computeEmbeddingWithEpochSGD(n,d,S,max_num_passes=0,max_norm=0,epsilon=0.01,
 
     # check losses
     if verbose:
-        emp_loss,hinge_loss = getLoss(X,S)
-        print("iter=%d,   emp_loss=%f,   hinge_loss=%f,   a=%f" % (0,emp_loss,hinge_loss,a))
+        emp_loss, hinge_loss = getLoss(X, S)
+        print(
+            "iter=%d,   emp_loss=%f,   hinge_loss=%f,   a=%f"
+            % (0, emp_loss, hinge_loss, a)
+        )
 
     rel_max_grad = None
     while t < max_iters:
@@ -310,21 +346,26 @@ def computeEmbeddingWithEpochSGD(n,d,S,max_num_passes=0,max_norm=0,epsilon=0.01,
 
         # check epoch conditions, udpate step size
         if t_e % epoch_length == 0:
-            a = a*0.5
-            epoch_length = 2*epoch_length
+            a = a * 0.5
+            epoch_length = 2 * epoch_length
             t_e = 0
 
-            if epsilon>0 or verbose:
+            if epsilon > 0 or verbose:
                 # get losses
-                emp_loss,hinge_loss = getLoss(X,S)
+                emp_loss, hinge_loss = getLoss(X, S)
 
                 # get gradient and check stopping-time statistics
-                G,avg_grad_row_norm_sq,max_grad_row_norm_sq,avg_row_norm_sq = getGradient(X,S)
-                rel_max_grad = sqrt( max_grad_row_norm_sq / avg_row_norm_sq )
-                rel_avg_grad = sqrt( avg_grad_row_norm_sq / avg_row_norm_sq )
+                G, avg_grad_row_norm_sq, max_grad_row_norm_sq, avg_row_norm_sq = getGradient(
+                    X, S
+                )
+                rel_max_grad = sqrt(max_grad_row_norm_sq / avg_row_norm_sq)
+                rel_avg_grad = sqrt(avg_grad_row_norm_sq / avg_row_norm_sq)
 
                 if verbose:
-                    print("iter=%d,   emp_loss=%f,   hinge_loss=%f,   rel_avg_grad=%f,   rel_max_grad=%f,   a=%f" % (t,emp_loss,hinge_loss,rel_avg_grad,rel_max_grad,a))
+                    print(
+                        "iter=%d,   emp_loss=%f,   hinge_loss=%f,   rel_avg_grad=%f,   rel_max_grad=%f,   a=%f"
+                        % (t, emp_loss, hinge_loss, rel_avg_grad, rel_max_grad, a)
+                    )
 
                 if rel_max_grad < epsilon:
                     break
@@ -333,21 +374,23 @@ def computeEmbeddingWithEpochSGD(n,d,S,max_num_passes=0,max_norm=0,epsilon=0.01,
         q = S[randint(m)]
 
         # take gradient step
-        score = getTripletScore(X,q)
-        if 1.-score>0:
-            grad_partial = dot(H,X[q,:])
-            X[q,:] = X[q,:] - a*grad_partial
+        score = getTripletScore(X, q)
+        if 1. - score > 0:
+            grad_partial = dot(H, X[q, :])
+            X[q, :] = X[q, :] - a * grad_partial
 
         # # project back onto ball such that norm(X[i])<=max_norm
         for i in q:
             norm_i = norm(X[i])
-            if norm_i>max_norm:
+            if norm_i > max_norm:
                 X[i] = X[i] * (max_norm / norm_i)
 
-    return X,rel_max_grad
+    return X, rel_max_grad
 
 
-def computeEmbeddingWithGD(X,S,max_iters=0,max_norm=0,epsilon=0.01,c1=0.0001,rho=0.5,verbose=False):
+def computeEmbeddingWithGD(
+    X, S, max_iters=0, max_norm=0, epsilon=0.01, c1=0.0001, rho=0.5, verbose=False
+):
     """
     Performs gradient descent with geometric amarijo line search (with parameter c1)
 
@@ -378,57 +421,73 @@ def computeEmbeddingWithGD(X,S,max_iters=0,max_norm=0,epsilon=0.01,c1=0.0001,rho
     """
     m = len(S)
 
-    n,d = X.shape
+    n, d = X.shape
 
-    if max_iters==0:
+    if max_iters == 0:
         max_iters = 100
 
-    if max_norm==0:
-        max_norm = 10.*d
+    if max_norm == 0:
+        max_norm = 10. * d
 
     # check losses
     if verbose:
-        emp_loss,hinge_loss = getLoss(X,S)
-        print("iter=%d,   emp_loss=%f,   hinge_loss=%f,   a=%f" % (0,emp_loss,hinge_loss,float('nan')))
+        emp_loss, hinge_loss = getLoss(X, S)
+        print(
+            "iter=%d,   emp_loss=%f,   hinge_loss=%f,   a=%f"
+            % (0, emp_loss, hinge_loss, float("nan"))
+        )
 
     alpha = .5
     t = 0
-    emp_loss_0 = float('inf')
-    hinge_loss_0 = float('inf')
-    rel_max_grad = float('inf')
+    emp_loss_0 = float("inf")
+    hinge_loss_0 = float("inf")
+    rel_max_grad = float("inf")
     while t < max_iters:
-        t+=1
+        t += 1
 
         # get gradient and stopping-time statistics
-        G,avg_grad_row_norm_sq,max_grad_row_norm_sq,avg_row_norm_sq = getGradient(X,S)
-        rel_max_grad = sqrt( max_grad_row_norm_sq / avg_row_norm_sq )
-        rel_avg_grad = sqrt( avg_grad_row_norm_sq / avg_row_norm_sq )
+        G, avg_grad_row_norm_sq, max_grad_row_norm_sq, avg_row_norm_sq = getGradient(
+            X, S
+        )
+        rel_max_grad = sqrt(max_grad_row_norm_sq / avg_row_norm_sq)
+        rel_avg_grad = sqrt(avg_grad_row_norm_sq / avg_row_norm_sq)
         if rel_max_grad < epsilon:
             break
 
         # perform backtracking line search
-        alpha = 2*alpha
-        emp_loss_0,hinge_loss_0 = getLoss(X,S)
-        norm_grad_sq_0 = avg_grad_row_norm_sq*n
-        emp_loss_k,hinge_loss_k = getLoss(X-alpha*G,S)
+        alpha = 2 * alpha
+        emp_loss_0, hinge_loss_0 = getLoss(X, S)
+        norm_grad_sq_0 = avg_grad_row_norm_sq * n
+        emp_loss_k, hinge_loss_k = getLoss(X - alpha * G, S)
         inner_t = 0
-        while hinge_loss_k > hinge_loss_0 - c1*alpha*norm_grad_sq_0:
-            alpha = alpha*rho
-            emp_loss_k,hinge_loss_k = getLoss(X-alpha*G,S)
+        while hinge_loss_k > hinge_loss_0 - c1 * alpha * norm_grad_sq_0:
+            alpha = alpha * rho
+            emp_loss_k, hinge_loss_k = getLoss(X - alpha * G, S)
             inner_t += 1
-        X = X-alpha*G
+        X = X - alpha * G
 
         # project back onto ball such that norm(X[i])<=max_norm
         for i in range(n):
             norm_i = norm(X[i])
-            if norm_i>max_norm:
+            if norm_i > max_norm:
                 X[i] = X[i] * (max_norm / norm_i)
 
         # check losses
         if verbose:
-            print("hinge iter=%d,   emp_loss=%f,   hinge_loss=%f,   rel_avg_grad=%f,   rel_max_grad=%f,   a=%f,   i_t=%d" % (t,emp_loss_k,hinge_loss_k,rel_avg_grad,rel_max_grad,alpha,inner_t))
+            print(
+                "hinge iter=%d,   emp_loss=%f,   hinge_loss=%f,   rel_avg_grad=%f,   rel_max_grad=%f,   a=%f,   i_t=%d"
+                % (
+                    t,
+                    emp_loss_k,
+                    hinge_loss_k,
+                    rel_avg_grad,
+                    rel_max_grad,
+                    alpha,
+                    inner_t,
+                )
+            )
 
-    return X,emp_loss_0,hinge_loss_0,rel_max_grad
+    return X, emp_loss_0, hinge_loss_0, rel_max_grad
 
 
 if __name__ == "__main__":

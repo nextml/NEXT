@@ -15,79 +15,82 @@ import os
 
 ### NEXT version number ###
 # Remember to edit this each release!
-VERSION = '1.1.1'
+VERSION = "1.1.1"
 
 # Variable to enable sites. This allows you to build clients and sites on the
 # NEXT system.
 
 SITES_ENABLED = False
-DEBUG_ON = os.environ.get('DEBUG_ON', '')
+DEBUG_ON = os.environ.get("DEBUG_ON", "")
 
-DASHBOARD_STALENESS_IN_SECONDS = 60*30
+DASHBOARD_STALENESS_IN_SECONDS = 60 * 30
 
 # Backend Host Url
-NEXT_BACKEND_GLOBAL_HOST = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')
-NEXT_BACKEND_GLOBAL_PORT = os.environ.get('NEXT_BACKEND_GLOBAL_PORT', '8000')
+NEXT_BACKEND_GLOBAL_HOST = os.environ.get("NEXT_BACKEND_GLOBAL_HOST", "localhost")
+NEXT_BACKEND_GLOBAL_PORT = os.environ.get("NEXT_BACKEND_GLOBAL_PORT", "8000")
 
-AWS_ACCESS_ID = os.environ.get('AWS_ACCESS_ID', '')
-AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY', '')
+AWS_ACCESS_ID = os.environ.get("AWS_ACCESS_ID", "")
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY", "")
 
-SITE_KEY = os.environ.get('SITE_KEY', None)
-if SITE_KEY==None or SITE_KEY=='None':
-    SITE_KEY=None
+SITE_KEY = os.environ.get("SITE_KEY", None)
+if SITE_KEY == None or SITE_KEY == "None":
+    SITE_KEY = None
 
-GIT_HASH = os.environ.get('GIT_HASH', '')
-if GIT_HASH=='':
+GIT_HASH = os.environ.get("GIT_HASH", "")
+if GIT_HASH == "":
     import subprocess
-    try:
-        GIT_HASH = subprocess.check_output(['git', 'rev-parse', 'HEAD'])[0:-1]
-    except:
-        GIT_HASH = ''
 
-MINIONREDIS_HOST = os.environ.get('MINIONREDIS_PORT_6379_TCP_ADDR', 'localhost')
-MINIONREDIS_PORT = int(os.environ.get('MINIONREDIS_PORT_6379_TCP_PORT', 6379))
-MINIONREDIS_PASS = os.environ.get('MINIONREDIS_ENV_REDIS_PASS', '')
+    try:
+        GIT_HASH = subprocess.check_output(["git", "rev-parse", "HEAD"])[0:-1]
+    except:
+        GIT_HASH = ""
+
+MINIONREDIS_HOST = os.environ.get("MINIONREDIS_PORT_6379_TCP_ADDR", "localhost")
+MINIONREDIS_PORT = int(os.environ.get("MINIONREDIS_PORT_6379_TCP_PORT", 6379))
+MINIONREDIS_PASS = os.environ.get("MINIONREDIS_ENV_REDIS_PASS", "")
 
 # PermStore constants
-MONGODB_HOST = os.environ.get('MONGODB_PORT_27017_TCP_ADDR','localhost')
-MONGODB_PORT = int(os.environ.get('MONGODB_PORT_27017_TCP_PORT', 27017) )
+MONGODB_HOST = os.environ.get("MONGODB_PORT_27017_TCP_ADDR", "localhost")
+MONGODB_PORT = int(os.environ.get("MONGODB_PORT_27017_TCP_PORT", 27017))
 
 
 # Database client constants
-app_data_database_id = 'app_data'
-logs_database_id = 'logs'
+app_data_database_id = "app_data"
+logs_database_id = "logs"
 maxStringLengthInInspectDatabase = 200
 
 
-RABBIT_HOSTNAME = os.environ.get('RABBIT_PORT_5672_TCP_ADDR', 'localhost')
-RABBIT_PORT= int(os.environ.get('RABBIT_PORT_5672_TCP_PORT', 5672))
+RABBIT_HOSTNAME = os.environ.get("RABBIT_PORT_5672_TCP_ADDR", "localhost")
+RABBIT_PORT = int(os.environ.get("RABBIT_PORT_5672_TCP_PORT", 5672))
 
 
-BROKER_URL = 'amqp://{user}:{password}@{hostname}:{port}/{vhost}/'.format(
-    user=os.environ.get('RABBIT_ENV_RABBITMQ_USER', 'guest'),
-    password=os.environ.get('RABBIT_ENV_RABBITMQ_PASS', 'guest'),
+BROKER_URL = "amqp://{user}:{password}@{hostname}:{port}/{vhost}/".format(
+    user=os.environ.get("RABBIT_ENV_RABBITMQ_USER", "guest"),
+    password=os.environ.get("RABBIT_ENV_RABBITMQ_PASS", "guest"),
     hostname=RABBIT_HOSTNAME,
     port=RABBIT_PORT,
-    vhost=os.environ.get('RABBIT_ENV_VHOST', ''))
+    vhost=os.environ.get("RABBIT_ENV_VHOST", ""),
+)
 
-RABBITREDIS_HOSTNAME = os.environ.get('RABBITREDIS_PORT_6379_TCP_ADDR', 'localhost')
-RABBITREDIS_PORT = int(os.environ.get('RABBITREDIS_PORT_6379_TCP_PORT', 6379))
+RABBITREDIS_HOSTNAME = os.environ.get("RABBITREDIS_PORT_6379_TCP_ADDR", "localhost")
+RABBITREDIS_PORT = int(os.environ.get("RABBITREDIS_PORT_6379_TCP_PORT", 6379))
 
 
 # https://github.com/celery/celery/issues/1909 describes the tradeoffs of redis and rabbitmq for results backend
-CELERY_RESULT_BACKEND = 'redis://{hostname}:{port}/{db}/'.format(
+CELERY_RESULT_BACKEND = "redis://{hostname}:{port}/{db}/".format(
     hostname=RABBITREDIS_HOSTNAME,
     port=RABBITREDIS_PORT,
-    db=os.environ.get('RABBITREDIS_DB', '0'))
+    db=os.environ.get("RABBITREDIS_DB", "0"),
+)
 # CELERY_RESULT_BACKEND = BROKER_URL
-CELERY_TASK_RESULT_EXPIRES=60
-CELERY_TASK_SERIALIZER='json'
-CELERY_ACCEPT_CONTENT=['json']  # Ignore other content
-CELERY_RESULT_SERIALIZER='json'
+CELERY_TASK_RESULT_EXPIRES = 60
+CELERY_TASK_SERIALIZER = "json"
+CELERY_ACCEPT_CONTENT = ["json"]  # Ignore other content
+CELERY_RESULT_SERIALIZER = "json"
 
-CELERY_ON = eval(os.environ.get('CELERY_ON','True'))
+CELERY_ON = eval(os.environ.get("CELERY_ON", "True"))
 
-CELERY_SYNC_WORKER_COUNT = int(os.environ.get('CELERY_SYNC_WORKER_COUNT',1))
+CELERY_SYNC_WORKER_COUNT = int(os.environ.get("CELERY_SYNC_WORKER_COUNT", 1))
 
 # from kombu import Exchange, Queue
 # exchange_name = 'sync@{hostname}'.format(
@@ -101,4 +104,3 @@ CELERY_SYNC_WORKER_COUNT = int(os.environ.get('CELERY_SYNC_WORKER_COUNT',1))
 #     all_queues += (Queue(name=queue_name,exchange=sync_exchange),)
 
 # CELERY_QUEUES = all_queues
-

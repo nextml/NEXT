@@ -3,9 +3,12 @@ import yaml
 import next.utils as utils
 
 from next.database_client.DatabaseAPI import DatabaseAPI
+
 db = DatabaseAPI()
 from next.logging_client.LoggerAPI import LoggerAPI
+
 ell = LoggerAPI()
+
 
 class ResourceManager:
     """
@@ -48,7 +51,7 @@ class ResourceManager:
         """
         return utils.get_supported_apps()
 
-    def get_app_about(self,app_id, apps_dir='apps/'):
+    def get_app_about(self, app_id, apps_dir="apps/"):
         """
         Returns a string description of the app defined by app_id (good for a blurb on a website perhaps)
 
@@ -61,11 +64,11 @@ class ResourceManager:
         Usage: ::\n
             rm.get_app_about('DuelingBanditsPureExploration')
         """
-        filename = apps_dir + '{0}/{0}.yaml'.format(app_id)
-        info = yaml.load(open(filename, 'rb'))
-        return info['initExp']['description']
+        filename = apps_dir + "{0}/{0}.yaml".format(app_id)
+        info = yaml.load(open(filename, "rb"))
+        return info["initExp"]["description"]
 
-    def get_app_alg_ids(self,app_id, app_dir='apps/'):
+    def get_app_alg_ids(self, app_id, app_dir="apps/"):
         """
         Returns a list of all implemented alg_id's for a particular app_id
 
@@ -78,12 +81,12 @@ class ResourceManager:
         Usage: ::\n
             rm.get_app_alg_ids('PoolBasedTripletMDS')
         """
-        filename = app_dir + '{0}/{0}.yaml'.format(app_id)
-        exp = yaml.load(open(filename, 'rb'))
-        args = exp['initExp']['values']['args']['values']
-        return args['alg_list']['values']['values']['alg_id']['values']
+        filename = app_dir + "{0}/{0}.yaml".format(app_id)
+        exp = yaml.load(open(filename, "rb"))
+        args = exp["initExp"]["values"]["args"]["values"]
+        return args["alg_list"]["values"]["values"]["alg_id"]["values"]
 
-    def get_app_exp_uids(self,app_id):
+    def get_app_exp_uids(self, app_id):
         """
         Returns a dictionary of lists of exp_uid's indexed by app_id
 
@@ -96,15 +99,15 @@ class ResourceManager:
         Usage: ::\n
             rm.get_app_exp_uids('PoolBasedTripletMDS')
         """
-        docs = db.get_docs_with_filter(app_id+':experiments',{})
+        docs = db.get_docs_with_filter(app_id + ":experiments", {})
 
         exp_uids = []
         for doc in docs:
-            exp_uids.append(str(doc['exp_uid']))
+            exp_uids.append(str(doc["exp_uid"]))
 
         return exp_uids
 
-    def get_app_exp_uid_start_date(self,exp_uid):
+    def get_app_exp_uid_start_date(self, exp_uid):
         """
         Returns date in a string when experiment was initiazlied
 
@@ -118,28 +121,25 @@ class ResourceManager:
             rm.get_app_exp_uid_start_date('PoolBasedTripletMDS')
         """
 
-        start_date = db.get('experiments_admin',exp_uid,'start_date')
+        start_date = db.get("experiments_admin", exp_uid, "start_date")
 
         if isinstance(start_date, datetime):
             return start_date
         else:
             return utils.str2datetime(start_date)
 
-
     def is_exp_retired(self, exp_uid):
         app_id = self.get_app_id(exp_uid)
-        is_retired = db.get(app_id+':experiments', exp_uid, 'retired')
+        is_retired = db.get(app_id + ":experiments", exp_uid, "retired")
 
         return is_retired or False
-
 
     def set_exp_retired(self, exp_uid, retired=True):
         app_id = self.get_app_id(exp_uid)
 
-        db.set(app_id+':experiments', exp_uid, 'retired', retired)
+        db.set(app_id + ":experiments", exp_uid, "retired", retired)
 
-
-    def get_experiment(self,exp_uid):
+    def get_experiment(self, exp_uid):
         """
         Gets an experiment from an exp_uid. Returns none if the exp_uid is not found.
 
@@ -158,14 +158,14 @@ class ResourceManager:
         if app_id == None:
             return None
 
-        docs = db.get_docs_with_filter(app_id+':experiments',{'exp_uid':exp_uid})
+        docs = db.get_docs_with_filter(app_id + ":experiments", {"exp_uid": exp_uid})
 
-        if len(docs)>0:
+        if len(docs) > 0:
             return docs[0]
         else:
             return None
 
-    def get_app_id(self,exp_uid):
+    def get_app_id(self, exp_uid):
         """
         Gets an app_id from an exp_uid. Returns none if the exp_uid is not found.
         This should be coming from cache so it should be very fast
@@ -180,10 +180,9 @@ class ResourceManager:
         	app_id = rm.get_app_id('b5242319c78df48f4ff31e78de5857')
         """
 
-        return db.get('experiments_admin',exp_uid,'app_id')
+        return db.get("experiments_admin", exp_uid, "app_id")
 
-
-    def get_algs_doc_for_exp_uid(self,exp_uid):
+    def get_algs_doc_for_exp_uid(self, exp_uid):
         """
         Returns the algorithm docs used in exp_uid
 
@@ -199,9 +198,9 @@ class ResourceManager:
             alg_list = rm.get_algs_doc_for_exp_uid('b5242319c78df48f4ff31e78de5857')
         """
         app_id = self.get_app_id(exp_uid)
-        return db.get_docs_with_filter(app_id+':algorithms',{'exp_uid':exp_uid})
+        return db.get_docs_with_filter(app_id + ":algorithms", {"exp_uid": exp_uid})
 
-    def get_algs_for_exp_uid(self,exp_uid):
+    def get_algs_for_exp_uid(self, exp_uid):
         """
         Returns a list of algs' data used in exp_uid
 
@@ -217,17 +216,17 @@ class ResourceManager:
             alg_list = rm.get_algs_for_exp_uid('b5242319c78df48f4ff31e78de5857')
         """
         app_id = self.get_app_id(exp_uid)
-        args = db.get(app_id+':experiments',exp_uid,'args')
+        args = db.get(app_id + ":experiments", exp_uid, "args")
         alg_list = []
-        for alg in args['alg_list']:
+        for alg in args["alg_list"]:
             tmp = {}
-            tmp['alg_id'] = alg['alg_id']
-            tmp['alg_label'] = alg['alg_label']
+            tmp["alg_id"] = alg["alg_id"]
+            tmp["alg_label"] = alg["alg_label"]
             alg_list.append(tmp)
 
         return alg_list
 
-    def get_git_hash_for_exp_uid(self,exp_uid):
+    def get_git_hash_for_exp_uid(self, exp_uid):
         """
         Returns git_hash of when exp_uid was initialized
 
@@ -240,9 +239,9 @@ class ResourceManager:
         """
         app_id = self.get_app_id(exp_uid)
 
-        return db.get(app_id+':experiments',exp_uid,'git_hash')
+        return db.get(app_id + ":experiments", exp_uid, "git_hash")
 
-    def get_participant_uids(self,exp_uid):
+    def get_participant_uids(self, exp_uid):
         """
         Given an exp_uid, returns list of participant_uid's involved with experiment
 
@@ -256,15 +255,17 @@ class ResourceManager:
             participant_uids = resource_manager.get_participant_uids(exp_uid)
         """
         app_id = self.get_app_id(exp_uid)
-        participants = db.get_docs_with_filter(app_id+':participants',{'exp_uid':exp_uid})
+        participants = db.get_docs_with_filter(
+            app_id + ":participants", {"exp_uid": exp_uid}
+        )
         participant_uid_list = []
         for participant in participants:
-            participant_uid = participant['participant_uid']
+            participant_uid = participant["participant_uid"]
             participant_uid_list.append(participant_uid)
 
         return participant_uid_list
 
-    def get_participant_data(self,participant_uid, exp_uid):
+    def get_participant_data(self, participant_uid, exp_uid):
         """
         Given a participant_id and an exp_uid, returns the associated set of responses.
 
@@ -278,11 +279,12 @@ class ResourceManager:
         	responses = resource_manager.get_participant_data(participant_uid,exp_uid)
         """
         app_id = self.get_app_id(exp_uid)
-        queries = db.get_docs_with_filter(app_id+':queries',{'participant_uid':participant_uid})
+        queries = db.get_docs_with_filter(
+            app_id + ":queries", {"participant_uid": participant_uid}
+        )
         return queries
 
-
-    def get_experiment_logs(self,exp_uid):
+    def get_experiment_logs(self, exp_uid):
         """
         Given an exp_uid, returns all logs associated with the experiment.
 
@@ -298,16 +300,18 @@ class ResourceManager:
 
         app_id = self.get_app_id(exp_uid)
 
-        log_types = ['APP-EXCEPTION','ALG-DURATION','ALG-EVALUATION']
+        log_types = ["APP-EXCEPTION", "ALG-DURATION", "ALG-EVALUATION"]
 
         all_logs = []
         for log_type in log_types:
-            logs = ell.get_logs_with_filter(app_id+':'+log_type,{'exp_uid':exp_uid})
+            logs = ell.get_logs_with_filter(
+                app_id + ":" + log_type, {"exp_uid": exp_uid}
+            )
             all_logs.extend(logs)
 
         return all_logs
 
-    def get_experiment_logs_of_type(self,exp_uid,log_type):
+    def get_experiment_logs_of_type(self, exp_uid, log_type):
         """
         Given an exp_uid, returns all logs associated with the experiment.
 
@@ -323,8 +327,11 @@ class ResourceManager:
 
         app_id = self.get_app_id(exp_uid)
 
-        log_types = ['APP-CALL','APP-RESPONSE','APP-EXCEPTION','ALG-DURATION','ALG-EVALUATION']
-        return ell.get_logs_with_filter(app_id+':'+log_type,{'exp_uid':exp_uid})
-
-
-
+        log_types = [
+            "APP-CALL",
+            "APP-RESPONSE",
+            "APP-EXCEPTION",
+            "ALG-DURATION",
+            "ALG-EVALUATION",
+        ]
+        return ell.get_logs_with_filter(app_id + ":" + log_type, {"exp_uid": exp_uid})
