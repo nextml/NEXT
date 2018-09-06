@@ -1,19 +1,15 @@
 initExp:
   rets:
-    type: bool
-    values: true
+    type: str
 
 getQuery:
   rets:
-    type: bool
-    values: true
+    type: str
 
 processAnswer:
     rets:
-      type: bool
-      values: true
+      type: str
 
 getModel:
   rets:
-    type: bool
-    values: true
+    type: str
