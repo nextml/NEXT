@@ -4,7 +4,7 @@ All overrided classes and methods of Flask should go here.
 
 Author: Lalit Jain, lalitkumarj@gmail.com 
 """
-
+from __future__ import print_function
 import time
 
 def timeit(f):
@@ -65,7 +65,7 @@ class NextBackendApi(Api):
     def handle_error(self, e, **kwargs):
         exc_type, exc_value, tb = sys.exc_info()
         backend_error = traceback.format_exc(tb)            
-        print "backend_error", backend_error,exc_type, exc_value, tb, traceback.format_exc(tb)
+        print("backend_error", backend_error,exc_type, exc_value, tb, traceback.format_exc(tb))
 
         # Catch internal system errors
         code = getattr(e, 'code', 500)

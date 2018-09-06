@@ -21,9 +21,10 @@ def get_bucket(AWS_BUCKET_NAME, AWS_ID, AWS_KEY):
     bucket = conn.get_bucket(AWS_BUCKET_NAME, validate=False)
     return bucket
 
+
 def upload(filename, file_object, bucket):
     k = Key(bucket)
     k.key = filename
     k.set_contents_from_file(file_object)
-    k.set_acl('public-read')
+    k.set_acl("public-read")
     return k.generate_url(expires_in=0, query_auth=False, force_http=True)

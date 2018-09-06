@@ -1,12 +1,14 @@
+from __future__ import print_function
 import json
 import next.utils as utils
 from next.apps.AppDashboard import AppDashboard
 
-class MyAppDashboard(AppDashboard):
-    def __init__(self,db,ell):
-        AppDashboard.__init__(self,db,ell)
 
-    def most_current_ranking(self,app,butler,alg_label):
+class MyAppDashboard(AppDashboard):
+    def __init__(self, db, ell):
+        AppDashboard.__init__(self, db, ell)
+
+    def most_current_ranking(self, app, butler, alg_label):
         """
         Description: Returns a ranking of arms in the form of a list of dictionaries, which is conveneint for downstream applications
 
@@ -22,16 +24,20 @@ class MyAppDashboard(AppDashboard):
             (int) index : index of target
             (int) ranking : rank (0 to number of targets - 1) representing belief of being best arm
         """
-        #next_app = utils.get_app(app_id, exp_uid, self.db, self.ell)
+        # next_app = utils.get_app(app_id, exp_uid, self.db, self.ell)
         # args_out_dict = json.loads(next_app.getModel(exp_uid, json.dumps({'exp_uid':exp_uid, 'args':{'alg_label':alg_label}}))[0])
-        item = app.getModel(json.dumps({'exp_uid':app.exp_uid, 'args':{'alg_label':alg_label}}))
+        item = app.getModel(
+            json.dumps({"exp_uid": app.exp_uid, "args": {"alg_label": alg_label}})
+        )
         return_dict = {}
-        return_dict['headers'] = [{'label':'Rank','field':'rank'},
-                                  {'label':'Target','field':'index'},
-                                  {'label':'Score','field':'score'},
-                                  {'label':'Standard Deviation','field':'standard_deviation'},
-                                  {'label':'Precision','field':'precision'},
-                                  {'label':'Count','field':'count'}]
-        return_dict['data'] = item['targets']
-        return_dict['plot_type'] = 'columnar_table'
+        return_dict["headers"] = [
+            {"label": "Rank", "field": "rank"},
+            {"label": "Target", "field": "index"},
+            {"label": "Score", "field": "score"},
+            {"label": "Standard Deviation", "field": "standard_deviation"},
+            {"label": "Precision", "field": "precision"},
+            {"label": "Count", "field": "count"},
+        ]
+        return_dict["data"] = item["targets"]
+        return_dict["plot_type"] = "columnar_table"
         return return_dict

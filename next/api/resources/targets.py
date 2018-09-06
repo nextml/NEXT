@@ -16,6 +16,7 @@ from next.api.resource_manager import ResourceManager
 from next.database_client.DatabaseAPI import DatabaseAPI
 from next.logging_client.LoggerAPI import LoggerAPI
 from next.apps.App import App
+
 db = DatabaseAPI()
 ell = LoggerAPI()
 
@@ -27,17 +28,14 @@ post_parser = reqparse.RequestParser(argument_class=APIArgument)
 
 # Custom errors for GET and POST verbs on experiment resource
 meta_error = {
-    'ExpDoesNotExistError': {
-        'message': "No experiment with the specified experiment ID exists.",
-        'code': 400,
-        'status':'FAIL'
-    },
+    "ExpDoesNotExistError": {
+        "message": "No experiment with the specified experiment ID exists.",
+        "code": 400,
+        "status": "FAIL",
+    }
 }
 
-meta_success = {
-    'code': 200,
-    'status': 'OK'
-}
+meta_success = {"code": 200, "status": "OK"}
 
 # Participants resource class
 class Targets(Resource):

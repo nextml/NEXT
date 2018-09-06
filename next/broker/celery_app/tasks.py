@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 from .celery_broker import app
 import celery.signals
 import os
@@ -113,7 +113,7 @@ def apply(app_id, exp_uid, task_name, args_in_json, enqueue_timestamp):
 			ell.log( app_id+':ALG-DURATION', log_entry_durations  )
 	else:
 		return_value = (args_out_json,didSucceed,message)
-	print '#### Finished %s,  time_enqueued=%s,  execution_time=%s ####' % (task_name,time_enqueued,dt)
+	print('#### Finished %s,  time_enqueued=%s,  execution_time=%s ####' % (task_name,time_enqueued,dt))
 	return return_value
 
 def apply_dashboard(app_id, exp_uid, args_in_json, enqueue_timestamp):
@@ -183,7 +183,7 @@ def apply_sync_by_namespace(app_id, exp_uid, alg_id, alg_label, task_name, args,
 	time_enqueued = delta_datetime.seconds + delta_datetime.microseconds/1000000.
 
 	try:
-		print '>>>>>>>> Starting namespace:%s,  job_uid=%s,  time_enqueued=%s <<<<<<<<<' % (namespace,job_uid,time_enqueued)
+		print('>>>>>>>> Starting namespace:%s,  job_uid=%s,  time_enqueued=%s <<<<<<<<<' % (namespace,job_uid,time_enqueued))
                 # get stateless app
                 next_app = next.utils.get_app(app_id, exp_uid, db, ell)
                 target_manager = next_app.myApp.TargetManager
@@ -196,11 +196,11 @@ def apply_sync_by_namespace(app_id, exp_uid, alg_id, alg_label, task_name, args,
                 log_entry_durations['duration_enqueued'] = time_enqueued
                 log_entry_durations['timestamp'] = next.utils.datetimeNow()
                 ell.log( app_id+':ALG-DURATION', log_entry_durations)
-		print '########## Finished namespace:%s,  job_uid=%s,  time_enqueued=%s,  execution_time=%s ##########' % (namespace,job_uid,time_enqueued,dt)
+		print('########## Finished namespace:%s,  job_uid=%s,  time_enqueued=%s,  execution_time=%s ##########' % (namespace,job_uid,time_enqueued,dt))
 		return 
 	except Exception, error:
 		exc_type, exc_value, exc_traceback = sys.exc_info()
-                print "tasks Exception: {} {}".format(error, traceback.format_exc())
+                print("tasks Exception: {} {}".format(error, traceback.format_exc()))
                 traceback.print_tb(exc_traceback)           
  
 		# error = traceback.format_exc()
