@@ -9,7 +9,7 @@ chardet==3.0.4
 click==6.7
 cycler==0.10.0
 decorator==4.1.2
-Flask==0.12.2
+Flask==0.12.4
 Flask-Login==0.4.0
 Flask-RESTful==0.3.6
 gevent==1.2.2
@@ -31,11 +31,11 @@ pymongo==3.4.0
 pyparsing==2.2.0
 python-dateutil==2.6.1
 pytz==2017.2
-PyYAML==3.12
+PyYAML==4.2b4
 redis==2.10.5
-requests==2.18.1
+requests==2.21.0
 scipy==0.19.1
 six==1.10.0
-urllib3==1.21.1
+urllib3==1.24.1
 virtualenv==15.1.0
 Werkzeug==0.12.2
