@@ -44,11 +44,13 @@
       <div id="wrapper">
         <center><h1>Loading...</h1></center>
       </div>
+    <!--
     <div class="navbar navbar-default navbar-fixed-bottom" style="height: 2em; min-height: 20px;">
       <div class="container">
         <p>User ID: <span id="participant_uid_bottom"></span></p>
       </div>
     </div>
+    -->
 
     <script>
       next_widget.setUrl("");
@@ -63,7 +65,7 @@
       {% endif %}
 
       $('#participant_uid').html(participant_uid);
-      $('#participant_uid_bottom').html(participant_uid);
+      //$('#participant_uid_bottom').html(participant_uid);
       var args = {
           name: "getQuery",
           exp_uid: exp_uid,
