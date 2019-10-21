@@ -38,4 +38,4 @@ scipy==0.19.1
 six==1.10.0
 urllib3==1.24.1
 virtualenv==15.1.0
-Werkzeug==0.12.2
+Werkzeug==0.15.3
