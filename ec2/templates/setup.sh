@@ -1,39 +1,58 @@
 #!/usr/bin/env bash
 
-apt-get update
+
+sudo apt-get update
 
 # install pip and some libraries (for convenience and test scripts)
-apt-get install -y \
+sudo apt-get install -y \
     python \
     python-dev \
     python-distribute \
+    python-yaml \
     python-pip \
     python-numpy \
     python-scipy \
     git
 
+sudo pip install -U pip
+sudo pip install --upgrade setuptools
 # python libraries (for convenience and test scripts)
-pip install \
-    requests==2.5.2 \
-    boto \
-    yaml
+sudo pip install boto
 
 # tools for increased stability of docker volumes
-apt-get install -y linux-image-extra-$(uname -r) aufs-tools  
+sudo apt-get install -y linux-image-extra-$(uname -r) aufs-tools
 
-# downloads and installs docker
-# curl -sSL https://get.docker.com/ | sh  # only meant for testing >:[
-# https://docs.docker.com/engine/installation/linux/ubuntu/
-sudo apt-get update
+
+sudo apt-get install -y \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg-agent \
+    software-properties-common
+
+
+#sudo apt-get update
+
 sudo apt-get install -y curl linux-image-extra-$(uname -r) linux-image-extra-virtual
-sudo apt-get install -y apt-transport-https ca-certificates
-curl -fsSL https://yum.dockerproject.org/gpg | sudo apt-key add -
-apt-key fingerprint 58118E89F3A912897C070ADBF76221572C52609D
-sudo apt-get install -y software-properties-common
-sudo add-apt-repository "deb https://apt.dockerproject.org/repo/ ubuntu-$(lsb_release -cs) main"
-sudo apt-get update
-sudo apt-get autoremove libltdl7
-sudo sudo apt-get install -y docker-engine=1.10.3-0~trusty
 
+
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+sudo apt-key fingerprint 0EBFCD88
+#sudo apt-get install -y software-properties-common
+
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+#sudo apt-get install linux-generic-lts-xenial
+sudo apt-get update
+#sudo apt-get autoremove libltdl7
+#sudo sudo apt-get install -y docker-engine=1.10.3-0~trusty
+sudo apt-get install -y docker-ce
 # orchestrates docker containers
-pip install docker-compose==1.10.0
+#pip install docker-compose==1.10.0
+#sudo pip install docker-compose
+sudo docker version
+sudo curl -L "https://github.com/docker/compose/releases/download/1.25.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
