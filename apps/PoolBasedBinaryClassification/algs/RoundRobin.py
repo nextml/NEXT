@@ -37,7 +37,6 @@ class MyAlg:
 
     def getModel(self, butler):
         # The model is simply the vector of weights and a record of the number of reported answers.
-        utils.debug_print(butler.algorithms.get(key=['weights', 'num_reported_answers']))
         return butler.algorithms.get(key=['weights', 'num_reported_answers'])
 
     def full_embedding_update(self, butler, args):
@@ -47,12 +46,11 @@ class MyAlg:
         targets = butler.targets.get_targetset(butler.exp_uid)
         # Extract the features form each target and then append a bias feature.
         target_features = [targets[i]['meta']['features'] for i in range(len(targets))]
-        for feature_vector in target_features:
-            feature_vector.append(1.)
         # Build a list of feature vectors and associated labels.
         X = []
         y = []
         for index, label in labelled_items:
+
             X.append(target_features[index])
             y.append(label)
         # Convert to numpy arrays and use lstsquares to find the weights.

@@ -3,6 +3,7 @@ aniso8601==1.2.1
 anyjson==0.3.3
 billiard==3.3.0.23
 boto==2.48.0
+boto3==1.12.16
 celery==3.1.25
 certifi==2017.4.17
 chardet==3.0.4
@@ -23,8 +24,9 @@ kombu==3.0.37
 line_profiler==2.1.2
 MarkupSafe==1.0
 matplotlib==1.5.3
+seaborn==0.9.0
 mpld3==0.3
-numpy==1.13.1
+numpy==1.16.4
 pandas==0.20.3
 ply==3.10
 pymongo==3.4.0
@@ -34,8 +36,11 @@ pytz==2017.2
 PyYAML==4.2b4
 redis==2.10.5
 requests==2.21.0
+sklearn==0.0
+scikit-learn==0.20
 scipy==0.19.1
 six==1.10.0
 urllib3==1.24.1
 virtualenv==15.1.0
 Werkzeug==0.12.2
+

@@ -7,6 +7,7 @@ import base64
 import random
 import sys
 import json
+import pandas as pd
 from collections import OrderedDict
 
 if __name__ == "__main__":
@@ -107,22 +108,41 @@ def unpack_text_file(s, kind='csv'):
     kind = kind.lower()  # always lower case extension
     base64_zip = io.BytesIO(s)
     zip_file = zipfile.ZipFile(base64_zip)
-    files = zipfile_to_dictionary(zip_file)
-
+    filenames = zip_file.namelist()
+    filenames = [f for f in filenames if not any([ignore in f.lower() for ignore in
+                                                  ['ds_store', 'icon', '__macosx']])]
+    filenames = [f for f in filenames if len(f.split('/')[-1]) > 0]
+    filenames = sorted(filenames)
+    items_file = zip_file.open(filenames[0])
+    # items_file.readable = lambda: True
+    # items_file.writable = lambda: False
+    # items_file.seekable = lambda: False
+    # items_file.read1 = items_file.read
+    items_file = io.TextIOWrapper(items_file)
+    file_df = pd.read_csv(items_file)
     # files is has at least one key; (tested before call in assistant_blueprint.py)
-    file_str = files[files.keys()[0]]
+
     if kind in {'csv', 'txt'}:
-        strings = file_str.split('\n')  # -1 because last newline
-        strings = list(filter(lambda x: len(x) > 0, strings))
-        targets = [{'target_id': str(i),
-                    'primary_type': 'text',
-                    'primary_description': string,
-                    'alt_type': 'text',
-                    'alt_description': string}
-                   for i, string in enumerate(strings)]
+
+        targets = []
+        label_map = dict(cell_line=0, in_vitro_differentiated_cells=1,induced_pluripotent_stem_cells=2,primary_cells=3,
+                         stem_cells=4,tissue=5)
+
+        for i, row in file_df.iterrows():
+
+            targets.append({'target_id': str(i),
+
+                        'primary_type': 'text',
+                        'primary_description': row.loc['key_value'],
+                        'alt_type': 'text',
+                        'alt_description': row.loc['ontology_mapping'],
+                        'meta':
+                            {'features': [],
+                              'label': label_map.get(row.loc['label'],'NaN')
+                             }
+                        })
+
         return targets
-    elif kind in {'json'}:
-        return json.loads(file_str)
     else:
         raise ValueError('`kind` not regonized in `unpack_text_file`')
 
@@ -131,7 +151,6 @@ if __name__ == "__main__":
     from pprint import pprint
     aws_key = os.environ.get('KEY')
     aws_secret_access_key = os.environ.get('ACCESS_KEY')
-
     with open('../../examples/strange_fruit_triplet/strangefruit30.zip', 'rb') as f:
         s = f.read()
     print(s)

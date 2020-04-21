@@ -11,14 +11,14 @@ initExp:
       type: dict
       values:
         alg_list:
-          description: A list of algorithms employed in this experiment. These should agree with the list of algorithms in MyApp/algs. This field is often overwritten at the App level to specify specific alg_ids. 
+          description: A list of algorithms employed in this experiment. These should agree with the list of algorithms in MyApp/algs. This field is often overwritten at the App level to specify specific alg_ids.
           type: list
           values:
             type: dict
             description: An entry is required for each algorithm.
             values:
               alg_id:
-                description: Supported algorithm types for the associated app_id. Again, all algs can be seen in MyApp/algs 
+                description: Supported algorithm types for the associated app_id. Again, all algs can be seen in MyApp/algs
                 type: str
               alg_label:
                 description: A name for this algorithm of your choosing. Some app types (such as PoolBasedTripletMDS or PoolBasedBinaryClassification) may require the existence of an alg_label Test. Test algs are used to compute accuracy and generalization error. Please refer to specific application documentation for more information.
@@ -34,7 +34,7 @@ initExp:
           optional: true
 
         debrief:
-          description: Debrief message that appears as a popup on the query page once the user has responded to num_tries queries. 
+          description: Debrief message that appears as a popup on the query page once the user has responded to num_tries queries.
           type: str
           default: Thank you for participating
           optional: true
@@ -44,9 +44,21 @@ initExp:
           type: num
           default: 25
           optional: true
+        bucket_id:
+          description: Bucket ID for AWS
+          type: str
+          optional: true
+        key_id:
+          description: key ID for AWS
+          type: str
+          optional: true
+        secret_key:
+          description: secret key for AWS
+          type: str
+          optional: true
 
         algorithm_management_settings:
-          description: Algorithm management setting determine how an algorithm is selected on a getQuery request to generate a query. 
+          description: Algorithm management setting determine how an algorithm is selected on a getQuery request to generate a query.
           type: dict
           values:
             mode:
@@ -80,25 +92,25 @@ initExp:
             targetset:
               description: A target set.
               type: list
-              values: 
+              values:
                 type: dict
                 values:
                   primary_description:
                     type: str
                     description: The description of the target
-                  alt_description: 
+                  alt_description:
                     type: str
                     description: The description of the target
                   primary_type:
                     type: str
                     description: The type of target
                     values: [text,image,video,video-controls]
-                  alt_type: 
+                  alt_type:
                     type: str
                     description: The description of the target
                     values: [text,image,video,video-controls]
             n:
-              description: Number of targets. 
+              description: Number of targets.
               type: num
         keys_for_all_targets:
           description: These keys will be applied to every target. This only works with the endpoint /assistant/init/experiment.
@@ -116,8 +128,8 @@ initExp:
                 description: the value
 
 
-getQuery: 
-  description: JSON for API request to return a query to the user. Guaranteed to return a query_uid that is required to submit an answer to the query. 
+getQuery:
+  description: JSON for API request to return a query to the user. Guaranteed to return a query_uid that is required to submit an answer to the query.
   args:
     exp_uid:
       description: Unique experiment id.
@@ -135,7 +147,7 @@ getQuery:
           type: str
           optional: true
         participant_ip:
-          description: The IP address of the participant 
+          description: The IP address of the participant
           type: str
           optional: true
         widget:
@@ -158,13 +170,13 @@ processAnswer:
           description: The unique identifier for the query returned by an associated getQuery request.
           type: str
         response_time:
-          description: The time taken to respond to the query. Primarily used when the query is served to a user on a query page. 
+          description: The time taken to respond to the query. Primarily used when the query is served to a user on a query page.
           type: num
         timestamp_answer_received:
           description: The time the answer was recieved. Added by the NEXT Broker and will be overwritten by NEXT.
           type: str
         participant_ip:
-          description: The IP address of the participant 
+          description: The IP address of the participant
           type: str
           optional: true
 
@@ -177,7 +189,7 @@ getModel:
     args:
       description: Arguments for processAnswer that are passed onto MyApp/processAnswer. Genrally only consists of an alg_label.
       type: dict
-      values: 
+      values:
         alg_label:
           description: alg_label of algorithm to request a model from.
           type: str
@@ -188,13 +200,13 @@ getModel:
 
 
 getStats:
-  description: JSON for API request to return statistics about the app. These statistics can be used for system monitoring (time per query, databse time, etc.) or for tracking the model being generated by an app. For example, DuelingBanditsPureExploration has the stat_id (described below) current_ranking that returns a ranking of items. 
+  description: JSON for API request to return statistics about the app. These statistics can be used for system monitoring (time per query, databse time, etc.) or for tracking the model being generated by an app. For example, DuelingBanditsPureExploration has the stat_id (described below) current_ranking that returns a ranking of items.
   args:
     exp_uid:
       description: Unique experiment id.
       type: str
     args:
-      description: Arguments for getStats that are passed onto dashboard/stat_id. 
+      description: Arguments for getStats that are passed onto dashboard/stat_id.
       type: dict
       values:
         stat_id:

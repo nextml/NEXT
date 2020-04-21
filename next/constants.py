@@ -63,12 +63,12 @@ RABBIT_HOSTNAME = os.environ.get('RABBIT_PORT_5672_TCP_ADDR', 'localhost')
 RABBIT_PORT= int(os.environ.get('RABBIT_PORT_5672_TCP_PORT', 5672))
 
 
-BROKER_URL = 'amqp://{user}:{password}@{hostname}:{port}/{vhost}/'.format(
+BROKER_URL = 'amqp://{user}:{password}@{hostname}:{port}/{vhost}'.format(
     user=os.environ.get('RABBIT_ENV_RABBITMQ_USER', 'guest'),
     password=os.environ.get('RABBIT_ENV_RABBITMQ_PASS', 'guest'),
     hostname=RABBIT_HOSTNAME,
     port=RABBIT_PORT,
-    vhost=os.environ.get('RABBIT_ENV_VHOST', ''))
+    vhost=os.environ.get('RABBIT_ENV_VHOST', '/'))
 
 RABBITREDIS_HOSTNAME = os.environ.get('RABBITREDIS_PORT_6379_TCP_ADDR', 'localhost')
 RABBITREDIS_PORT = int(os.environ.get('RABBITREDIS_PORT_6379_TCP_PORT', 6379))

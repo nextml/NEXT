@@ -64,4 +64,4 @@ echo "Stopping any existing machines..."
 docker-compose stop
 
 echo "Starting a machine and all the dependeicies"
-docker-compose up
+docker-compose up --build

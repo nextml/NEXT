@@ -12,7 +12,7 @@
   }
 
   div.row > div.col-xs-6 {
-    height:100%;
+    height:25%;
     outline: 1px solid black;
   }
 
@@ -32,50 +32,191 @@
   }
 </style>
 <br/>
-<div class="row" style="height:50%">
-  <!-- Center Target -->
-  <div class="col-xs-12" id="center" >
-    {% if query.target_indices.primary_type == "image" or query.target_indices.primary_type == "img" %}
-    <img class="center-block" src={{ query.target_indices.primary_description }}></img>
-    {% elif query.target_indices.primary_type == "text" %}
-    <div>
-      <div>{{ query.target_indices.primary_description }}</div>
-    </div>
 
-    {% elif query.target_indices.primary_type == "video" %}
-    <video width="320" height="240"  poster="http://jimpunk.net/Loading/wp-content/uploads/loading1.gif" controls autoplay loop>
-      <source src={{ query.target_indices.primary_description }} type="video/mp4">
-	Your browser does not support the video tag.
-    </video>
-    {% endif %}
-  </div>
+
+<html lang="en">
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.7/angular.js" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+</head>
+
+<div>
+      <h3>Sample ID  - {{query.sra_sample_id}}</h3>
 </div>
-<br/>
-<div class="row">
-  <!-- Left Target -->
-  <div class="col-xs-6" id="left">
-    <div>No (-1)</div>
-  </div>
 
-  <!-- Right Target -->
-  <div class="col-xs-6" id="right">
-    <div>Yes (+1)</div>
-  </div>
+
+<div>
+      <h3>Metadata</h3>
+</div>
+
+      <table class="table table-striped">
+  <tr class="active">
+    <th class="success">Key</th>
+    <th class="success">Value</th>
+  </tr>
+
+      {% for (key,value) in query.key_value.items() %}
+         <tr>
+           <td>{{key}}</td>
+           <td>{{value}}</td>
+     </tr>
+
+      {% endfor %}
+
+      </table>
+
+<div>
+      <h3>Ontologies</h3>
+</div>
+<table class="table table-striped">
+
+<tr class="active">
+    {% for article in query.ontology_mapping.items() %}
+    <td><a href={{ article[1] }}>{{article[0]}}</a></td>
+    {% endfor %}
+</tr>
+</table>
+
+<div>
+      <h3>Study</h3>
+</div>
+
+
+<table class="table table-striped">
+  <tr class="active">
+    <th class="success">Key</th>
+    <th class="success">Value</th>
+  </tr>
+  <tr>
+    <td>Study id</td>
+    <td><a id="sra_study_id_dup" href= https://trace.ncbi.nlm.nih.gov/Traces/sra?study={{ query.study.sra_study_id}}> {{query.study.sra_study_id}}</a></td>
+  </tr>
+  <tr class="active">
+    <td>Study Title</td>
+    <td>{{query.study.study_title}}</td>
+  </tr>
+  <tr class="active">
+    <td>Study type</td>
+    <td>{{query.study.study_type}}</td>
+  </tr>
+  <tr class="active">
+    <td>Study Abstract</td>
+    <td>{{query.study.study_abstract}}</td>
+  </tr>
+  <tr class="active">
+    <td>Study Description</td>
+    <td>{{query.study.study_description}}</td>
+  </tr>
+
+  <tr>
+      <td>pmid</td>
+      {% if "None" in query.study.pmid %}
+      <td> {{query.study.pmid}} </td>
+      {% else %}
+      <td><a id="pmid" href= https://www.ncbi.nlm.nih.gov/pubmed/{{ query.study.pmid}}> {{query.study.pmid}}</a></td>
+      {% endif %}
+
+  </tr>
+
+  <tr>
+      <td>pmcid</td>
+      {% if "None" in query.study.pmcid %}
+      <td> {{query.study.pmcid}} </td>
+      {% else %}
+      <td><a id="pmcid" href= https://www.ncbi.nlm.nih.gov/pubmed/{{ query.study.pmcid}}> {{ query.study.pmcid}} </a></td>
+      {% endif %}
+  </tr>
+
+  <tr>
+    <td>doi</td>
+    {% if "None" in query.study.doi %}
+    <td> {{query.study.doi}} </td>
+    {% else %}
+    <td><a id="doi" href= https://doi.org/{{query.study.doi}}> {{ query.study.doi}} </a></td>
+    {% endif %}
+  </tr>
+
+</table>
+<div>
+      <h4>Confidence</h4>
+</div>
+
+<table class="table table-striped">
+  <tr class="active">
+
+    {% for class in query.lr_classes %}
+           <th>{{class}}</th>
+      {% endfor %}
+
+  </tr>
+
+   <tr class="active">
+
+    {% for conf in query.cur_confidence %}
+           <td>{{conf}}</td>
+      {% endfor %}
+  </tr>
+
+</table>
+
+<div class="button group1">
+
+<button class="btn btn-primary" type="submit" id="genre1">Cell line</button>
+<button class="btn btn-primary" type="submit" id="genre2">In vitro differentiated cells</button>
+<button class="btn btn-primary" type="submit" id="genre3">Induced pluripotent stem cells</button>
+<button class="btn btn-primary" type="submit" id="genre4">Primary cells</button>
+<button class="btn btn-primary" type="submit" id="genre5">Stem Cells</button>
+<button class="btn btn-primary" type="submit" id="genre6">Tissue</button>
+<button class="btn btn-primary" type="submit" id="genre7">Undecided</button>
+
 </div>
 
 
 <script>
-  document.onkeydown = checkKey;
 
-  var submit_right = function() {
-  	next_widget.processAnswer({"target_label": -1.});
-  	$('#right').css({'outline': '2px solid #FF0000'});
+
+
+  var submit_Genre1 = function() {
+  	next_widget.processAnswer({"target_label": 0});
+  	$('#genre1').css({'outline': '2px solid #FF0000'})
   }
 
-  var submit_left = function() {
-  	next_widget.processAnswer({"target_label": 1.});
-  	$('#left').css({'outline': '2px solid #FF0000'});
+  var submit_Genre2 = function() {
+  	next_widget.processAnswer({"target_label": 1});
+  	$('#genre2').css({'outline': '2px solid #FF0000'})
   }
+
+  var submit_Genre3 = function() {
+  	next_widget.processAnswer({"target_label": 2});
+    $('#genre3').css({'outline': '2px solid #FF0000'})
+  }
+
+  var submit_Genre4 = function() {
+  	next_widget.processAnswer({"target_label": 3});
+    $('#genre4').css({'outline': '2px solid #FF0000'})
+  }
+
+  var submit_Genre5 = function() {
+  	next_widget.processAnswer({"target_label": 4});
+    $('#genre5').css({'outline': '2px solid #FF0000'})
+  }
+
+  var submit_Genre6 = function() {
+  	next_widget.processAnswer({"target_label": 5});
+    $('#genre6').css({'outline': '2px solid #FF0000'})
+  }
+
+  var submit_Genre7 = function() {
+  	next_widget.processAnswer({"target_label": -1});
+    $('#genre7').css({'outline': '2px solid #FF0000'})
+  }
+
 
   function checkKey(e) {
       e = e || window.event;
@@ -88,16 +229,36 @@
 
   }
 
-  $('#right').click(function() {
-  	submit_right();
+  $('#genre1').click(function() {
+  	submit_Genre1();
   });
 
-  $('#left').click(function() {
-  	submit_left();
+  $('#genre2').click(function() {
+  	submit_Genre2();
+  });
+  $('#genre3').click(function() {
+  	submit_Genre3();
+  });
+  $('#genre4').click(function() {
+  	submit_Genre4();
+  });
+  $('#genre5').click(function() {
+  	submit_Genre5();
+  });
+  $('#genre6').click(function() {
+  	submit_Genre6();
+  });
+  $('#genre7').click(function() {
+  	submit_Genre7();
   });
 
 
 
 </script>
+
+
+
 </div>
+</body>
+</html>
 

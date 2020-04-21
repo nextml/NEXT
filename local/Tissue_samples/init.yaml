@@ -1,0 +1,18 @@
+app_id: PoolBasedBinaryClassification
+args:
+  alg_list:
+    - {alg_id: LogisticRegressionActive,alg_label: LogisticRegressionActive, test_alg_label: Test}
+
+  algorithm_management_settings:
+    mode: fixed_proportions
+    params:
+    - {alg_label: LogisticRegressionActive, proportion: 1.0}
+
+  d: 3
+  failure_probability: 0.01
+  debrief: Test debrief
+  instructions: Test instructions
+  num_tries: 100
+  participant_to_algorithm_management: one_to_many
+
+

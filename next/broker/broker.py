@@ -72,7 +72,9 @@ class JobBroker:
         """
         submit_timestamp = utils.datetimeNow('string')
         domain = self.__get_domain_for_job(app_id+"_"+exp_uid)
+
         if next.constants.CELERY_ON:
+
             result = tasks.apply_dashboard.apply_async(args=[app_id,
                                                              exp_uid,
                                                              args,
@@ -84,6 +86,7 @@ class JobBroker:
             else:
                 return result.get(interval=0.001)
         else:
+
             result = tasks.apply_dashboard(app_id,exp_uid, args, submit_timestamp)
             if ignore_result:
                 return True

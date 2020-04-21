@@ -29,10 +29,10 @@ class Memory(NextDictionary):
         self.max_entry_size = 500000000  # 500MB
 
     def check_prefix(self):
-        if self.key_prefix == '':
+        '''if self.key_prefix == '':
             utils.debug_print("butler.memory is deprecated."
-                              " Change to butler.experiment.memory or butler.algorithm.memory, etc."
-                              " wherever appropriate")
+                             " Change to butler.experiment.memory or butler.algorithm.memory, etc."
+                              " wherever appropriate")'''
 
     def ensure_connection(self):
         try:
@@ -54,7 +54,7 @@ class Memory(NextDictionary):
             self.ensure_connection()
             l = len(value)
             n = self.num_entries(l)
-            utils.debug_print("Setting {} in {} entries".format(l, n))
+            #utils.debug_print("Setting {} in {} entries".format(l, n))
             for i in range(n):
                 k = key + ":" + str(i)
                 self.cache.set(k, value[i*self.max_entry_size:(i+1)*self.max_entry_size])
@@ -72,7 +72,7 @@ class Memory(NextDictionary):
             l = f.tell()
             f.seek(0, 0)
             n = self.num_entries(l)
-            utils.debug_print("Setting {} bytes in {} entries".format(l, n))
+            #utils.debug_print("Setting {} bytes in {} entries".format(l, n))
             for i in range(n):
                 k = key + ":" + str(i)
                 v = f.read(self.max_entry_size)
@@ -92,7 +92,7 @@ class Memory(NextDictionary):
             l = int(l)
             n = int(n)
             ans = ""
-            utils.debug_print("Getting {} bytes in {} entries".format(l, n))
+            #utils.debug_print("Getting {} bytes in {} entries".format(l, n))
             for i in range(n):
                 k = key + ":" + str(i)
                 ans += self.cache.get(k)
@@ -111,7 +111,7 @@ class Memory(NextDictionary):
             n, l = d.split(":")
             l = int(l)
             n = int(n)
-            utils.debug_print("Getting {} bytes in {} entries".format(l, n))
+            #utils.debug_print("Getting {} bytes in {} entries".format(l, n))
             for i in range(n):
                 k = key + ":" + str(i)
                 f.write(self.cache.get(k))

@@ -4,6 +4,7 @@ import traceback
 import sys
 import os
 from .condition import condition_parser
+import next.utils as utils
 
 DICT = {'dict','dictionary','map'}
 LIST = {'list'}
@@ -130,7 +131,9 @@ def verify_helper(name, input_element, reference_dict):
         if not isinstance(input_element, (dict)):
             ans += [{"name":name, "message":"invalid dict"}]
         else:
+
             l1,l2 = compare_dict_keys(input_element, reference_dict['values'])
+
             if len(l1) > 0:
                 ans += [{"name":name, "message":"extra keys in input: " + ",".join(l1)}]
             else:
@@ -220,6 +223,7 @@ def compare_dict_keys(d1, d2):
     """
     Returns [things in d1 not in d2, things in d2 not in d1]
     """
+
     return [k for k in d1 if not k in d2], [k for k in d2 if not k in d1]
 
 if __name__ == '__main__':

@@ -5,7 +5,6 @@ import base64
 import yaml
 from flask import Blueprint, render_template
 from flask_restful import Api, Resource, reqparse, request
-
 import next.utils as utils
 from next.lib.pijemont import doc as doc_gen
 from next.lib.pijemont import verifier
@@ -83,11 +82,16 @@ class ExperimentAssistant(Resource):
                     bucket_id = args['bucket_id']
                     key_id = args['key_id']
                     secret_key = args['secret_key']
-
+                    init_exp_args['args']['bucket_id'] = bucket_id
+                    init_exp_args['args']['key_id'] = key_id
+                    init_exp_args['args']['secret_key'] = secret_key
                     targets = target_unpacker.unpack(target_zipfile, key_id,
                                                      secret_key, bucket_id)
                 else:
                     filenames = target_unpacker.get_filenames_from_zip(target_zipfile)
+                    utils.debug_print("This will be bold and yellow!")
+                    utils.debug_print(filenames)
+                    utils.debug_print("This will be bold and yellow!")
                     if len(filenames) != 1:
                         raise ValueError('Specify exactly one file in the ZIP file')
                     filename = filenames[0]
@@ -106,6 +110,7 @@ class ExperimentAssistant(Resource):
 
             # Init the experiment:
             app_id = init_exp_args['app_id']
+
             exp_uid = '%030x' % random.randrange(16**30)
 
             r = broker.applyAsync(app_id, exp_uid, 'initExp',

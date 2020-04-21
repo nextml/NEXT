@@ -1,4 +1,4 @@
-# PoolBasedBinaryClassification is a simple implementation of an active classification task. 
+# PoolBasedBinaryClassification is a simple implementation of an active classification task.
 extends: [base.yaml]
 initExp:
   args:
@@ -12,23 +12,14 @@ initExp:
             values:
               alg_id:
                 description: Supported algorithm types for PoolBasedTripletMDS.
-                values: [RandomSamplingLinearLeastSquares, RoundRobin]
+                values: [RandomSamplingLinearLeastSquares, RoundRobin,LogisticRegressionActive]
               test_alg_label:
                 description: alg_label of the algorithm whose collected labels to use as a test set when validating this algorithm. A resulting plot of test-error on points is available on the dashboard.
                 type: str
-        targets:
-          values:
-            targetset:      
-              values: 
-                values:
-                  meta:
-                    type: dict
-                    values:
-                      features: 
-                        description: A feature vector for this item. 
-                        type: list
-                        values: 
-                          type: num                
+        d:
+          description: d
+          type: num
+
 processAnswer:
   args:
     args:

@@ -1,4 +1,5 @@
 boto
+boto3
 requests
 ply
 joblib
