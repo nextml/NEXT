@@ -367,7 +367,7 @@ class MyAlg:
         # utils.debug_print(X_test)
         # utils.debug_print(X_unlabelled)
 
-        lr_model = LogisticRegression(solver='sag')
+        lr_model = LogisticRegression(solver='saga',penalty='l1')
         lr_model.fit(X_train, y_train)
         y_pred = lr_model.predict(X_test)
         acc_init = accuracy_score(y_test,y_pred)
@@ -545,7 +545,7 @@ class MyAlg:
                     utils.debug_print("index did not get removed oops")
 
         # Performing training (Retraining model along with newly labelled samples)
-        lr_model = LogisticRegression(solver='sag')
+        lr_model = LogisticRegression(solver='saga',penalty='l1')
         utils.debug_print("X_train_len")
         utils.debug_print(X_train.shape[0])
         lr_model.fit(X_train, y_train)
