@@ -20,7 +20,7 @@ sysctl -p
 echo never > /sys/kernel/mm/transparent_hugepage/enabled
 echo never > /sys/kernel/mm/transparent_hugepage/defrag
 
-docker-compose stop
+docker-compose down
 
-docker-compose --verbose up
+docker-compose up --build
 

@@ -4,8 +4,12 @@
 
 
 import re
+
 from optparse import OptionParser
-from Queue import Queue
+try:
+    from queue import *
+except ImportError:
+    from Queue import *
 import io
 
 

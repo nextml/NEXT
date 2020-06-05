@@ -24,14 +24,16 @@ SITES_ENABLED = False
 DEBUG_ON = os.environ.get('DEBUG_ON', '')
 
 DASHBOARD_STALENESS_IN_SECONDS = 60*30
+#DEBIG CHANGE
+DEFAULT_HOST = 'localhost'
 
 # Backend Host Url
-NEXT_BACKEND_GLOBAL_HOST = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', 'localhost')
+NEXT_BACKEND_GLOBAL_HOST = os.environ.get('NEXT_BACKEND_GLOBAL_HOST', DEFAULT_HOST)
 NEXT_BACKEND_GLOBAL_PORT = os.environ.get('NEXT_BACKEND_GLOBAL_PORT', '8000')
 
 AWS_ACCESS_ID = os.environ.get('AWS_ACCESS_ID', '')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY', '')
-
+PATH_FROM_myApp = "../../local/data_full_dataset"
 SITE_KEY = os.environ.get('SITE_KEY', None)
 if SITE_KEY==None or SITE_KEY=='None':
     SITE_KEY=None
@@ -44,12 +46,12 @@ if GIT_HASH=='':
     except:
         GIT_HASH = ''
 
-MINIONREDIS_HOST = os.environ.get('MINIONREDIS_PORT_6379_TCP_ADDR', 'localhost')
+MINIONREDIS_HOST = os.environ.get('MINIONREDIS_PORT_6379_TCP_ADDR', DEFAULT_HOST)
 MINIONREDIS_PORT = int(os.environ.get('MINIONREDIS_PORT_6379_TCP_PORT', 6379))
 MINIONREDIS_PASS = os.environ.get('MINIONREDIS_ENV_REDIS_PASS', '')
 
 # PermStore constants
-MONGODB_HOST = os.environ.get('MONGODB_PORT_27017_TCP_ADDR','localhost')
+MONGODB_HOST = os.environ.get('MONGODB_PORT_27017_TCP_ADDR',DEFAULT_HOST)
 MONGODB_PORT = int(os.environ.get('MONGODB_PORT_27017_TCP_PORT', 27017) )
 
 
@@ -59,7 +61,7 @@ logs_database_id = 'logs'
 maxStringLengthInInspectDatabase = 200
 
 
-RABBIT_HOSTNAME = os.environ.get('RABBIT_PORT_5672_TCP_ADDR', 'localhost')
+RABBIT_HOSTNAME = os.environ.get('RABBIT_PORT_5672_TCP_ADDR', DEFAULT_HOST)
 RABBIT_PORT= int(os.environ.get('RABBIT_PORT_5672_TCP_PORT', 5672))
 
 
@@ -70,9 +72,12 @@ BROKER_URL = 'amqp://{user}:{password}@{hostname}:{port}/{vhost}'.format(
     port=RABBIT_PORT,
     vhost=os.environ.get('RABBIT_ENV_VHOST', '/'))
 
-RABBITREDIS_HOSTNAME = os.environ.get('RABBITREDIS_PORT_6379_TCP_ADDR', 'localhost')
+RABBITREDIS_HOSTNAME = os.environ.get('RABBITREDIS_PORT_6379_TCP_ADDR', DEFAULT_HOST)
 RABBITREDIS_PORT = int(os.environ.get('RABBITREDIS_PORT_6379_TCP_PORT', 6379))
 
+UNLABELLED_TAG = 'unlabelled'
+TRAIN_TAG = 'train'
+TEST_TAG = 'test'
 
 # https://github.com/celery/celery/issues/1909 describes the tradeoffs of redis and rabbitmq for results backend
 CELERY_RESULT_BACKEND = 'redis://{hostname}:{port}/{db}/'.format(

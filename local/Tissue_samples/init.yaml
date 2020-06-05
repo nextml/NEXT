@@ -8,7 +8,7 @@ args:
     params:
     - {alg_label: LogisticRegressionActive, proportion: 1.0}
 
-  d: 3
+  d: 5
   failure_probability: 0.01
   debrief: Test debrief
   instructions: Test instructions

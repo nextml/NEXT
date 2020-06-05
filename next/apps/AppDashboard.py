@@ -9,10 +9,24 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import mpld3
-
+import cPickle as pickle
+import os
+import pandas as pd
+import io
+import next.assistant.s3 as s3
+import next.constants as constants
+import apps.PoolBasedBinaryClassification.algs.LogisticRegressionActive as lr
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
 
 
 MAX_SAMPLES_PER_PLOT = 100
+def redis_mem_set(butler,key,value):
+    # Butler.memory is essentially set in redis
+    butler.memory.set(key,pickle.dumps(value))
+
+
 
 class AppDashboard(object):
 
@@ -24,11 +38,26 @@ class AppDashboard(object):
     """
     returns basic statistics like number of queries, participants, etc.
     """
+    utils.debug_print("butler algo corona print2")
+    utils.debug_print(butler.algorithms.get(pattern={'exp_uid':app.exp_uid}))
+
     experiment_dict = butler.experiment.get()
+    # utils.debug_print("experiment_dict dasboard corona")
+    # utils.debug_print(experiment_dict)
+    alg_list = butler.experiment.get(key='args')['alg_list']
+    # utils.debug_print("ALGO list app dasboard corona")
+    # for algorithm in alg_list:
+    #    utils.debug_print(algorithm)
+
+    algo_dict = butler.algorithms.get(pattern={'exp_uid':app.exp_uid})
+    utils.debug_print("algo_dict dasboard corona")
+    utils.debug_print(algo_dict)
 
     #git_hash = rm.get_git_hash_for_exp_uid(exp_uid)
     git_hash = experiment_dict.get('git_hash','None')
-
+    # labelled_list = butler.algorithms.get(key="labelled_list")
+    # utils.debug_print("labelled_list app dasboard corona")
+    # utils.debug_print(labelled_list)
     # start_date = utils.str2datetime(butler.admin.get(uid=app.exp_uid)['start_date'])
     start_date = experiment_dict.get('start_date','Unknown')+' UTC'
 
@@ -56,7 +85,7 @@ class AppDashboard(object):
     queries = butler.queries.get(pattern={'exp_uid':app.exp_uid})
     #self.db.get_docs_with_filter(app_id+':queries',{'exp_uid':exp_uid})
     start_date = utils.str2datetime(butler.admin.get(uid=app.exp_uid)['start_date'])
-    numerical_timestamps = [(utils.str2datetime(item['timestamp_query_generated'])-start_date).total_seconds() 
+    numerical_timestamps = [(utils.str2datetime(item['timestamp_query_generated'])-start_date).total_seconds()
                                 for item in queries]
     fig, ax = plt.subplots(subplot_kw=dict(axisbg='#FFFFFF'),figsize=(12,1.5))
     ax.hist(numerical_timestamps,min(int(1+4*numpy.sqrt(len(numerical_timestamps))),300),alpha=0.5,color='black')
@@ -69,7 +98,140 @@ class AppDashboard(object):
     plt.close()
     return plot_dict
 
+  def reset_redis(self, app, butler):
 
+      bucket_id = os.environ.get("AWS_BUCKET_NAME")
+      file_name_list = ['samples.csv', 'Labels.csv', 'studies.csv']
+      csv_content_dict = s3.get_csv_content_dict(bucket_id, file_name_list)
+
+      for filename, content in csv_content_dict.items():
+          if filename is 'samples.csv':
+              samples_df = pd.read_csv(io.BytesIO(content))
+              # utils.debug_print("database_lib corona")
+              # utils.debug_print(samples_df.head())
+          elif filename is 'Labels.csv':
+              labels_df = pd.read_csv(io.BytesIO(content))
+              # utils.debug_print("database_lib corona")
+              # utils.debug_print(labels_df.head())
+          elif filename is 'studies.csv':
+              study_df = pd.read_csv(io.BytesIO(content))
+              # utils.debug_print("database_lib corona")
+              # utils.debug_print(study_df.head())
+
+      df_sort = labels_df.groupby(['dataset_type'])
+
+      for dataset_type, df_cur in df_sort:
+          if (dataset_type == constants.UNLABELLED_TAG):
+              unlabelled_indices = df_cur['index'].tolist()
+          elif (dataset_type == constants.TRAIN_TAG):
+              train_indices = df_cur['index'].values
+          elif (dataset_type == constants.TEST_TAG):
+              test_indices = df_cur['index'].values
+
+      batch_no = labels_df['batch_no'].max()
+      if pd.isnull(batch_no):
+          batch_no = 0
+
+      butler.memory.set("batch_no", pickle.dumps(batch_no + 1))
+
+      train_df = samples_df.loc[samples_df['index'].isin(train_indices)]
+      train_df['label'] = labels_df.loc[labels_df['index'].isin(train_indices), 'label']
+
+      test_df = samples_df.loc[samples_df['index'].isin(test_indices)]
+      test_df['label'] = labels_df.loc[labels_df['index'].isin(test_indices), 'label']
+
+      unlabelled_df = samples_df.loc[samples_df['index'].isin(unlabelled_indices)]
+      X_unlabelled_str = lr.create_vector(unlabelled_df)
+      N = 2
+      bag_of_words = ["differentiated", "cell", "hela", "derived", "CL:0000057", "CL:0000115", "EFO:0000322","EFO:0000324", "EFO:0000313", "CL:0000034"]
+      # create the transform
+      vectorizer = TfidfVectorizer(ngram_range=(1, N + 1), decode_error='ignore')
+      # tokenize and build vocab
+      try:
+          vectorizer.fit(bag_of_words)
+      except Exception as e:
+          utils.debug_print(e)
+
+      X_train_str, y_train = lr.create_dict(train_df)
+      X_test_str, y_test = lr.create_dict(test_df)
+
+      # Encode y_train and y_test
+      y_train = pd.Series(y_train)
+      sample_dict = lr.get_encode_dict()
+      y_train = y_train.replace(sample_dict).values
+
+      y_test = pd.Series(y_test)
+      y_test = y_test.replace(sample_dict).values
+
+      # encode document
+      try:
+          X_train = vectorizer.transform(X_train_str)
+      except Exception as e:
+          utils.debug_print(e)
+
+      try:
+          X_test = vectorizer.transform(X_test_str)
+      except Exception as e:
+          utils.debug_print(e)
+
+      try:
+          X_unlabelled = vectorizer.transform(X_unlabelled_str)
+      except Exception as e:
+          utils.debug_print(e)
+
+      study_id_list = unlabelled_df['sra_study_id'].tolist()
+
+      for i, row in unlabelled_df.iterrows():
+          utils.debug_print(str(row['index']))
+          redis_mem_set(butler,str(row['index']), row)
+
+      utils.debug_print("done setting unlabelled")
+
+      lr_model = LogisticRegression(penalty='l1')
+      lr_model.fit(X_train, y_train)
+      y_pred = lr_model.predict(X_test)
+      acc_init = accuracy_score(y_test, y_pred)
+      utils.debug_print("acc in app dashboard")
+      utils.debug_print(acc_init)
+      largest_val = lr.get_largest_values(X_unlabelled, lr_model, unlabelled_indices, study_id_list, 5)
+      sample_list = largest_val['index'].tolist()
+      sample_probs = largest_val['prob'].tolist()
+      lr_classes = lr.get_decode_list(lr_model.classes_)
+      redis_mem_set(butler, 'lr_classes', lr_classes)
+
+      utils.debug_print("sample_list init")
+      utils.debug_print(sample_list)
+      utils.debug_print("sample prob init")
+      utils.debug_print(sample_probs)
+
+      for i, row in study_df.iterrows():
+          redis_mem_set(butler,row['sra_study_id'], row)
+
+      #Making sure that the eariler batch hasnt been labelled before
+      algo_list = butler.algorithms.get(pattern={'exp_uid': app.exp_uid})
+      S_trial = {}
+      # for cur_algo in algo_list:
+      #     if cur_algo.get("alg_id") is "LogisticRegressionActive":
+      #         S_trial = json.loads(cur_algo.get("S_trial"))
+      #Remove hardcode
+      cur_algo = algo_list[0]
+      cur_algo["sample_probs"] = sample_probs
+      cur_algo["sample_list"] = sample_list
+
+      lr.redis_mem_set(butler, 'sample_probs', sample_probs)
+      lr.redis_mem_set(butler, 'sample_list', sample_list)
+      lr.redis_mem_set(butler, "study_id_list", study_id_list)
+      # Set  data in mem
+      # redis_mem_set(butler, "does_this_work", 5)
+      lr.redis_mem_set(butler, "train_data", train_df)
+      lr.redis_mem_set(butler, "bucket_id", bucket_id)
+      lr.redis_mem_set(butler, "test_data", test_df)
+      lr.redis_mem_set(butler, "unlabelled_data", unlabelled_df[['key_value', 'ontology_mapping']])
+      lr.redis_mem_set(butler, "label_data", labels_df)
+      lr.redis_mem_set(butler, "unlabelled_list", unlabelled_indices)
+      lr.redis_mem_set(butler, "X_unlabelled", X_unlabelled)
+
+      return {}
 
   def compute_duration_multiline_plot(self, app, butler, task):
     """
@@ -95,7 +257,7 @@ class AppDashboard(object):
       list_of_log_dict = butler.ell.get_logs_with_filter(app.app_id+':ALG-DURATION',
                                                                             {'exp_uid':app.exp_uid,'alg_label':alg_label,'task':task})
       list_of_log_dict = sorted(list_of_log_dict, key=lambda item: utils.str2datetime(item['timestamp']) )
-      
+
       x = []
       y = []
       t = []
@@ -105,7 +267,7 @@ class AppDashboard(object):
         x.append(k)
         y.append( item.get('app_duration',0.) + item.get('duration_enqueued',0.) )
         t.append(str(item['timestamp'])[:-3])
-        
+
       x = numpy.array(x)
       y = numpy.array(y)
       t = numpy.array(t)
@@ -132,7 +294,7 @@ class AppDashboard(object):
         pass
 
       list_of_alg_dicts.append(alg_dict)
-      
+
     return_dict = {}
     return_dict['data'] = list_of_alg_dicts
     return_dict['plot_type'] = 'multi_line_plot'

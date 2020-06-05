@@ -6,19 +6,7 @@ ONT_ID_TO_OG = {
     for x in ONT_NAME_TO_ONT_ID.values()
 }
 
-def main():
 
-    #results = get_ancestors_within_radius("CL:0000034", 6)
-
-    print("ancestors start")
-    '''for res in results:
-        print(get_term_name(res))
-    print("ancestors over")'''
-    print(get_term_name("CL:0000134"))
-    print(get_term_name_and_synonyms("CL:0000134"))
- 
-if __name__=="__main__":
-    main()
 #########################################################
 #   examples
 #########################################################
@@ -26,13 +14,13 @@ if __name__=="__main__":
 def example_is_descendant():
     # True
     print(is_descendant(
-        "CL:0000134",   # mesenchymal stem cell 
+        "CL:0000134",   # mesenchymal stem cell
         "CL:0000034"    # stem cell
     ))
 
     # False
     print(is_descendant(
-        "CL:0000134",   # mesenchymal stem cell 
+        "CL:0000134",   # mesenchymal stem cell
         "CL:0000540"    # neuron
     ))
 
@@ -54,20 +42,20 @@ def get_term_name_and_synonyms(term_id):
     t_strs.add(term.name)
     for syn in term.synonyms:
         t_strs.add(syn.syn_str)
-    return list(t_strs) 
+    return list(t_strs)
 
 def is_descendant(descendent, ancestor):
     og = ONT_ID_TO_OG["17"]
     sup_terms = og.recursive_relationship(
-        descendent, 
+        descendent,
         recurs_relationships=['is_a', 'part_of']
     )
     return ancestor in set(sup_terms)
 
 def get_descendents_within_radius(term_id, radius):
     return _get_terms_within_radius(
-        term_id, 
-        radius, 
+        term_id,
+        radius,
         relationships=['inv_is_a']
     )
 
@@ -122,8 +110,8 @@ def get_ancestors_names(term_id):
 #########################################################
 
 def _get_terms_within_radius(
-    term_id, 
-    radius, 
+    term_id,
+    radius,
     relationships
     ):
     og = ONT_ID_TO_OG["17"]
@@ -139,8 +127,23 @@ def _get_terms_within_radius(
                     new_next_batch.update(
                         curr_term.relationships[rel]
                     )
-        result_terms.update(new_next_batch) 
+        result_terms.update(new_next_batch)
         next_batch = new_next_batch
-                         
+
     return result_terms
 
+def main():
+
+    results = get_ancestors("CL:0000034")
+
+    print("ancestors start")
+    for res in results:
+        print(res)
+        print(get_ancestors(res))
+        print(15*"#")
+    print("ancestors over")
+    print(get_term_name("CL:0000134"))
+    print(get_term_name_and_synonyms("CL:0000134"))
+
+if __name__=="__main__":
+    main()

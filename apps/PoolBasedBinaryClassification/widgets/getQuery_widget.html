@@ -50,6 +50,39 @@
       <h3>Sample ID  - {{query.sra_sample_id}}</h3>
 </div>
 
+<div>
+      <h3>Sample details</h3>
+</div>
+
+
+<table class="table table-striped">
+
+  <tr class="active">
+    <td>Title</td>
+    <td>{{query.target_indices.title}}</td>
+  </tr>
+  <tr class="active">
+    <td>Experiment ID</td>
+    <td><a id="sra_exp_id_dup" href= https://www.ncbi.nlm.nih.gov/sra/{{query.target_indices.sra_experiment_id}}> {{query.target_indices.sra_experiment_id}}</a></td>
+  </tr>
+  <tr class="active">
+    <td>Description</td>
+    <td>{{query.target_indices.sra_description}}</td>
+  </tr>
+  <tr class="active">
+    <td>Library protocol</td>
+    <td>{{query.target_indices.sra_library_protocol}}</td>
+  </tr>
+  <tr class="active">
+    <td>Library Selection</td>
+    <td>{{query.target_indices.sra_library_selection}}</td>
+  </tr>
+  <tr class="active">
+    <td>Design</td>
+    <td>{{query.target_indices.sra_design}}</td>
+  </tr>
+
+</table>
 
 <div>
       <h3>Metadata</h3>
@@ -83,6 +116,53 @@
 </tr>
 </table>
 
+<div>
+      <h3>GEO details</h3>
+</div>
+
+
+<table class="table table-striped">
+
+  <tr class="active">
+    <td>GEO Sample ID</td>
+    {% if "None" in query.target_indices.geo_sample_id %}
+    <td> {{query.target_indices.geo_sample_id}} </td>
+      {% else %}
+    <td><a id="geo_sample_id" href= https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc={{query.target_indices.geo_sample_id}}> {{query.target_indices.geo_sample_id}}</a></td>
+    {% endif %}
+  </tr>
+
+  <tr class="active">
+    <td>GEO Series ID</td>
+    {% if "None" in query.target_indices.geo_series_id %}
+    <td> {{query.target_indices.geo_series_id}} </td>
+    {% else %}
+    <td><a id="geo_series_id" href= https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc={{query.target_indices.geo_series_id}}> {{query.target_indices.geo_series_id}}</a></td>
+    {% endif %}
+  </tr>
+
+  <tr class="active">
+    <td>Description</td>
+    <td>{{query.target_indices.geo_description}}</td>
+  </tr>
+  <tr class="active">
+    <td>Growth protocol</td>
+    <td>{{query.target_indices.geo_growth_protocol}}</td>
+  </tr>
+  <tr class="active">
+    <td>Treatment Protocol</td>
+    <td>{{query.target_indices.geo_treatment_protocol}}</td>
+  </tr>
+  <tr class="active">
+    <td>Extract Protocol</td>
+    <td>{{query.target_indices.geo_extract_protocol}}</td>
+  </tr>
+  <tr class="active">
+    <td>GEO Molecule</td>
+    <td>{{query.target_indices.geo_molecule}}</td>
+  </tr>
+
+</table>
 <div>
       <h3>Study</h3>
 </div>

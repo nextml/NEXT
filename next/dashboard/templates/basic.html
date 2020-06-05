@@ -85,12 +85,39 @@ popup_alert = function(text){
             <a href="/api/experiment/{{ exp_uid
                 }}/participants?csv=1&zip=1" target="_blank">CSV</a>
             <br>
-            (the CSV data are generated from the JSON data)
+              (the CSV data are generated from the JSON data)<br>
+              <input type="button" id="restore_redis" class="btn btn-info" style="margin-bottom:20px" value="Restore redis" />
             </p>
         </div>
     </div>
 </div>
 <script>
+    $(function() {
+        // selector has to be . for a class name and # for an ID
+        $('#restore_redis').click(function(e) {
+
+            $.ajax({
+              url: "{{ dashboard_url }}/get_stats",
+              type: "POST",
+              contentType: "application/json",
+              data: JSON.stringify({
+                  'exp_uid': "{{ exp_uid }}",
+                  'args':{
+                      'stat_id' : 'reset_redis',
+                  'params':{},
+                  'force_recompute': {{ force_recompute }}
+                  }
+                  }),
+              dataType: "json"
+              }).done( function(data,textStatus, jqXHR) {
+
+              }).fail( function(error){
+              console.log("Failed to get stats", error);
+          });
+        });
+    });
+
+
     $.ajax({
         url: "{{ dashboard_url }}/get_stats",
         type: "POST",
@@ -113,6 +140,8 @@ popup_alert = function(text){
         }).fail( function(error){
         console.log("Failed to get stats", error);
         });
+
+
 </script>
 {% endif %}
 

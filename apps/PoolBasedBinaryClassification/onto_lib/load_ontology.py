@@ -1,6 +1,5 @@
 import pkg_resources as pr
 import json
-
 import config
 from ontology_graph import *
 
@@ -29,9 +28,9 @@ def load(ontology_index):
     return og, include_ontologies, restrict_to_roots
 
 def main():
-    og, i, r = load("4")
+    og, i, r = load("17")
     print("example")
-    print(og.id_to_term["CVCL:C792"])
+    print(og.id_to_term["CL:0000034"])
     print(i)
     print(r)
 

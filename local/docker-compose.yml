@@ -48,11 +48,6 @@ minionworker:
    - CELERY_DASHBOARD_WORKER_PREFETCH=1
    - GIT_HASH=a9b3edf223841f7a8d00bc7a138d838690673d76
    - PYTHONPATH=:/next_backend
-   - AWS_SECRET_ACCESS_KEY=0tILCg/PU508Qj9xcgXEkMHVaYUzX3BLkfWEJYOC
-   - AWS_ACCESS_KEY_ID=AKIAI7QXIZD3UTLRBA4Q
-   - AWS_DEFAULT_REGION=us-west-2
-   - AWS_BUCKET_NAME=887f0e0f0bc3cdf0489ea9fd90e263
-
 ####################################
 
 
@@ -79,7 +74,6 @@ nextbackenddocker:
    - NEXT_BACKEND_GLOBAL_PORT
    - TERM=xterm
    - CELERY_ON=True
-   - BITNAMI_DEBUG=true
 ####################################
 
 

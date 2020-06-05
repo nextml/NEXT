@@ -15,6 +15,7 @@ import pandas as pd
 import mpld3
 import base64
 from io import BytesIO
+import numpy as np
 
 class MyAppDashboard(AppDashboard):
 
@@ -36,16 +37,27 @@ class MyAppDashboard(AppDashboard):
         return dict_html
 
     def get_confusion_matrix_img(self,app,butler):
-        lr_classes = pickle.loads(butler.memory.get('lr_classes'))
-        confusion_matrix = pickle.loads(butler.memory.get("confusion_matrix"))
+        algo_list = butler.algorithms.get(pattern={'exp_uid': app.exp_uid})
+        plot_dict = {}
+        # TODO: Remove hardcode
+        cur_algo = algo_list[0]
+        #
+
+        lr_classes = cur_algo.get("lr_classes")
+        confusion_matrix = cur_algo.get("confusion_matrix")
+        utils.debug_print("lr_classes")
+        utils.debug_print(lr_classes)
         df_cm = pd.DataFrame(confusion_matrix,columns=lr_classes,index=lr_classes)
         SMALL_SIZE = 6
         matplotlib.rc('font', size=SMALL_SIZE)
         matplotlib.rc('axes', titlesize=SMALL_SIZE)
+        plt.xlabel('True')
+        plt.ylabel('Predicted')
         plt.savefig('eg1', format='png')
         plt.show()
-        #plt.figure(figsize=(20, 15))
-        fig = sn.heatmap(df_cm, annot=True).get_figure()
+        #plt.figure(figsize=(20, 15))cf_matrix/np.sum(cf_matrix)
+
+        fig = sn.heatmap(df_cm.div(df_cm.sum(axis=1), axis=0), xticklabels=lr_classes,yticklabels=lr_classes,annot=True,fmt='.2%').get_figure()
         plt.gcf().subplots_adjust(left=0.2, bottom=0.25)
         tmpfile = BytesIO()
         fig.savefig(tmpfile, format='png')
@@ -53,15 +65,37 @@ class MyAppDashboard(AppDashboard):
         return '<img src=\'data:image/png;base64,{}\'>'.format(encoded)
 
     def get_target_and_labels(self,app,butler):
-
-        S_trial = json.loads(butler.memory.get("S_trial"))
-        S_trial_dict = {}
-        S_trial_dict['data'] = S_trial
+        algo_list = butler.algorithms.get(pattern={'exp_uid': app.exp_uid})
+        S_trial = {}
+        # for cur_algo in algo_list:
+        #     if cur_algo.get("alg_id") is "LogisticRegressionActive":
+        #         S_trial = json.loads(cur_algo.get("S_trial"))
+        cur_algo = algo_list[0]
+        S_trial = json.loads(cur_algo.get("S_trial"))
         return S_trial
 
     def error_plot(self, app, butler):
-        x = pickle.loads(butler.memory.get('train_list'))
-        y = pickle.loads(butler.memory.get('acc_list'))
+
+        algo_list = butler.algorithms.get(pattern={'exp_uid': app.exp_uid})
+        plot_dict = {}
+        #TODO: Remove hardcode
+        cur_algo = algo_list[0]
+#         for cur_algo in algo_list:
+#             if cur_algo.get("alg_id") is "LogisticRegressionActive":
+#                 x = cur_algo.get("train_list")
+#                 y = cur_algo.get("acc_list")
+#                 utils.debug_print('error_plot')
+#                 utils.debug_print(x)
+#                 utils.debug_print(y)
+#                 fig, ax = plt.subplots()
+#                 ax.plot(x,y,marker='o')
+#                 ax.set_xlabel("Number of train samples")
+#                 ax.set_ylabel("Accuracy")
+#                 fig.savefig("acc_plot",format='png')
+#                 plot_dict = mpld3.fig_to_dict(fig)
+#                 plt.close()
+        x = cur_algo.get("train_list")
+        y = cur_algo.get("acc_list")
         utils.debug_print('error_plot')
         utils.debug_print(x)
         utils.debug_print(y)
@@ -72,7 +106,6 @@ class MyAppDashboard(AppDashboard):
         fig.savefig("acc_plot",format='png')
         plot_dict = mpld3.fig_to_dict(fig)
         plt.close()
-
         return plot_dict
 
 

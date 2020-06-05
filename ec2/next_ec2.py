@@ -1151,7 +1151,9 @@ def real_main():
 
     elif action == "rsync":
         if cluster_name == "host":
+            #DEBIGCHANGE
             master = os.getenv('NEXT_BACKEND_GLOBAL_HOST','localhost')
+            #master = os.getenv('NEXT_BACKEND_GLOBAL_HOST', '172.17.0.4')
             rsync_dir(LOCAL_NEXT_PATH, EC2_NEXT_PATH, opts, master)
         else:
             (master_nodes, slave_nodes) = get_existing_cluster(conn, opts, cluster_name)

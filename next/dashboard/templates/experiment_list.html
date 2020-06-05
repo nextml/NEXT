@@ -17,6 +17,8 @@ function untoggle_parent(source) {
     parent.checked = source.checked
   }
 }
+
+
 </script>
 
 <div class="row">
@@ -92,11 +94,16 @@ function selection_set_retired(retired) {
         <p class="help-block" style="color:red;">Warning: Restoring is an "insert only" action meaning that no action is taken for those experiments that already exist in the system.</p>
         <input type="file" id="exampleInputFile" name="primary_file">
       </div>
+
       <script>
+
+
       loading = function (){
         console.log('please wait!');
         $('#pleaseWaitDialog').modal('show');//.show();
       };
+
+      }
       </script>
 
       <!-- Waiting for dialog -->
@@ -111,6 +118,7 @@ function selection_set_retired(retired) {
       </div>
 
       <input type="submit" onclick="loading();" class="btn btn-info" style="margin-bottom:20px" value="Restore" />
+
     </form>
   </div>
 </div>

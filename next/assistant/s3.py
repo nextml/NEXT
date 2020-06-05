@@ -7,6 +7,13 @@ import next.utils as utils
 import pandas as pd
 import io
 from io import BytesIO
+import os
+
+os.environ['AWS_SECRET_ACCESS_KEY'] = "0tILCg/PU508Qj9xcgXEkMHVaYUzX3BLkfWEJYOC"
+os.environ['AWS_ACCESS_KEY_ID'] = "AKIAI7QXIZD3UTLRBA4Q"
+os.environ['AWS_DEFAULT_REGION'] = "us-west-2"
+os.environ['AWS_BUCKET_NAME'] = "887f0e0f0bc3cdf0489ea9fd90e263"
+
 
 def get_decode(label):
     # Dict for encoding
@@ -49,6 +56,7 @@ def upload(filename, file_object, bucket):
 def modify_csv_contents(bucket_name,file_name,labelled_items,batch_no):
     client = boto3.client('s3')
     #obj = client.get_object(Bucket=bucket_id, Key=file_name)
+    bucket_name = os.environ.get("AWS_BUCKET_NAME")
     obj = client.get_object(Bucket=bucket_name ,Key = file_name)
     file_object= obj["Body"].read()
     label_df = pd.read_csv(io.BytesIO(file_object))
@@ -64,13 +72,16 @@ def modify_csv_contents(bucket_name,file_name,labelled_items,batch_no):
 def get_csv_contents(client,bucket_name,file_name):
 
     # obj = client.get_object(Bucket=bucket_id, Key=file_name)
+
     obj = client.get_object(Bucket=bucket_name, Key=file_name)
     file_object = obj["Body"].read()
     return file_object
 
+
 def get_csv_content_dict(bucket_name,file_name_list):
     content_list = {}
     client = boto3.client('s3')
+    bucket_name = os.environ.get("AWS_BUCKET_NAME")
     for file_name in file_name_list:
         content_list[file_name] = get_csv_contents(client,bucket_name,file_name)
 
