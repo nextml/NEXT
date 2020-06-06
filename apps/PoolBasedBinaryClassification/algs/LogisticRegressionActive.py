@@ -16,6 +16,45 @@ import json
 import next.constants as constants
 import next.assistant.s3 as s3
 import os
+import nltk
+from nltk.classify.decisiontree import DecisionTreeClassifier
+
+
+def n_grams(text):
+
+    delimiters = ["_", "/", "-"]
+    for delim in delimiters:
+        text = text.replace(delim, " ")
+
+    words = nltk.word_tokenize(text)
+
+    # The issue we're trying to solve here
+    # is that nltk converts quotes '"' to
+    # double ticks (either "``" or "''" for
+    # before or after the quote. We'd like to
+    # convert them back...however, this runs into
+    # issues when "''" appears in the raw text.
+    # Fixing this issue will likely require writing
+    # my own tokenizer...although that will
+    # potentially be a lot of work.
+    new_words = []
+    for word in words:
+        if len(word)<=1:
+            continue
+        if word == "``":
+            new_words.append('"')
+        elif word == "''":
+            new_words.append('"')
+        else:
+            new_words.append(word)
+
+    n_grams = ' '.join(new_words)
+    # n_grams = []
+    # for i in range(0, len(words)-n+1):
+    #     grams = words[i:i+n]
+    #     n_grams.append(' '.join(grams))
+    # n_grams = [g for g in n_grams if len(g) > 0]
+    return new_words
 
 #Creates vector from the custom rules specified in the metaSRA paper
 def rules_vector(ontologies,key_value,cvcl_og):
@@ -288,6 +327,8 @@ class MyAlg:
         #course of experiment
         from ..onto_lib import general_ontology_tools as ob
         from ..onto_lib import load_ontology
+        nltk.downloader.download('punkt')
+
         #This is needed for rules_vector
         ONT_IDS = ["4"]
         OGS = [load_ontology.load(ont_id)[0] for ont_id in ONT_IDS]
@@ -326,7 +367,7 @@ class MyAlg:
         # create the transform
         #This vectorizer is used to vectorize key-value pairs,
         #ontologies and ancestors of each of the ontology
-        word_vectorizer = TfidfVectorizer(decode_error='ignore',binary=True,max_features=75)
+        word_vectorizer = TfidfVectorizer(decode_error='ignore',binary=True,max_features=75,lowercase=False, token_pattern=r'\S+',stop_words='english')
         # This vectorizer is used to vectorize custom rules
         rules_vectorizer = DictVectorizer()
 
@@ -336,10 +377,10 @@ class MyAlg:
         rules_vectorizer.fit([rules_dict])
 
         #DEBUG
-        # utils.debug_print("word feature name")
-        # utils.debug_print(word_vectorizer.get_feature_names())
-        # utils.debug_print("rules feature name")
-        # utils.debug_print(rules_vectorizer.get_feature_names())
+        utils.debug_print("word feature name")
+        utils.debug_print(word_vectorizer.get_feature_names())
+        utils.debug_print("rules feature name")
+        utils.debug_print(rules_vectorizer.get_feature_names())
         X_train_word = word_vectorizer.transform(X_train_str)
         X_test_word = word_vectorizer.transform(X_test_str)
         X_unlabelled_word = word_vectorizer.transform(X_unlabelled_str)
