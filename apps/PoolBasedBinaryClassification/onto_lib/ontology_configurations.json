@@ -1,0 +1,369 @@
+{
+    "0": {
+        "included_ontology_projects": [
+            "DOID",
+            "CL", 
+            "UBERON"
+        ],
+        "restrict_to_specific_subgraph": false,
+        "id_spaces": [
+            "DOID",
+            "CL",
+            "UBERON"
+        ],
+        "exclude_terms": [],
+        "description": "Consists of all CL, DOID, and UBERON terms."
+    },
+    "1": {
+        "included_ontology_projects": [
+            "CL"
+        ],
+        "restrict_to_specific_subgraph": true,
+        "subgraph_roots": {
+            "CL:0000000": "cell"
+        },
+        "id_spaces": [
+            "CL"
+        ],
+        "exclude_terms": {
+            "CL:0000000": "cell",
+            "CL:0000255": "eukaryotic cell",
+            "CL:0000520": "prokaryotic cell",
+            "CL:0000255": "animal cell",
+            "CL:0000193": "cardiac muscle cell (sensu Arthopoda)"
+        },
+        "description": "Slice of Cell Ontology relevant to human biology."
+    },
+    "2": {
+        "included_ontology_projects": [
+            "DOID"
+        ],
+        "restrict_to_specific_subgraph": true,
+        "subgraph_roots": {
+            "DOID:4": "disease"
+        },
+        "id_spaces": [
+            "DOID"
+        ],
+        "exclude_terms": {},
+        "description": "All diseases in the Human Disease Ontology"
+    },
+    "3": {
+        "included_ontology_projects": [
+            "EFO"
+        ],
+        "restrict_to_specific_subgraph": true,
+        "subgraph_roots": {
+            "EFO:0000408": "disease"
+        },
+        "id_spaces": [
+            "EFO", 
+            "EFO_DOID",
+            "EFO_Orphanet"
+        ],
+        "exclude_terms": {},
+        "description": "All diseases in the Experimental Factors Ontology"
+    },
+    "4": {
+        "included_ontology_projects": [
+            "CVCL"
+        ],
+        "restrict_to_specific_subgraph": false,
+        "id_spaces": [
+            "CVCL"
+        ],
+        "exclude_terms": {},
+        "description": "All CVCL terms in the Cellosaurus"
+    },
+    "5": {
+        "included_ontology_projects": [
+            "UBERON"
+        ],
+        "restrict_to_specific_subgraph": false,
+        "id_spaces": [
+            "UBERON"
+        ],
+        "exclude_terms": {},
+        "description": "Slice of the UBERON ontology"
+    },
+    "6": {
+        "included_ontology_projects": [
+            "EFO"
+        ],
+        "restrict_to_specific_subgraph": false,
+        "id_spaces": [
+            "EFO",
+            "EFO_DOID",
+            "EFO_Orphanet",
+            "EFO_PATO",
+            "EFO_UBERON",
+            "EFO_CL",
+            "EFO_CHEBI"
+        ],
+        "exclude_terms": {},
+        "description": "All terms in the EFO"
+    },
+    "7": {
+        "included_ontology_projects": [
+            "UO"
+        ],
+        "restrict_to_specific_subgraph": false,
+        "id_spaces": [
+            "UO"
+        ],
+        "exclude_terms": {},
+        "description": "All terms in the uo"
+    },
+    "8": {
+        "included_ontology_projects": [
+            "CHEBI"
+        ],
+        "restrict_to_specific_subgraph": false,
+        "id_spaces": [
+            "CHEBI"
+        ],
+        "exclude_terms": {},
+        "description": "All terms in the CHEBI"
+    },
+    "9": {
+        "included_ontology_projects": [
+            "EFO"
+        ],
+        "restrict_to_specific_subgraph": false,
+        "id_spaces": [
+            "EFO",
+            "EFO_CHEBI",
+            "EFO_PATO",
+            "EFO_DOID",
+            "EFO_CL",
+            "EFO_UBERON",
+            "EFO_BTO"
+        ],
+        "exclude_terms": {},
+        "description": "All terms in the EFO"
+    },
+    "10": {
+        "included_ontology_projects": [
+            "EFO"
+        ],
+        "restrict_to_specific_subgraph": true,
+        "subgraph_roots": {
+            "EFO:0000322": "cell line"
+        },
+        "id_spaces": [
+            "EFO",
+            "EFO_DOID",
+            "EFO_Orphanet",
+            "EFO_PATO",
+            "EFO_UBERON",
+            "EFO_CL",
+            "EFO_CHEBI",
+            "EFO_BTO"
+        ],
+        "exclude_terms": {},
+        "description": "All cell lines in the EFO"
+    },
+    "11": {
+        "included_ontology_projects": [
+            "EFO"
+        ],
+        "restrict_to_specific_subgraph": true,
+        "subgraph_roots": {
+            "EFO:0000324": "cell type"
+        },
+        "id_spaces": [
+            "EFO",
+            "EFO_CL"
+        ],
+        "exclude_terms": {
+            "EFO:0000324": "cell type"
+        },
+        "description": "All cell types in the EFO"
+    },
+    "12": {
+        "included_ontology_projects": [
+            "UBERON"
+        ],
+        "restrict_to_specific_subgraph": false,
+        "id_spaces": [
+            "UBERON"
+        ],
+        "exclude_terms": {
+            "UBERON:0000468": "organism",
+            "UBERON:0000105": "life cycle stage",
+            "UBERON:0000479": "tissue",
+            "UBERON:0000467": "anatomical system",
+            "UBERON:0000104": "life cycle",
+            "UBERON:0036018": "regurgitated pellet",
+            "UBERON:0008897 ": "fin"
+        },
+        "description": "Slice of the UBERON"
+    },
+    "13": {
+        "included_ontology_projects": [
+            "EFO"
+        ],
+        "restrict_to_specific_subgraph": true,
+        "subgraph_roots": {
+            "EFO:0000322": "cell line",
+            "EFO:0000408": "disease",
+            "EFO:0004318": "exercise",
+            "EFO:0000483": "smoking",
+            "EFO:0000635": "organism part",
+            "EFO:0000324": "cell type",
+            "EFO:0002694": "experimental process",
+            "EFO:0000399": "developmental stage",
+            "EFO:0001799": "ethnic group",
+            "EFO_PATO:0000047": "sex"
+        },
+        "id_spaces": [
+            "EFO", 
+            "EFO_CL", 
+            "EFO_UBERON", 
+            "EFO_DOID", 
+            "EFO_PATO"
+        ],
+        "exclude_terms": {
+            "EFO:0000324": "cell type", 
+            "EFO:0000399": "developmental stage", 
+            "EFO:0004176": "ChIP", 
+            "EFO:0000562": "labelling", 
+            "EFO_PATO:0000047": "sex", 
+            "EFO_PATO:0000461": "normal", 
+            "EFO:0002906": "whole organism", 
+            "EFO_PATO:0000460": "abnormal", 
+            "EFO:0004181": "cap analysis gene expression", 
+            "EFO:0000884": "invertebret limb", 
+            "EFO:0001799": "ethnic group",
+            "EFO:0000635": "organism part",
+            "EFO:0005316": "sample pool",
+            "EFO:0000436": "plant embryo",
+            "EFO:0000750": "genotyping",
+            "EFO:0004182": "Rapid Amplification of cDNA Ends",
+            "EFO:0002770": "transcription profiling by high throughput sequencing ",
+            "EFO:0003143": "CLIP-seq",
+            "EFO:0003477": "median fin fold",
+            "EFO:0000808": "animal body part",
+            "EFO_UBERON:0000467": "anatomical system"
+        },
+        "description": "A slice of the EFO ontology attempting to capture all 'biologically significant' terms"
+    },
+    "14": {
+        "included_ontology_projects": [
+            "EFO"
+        ],
+        "restrict_to_specific_subgraph": true,
+        "subgraph_roots": {
+            "EFO:0000787": "animal component"
+        },
+        "id_spaces": [
+            "EFO",
+            "EFO_UBERON"
+        ],
+        "exclude_terms": {
+            "EFO:0000635": "organism part",
+            "EFO:0000786": "anatomy basic component",
+            "EFO:0000787": "animal component"
+        },
+        "description": "All anatomical entities in the EFO"
+    },
+    "15": {
+        "included_ontology_projects": [
+            "CHEBI"
+        ],
+        "restrict_to_specific_subgraph": false,
+        "id_spaces": [
+            "CHEBI"
+        ],
+        "exclude_terms": {
+            "CHEBI:18273": "(ribonucleotide)n+m",
+            "CHEBI:33697": "ribonucleic acid",
+            "CHEBI:60004": "mixture",
+            "CHEBI:10545": "electron",
+            "CHEBI:17891": "donor",
+            "CHEBI:16991": "deoxyribonucleic acid",
+            "CHEBI:24433": "group",
+            "CHEBI:35209": "label",
+            "CHEBI:25367": "molecule",
+            "CHEBI:33252": "atomic nucleus"
+        },
+        "description": "Biologically relavent slice of the CHEBI"
+    },
+    "16": {
+        "included_ontology_projects": [
+            "EFO"
+        ],
+        "restrict_to_specific_subgraph": true,
+        "subgraph_roots": {
+            "EFO:0000322": "cell line",
+            "EFO:0000408": "disease",
+            "EFO:0004318": "exercise",
+            "EFO:0000483": "smoking",
+            "EFO:0000635": "organism part",
+            "EFO:0000324": "cell type",
+            "EFO:0002694": "experimental process",
+            "EFO:0000399": "developmental stage",
+            "EFO:0001799": "ethnic group"
+        },
+        "id_spaces": [
+            "EFO"
+        ],
+        "exclude_terms": {
+            "EFO:0000324": "cell type",
+            "EFO:0000399": "developmental stage",
+            "EFO:0004176": "ChIP",
+            "EFO:0000562": "labelling",
+            "EFO:0002906": "whole organism",
+            "EFO:0004181": "cap analysis gene expression",
+            "EFO:0000884": "invertebret limb",
+            "EFO:0001799": "ethnic group",
+            "EFO:0000635": "organism part",
+            "EFO:0005316": "sample pool",
+            "EFO:0000436": "plant embryo",
+            "EFO:0000750": "genotyping",
+            "EFO:0004182": "Rapid Amplification of cDNA Ends",
+            "EFO:0002770": "transcription profiling by high throughput sequencing ",
+            "EFO:0003143": "CLIP-seq",
+            "EFO:0003477": "median fin fold",
+            "EFO:0000808": "animal body part",
+            "EFO:0000688": "sampling site",
+            "EFO:0004041": "NPC",
+            "EFO:0000993": "leaf",
+            "EFO:0001040": "stem"
+        },
+        "description": "A slice of the EFO ontology attempting to capture all 'biologically significant' terms and uses only 'EFO' prefix"
+    },
+    "17": {
+        "included_ontology_projects": [
+            "EFO",
+            "DOID",
+            "CL",
+            "UBERON",
+            "CVCL"
+        ],
+        "restrict_to_specific_subgraph": false,
+        "id_spaces": [
+            "CVCL",
+            "EFO",
+            "DOID",
+            "CL",
+            "UBERON"
+        ],
+        "exclude_terms": [],
+        "description": "Consists of all CL, DOID, UBERON, EFO, and CVCL terms."
+    },
+    "18": {
+        "included_ontology_projects": [
+            "GO"
+        ],
+        "restrict_to_specific_subgraph": false,
+        "id_spaces": [
+            "GO"
+        ],
+        "exclude_terms": [],
+        "description": "Consists of all GO terms"
+    }
+}
+    
+
+

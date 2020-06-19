@@ -1,7 +1,9 @@
 # Each piece within the #'s could theoretically be its own machine. But it could also operate just on one big machine.
 # Right now things are linked through docker. If we dploy with something else that doesn't respect links, thing will have to be refactored.
 # Things could be factored as Minions being indivdiual machines and everything else goes on a master machine.
+#version: '2'
 
+#services:
 ######## CADVISOR #########
 cadvisor:
   image: google/cadvisor:latest
@@ -47,6 +49,10 @@ minionworker:
    - SITE_KEY
    - GIT_HASH={{GIT_HASH}}
    - PYTHONPATH=:/next_backend
+   - AWS_SECRET_ACCESS_KEY=0tILCg/PU508Qj9xcgXEkMHVaYUzX3BLkfWEJYOC
+   - AWS_ACCESS_KEY_ID=AKIAI7QXIZD3UTLRBA4Q
+   - AWS_DEFAULT_REGION=us-west-2
+   - AWS_BUCKET_NAME=887f0e0f0bc3cdf0489ea9fd90e263
 ####################################
 
 
@@ -75,6 +81,12 @@ nextbackenddocker:
    - GIT_HASH={{GIT_HASH}}
    - TERM=xterm
    - CELERY_ON={{CELERY_ON}}
+    #DEBIG
+#     - MINIONREDIS_PORT_6379_TCP_ADDR=master,
+#     - MONGODB_PORT_27017_TCP_ADDR=master,
+#     - RABBIT_PORT_5672_TCP_ADDR=master,
+#     - RABBITREDIS_PORT_6379_TCP_ADDR=master,
+     #-----
 ####################################
 
 

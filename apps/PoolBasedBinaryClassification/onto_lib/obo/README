@@ -1,0 +1,9 @@
+All ontology OBO files should be downloaded and placed in this directory.
+Ontologies currently required:
+    - Disease Ontology (http://disease-ontology.org/)
+    - Cell Ontology (https://bioportal.bioontology.org/ontologies/CL)
+    - Uberon (http://uberon.github.io/)
+    - ChEBI (https://www.ebi.ac.uk/chebi/)
+    - Experimental Factor Ontology (http://www.ebi.ac.uk/efo/)
+    - Unit Ontology (https://bioportal.bioontology.org/ontologies/UO)
+    - Cellosaurus (http://web.expasy.org/cellosaurus/)

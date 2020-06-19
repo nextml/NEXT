@@ -1,46 +1,147 @@
 
+
 {% extends "basic.html" %}
 
 {% block custom_dashboard %}
 
 <!--###################### test_error_multiline_plot ###################-->
+
+
 <div class="container-fluid" style ='padding-bottom: 1cm'>
     <div class="col-lg-10 col-lg-offset-1">
-        <h2> Test Error Plot
-            <button type="button" class="btn btn-primary btn-xs"
-                  onclick="popup_alert('The error against a hold out set defined as \'Test\' on the new experiment page. That is, each algorithm learns an classifier based on its training data that it has collected and is evaluated based on the evaluation set collected as \'Test\'. All results are evaluated using the most up-to-date collection of \'Test\'. The curve denoted as \'Test\' is the \'Test\' collected data evaluated on the classifier was solved for using \'Test\' as training data using that method.')">?</button>
-        </h2>
+        <h2> Accuracy Plot </h2>
+      <div id="error_plot"></div>
     </div>
-  <div class="col-lg-10 col-lg-offset-1" style='text-align: center'>
-    <div id="test_error_multiline_plot"></div>
-  </div>
+
+  <div class="container-fluid" style ='padding-bottom: 1cm'>
+    <div class="col-lg-10 col-lg-offset-1">
+        <h2> Confusion Matrix </h2>
+      <div id="plot_confusion_matrix_img"></div>
+    </div>
+
+    <div class="container-fluid" style ='padding-bottom: 1cm'>
+    <div class="col-lg-10 col-lg-offset-1">
+        <h2> Debug </h2>
+      <div id="dytable"></div>
+    </div>
+
 </div>
+
 <script>
 
-  test_error_multiline_plot = function(data) {
-    data['width'] = 800
-    data['height'] = 350
-    mpld3.draw_figure("test_error_multiline_plot", data);
+
+  plot_confusion_matrix_img = function(data) {
+
+    $("#plot_confusion_matrix_img").html(data);
+
   }
 
-  $.ajax({
+  error_plot = function(data) {
+    data['width'] = 800
+    data['height'] = 350
+    mpld3.draw_figure("error_plot", data);
+  }
+
+
+  function downloadFile(fileName, csv) {
+
+                if (navigator.userAgent.indexOf('MSIE') !== -1
+                    || navigator.appVersion.indexOf('Trident/') > 0) {
+
+                    var IEwindow = window.open("", "", "Width=0px; Height=0px");
+                    IEwindow.document.write('sep=,\r\n' + csv);
+                    IEwindow.document.close();
+                    IEwindow.document.execCommand('SaveAs', true, fileName);
+                    IEwindow.close();
+                }
+                else {
+                    var aLink = document.createElement('a');
+                    var evt = document.createEvent("MouseEvents");
+                    evt.initMouseEvent("click", true, true, window,
+                        0, 0, 0, 0, 0, false, false, false, false, 0, null);
+                    aLink.download = fileName;
+                    aLink.href = 'data:text/csv;charset=UTF-8,' + csv;
+                    aLink.dispatchEvent(evt);
+                }
+            }
+
+   $.ajax({
     url: "{{ dashboard_url }}/get_stats",
     type: "POST",
     contentType: "application/json",
-    data: JSON.stringify({  
+    data: JSON.stringify({
         //'app_id': "{{ app_id }}",
         'exp_uid': "{{ exp_uid }}",
         //'name': 'getStats',
         'args':{
-            'stat_id' : 'test_error_multiline_plot',
-            'params'  : {},//'task':''}
-            'force_recompute': {{ force_recompute }} 
-            }
+            'stat_id' : 'get_target_and_labels',
+            'params'  : {},
+          'force_recompute': {{ force_recompute }}
+          }
         }),
     dataType: "json"
     }).done( function(data,textStatus, jqXHR) {
-    delete data['meta']
-    test_error_multiline_plot(data)
+         var table='<table class="table table-striped">';
+         table+='<th class="success">Sample ID</th> <th class="success">Classification</th>';
+      /* loop over each object in the array to create rows*/
+        $.each( data, function( index, item){
+            /* add to html string started above*/
+
+	      table+='<tr class="active"><td>'+index+'</td><td>'+item+'</td></tr>';
+        });
+        table+='</table>';
+      /* insert the html string*/
+      $("#dytable").html( table );
+      /*var csv = JSON.stringify(data).replace(/"([\w]+)":/g, function ($0, $1) { return ('"' + $1.toLowerCase() + '":'); }); */
+
+    }).fail( function(error){
+    console.log("Failed to get stats", error);
+
+    });
+
+
+  $.ajax({
+    url: "{{ dashboard_url }}/get_stats",
+    type: "POST",
+     contentType: "application/json",
+    data: JSON.stringify({
+        //'app_id': "{{ app_id }}",
+
+        'exp_uid': "{{ exp_uid }}",
+
+        //'name': 'getStats',
+        'args':{
+            'stat_id' : 'get_confusion_matrix_img',
+            'params'  : {},
+            'force_recompute': {{ force_recompute }}
+          }
+        }),
+    dataType: "text"
+    }).done( function(data,textStatus, jqXHR) {
+      plot_confusion_matrix_img(data)
+    }).fail( function(error){
+    console.log("Failed to get stats", error);
+    });
+
+  $.ajax({
+    url: "{{ dashboard_url }}/get_stats",
+    type: "POST",
+     contentType: "application/json",
+    data: JSON.stringify({
+        //'app_id': "{{ app_id }}",
+
+        'exp_uid': "{{ exp_uid }}",
+
+        //'name': 'getStats',
+        'args':{
+            'stat_id' : 'error_plot',
+            'params'  : {},
+            'force_recompute': {{ force_recompute }}
+          }
+        }),
+    dataType: "json"
+    }).done( function(data,textStatus, jqXHR) {
+      error_plot(data)
     }).fail( function(error){
     console.log("Failed to get stats", error);
     });

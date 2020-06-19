@@ -4,7 +4,7 @@ import traceback
 import sys
 import os
 
-import next.utils as utils
+
 
 DICT = {'dict','dictionary','map'}
 LIST = {'list'}
@@ -57,44 +57,44 @@ def check_format(doc,rets=True):
 
 def check_format_helper(doc,name):
     errs = []
-    
+
     if not 'type' in doc:
         errs += ['{}: "type" key missing'.format(name)]
-    
+
     diff = set(doc.keys()) - {'type','description','values','optional','default'}
     if len(diff) > 0:
         errs += ["{}: extra keys in spec: {}".format(name,", ".join(list(diff)))]
-    
+
     if not doc['type'] in DICT | LIST | TUPLE | ONEOF | NUM | STRING | BOOL | ANY | FILE:
         errs += ['{}: invlid type: {}'.format(name, doc['type'])]
-    
+
     if doc['type'] in DICT | LIST | TUPLE | ONEOF and not 'values' in doc:
         errs += ['{}: requires "values" key'.format(name)]
 
     if len(errs) > 0:
         return errs
-    
+
     if doc['type'] in DICT:
         for x in doc['values']:
             errs += check_format_helper(doc['values'][x],'{}/{}'.format(name,x))
-    
+
     elif doc['type'] in LIST:
         errs += check_format_helper(doc['values'],'{}/values'.format(name))
-        
+
     elif doc['type'] in TUPLE:
         for x in doc['values']:
             errs += check_format_helper(doc['values'][x],'{}/{}'.format(name,str(x)))
-            
+
     elif doc['type'] in ONEOF:
         for x in doc['values']:
             errs += check_format_helper(doc['values'][x],'{}/{}'.format(name,str(x)))
-            
-    return errs
-        
-    
-    
 
-def verify(input_dict, reference_dict):
+    return errs
+
+
+
+
+def verify(input_dict, load_doc):
     """
     Returns: modified_input, success, list_of_errors
 
@@ -197,7 +197,7 @@ def verify_helper(name, input_element, reference_dict):
         pass
 
     else:
-        ans += [{"name":name, "message":"invalid type: {}".format(reference_dict['type'])}]  
+        ans += [{"name":name, "message":"invalid type: {}".format(reference_dict['type'])}]
 
     return input_element,ans
 
@@ -216,4 +216,4 @@ if __name__ == '__main__':
             i,e = verify(sys.argv[2],r)
             print("Errors",e)
             print("Verified input",i)
-    
+

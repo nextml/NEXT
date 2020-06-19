@@ -32,6 +32,7 @@ class SimpleTargetManager(object):
         """
         Get a target from the targetset. Th
         """
+        # TODO: this function might beuseful
         # Get an individual target form the DB given exp_uid and index
         try:
             got_target = self.db.get_docs_with_filter(self.bucket_id,

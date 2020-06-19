@@ -136,6 +136,7 @@ instance_info = {
 "m2.4xlarge" : { "cpu": 8, "memory": 68.4, "cost_per_hr": 0.98 },
 "m3.medium" : { "cpu": 1, "memory": 3.75, "cost_per_hr": 0.07 },
 "m3.large" : { "cpu": 2, "memory": 7.5, "cost_per_hr": 0.14 },
+"m4.large" : { "cpu": 2, "memory": 8, "cost_per_hr": 0.03},
 "m3.xlarge" : { "cpu": 4, "memory": 15, "cost_per_hr": 0.28 },
 "m3.2xlarge" : { "cpu": 8, "memory": 30, "cost_per_hr": 0.56 },
 "r3.large" : { "cpu": 2, "memory": 15, "cost_per_hr": 0.175 },
@@ -1150,7 +1151,9 @@ def real_main():
 
     elif action == "rsync":
         if cluster_name == "host":
+            #DEBIGCHANGE
             master = os.getenv('NEXT_BACKEND_GLOBAL_HOST','localhost')
+            #master = os.getenv('NEXT_BACKEND_GLOBAL_HOST', '172.17.0.4')
             rsync_dir(LOCAL_NEXT_PATH, EC2_NEXT_PATH, opts, master)
         else:
             (master_nodes, slave_nodes) = get_existing_cluster(conn, opts, cluster_name)

@@ -1,0 +1,851 @@
+{
+    "EFO:0000178": {
+        "name": "gastric carcinoma",
+        "exclude_synonyms": [
+            "gastric cancer"
+        ]
+    },
+    "EFO:0000182": {
+        "name": "hepatocellular carcinoma",
+        "exclude_synonyms": [
+            "Liver Cancers",
+            "Cancer of Liver",
+            "cancers, adult liver",
+            "Liver Cancers, Adult",
+            "liver neoplasms",
+            "Cancer of the Liver",
+            "hepatic neoplasm",
+            "cancers, hepatocellular",
+            "hepatic neoplasms",
+            "Cancer, Adult Liver",
+            "Cancer, Hepatic",
+            "cancer, adult liver",
+            "cancer, hepatic",
+            "liver cancers, adult",
+            "Cancer, Hepatocellular",
+            "LIVER NEOPL",
+            "Cancer, Liver",
+            "Liver Neoplasm",
+            "hepatic cancers",
+            "Cancers, Adult Liver",
+            "liver cancers",
+            "Liver Neoplasms",
+            "Cancers, Hepatic",
+            "cancer, liver",
+            "NEOPL HEPATIC",
+            "Cancers, Hepatocellular",
+            "NEOPL LIVER",
+            "Cancers, Liver",
+            "neoplasm, liver",
+            "Neoplasm, Hepatic",
+            "neoplasms, liver",
+            "Neoplasm, Liver",
+            "Neoplasms, Hepatic",
+            "liver cancer, adult",
+            "Neoplasms, Liver",
+            "cancers, hepatic",
+            "Hepatic Cancer",
+            "liver neoplasm",
+            "hepatocellular cancers",
+            "Hepatic Cancers",
+            "cancer of the liver",
+            "cancer, hepatocellular",
+            "HEPATIC NEOPL",
+            "neoplasms, hepatic",
+            "Hepatic Neoplasm",
+            "adult liver cancers",
+            "Hepatic Neoplasms",
+            "Hepatocellular Cancer",
+            "adult liver cancer",
+            "Hepatocellular Cancers",
+            "liver cancer",
+            "neoplasm, hepatic",
+            "cancer of liver",
+            "Adult Liver Cancer",
+            "cancers, liver",
+            "Adult Liver Cancers",
+            "hepatic cancer",
+            "Liver Cancer",
+            "Liver Cancer, Adult"
+        ]
+    },
+    "EFO:0000197": {
+        "name": "mucinous carcinoma",
+        "exclude_synonyms": [
+            "adenocarcinoma, mucinous, malignant"
+        ]
+    },
+    "EFO:0000205": {
+        "name": "stage I endometrioid carcinoma",
+        "exclude_synonyms": [
+            "Endometrial Carcinoma",
+            "endometrial carcinoma"
+        ]
+    },
+    "EFO:0000206": {
+        "name": "stage II endometrioid carcinoma",
+        "exclude_synonyms": [
+            "endometrial carcinoma",
+            "Endometrial Carcinoma"
+        ]
+    },
+    "EFO:0000216": {
+        "name": "acinar cell carcinoma",
+        "exclude_synonyms": [
+            "acinic cell tumors",
+            "acinic cell tumor",
+            "tumor, acinic cell",
+            "Acinic Cell Tumor",
+            "Acinic Cell Tumors",
+            "Tumor, Acinic Cell",
+            "Tumors, Acinic Cell",
+            "tumors, acinic cell"
+        ]
+    },
+    "EFO:0000292": {
+        "name": "bladder carcinoma",
+        "exclude_synonyms": [
+            "Bladder Cancer",
+            "neoplasms, bladder",
+            "cancer of the bladder",
+            "Bladder neoplasms",
+            "cancer of the urinary bladder",
+            "Neoplasms, bladder",
+            "Cancer of Bladder",
+            "bladder cancer",
+            "Urinary Bladder Cancer",
+            "Cancer of the Bladder",
+            "urinary bladder neoplasms",
+            "Urinary Bladder Carcinoma",
+            "Cancer of the Urinary Bladder",
+            "Urinary bladder neoplasms",
+            "cancer of bladder",
+            "Cancer of Urinary Bladder",
+            "carcinoma bladder",
+            "urinary bladder cancer",
+            "bladder neoplasms",
+            "cancer of urinary bladder"
+        ]
+    },
+    "EFO:0000305": {
+        "name": "breast carcinoma",
+        "exclude_synonyms": [
+            "Cancer of Breast",
+            "Cancer of the Breast",
+            "breast neoplasm",
+            "Cancer, Breast",
+            "breast neoplasms",
+            "neoplasms, breast",
+            "human mammary neoplasm",
+            "human mammary neoplasms",
+            "cancer, breast",
+            "breast tumor",
+            "breast cancer",
+            "neoplasm, human mammary",
+            "neoplasms, human mammary",
+            "cancer of breast",
+            "tumor, breast",
+            "Human Mammary Neoplasm",
+            "Human Mammary Neoplasms",
+            "cancer of the breast",
+            "mammary neoplasms, human",
+            "neoplasm, breast",
+            "tumors, breast",
+            "mammary neoplasm, human",
+            "Mammary Neoplasm, Human",
+            "Mammary Neoplasms, Human",
+            "Breast Cancer",
+            "NEOPL BREAST",
+            "breast tumors",
+            "Neoplasm, Breast",
+            "BREAST NEOPL",
+            "Neoplasm, Human Mammary",
+            "Breast Neoplasm",
+            "Neoplasms, Breast",
+            "Breast Neoplasms",
+            "Neoplasms, Human Mammary",
+            "Breast Tumor",
+            "Tumor, Breast",
+            "Breast Tumors",
+            "Tumors, Breast"
+        ]
+    },
+    "EFO:0000365": {
+        "name": "colorectal adenocarcinoma",
+        "exclude_synonyms": [
+            "colon cancer",
+            "colon carcinoma",
+            "colorectal tumor",
+            "colorectal carcinoma",
+            "Colonic Carcinoma",
+            "colorectal carcinomas",
+            "colonic carcinoma",
+            "Colorectal Carcinoma",
+            "Colorectal Carcinomas",
+            "carcinoma, colorectal",
+            "Colorectal Tumor",
+            "colorectal tumors",
+            "Colorectal Tumors",
+            "carcinoma of colon",
+            "rectal carcinoma",
+            "carcinoma of colon (disorder)",
+            "tumors, colorectal",
+            "Tumor, Colorectal",
+            "Tumors, Colorectal",
+            "Carcinoma of the Colon",
+            "carcinomas, colorectal",
+            "Carcinoma, Colorectal",
+            "Carcinomas, Colorectal",
+            "tumor, colorectal",
+            "carcinoma of the colon",
+            "Colon Cancer"
+        ]
+    },
+    "EFO:0000466": {
+        "name": "endometrioid carcinoma",
+        "exclude_synonyms": [
+            "Endometrioid Adenocarcinomas",
+            "Endometrioid adenocarcinoma",
+            "Endometrioid cystadenocarcinoma",
+            "adenocarcinoma, endometrioid",
+            "endometrioid adenocarcinoma",
+            "Adenocarcinoma, Endometrioid",
+            "endometrioid cystadenocarcinoma",
+            "Adenocarcinomas, Endometrioid",
+            "adenocarcinomas, endometrioid",
+            "endometrioid adenocarcinomas"
+        ]
+    },
+    "EFO:0000501": {
+        "name": "follicular thyroid carcinoma",
+        "exclude_synonyms": [
+            "follicular thyroid cancer",
+            "Follicular Thyroid Cancer",
+            "follicular cancer of thyroid",
+            "Follicular Cancer of the Thyroid",
+            "follicular cancer of thyroid gland",
+            "Follicular Cancer of the Thyroid Gland",
+            "Follicular Cancer of Thyroid",
+            "Follicular Cancer of Thyroid Gland"
+        ]
+    },
+    "EFO:0000641": { 
+        "name": "papillary thyroid carcinoma",
+        "exclude_synonyms": [
+            "papillary cancer of the thyroid gland",
+            "Papillary Cancer of the Thyroid",
+            "papillary cancer of thyroid gland",
+            "papillary cancer of the thyroid",
+            "papillary thyroid cancer",
+            "Papillary Cancer of the Thyroid Gland",
+            "Papillary Cancer of Thyroid",
+            "papillary adenocarcinoma (morphologic abnormality)",
+            "papillary adenocarcinoma, NOS",
+            "Papillary Cancer of Thyroid Gland",
+            "papillary cancer of thyroid"
+        ]
+    },
+    "EFO:0000673": {
+        "name": "prostate adenocarcinoma",
+        "exclude_synonyms": [
+            "Prostatic Cancers",
+            "PROSTATIC NEOPL",
+            "Prostatic Neoplasm",
+            "Prostatic Neoplasms",
+            "prostate neoplasm",
+            "cancer, prostate",
+            "prostate neoplasms",
+            "neoplasm, prostate",
+            "cancer of the prostate",
+            "neoplasms, prostate",
+            "cancer of prostate",
+            "Neoplasms, Prostate",
+            "neoplasm, prostatic",
+            "cancer, prostatic",
+            "Neoplasms, Prostatic",
+            "prostate cancers",
+            "Prostate Cancer",
+            "prostatic neoplasms",
+            "Prostate Cancers",
+            "PROSTATE NEOPL",
+            "Cancer of Prostate",
+            "Prostate Neoplasm",
+            "Cancer of the Prostate",
+            "Cancer, Prostate",
+            "Cancer, Prostatic",
+            "Cancers, Prostate",
+            "Cancers, Prostatic",
+            "NEOPL PROSTATE",
+            "NEOPL PROSTATIC",
+            "Prostate Neoplasms",
+            "Neoplasm, Prostate",
+            "Neoplasm, Prostatic",
+            "prostate cancer",
+            "cancers, prostatic",
+            "cancers, prostate",
+            "Prostatic Cancer",
+            "prostatic cancer",
+            "prostatic neoplasm",
+            "neoplasms, prostatic",
+            "prostatic cancers"
+        ]
+    },
+    "EFO:0000681": {
+        "name": "renal cell carcinoma",
+        "exclude_synonyms": [
+            "renal cell cancer",
+            "Renal Cell Cancers",
+            "Cancer, Renal Cell",
+            "Cancers, Renal Cell",
+            "renal cell cancers",
+            "cancers, renal cell"
+        ]
+    },
+    "EFO:0001061": {
+        "name": "cervical carcinoma",
+        "exclude_synonyms": [
+            "cancer of uterine cervix",
+            "uterine cervix cancer",
+            "cervix cancer",
+            "Cancer of Cervix",
+            "Cervical Cancer",
+            "cervical cancer",
+            "Cancer of the Cervix",
+            "Cancer of Uterine Cervix",
+            "Cervix Cancer",
+            "cancer of cervix",
+            "Cancer of the Uterine Cervix",
+            "Uterine Cervix Cancer",
+            "cancer of the uterine cervix",
+            "cancer of the cervix"
+        ]
+    },
+    "EFO:0001071": {
+        "name": "lung carcinoma",
+        "exclude_synonyms": [
+            "Pulmonary Neoplasms",
+            "Lung Cancers",
+            "neoplasms, lung",
+            "lung neoplasm",
+            "LUNG NEOPL",
+            "lung cancers",
+            "cancers, pulmonary",
+            "Lung Neoplasm",
+            "pulmonary cancers",
+            "Lung Neoplasms",
+            "pulmonary neoplasms",
+            "pulmonary neoplasm",
+            "NEOPL LUNG",
+            "cancer of lung",
+            "neoplasms, pulmonary",
+            "lung neoplasms",
+            "NEOPL PULM",
+            "cancers, lung",
+            "Neoplasm, Lung",
+            "Cancer of the Lung",
+            "cancer, lung",
+            "Neoplasm, Pulmonary",
+            "Cancer, Lung",
+            "lung cancer",
+            "Neoplasms, Lung",
+            "Cancer, Pulmonary",
+            "neoplasm, lung",
+            "Neoplasms, Pulmonary",
+            "Cancers, Lung",
+            "cancer, pulmonary",
+            "PULM NEOPL",
+            "Cancers, Pulmonary",
+            "cancer of the lung",
+            "Pulmonary Cancer",
+            "pulmonary cancer",
+            "Pulmonary Cancers",
+            "neoplasm, pulmonary",
+            "Pulmonary Neoplasm",
+            "Lung Cancer"
+        ]
+    },
+    "EFO:0001075": {
+        "name": "ovarian carcinoma",
+        "exclude_synonyms": [
+            "Neoplasm, Ovarian",
+            "neoplasms, ovarian",
+            "Neoplasm, Ovary",
+            "ovarian cancer",
+            "ovarian cancers",
+            "Neoplasms, Ovarian",
+            "neoplasms, ovary",
+            "Neoplasms, Ovary",
+            "Cancer of Ovary",
+            "ovarian neoplasms",
+            "cancer of ovary",
+            "Ovarian Cancer",
+            "ovary cancers",
+            "Ovarian Cancers",
+            "ovarian neoplasm",
+            "OVARIAN NEOPL",
+            "cancer, ovary",
+            "cancers, ovary",
+            "Ovarian Neoplasm",
+            "ovary neoplasm",
+            "Ovarian Neoplasms",
+            "Cancer of the Ovary",
+            "cancers, ovarian",
+            "Ovary Cancer",
+            "Cancer, Ovarian",
+            "ovary cancer",
+            "ovary neoplasms",
+            "neoplasm, ovarian",
+            "Ovary Cancers",
+            "Cancer, Ovary",
+            "OVARY NEOPL",
+            "Cancers, Ovarian",
+            "Ovary Neoplasm",
+            "Cancers, Ovary",
+            "cancer, ovarian",
+            "cancer of the ovary",
+            "Ovary Neoplasms",
+            "NEOPL OVARIAN",
+            "neoplasm, ovary"
+        ]
+    },
+    "EFO:0001416": {
+        "name": "cervical adenocarcinoma",
+        "exclude_synonyms": [
+            "cervical neoplasm",
+            "Neoplasm, Cervical",
+            "Neoplasm, Cervix",
+            "Neoplasm, Uterine Cervical",
+            "cervical neoplasms, uterine",
+            "Neoplasms, Cervical",
+            "Neoplasms, Cervix",
+            "neoplasm, uterine cervical",
+            "Cancer of Cervix",
+            "Neoplasms, Uterine Cervical",
+            "cervix neoplasm",
+            "Cancer of the Cervix",
+            "Uterine Cervical Cancer",
+            "Cancer of the Uterine Cervix",
+            "Uterine Cervical Cancers",
+            "neoplasms, cervical",
+            "UTERINE CERVICAL NEOPL",
+            "Cancer, Cervix",
+            "Uterine Cervical Neoplasm",
+            "neoplasm, cervix",
+            "Cancer, Uterine Cervical",
+            "Uterine Cervical Neoplasms",
+            "Cancers, Cervix",
+            "cancer of the uterine cervix",
+            "Cancers, Uterine Cervical",
+            "neoplasm, cervical",
+            "Cervical Cancer, Uterine",
+            "uterine cervical cancers",
+            "Cervical Cancers, Uterine",
+            "cervical cancer, uterine",
+            "cancer, uterine cervical",
+            "CERVICAL NEOPL",
+            "cervical neoplasms",
+            "uterine cervical neoplasm",
+            "Cervical Neoplasm",
+            "cervix cancer",
+            "Cervical Neoplasm, Uterine",
+            "neoplasms, uterine cervical",
+            "Cervical Neoplasms",
+            "uterine cervical neoplasms",
+            "Cervical Neoplasms, Uterine",
+            "Cervix Cancer",
+            "uterine cervical cancer",
+            "cancers, uterine cervical",
+            "CERVIX NEOPL",
+            "cancers, cervix",
+            "Cervix Neoplasm",
+            "cervical cancers, uterine",
+            "cancer of the cervix",
+            "Cervix Neoplasms",
+            "cervix neoplasms",
+            "cancer, cervix",
+            "neoplasms, cervix",
+            "cervical neoplasm, uterine",
+            "NEOPL CERVICAL",
+            "NEOPL CERVIX",
+            "cancer of cervix"
+        ]
+    },
+    "EFO:0001663": {
+        "name": "prostate carcinoma",
+        "exclude_synonyms": [
+            "Prostate Cancer",
+            "prostate cancer",
+            "cancer of the prostate",
+            "Cancer of Prostate",
+            "cancer of prostate",
+            "Cancer of the Prostate"
+        ]
+    },
+    "EFO:0002618": {
+        "name": "pancreatic carcinoma",
+        "exclude_synonyms": [
+            "pancreatic cancers",
+            "neoplasm, pancreas",
+            "pancreatic cancer",
+            "pancreas neoplasm",
+            "cancer, pancreas",
+            "neoplasm, pancreatic",
+            "pancreas neoplasms",
+            "pancreas cancers",
+            "neoplasms, pancreas",
+            "pancreatic neoplasm",
+            "cancers, pancreas",
+            "cancer of the pancreas",
+            "pancreas cancer",
+            "cancer, pancreatic",
+            "pancreatic neoplasms",
+            "neoplasms, pancreatic",
+            "Cancer of Pancreas",
+            "Cancer, Pancreatic",
+            "Cancers, Pancreas",
+            "cancer of pancreas",
+            "exocrine cancer",
+            "NEOPL PANCREATIC",
+            "Neoplasm, Pancreas",
+            "Neoplasm, Pancreatic",
+            "Neoplasms, Pancreas",
+            "Cancer of the Pancreas",
+            "Neoplasms, Pancreatic",
+            "Pancreas Cancer",
+            "Pancreas Cancers",
+            "PANCREAS NEOPL",
+            "Pancreas Neoplasm",
+            "Pancreas Neoplasms",
+            "Cancer, Pancreas",
+            "Pancreatic Cancer",
+            "Pancreatic Cancers",
+            "PANCREATIC NEOPL",
+            "Pancreatic Neoplasm",
+            "Pancreatic Neoplasms",
+            "cancers, pancreatic",
+            "Cancers, Pancreatic"
+        ]
+    },
+    "EFO:0002890": {
+        "name": "renal carcinoma",
+        "exclude_synonyms": [
+            "Kidney Cancer",
+            "Renal Cancer",
+            "kidney cancer",
+            "renal cancer"
+        ]
+    },
+    "EFO:0002892": {
+        "name": "thyroid carcinoma",
+        "exclude_synonyms": [
+            "thyroid cancer",
+            "head and neck cancer, Thyroid",
+            "head and neck cancer, thyroid"
+        ]
+    },
+    "EFO:0002916": {
+        "name": "esophageal carcinoma",
+        "exclude_synonyms": [
+            "esophagus neoplasms",
+            "neoplasm, esophageal",
+            "NEOPL ESOPHAGEAL",
+            "Cancer, Esophageal",
+            "esophagus cancers",
+            "Neoplasm, Esophageal",
+            "Cancer, Esophagus",
+            "neoplasm, esophagus",
+            "cancers, esophagus",
+            "Neoplasm, Esophagus",
+            "Cancers, Esophageal",
+            "Neoplasms, Esophageal",
+            "Cancers, Esophagus",
+            "neoplasms, esophagus",
+            "esophageal cancer",
+            "Neoplasms, Esophagus",
+            "Esophageal Cancer",
+            "Esophageal Cancers",
+            "esophageal cancers",
+            "cancer of the esophagus",
+            "cancer of esophagus",
+            "ESOPHAGEAL NEOPL",
+            "Esophageal Neoplasm",
+            "cancer, esophageal",
+            "neoplasms, esophageal",
+            "Esophageal Neoplasms",
+            "esophageal neoplasm",
+            "Esophagus Cancer",
+            "cancers, esophageal",
+            "cancer, esophagus",
+            "Esophagus Cancers",
+            "Cancer of Esophagus",
+            "ESOPHAGUS NEOPL",
+            "esophagus cancer",
+            "esophageal neoplasms",
+            "Esophagus Neoplasm",
+            "Cancer of the Esophagus",
+            "esophagus neoplasm",
+            "Esophagus Neoplasms"
+        ]
+    },
+    "EFO:0002919": {
+        "name": "uterine carcinoma",
+        "exclude_synonyms": [
+            "uterine adenocarcinoma"
+        ]
+    },
+    "EFO:0002921": {
+        "name": "vulvar carcinoma",
+        "exclude_synonyms": [
+            "malignant neoplasm of vulva, unspecified",
+            "neoplasm of vulva (disorder)",
+            "vulval cancer",
+            "vulvar tumor",
+            "vulval neoplasm",
+            "malignant neoplasm of vulva unspecified",
+            "malignant tumor of vulva (disorder)",
+            "malignant Vulvar tumor",
+            "vulvar neoplasm",
+            "vulvar neoplasms",
+            "Vulvar Neoplasms",
+            "malignant neoplasm of vulva unspecified (disorder)",
+            "Vulvar tumor",
+            "malignant neoplasm of vulva, NOS",
+            "malignant vulvar tumor",
+            "vulva cancer",
+            "Ca vulva",
+            "ca vulva"
+        ]
+    },
+    "EFO:0002938": {
+        "name": "hypopharyngeal carcinoma",
+        "exclude_synonyms": [
+            "cancer of hypopharynx",
+            "cancer of Hypopharynx"
+        ]
+    },
+    "EFO:0005088": {
+        "name": "testicular carcinoma",
+        "exclude_synonyms": [
+            "testicular cancer"
+        ]
+    },
+    "EFO:0005288": {
+        "name": "non-small cell lung adenocarcinoma",
+        "exclude_synonyms": [
+            "lung adenocarcinoma",
+            "Lung Adenocarcinoma"
+        ]
+    },
+    "EFO:0005582": {
+        "name": "renal pelvis carcinoma",
+        "exclude_synonyms": [
+            "malignant neoplasm of renal pelvis",
+            "renal pelvis cancer"
+        ]
+    },
+    "EFO:0005922": {
+        "name": "esophageal squamous cell carcinoma",
+        "exclude_synonyms": [
+            "cancer of esophagus",
+            "esophageal cancer"
+        ]
+    },
+    "EFO:0006387": {
+        "name": "cystadenocarcinoma",
+        "exclude_synonyms": [
+            "cystadenocarcinoma, malignant"
+        ]
+    },
+    "EFO:0006500": {
+        "name": "tubular adenocarcinoma",
+        "exclude_synonyms": [
+            "carcinoma, tubular cell, malignant"
+        ]
+    },
+    "EFO:0006719": {
+        "name": "mesonephric adenocarcinoma",
+        "exclude_synonyms": [
+            "malignant mesonephroma"
+        ]
+    },
+    "EFO:0006772": {
+        "name": "undifferentiated carcinoma",
+        "exclude_synonyms": [
+            "carcinoma, undifferentiated, malignant"
+        ]
+    },
+    "EFO:0006861": {
+        "name": "male breast carcinoma",
+        "exclude_synonyms": [
+            "male breast cancer"
+        ]
+    },
+    "EFO:1000984": {
+        "name": "inflammatory breast carcinoma",
+        "exclude_synonyms": [
+            "Inflammatory Breast Neoplasms",
+            "inflammatory breast neoplasms"
+        ]
+    },
+    "CHEBI:30780": {
+        "name": "maleate(2-)",
+        "exclude_synonyms": [
+            "male"
+        ]
+    },
+    "EFO_UBERON:0001003": {
+        "name": "epidermis",
+        "exclude_synonyms": [
+            "skin"
+        ]
+    },
+    "UBERON:0001003": {
+        "name": "skin epidermis",
+        "exclude_synonyms": [
+            "skin"
+        ]
+    },
+    "UBERON:0000914": {
+        "name": "organismal segment",
+        "exclude_synonyms": [
+            "segment"
+        ]
+    },
+    "EFO:0000961": {
+        "name": "adult segment",
+        "exclude_synonyms": [
+            "segment"
+        ]
+    },
+    "CVCL:E025": {
+        "name": "PAE-iPS-4",
+        "exclude_synonyms": [
+            "Cancer"
+        ]
+    },
+    "CHEBI:27560": {
+        "name": "boron atom",
+        "exclude_synonyms": [
+            "bore"
+        ]
+    },
+    "CHEBI:84123": {
+        "name": "advanced glycation end-product",
+        "exclude_synonyms": [
+            "AGE",
+            "AGEs"
+        ]
+    },
+    "CHEBI:78059": {
+        "name": "food additive carrier",
+        "exclude_synonyms": [
+            "carrier",
+            "carriers"
+        ]
+    },
+    "EFO:0000870": {
+        "name": "lymphatic system",
+        "exclude_synonyms": [
+            "lymph node"
+        ]
+    },
+    "UBERON:0014899": {
+        "name": "anterolateral ligament of knee",
+        "exclude_synonyms": [
+            "ALL"
+        ]
+    },
+    "EFO:1000058": {
+        "name": "nasopharyngeal squamous cell carcinoma",
+        "exclude_synonyms": [
+            "nasopharyngeal carcinoma"
+        ]
+    },
+    "EFO:0000326": {
+        "name": "central nervous system cancer",
+        "exclude_synonyms": [
+            "Glioma",
+            "Glial Cell Tumor"
+        ]
+    },
+    "UBERON:0035971": {
+        "name": "postsubiculum",
+        "exclude_synonyms": [
+            "POST"
+        ]
+    },
+    "UBERON:0001093": {
+        "name": "vertebral bone 2",
+        "exclude_synonyms": [
+            "axis"
+        ]
+    },
+    "UBERON:0001782": {
+        "name": "pigmented layer of retina",
+        "exclude_synonyms": [
+            "PRE"
+        ]
+    },
+    "UBERON:2000098": {
+        "name": "proliferative region",
+        "exclude_synonyms": [
+            "cell cycle",
+            "cell division",
+            "proliferation"
+        ]
+    },
+    "UBERON:0002416": {
+        "name": "integumental system",
+        "exclude_synonyms": [
+            "surface"
+        ]
+    },
+    "UBERON:0002922": {
+        "name": "olfactory trigone",
+        "exclude_synonyms": [
+            "OLT"
+        ]
+    },
+    "UBERON:0034754": {
+        "name": "occipitofrontal fasciculus",
+        "exclude_synonyms": [
+            "off"
+        ]
+    },
+    "UBERON:0005777": {
+        "name": "glomerular basement membrane",
+        "exclude_synonyms": [
+            "GBM"
+        ]
+    },
+    "UBERON:0002120": {
+        "name": "pronephros",
+        "exclude_synonyms": [
+            "embryonic kidney"
+        ]
+    },
+    "EFO_CL:0000817": {
+        "name": "precursor B cell",
+        "exclude_synonyms": [
+            "pre-BI cell"
+        ]
+    },
+    "CL:0000096": {
+        "name": "mature neutrophil",
+        "exclude_synonyms": [
+            "poly"
+        ]
+    },
+    "CL:0000775": {
+        "name": "neutrophil",
+        "exclude_synonyms": [
+            "poly"
+        ]
+    },
+    "EFO_CL:0000775": {
+        "name": "neutrophil",
+        "exclude_synonyms": [
+            "poly"
+        ]
+    }
+}

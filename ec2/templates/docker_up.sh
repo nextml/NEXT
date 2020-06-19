@@ -14,12 +14,13 @@ sysctl net.ipv4.tcp_tw_recycle=1
 sysctl net.ipv4.tcp_tw_reuse=1
 sysctl -w net.ipv4.tcp_keepalive_time=300
 sysctl -w vm.zone_reclaim_mode=0
-sysctl -p 
+sysctl -p
 
 # Turning off transparent huge-paging is recommended by MongoDB (see https://docs.mongodb.com/manual/tutorial/transparent-huge-pages/).
 echo never > /sys/kernel/mm/transparent_hugepage/enabled
 echo never > /sys/kernel/mm/transparent_hugepage/defrag
 
-docker-compose stop
+docker-compose down
 
-docker-compose up
+docker-compose up --build
+
