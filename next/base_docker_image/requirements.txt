@@ -17,7 +17,7 @@ greenlet==0.4.12
 gunicorn==19.7.1
 idna==2.5
 itsdangerous==0.24
-Jinja2==2.9.6
+Jinja2==2.11.3
 joblib==0.11
 kombu==3.0.37
 line_profiler==2.1.2
