@@ -14,8 +14,9 @@ import time
 
 class MyAlg:
   def initExp(self,butler,n,d,failure_probability):
-    X = numpy.random.randn(n,d)*.0001
-    tau = numpy.random.rand(n,n)
+    rng = np.random.RandomState(400)
+    X = rng.randn(n,d)*.0001
+    tau = rng.rand(n,n)
 
     butler.algorithms.set(key='n',value=n)
     butler.algorithms.set(key='d',value=d)
