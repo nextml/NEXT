@@ -6,7 +6,7 @@ initExp:
     args:
       values:
         failure_probability:
-          description: The maximum probability of an algorithm failing to meet its requirements (e.g. correctness)  
+          description: The maximum probability of an algorithm failing to meet its requirements (e.g. correctness)
           type: num
         rating_scale:
           description: A set of ratings that are presented to the user on the query page.
@@ -30,7 +30,7 @@ initExp:
             values:
               alg_id:
                 description: Supported algorithm types for DuelingBanditsPureExploration.
-                values: [RoundRobin,LilUCB, KLUCB]
+                values: [RoundRobin,LilUCB, KLUCB, EpsilonGreedy]
 
         instructions:
           default: Please select, using your mouse or arrow keys, the better rating.
@@ -42,17 +42,24 @@ initExp:
           default: 0.5
           optional: true
 
+        pT:
+          description: tracks time of EpsilonGreedy alg.
+          type: num
+          default: 0
+          optional: true
+
         context:
           description: Specifies the context. In the query page, this appears above the potential ratings.
           type: str
           optional: true
+
         context_type:
           description: Specifies the type of the context. If the type is not text a url to the resource should be provided.
           type: str
           values: [image, text, video]
           optional: true
 
-          
+
 processAnswer:
   args:
     args:
@@ -60,4 +67,3 @@ processAnswer:
         target_reward:
           description: The reward of the target. If being used through the query page, this should align with the rating scale specified in initExp. Otherwise can be any numerical value.
           type: num
-          
