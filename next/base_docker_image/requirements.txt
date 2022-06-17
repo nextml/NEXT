@@ -24,7 +24,7 @@ line_profiler==2.1.2
 MarkupSafe==1.0
 matplotlib==1.5.3
 mpld3==0.3
-numpy==1.13.1
+numpy==1.21.0
 pandas==0.20.3
 ply==3.10
 pymongo==3.4.0
